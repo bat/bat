@@ -50,7 +50,7 @@ public:
      * @param hist histogram to fit
      * @param func fit function
      * @param name name of the model */
-    BCHistogramFitter(TH1D* hist, TF1* func, std::string name = "histogram_fitter_model");
+    BCHistogramFitter(TH1D* hist, TF1* func, std::string name = "");
 
     /**
      * The default destructor. */
@@ -72,21 +72,6 @@ public:
     { return fHistogramExpected; };
 
     /**
-     * @return The fit function */
-    TF1* GetFitFunction()
-    { return fFitFunction; };
-
-    /**
-     * @return pointer to the error band */
-    TGraph* GetErrorBand()
-    { return fErrorBand; };
-
-    /**
-     * @return pointer to a graph for the fit function */
-    TGraph* GetGraphFitFunction()
-    { return fGraphFitFunction; };
-
-    /**
      * @return p Value accounting for degrees of freedom */
     double GetPValueNDoF()
     { return fPValueNDoF; }
@@ -105,11 +90,6 @@ public:
      * @param hist The histogram with the expected counts (typically non-integer values!)
      * @return Success of action. */
     bool SetHistogramExpected(const std::vector<double>& parameters);
-
-    /**
-     * @param func The fit function
-     * @return Success of action. */
-    bool SetFitFunction(TF1* func);
 
     /**
      * Sets the flag for integration. \n
@@ -195,7 +175,7 @@ public:
      * @param parameters The parameter values at which point to compute the cdf
      * @param index The data point index starting at 0,1...N-1
      * @param lower only needed for discrete distributions!
-     * Return the CDF for the count one less than actually observed, e.g.
+     * @return the CDF for the count one less than actually observed, e.g.
      * in Poisson process, if 3 actually observed, then CDF(2) is returned */
     double CDF(const std::vector<double>& parameters, int index, bool lower = false);
 
@@ -208,21 +188,9 @@ protected:
     TH1D* fHistogram;
 
     /**
-     * The fit function */
-    TF1* fFitFunction;
-
-    /**
      * Flag for using the ROOT TH1D::Integral method (true), or linear
      * interpolation (false) */
     bool fFlagIntegration;
-
-    /**
-     * Pointer to the error band (for legend) */
-    TGraph* fErrorBand;
-
-    /**
-     * Pointer to a graph for displaying the fit function */
-    TGraph* fGraphFitFunction;
 
     /**
      * The histogram containing the expected data. */

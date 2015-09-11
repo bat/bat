@@ -2424,7 +2424,7 @@ bool BCEngineMCMC::MCMCInitialize()
 
     CreateHistograms(false);
 
-    return true;
+    return MCMCUserInitialize();
 }
 
 // ------------------------------------------------------------

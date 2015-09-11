@@ -9,28 +9,27 @@
 // ---------------------------------------------------------
 
 #include "BCHistogramFitter.h"
-#include "BAT/BCLog.h"
-#include "BAT/BCDataSet.h"
-#include "BAT/BCDataPoint.h"
-#include "BAT/BCMath.h"
 
-#include <TH1D.h>
+#include <BAT/BCDataPoint.h>
+#include <BAT/BCDataSet.h>
+#include <BAT/BCLog.h>
+#include <BAT/BCMath.h>
+
 #include <TF1.h>
 #include <TGraph.h>
-#include <TString.h>
-#include <TPad.h>
-#include <TRandom3.h>
+#include <TH1D.h>
 #include <TLegend.h>
 #include <TMath.h>
 #include <Math/ProbFuncMathCore.h> //for ROOT::Math namespace
+#include <TPad.h>
+#include <TRandom3.h>
 #include <TString.h>
 
 // ---------------------------------------------------------
 BCHistogramFitter::BCHistogramFitter(std::string name)
-    : BCFitter(name)
-    , fHistogram(0)
-    , fFitFunction(0)
-    , fHistogramExpected(0)
+    : BCFitter(name),
+      fHistogram(0),
+      fHistogramExpected(0)
 {
     // set default options and values
     MCMCSetNIterationsRun(2000);
@@ -43,13 +42,11 @@ BCHistogramFitter::BCHistogramFitter(std::string name)
 
 // ---------------------------------------------------------
 BCHistogramFitter::BCHistogramFitter(TH1D* hist, TF1* func, std::string name)
-    : BCFitter(name)
-    , fHistogram(0)
-    , fFitFunction(0)
-    , fHistogramExpected(0)
+    : BCFitter(func, name),
+      fHistogram(0),
+      fHistogramExpected(0)
 {
     SetHistogram(hist);
-    SetFitFunction(func);
 
     MCMCSetNIterationsRun(2000);
     SetFillErrorBand();
@@ -110,8 +107,10 @@ bool BCHistogramFitter::SetHistogramExpected(const std::vector<double>& paramete
     // get the number of bins
     int nBins = fHistogramExpected->GetNbinsX();
 
+    int c = (fMCMCCurrentChain >= 0) ? fMCMCCurrentChain : 0;
+
     //set the parameters of fit function
-    fFitFunction->SetParameters(&parameters[0]);
+    fFitFunction[c]->SetParameters(&parameters[0]);
 
     // loop over all bins, skip underflow
     for (int ibin = 1; ibin <= nBins; ++ibin) {
@@ -123,9 +122,9 @@ bool BCHistogramFitter::SetHistogramExpected(const std::vector<double>& paramete
         double yexp = 0.;
 
         if (fFlagIntegration)				// use ROOT's TH1D::Integral method
-            yexp = fFitFunction->Integral(xmin, xmax);
+            yexp = fFitFunction[c]->Integral(xmin, xmax);
         else												// use linear interpolation
-            yexp = (fFitFunction->Eval(xmin) + fFitFunction->Eval(xmax)) * (xmax - xmin) / 2;
+            yexp = (fFitFunction[c]->Eval(xmin) + fFitFunction[c]->Eval(xmax)) * (xmax - xmin) / 2;
 
         //write the expectation for the bin
         fHistogramExpected->SetBinContent(ibin, yexp);
@@ -141,44 +140,6 @@ bool BCHistogramFitter::SetHistogramExpected(const std::vector<double>& paramete
 }
 
 // ---------------------------------------------------------
-bool BCHistogramFitter::SetFitFunction(TF1* func)
-{
-    // check if function exists
-    if (!func) {
-        BCLog::OutError("BCHistogramFitter::SetFitFunction : TF1 not created.");
-        return false;
-    }
-
-    // set the function
-    fFitFunction = func;
-
-    // update the model name to contain the function name
-    if (fName == "model")
-        SetName(std::string("HistogramFitter with ") + fFitFunction->GetName());
-
-    // reset parameters
-    fParameters = BCParameterSet();
-
-    // get the new number of parameters
-    int n = func->GetNpar();
-
-    // add parameters
-    for (int i = 0; i < n; ++i) {
-        double xmin;
-        double xmax;
-
-        func->GetParLimits(i, xmin, xmax);
-
-        AddParameter(func->GetParName(i), xmin, xmax);
-    }
-
-    // set flat prior for all parameters by default
-    SetPriorConstantAll();
-
-    return true;
-}
-
-// ---------------------------------------------------------
 BCHistogramFitter::~BCHistogramFitter()
 {
     // todo memory leak, many members not removed
@@ -188,6 +149,11 @@ BCHistogramFitter::~BCHistogramFitter()
 // ---------------------------------------------------------
 double BCHistogramFitter::LogLikelihood(const std::vector<double>& params)
 {
+    int c = (fMCMCCurrentChain >= 0) ? fMCMCCurrentChain : 0;
+
+    if (!fFitFunction[c] or !fHistogram)
+        return std::numeric_limits<double>::quiet_NaN();
+
     // initialize probability
     double loglikelihood = 0;
 
@@ -197,7 +163,7 @@ double BCHistogramFitter::LogLikelihood(const std::vector<double>& params)
     // the vector elements are not stored consecutively in memory.
     // however it is much faster than copying the contents, especially
     // for large number of parameters
-    fFitFunction->SetParameters(&params[0]);
+    fFitFunction[c]->SetParameters(&params[0]);
 
     // get the number of bins
     int nbins = fHistogram->GetNbinsX();
@@ -214,9 +180,9 @@ double BCHistogramFitter::LogLikelihood(const std::vector<double>& params)
         double yexp = 0.;
 
         if (fFlagIntegration)				// use ROOT's TH1D::Integral method
-            yexp = fFitFunction->Integral(xmin, xmax);
+            yexp = fFitFunction[c]->Integral(xmin, xmax);
         else												// use linear interpolation
-            yexp = (fFitFunction->Eval(xmin) + fFitFunction->Eval(xmax)) * (xmax - xmin) / 2.;
+            yexp = (fFitFunction[c]->Eval(xmin) + fFitFunction[c]->Eval(xmax)) * (xmax - xmin) / 2.;
 
         // get the value of the Poisson distribution
         loglikelihood += BCMath::LogPoisson(y, yexp);
@@ -228,10 +194,12 @@ double BCHistogramFitter::LogLikelihood(const std::vector<double>& params)
 // ---------------------------------------------------------
 double BCHistogramFitter::FitFunction(const std::vector<double>& x, const std::vector<double>& params)
 {
-    // set the parameters of the function
-    fFitFunction->SetParameters(&params[0]);
+    int c = (fMCMCCurrentChain >= 0) ? fMCMCCurrentChain : 0;
 
-    return fFitFunction->Eval(x[0]) * fHistogram->GetBinWidth(fHistogram->FindBin(x[0]));
+    // set the parameters of the function
+    fFitFunction[c]->SetParameters(&params[0]);
+
+    return fFitFunction[c]->Eval(x[0]) * fHistogram->GetBinWidth(fHistogram->FindBin(x[0]));
 }
 
 // ---------------------------------------------------------
@@ -264,7 +232,7 @@ bool BCHistogramFitter::Fit()
         return false;
     }
 
-    if (!fFitFunction) {
+    if (fFitFunction.empty()) {
         BCLog::OutError("BCHistogramFitter::Fit : Fit function not defined.");
         return false;
     }
@@ -298,7 +266,7 @@ void BCHistogramFitter::DrawFit(const char* options, bool flaglegend)
         return;
     }
 
-    if (!fFitFunction) {
+    if (fFitFunction.empty()) {
         BCLog::OutError("BCHistogramFitter::DrawFit : Fit function not defined.");
         return;
     }
@@ -476,8 +444,16 @@ bool BCHistogramFitter::CalculatePValueKolmogorov(const std::vector<double>& par
 double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index, bool lower)
 {
 
-    if (parameters.empty())
-        BCLog::OutWarning("BCHistogramFitter::CDF: parameter vector empty!");
+    if (fFitFunction.empty()) {
+        BCLog::OutError("BCHistogramFitter::CDF : no function set.");
+        return -1;
+    }
+
+    if ((int)parameters.size() < fFitFunction[0]->GetNpar()) {
+        BCLog::OutError("BCHistogramFitter::CDF : too few parameters specified.");
+        return -1;
+    }
+
     //histogram stores underflow in bin 0, so datapoint 0 is in bin 1
     index++;
 
@@ -491,13 +467,14 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index, 
     // expectation value of this bin
     double yExp = 0.0;
 
+    int c = (fMCMCCurrentChain >= 0) ? fMCMCCurrentChain : 0;
+
     // use ROOT's TH1D::Integral method
     if (fFlagIntegration) {
-        TF1 tmpF(*fFitFunction);
-        tmpF.SetParameters(&parameters[0]);
-        yExp = tmpF.Integral(xmin, xmax);
+        fFitFunction[c]->SetParameters(&parameters[0]);
+        yExp = fFitFunction[c]->Integral(xmin, xmax);
     } else													// use linear interpolation
-        yExp = (fFitFunction->Eval(xmin) + fFitFunction->Eval(xmax)) * (xmax - xmin) / 2;
+        yExp = (fFitFunction[c]->Eval(xmin) + fFitFunction[c]->Eval(xmax)) * (xmax - xmin) / 2;
 
     // usually Poisson bins do not agree with fixed probability bins
     // so choose where it should belong

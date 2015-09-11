@@ -1281,6 +1281,12 @@ public:
     bool MCMCInitialize();
 
     /**
+     * User-defined function called at the end of MCMCInitialize()
+     * @return Success of action. */
+    virtual bool MCMCUserInitialize()
+    { return true; }
+
+    /**
      * Reset the MCMC variables. */
     virtual void ResetResults();
 

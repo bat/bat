@@ -50,7 +50,7 @@ public:
      * @param graph pointer to TGraphErrors
      * @param func pointer to TF1
      * @param name name of the model */
-    BCGraphFitter(TGraphErrors* graph, TF1* func, std::string name = "graph_fitter_model");
+    BCGraphFitter(TGraphErrors* graph, TF1* func, std::string name = "");
 
     /**
      * The default destructor. */
@@ -66,21 +66,6 @@ public:
     TGraphErrors* GetGraph()
     { return fGraph; };
 
-    /**
-     * @return pointer to TF1 */
-    TF1* GetFitFunction()
-    { return fFitFunction; };
-
-    /**
-     * @return pointer to the error band */
-    TGraph* GetErrorBand()
-    { return fErrorBand; };
-
-    /**
-     * @return pointer to a graph for the fit function */
-    TGraph* GetGraphFitFunction()
-    { return fGraphFitFunction; };
-
     /* @} */
 
     /** \name Member functions (set) */
@@ -89,10 +74,6 @@ public:
     /**
      * @param graph pointer to TGraphErrors object */
     int SetGraph(TGraphErrors* graph);
-
-    /**
-     * @param func pointer to TF1 object */
-    int SetFitFunction(TF1* func);
 
     /* @} */
     /** \name Member functions (miscellaneous methods) */
@@ -158,18 +139,6 @@ private:
     /**
      * The graph containing the data. */
     TGraphErrors* fGraph;
-
-    /**
-     * The fit function */
-    TF1* fFitFunction;
-
-    /**
-     * Pointer to the error band (for legend) */
-    TGraph* fErrorBand;
-
-    /**
-     * Pointer to a graph for displaying the fit function */
-    TGraph* fGraphFitFunction;
 
 };
 
