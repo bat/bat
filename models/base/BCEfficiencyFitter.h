@@ -85,7 +85,7 @@ public:
      * @param hist2 The histogram with the smaller numbers
      * @param func The fit function.
      * @param name name fo the model */
-    BCEfficiencyFitter(TH1D* hist1, TH1D* hist2, TF1* func, std::string name = "efficiency_fitter_model");
+    BCEfficiencyFitter(TH1D* hist1, TH1D* hist2, TF1* func, std::string name = "");
 
     /**
      * The default destructor. */
@@ -111,21 +111,6 @@ public:
     { return fHistogramRatio; };
 
     /**
-     * @return The fit function */
-    TF1* GetFitFunction()
-    { return fFitFunction; };
-
-    /**
-     * @return pointer to the error band */
-    TGraph* GetErrorBand()
-    { return fErrorBand; };
-
-    /**
-     * @return pointer to a graph for the fit function */
-    TGraph* GetGraphFitFunction()
-    { return fGraphFitFunction; };
-
-    /**
      * Calculates the central value and the lower and upper limits for a given probability.
      * @param n n for the binomial.
      * @param k k for the binomial.
@@ -145,11 +130,6 @@ public:
      * @param hist The histogram 2
      * @return Success of action. */
     bool SetHistograms(TH1D* hist1, TH1D* hist2);
-
-    /**
-     * @param func The fit function
-     * @return Success of action. */
-    bool SetFitFunction(TF1* func);
 
     /**
      * Sets the flag for integration. \n
@@ -242,21 +222,9 @@ private:
     TGraphAsymmErrors* fHistogramRatio;
 
     /**
-     * The fit function */
-    TF1* fFitFunction;
-
-    /**
      * Flag for using the ROOT TH1D::Integral method (true), or linear
      * interpolation (false) */
     bool fFlagIntegration;
-
-    /**
-     * Pointer to the error band (for legend) */
-    TGraph* fErrorBand;
-
-    /**
-     * Pointer to a graph for displaying the fit function */
-    TGraph* fGraphFitFunction;
 
     /**
      * Temporary histogram for calculating the binomial qunatiles */

@@ -8,28 +8,25 @@
 
 // ---------------------------------------------------------
 
-#include <TGraphErrors.h>
+#include "BCGraphFitter.h"
+
+#include <BAT/BCDataSet.h>
+#include <BAT/BCDataPoint.h>
+#include <BAT/BCLog.h>
+#include <BAT/BCMath.h>
+
 #include <TF1.h>
-#include <TString.h>
-#include <TPad.h>
+#include <TGraphErrors.h>
 #include <TLegend.h>
 #include <TMath.h>
 #include <Math/ProbFuncMathCore.h>
-
-#include "../../BAT/BCLog.h"
-#include "../../BAT/BCDataSet.h"
-#include "../../BAT/BCDataPoint.h"
-#include "../../BAT/BCMath.h"
-
-#include "BCGraphFitter.h"
+#include <TPad.h>
+#include <TString.h>
 
 // ---------------------------------------------------------
 BCGraphFitter::BCGraphFitter(std::string name)
-    : BCFitter(name)
-    , fGraph(0)
-    , fFitFunction(0)
-    , fErrorBand(0)
-    , fGraphFitFunction(0)
+    : BCFitter(name),
+      fGraph(0)
 {
     // set MCMC for marginalization
     SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
@@ -37,14 +34,10 @@ BCGraphFitter::BCGraphFitter(std::string name)
 
 // ---------------------------------------------------------
 BCGraphFitter::BCGraphFitter(TGraphErrors* graph, TF1* func, std::string name)
-    : BCFitter(name)
-    , fGraph(0)
-    , fFitFunction(0)
-    , fErrorBand(0)
-    , fGraphFitFunction(0)
+    : BCFitter(func, name),
+      fGraph(0)
 {
     SetGraph(graph);
-    SetFitFunction(func);
 
     // set MCMC for marginalization
     SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
@@ -100,44 +93,6 @@ int BCGraphFitter::SetGraph(TGraphErrors* graph)
 }
 
 // ---------------------------------------------------------
-int BCGraphFitter::SetFitFunction(TF1* func)
-{
-    if (!func) {
-        BCLog::Out(BCLog::error, BCLog::error, "BCGraphFitter::SetFitFunction() : TF1 not created.");
-        return 0;
-    }
-
-    // get the new number of parameters
-    if (func->GetNpar() <= 0) {
-        BCLog::Out(BCLog::error, BCLog::error, "BCGraphFitter::SetFitFunction() : TF1 has zero parameters. Not able to fit.");
-        return 0;
-    }
-
-    // set the function
-    fFitFunction = func;
-
-    // update the model name to contain the function name
-    if (fName == "model")
-        SetName(std::string("GraphFitter with ") + fFitFunction->GetName());
-
-    // reset parameters
-    fParameters = BCParameterSet();
-
-    // add parameters
-    for (int i = 0; i < fFitFunction->GetNpar(); ++i) {
-        double xmin;
-        double xmax;
-        fFitFunction->GetParLimits(i, xmin, xmax);
-        AddParameter(fFitFunction->GetParName(i), xmin, xmax);
-    }
-
-    // set flat prior for all parameters by default
-    SetPriorConstantAll();
-
-    return GetNParameters();
-}
-
-// ---------------------------------------------------------
 BCGraphFitter::~BCGraphFitter()
 {
     // todo memory leak
@@ -146,8 +101,10 @@ BCGraphFitter::~BCGraphFitter()
 // ---------------------------------------------------------
 double BCGraphFitter::LogLikelihood(const std::vector<double>& params)
 {
-    if (!fFitFunction or !GetDataSet() or GetDataSet()->GetNDataPoints() == 0)
-        return -std::numeric_limits<double>::infinity();
+    int c = (fMCMCCurrentChain >= 0) ? fMCMCCurrentChain : 0;
+
+    if (!fFitFunction[c] or !GetDataSet() or GetDataSet()->GetNDataPoints() == 0)
+        return std::numeric_limits<double>::quiet_NaN();
 
     // set the parameters of the function
     // passing the pointer to first element of the vector is
@@ -155,7 +112,7 @@ double BCGraphFitter::LogLikelihood(const std::vector<double>& params)
     // the vector elements are not stored consecutively in memory.
     // however it is much faster than copying the contents, especially
     // for large number of parameters
-    fFitFunction->SetParameters(&params[0]);
+    fFitFunction[c]->SetParameters(&params[0]);
 
     // initialize probability
     double logl = 0.;
@@ -165,7 +122,7 @@ double BCGraphFitter::LogLikelihood(const std::vector<double>& params)
         // calculate log of probability assuming
         // a Gaussian distribution for each point
         logl += BCMath::LogGaus(GetDataSet()->GetDataPoint(i)[1], // y value of point
-                                fFitFunction->Eval(GetDataSet()->GetDataPoint(i)[0]), // f(x value of point)
+                                fFitFunction[c]->Eval(GetDataSet()->GetDataPoint(i)[0]), // f(x value of point)
                                 GetDataSet()->GetDataPoint(i)[3], // uncertainty on y value of point
                                 true); // include normalization factor
 
@@ -176,14 +133,16 @@ double BCGraphFitter::LogLikelihood(const std::vector<double>& params)
 
 double BCGraphFitter::FitFunction(const std::vector<double>& x, const std::vector<double>& params)
 {
+    int c = (fMCMCCurrentChain >= 0) ? fMCMCCurrentChain : 0;
+
     // set the parameters of the function
     // passing the pointer to first element of the vector is
     // not completely safe as there might be an implementation where
     // the vector elements are not stored consecutively in memory.
     // however it is much faster than copying the contents, especially
     // for large number of parameters
-    fFitFunction->SetParameters(&params[0]);
-    return fFitFunction->Eval(x[0]);
+    fFitFunction[c]->SetParameters(&params[0]);
+    return fFitFunction[c]->Eval(x[0]);
 }
 
 // ---------------------------------------------------------
@@ -214,7 +173,7 @@ bool BCGraphFitter::Fit()
     }
 
     // set function
-    if (!fFitFunction) {
+    if (fFitFunction.empty()) {
         BCLog::OutError("BCEfficiencyFitter::Fit : Fit function not defined.");
         return 0;
     }
@@ -250,7 +209,7 @@ void BCGraphFitter::DrawFit(const char* options, bool flaglegend)
         return;
     }
 
-    if (!fFitFunction) {
+    if (fFitFunction.empty()) {
         BCLog::OutError("BCGraphFitter::DrawFit() : Fit function not defined.");
         return;
     }
@@ -312,18 +271,18 @@ double BCGraphFitter::CDF(const std::vector<double>& parameters,  int index, boo
 // ---------------------------------------------------------
 double BCGraphFitter::GetChi2(const std::vector<double>& pars)
 {
-    if (!fFitFunction)
-        return -std::numeric_limits<double>::infinity();
-    if (!GetDataSet())
-        return 0;
+    if (fFitFunction.empty() or !GetDataSet())
+        return std::numeric_limits<double>::quiet_NaN();
+
+    int c = (fMCMCCurrentChain >= 0) ? fMCMCCurrentChain : 0;
 
     // set pars into fit function
-    fFitFunction->SetParameters(&pars[0]);
+    fFitFunction[c]->SetParameters(&pars[0]);
 
     double chi2 = 0;
     for (unsigned i = 0; i < GetDataSet()->GetNDataPoints(); ++i)
         chi2 += BCMath::LogGaus(GetDataSet()->GetDataPoint(i)[1], // y value of point
-                                fFitFunction->Eval(GetDataSet()->GetDataPoint(i)[0]), // f(x value of point)
+                                fFitFunction[c]->Eval(GetDataSet()->GetDataPoint(i)[0]), // f(x value of point)
                                 GetDataSet()->GetDataPoint(i)[3], // uncertainty on y value of point
                                 false); // forego normalization factor
     return chi2;

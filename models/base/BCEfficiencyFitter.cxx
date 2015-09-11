@@ -8,33 +8,32 @@
 
 // ---------------------------------------------------------
 
-#include <TH1D.h>
-#include <TH2D.h>
+#include "BCEfficiencyFitter.h"
+
 #include <TF1.h>
 #include <TGraph.h>
 #include <TGraphAsymmErrors.h>
-#include <TString.h>
-#include <TPad.h>
-#include <TRandom3.h>
+#include <TH1D.h>
+#include <TH2D.h>
 #include <TLegend.h>
 #include <TMath.h>
+#include <TPad.h>
+#include <TRandom3.h>
+#include <TString.h>
 
-#include "BAT/BCLog.h"
-#include "BAT/BCDataSet.h"
-#include "BAT/BCDataPoint.h"
-#include "BAT/BCMath.h"
-#include "BAT/BCH1D.h"
-
-#include "BCEfficiencyFitter.h"
+#include <BAT/BCDataSet.h>
+#include <BAT/BCDataPoint.h>
+#include <BAT/BCH1D.h>
+#include <BAT/BCLog.h>
+#include <BAT/BCMath.h>
 
 // ---------------------------------------------------------
 BCEfficiencyFitter::BCEfficiencyFitter(std::string name)
-    : BCFitter(name)
-    , fHistogram1(0)
-    , fHistogram2(0)
-    , fFitFunction(0)
-    , fHistogramBinomial(0)
-    , fDataPointType(kDataPointSmallestInterval)
+    : BCFitter(name),
+      fHistogram1(0),
+      fHistogram2(0),
+      fHistogramBinomial(0),
+      fDataPointType(kDataPointSmallestInterval)
 {
     // set default options and values
     fFlagIntegration = false;
@@ -45,18 +44,13 @@ BCEfficiencyFitter::BCEfficiencyFitter(std::string name)
 
 // ---------------------------------------------------------
 BCEfficiencyFitter::BCEfficiencyFitter(TH1D* hist1, TH1D* hist2, TF1* func, std::string name)
-    : BCFitter(name)
-    , fHistogram1(0)
-    , fHistogram2(0)
-    , fFitFunction(0)
-    , fHistogramBinomial(0)
-    , fDataPointType(kDataPointSmallestInterval)
+    : BCFitter(func, name),
+      fHistogram1(0),
+      fHistogram2(0),
+      fHistogramBinomial(0),
+      fDataPointType(kDataPointSmallestInterval)
 {
     SetHistograms(hist1, hist2);
-    SetFitFunction(func);
-
-    // should this be for the parameters?
-    // MCMCSetRValueParametersCriterion(0.01);
 
     fFlagIntegration = false;
 
@@ -121,44 +115,6 @@ bool BCEfficiencyFitter::SetHistograms(TH1D* hist1, TH1D* hist2)
 }
 
 // ---------------------------------------------------------
-bool BCEfficiencyFitter::SetFitFunction(TF1* func)
-{
-    // check if function exists
-    if (!func) {
-        BCLog::OutError("BCEfficiencyFitter::SetFitFunction : TF1 not created.");
-        return false;
-    }
-
-    // set the function
-    fFitFunction = func;
-
-    // update the model name to contain the function name
-    if (fName == "model")
-        SetName(std::string("BCEfficiencyFitter with ") + fFitFunction->GetName());
-
-    // reset parameters
-    fParameters = BCParameterSet();
-
-    // get the new number of parameters
-    int n = func->GetNpar();
-
-    // add parameters
-    for (int i = 0; i < n; ++i) {
-        double xmin;
-        double xmax;
-
-        func->GetParLimits(i, xmin, xmax);
-
-        AddParameter(func->GetParName(i), xmin, xmax);
-    }
-
-    // set flat prior for all parameters by default
-    SetPriorConstantAll();
-
-    return true;
-}
-
-// ---------------------------------------------------------
 BCEfficiencyFitter::~BCEfficiencyFitter()
 {
     delete fHistogram1;
@@ -169,6 +125,11 @@ BCEfficiencyFitter::~BCEfficiencyFitter()
 // ---------------------------------------------------------
 double BCEfficiencyFitter::LogLikelihood(const std::vector<double>& params)
 {
+    int c = (fMCMCCurrentChain >= 0) ? fMCMCCurrentChain : 0;
+
+    if (!fFitFunction[c] or !fHistogram1 or !fHistogram2)
+        return -std::numeric_limits<double>::quiet_NaN();
+
     // initialize probability
     double loglikelihood = 0;
 
@@ -178,7 +139,7 @@ double BCEfficiencyFitter::LogLikelihood(const std::vector<double>& params)
     // the vector elements are not stored consecutively in memory.
     // however it is much faster than copying the contents, especially
     // for large number of parameters
-    fFitFunction->SetParameters(&params[0]);
+    fFitFunction[c]->SetParameters(&params[0]);
 
     // get the number of bins
     int nbins = fHistogram1->GetNbinsX();
@@ -198,9 +159,9 @@ double BCEfficiencyFitter::LogLikelihood(const std::vector<double>& params)
         double eff = 0;
 
         if (fFlagIntegration)				// use ROOT's TH1D::Integral method
-            eff = fFitFunction->Integral(xmin, xmax) / (xmax - xmin);
+            eff = fFitFunction[c]->Integral(xmin, xmax) / (xmax - xmin);
         else												// use linear interpolation
-            eff = (fFitFunction->Eval(xmax) + fFitFunction->Eval(xmin)) / 2.;
+            eff = (fFitFunction[c]->Eval(xmax) + fFitFunction[c]->Eval(xmin)) / 2.;
 
         // get the value of the Poisson distribution
         loglikelihood += BCMath::LogApproxBinomial(n, k, eff);
@@ -212,10 +173,11 @@ double BCEfficiencyFitter::LogLikelihood(const std::vector<double>& params)
 // ---------------------------------------------------------
 double BCEfficiencyFitter::FitFunction(const std::vector<double>& x, const std::vector<double>& params)
 {
+    int c = (fMCMCCurrentChain >= 0) ? fMCMCCurrentChain : 0;
     // set the parameters of the function
-    fFitFunction->SetParameters(&params[0]);
+    fFitFunction[c]->SetParameters(&params[0]);
     // and evaluate
-    return fFitFunction->Eval(x[0]);
+    return fFitFunction[c]->Eval(x[0]);
 }
 
 // ---------------------------------------------------------
@@ -250,7 +212,7 @@ bool BCEfficiencyFitter::Fit()
     }
 
     // set function
-    if (!fFitFunction) {
+    if (fFitFunction.empty()) {
         BCLog::OutError("BCEfficiencyFitter::Fit : Fit function not defined.");
         return false;
     }
@@ -287,7 +249,7 @@ void BCEfficiencyFitter::DrawFit(const char* options, bool flaglegend)
         return;
     }
 
-    if (!fFitFunction) {
+    if (fFitFunction.empty()) {
         BCLog::OutError("BCEfficiencyFitter::DrawFit : Fit function not defined.");
         return;
     }
@@ -385,7 +347,7 @@ bool BCEfficiencyFitter::CalculatePValueFast(const std::vector<double>& /*par*/,
         double xmax = fHistogram1->GetXaxis()->GetBinUpEdge(ibin + 1);
 
         // get the number of expected events
-        double yexp = fFitFunction->Integral(xmin, xmax);
+        double yexp = fFitFunction[0]->Integral(xmin, xmax);
 
         // get n
         int n = int(fHistogram1->GetBinContent(ibin));

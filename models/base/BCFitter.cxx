@@ -10,33 +10,115 @@
 
 #include "BCFitter.h"
 
-#include "BAT/BCModel.h"
-#include "BAT/BCDataPoint.h"
-#include "BAT/BCDataSet.h"
-#include "BAT/BCLog.h"
-#include "BAT/BCH1D.h"
+#include <BAT/BCDataPoint.h>
+#include <BAT/BCDataSet.h>
+#include <BAT/BCH1D.h>
+#include <BAT/BCLog.h>
+#include <BAT/BCModel.h>
 
-#include "TFile.h"
-#include "TH1D.h"
-#include "TH2D.h"
-#include "TGraph.h"
+#include <TF1.h>
+#include <TFile.h>
+#include <TGraph.h>
+#include <TH1D.h>
+#include <TH2D.h>
 
 // ---------------------------------------------------------
 BCFitter::BCFitter(std::string name)
-    : BCModel(name)
-    , fFlagFillErrorBand(true)
-    , fFitFunctionIndexX(-1)
-    , fFitFunctionIndexY(-1)
-    , fErrorBandContinuous(true)
-    , fErrorBandNbinsX(100)
-    , fErrorBandNbinsY(500)
-    , fErrorBandXY(0)
+    : BCModel(name),
+      fGraphFitFunction(0),
+      fErrorBand(0),
+      fFlagFillErrorBand(true),
+      fFitFunctionIndexX(-1),
+      fFitFunctionIndexY(-1),
+      fErrorBandContinuous(true),
+      fErrorBandNbinsX(100),
+      fErrorBandNbinsY(500),
+      fErrorBandXY(0)
 {
+}
+
+// ---------------------------------------------------------
+BCFitter::BCFitter(TF1* f, std::string name)
+    : BCModel(name),
+      fGraphFitFunction(0),
+      fErrorBand(0),
+      fFlagFillErrorBand(true),
+      fFitFunctionIndexX(-1),
+      fFitFunctionIndexY(-1),
+      fErrorBandContinuous(true),
+      fErrorBandNbinsX(100),
+      fErrorBandNbinsY(500),
+      fErrorBandXY(0)
+{
+    if (f)
+        SetFitFunction(f);
 }
 
 // ---------------------------------------------------------
 BCFitter::~BCFitter()
 {
+    for (unsigned i = 0; i < fFitFunction.size(); ++i)
+        delete fFitFunction[i];
+}
+
+// ---------------------------------------------------------
+bool BCFitter::SetFitFunction(TF1* f)
+{
+    if (!f) {
+        BCLog::OutError("BCFitter::SetFitFunction : TF1 pointer points to null.");
+        return false;
+    }
+
+    // delete fFitFunction contents
+    for (unsigned i = 0; i < fFitFunction.size(); ++i)
+        delete fFitFunction[i];
+    fFitFunction.assign(1, new TF1(*f));
+    if (!fFitFunction[0]) {
+        BCLog::OutError("BCFitter::SetFitFunction : could not copy TF1.");
+        fFitFunction.clear();
+        return false;
+    }
+
+    // set name if name empty
+    if (fName.empty())
+        SetName(std::string("fitter_model_") + fFitFunction[0]->GetName());
+
+    // fill parameter set
+    fParameters = BCParameterSet();
+    for (int i = 0; i < fFitFunction[0]->GetNpar(); ++i) {
+        double xmin;
+        double xmax;
+
+        fFitFunction[0]->GetParLimits(i, xmin, xmax);
+
+        AddParameter(fFitFunction[0]->GetParName(i), xmin, xmax);
+    }
+
+    // by default set all priors constant
+    fParameters.SetPriorConstantAll();
+
+    return true;
+}
+
+// ---------------------------------------------------------
+bool BCFitter::MCMCUserInitialize()
+{
+    if (fFitFunction.empty())
+        return false;
+    if (fFitFunction[0]) {
+        // add copies of the first function if necessary
+        while (fFitFunction.size() < fMCMCNChains)
+            fFitFunction.push_back(new TF1(*fFitFunction[0]));
+
+        // remove elements if necessary
+        while (fFitFunction.size() > fMCMCNChains) {
+            delete fFitFunction.back();
+            fFitFunction.pop_back();
+        }
+    } else {
+        return false;
+    }
+    return true;
 }
 
 // ---------------------------------------------------------
