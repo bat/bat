@@ -93,6 +93,8 @@ void BCLog::StartupInfo()
                               " |                                                      |\n"
                               " | For the licensing terms see doc/COPYING              |\n"
                               " | For documentation see http://mpp.mpg.de/bat          |\n"
+                              " | Please cite: DOI 10.1016/j.cpc.2009.06.026           |\n"
+                              " |              http://arxiv.org/abs/0808.2552          |\n"
                               " |                                                      |\n"
                               " +------------------------------------------------------+\n",
                               BCLog::fVersion.data());
