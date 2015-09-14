@@ -78,41 +78,63 @@ AC_ARG_WITH(cuba_include_dir, AS_HELP_STRING([--with-cuba-include-dir=DIR    pat
 AC_ARG_WITH(cuba_lib_dir,     AS_HELP_STRING([--with-cuba-lib-dir=DIR        path to libcuba.a file]))
 
 
-use_local_cuba=no
-local_cuba_dir="`pwd`/cuba"
+AC_CHECK_PROGS(CURL, curl, false)
+AC_CHECK_PROGS(WGET, wget, false)
 
 if test "$with_cuba" = "yes"; then
 	use_cuba=yes
-	if test -e "$local_cuba_dir" ; then
-		use_local_cuba=yes
-	else
-		AC_PATH_PROG(cuba_bin_dir, [partview])
-		if test -f "$cuba_bin_dir" ; then
-			# up two levels: /usr/local/bin/partview -> /usr/local
-			with_cuba="$(dirname "$(dirname "$cuba_bin_dir")")"
-			AC_MSG_CHECKING([for cuba in $with_cuba])
-			AC_MSG_RESULT(yes)
-		fi
+	AC_PATH_PROG(cuba_bin_dir, [partview])
+	if test -f "$cuba_bin_dir" ; then
+		# up two levels: /usr/local/bin/partview -> /usr/local
+		with_cuba="$(dirname "$(dirname "$cuba_bin_dir")")"
+		AC_MSG_CHECKING([for cuba in $with_cuba])
+		AC_MSG_RESULT(yes)
 	fi
 elif test "$with_cuba" = "no"; then
 	use_cuba=no
+elif test "$with_cuba" = "download"; then
+	use_cuba=yes
+
+	cuba_version_default=4.2
+	local_cuba_dir="`pwd`/external/cuba-${cuba_version_default}"
+	cuba_url="http://www.feynarts.de/cuba/Cuba-${cuba_version_default}.tar.gz"
+
+	with_cuba_include_dir="$local_cuba_dir"
+	with_cuba_lib_dir="$local_cuba_dir"
+
+	if test ! -d "${local_cuba_dir}"; then
+		AC_MSG_NOTICE([Downloading and building in $local_cuba_dir])
+
+		if test "$CURL" != "false"; then
+			download_cmd="curl -L"
+		elif test "$WGET" != "false"; then
+			download_cmd="wget -O-"
+		else
+			AC_MSG_ERROR([Need either wget or curl to download Cuba.])
+		fi
+
+		mkdir -p "${local_cuba_dir}" \
+		&& (${download_cmd} "${cuba_url}" | tar --strip-components 1 -C "${local_cuba_dir}" --strip=1 -x -z) \
+		&& (
+			cd "${local_cuba_dir}" \
+			&& CFLAGS="-fPIC -O3 -fomit-frame-pointer -ffast-math -Wall" ./configure \
+			&& make
+		)
+	else
+		AC_MSG_NOTICE([Reusing existing local cuba build in $local_cuba_dir])
+	fi
 elif test -n "$with_cuba"; then
 	use_cuba=yes
 else
-	if test -e "$local_cuba_dir" ; then
-		use_cuba=yes
-		use_local_cuba=yes
-	else
-		use_cuba=no
-	fi
+	use_cuba=no
 fi
 
 
-if test "$use_local_cuba" = "yes"; then
-	with_cuba_include_dir="$local_cuba_dir"
-	with_cuba_lib_dir="$local_cuba_dir"
-fi
-
+dnl Save compiler/linker flags before modifications for cuba:
+CPPFLAGS_BACKUP="$CPPFLAGS"
+CXXFLAGS_BACKUP="$CXXFLAGS"
+LDFLAGS_BACKUP="$LDFLAGS"
+LIBS_BACKUP="$LIBS"
 
 if test "x$use_cuba" != xno; then
 	dnl check to see if lib and include can be determined automatically from $with_cuba
@@ -149,7 +171,7 @@ if test "x$use_cuba" != xno; then
 	cubaldflags=""
 	if test -n "$with_cuba_lib_dir"; then
 	echo "checking for cuba library in path $with_cuba_lib_dir"
-	cubaldflags="-L$with_cuba_lib_dir"
+	cubaldflags="-L$with_cuba_lib_dir -lcuba"
 	LDFLAGS+=" $cubaldflags"
 	else
 	echo "checking for cuba library in system default directories"
@@ -164,8 +186,8 @@ if test "x$use_cuba" != xno; then
 
 	int main()
 	{
-        int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew;
-        double epsrel, epsabs, flatness;
+		int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew;
+		double epsrel, epsabs, flatness;
 		int * nregions, *fail, *neval;
 		double * integral, *error, *prob;
 		const char * statefile = "";
@@ -192,8 +214,8 @@ if test "x$use_cuba" != xno; then
 
 	int main()
 	{
-        int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew, spin;
-        double epsrel, epsabs, flatness;
+		int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew, spin;
+		double epsrel, epsabs, flatness;
 		int * nregions, *fail, *neval;
 		double * integral, *error, *prob;
 		const char * statefile = "";
@@ -222,8 +244,8 @@ if test "x$use_cuba" != xno; then
 
 	int main()
 	{
-        int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew, nmin, spin;
-        double epsrel, epsabs, flatness;
+		int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew, nmin, spin;
+		double epsrel, epsabs, flatness;
 		int * nregions, *fail, *neval;
 		double * integral, *error, *prob;
 		const char * statefile = "";
@@ -261,6 +283,14 @@ else
 	AM_CONDITIONAL([CUBA], [test 1 -eq 0])
 fi
 
+dnl Restore compiler/linker flags (without cuba additions):
+CPPFLAGS="$CPPFLAGS_BACKUP"
+CXXFLAGS="$CXXFLAGS_BACKUP"
+LDFLAGS="$LDFLAGS_BACKUP"
+LIBS="$LIBS_BACKUP"
+
+
+
 dnl
 dnl Check for ROOT
 dnl
@@ -288,8 +318,8 @@ ROOT_PATH(
 	,
 	[
 		AC_MSG_ERROR([ROOT cannot be found. Please ensure that it is installed
-                  and that either \$ROOTSYS is defined corectly or root-config is in the path.
-                  One can pass --with-rootsys=/path/to/rootsys to configure as well.])
+		  and that either \$ROOTSYS is defined corectly or root-config is in the path.
+		  One can pass --with-rootsys=/path/to/rootsys to configure as well.])
 		exit
 	]
 )

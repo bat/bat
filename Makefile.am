@@ -3,7 +3,8 @@ ACLOCAL  = aclocal
 AUTOMAKE = automake
 
 clean-local:
-	rm -rf autom4te.cache
+	-rm -rf autom4te.cache
+	-rm -rf external/cuba-*
 
 # files build by configure on the user side
 DISTCLEANFILES = \
@@ -19,8 +20,6 @@ SUBDIRS= \
 	test
 
 EXTRA_DIST= \
-	cuba-version.txt \
-	get-cuba.sh \
 	INSTALL.md \
 	README.md \
 	readme.devel \

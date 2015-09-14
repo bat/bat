@@ -7,12 +7,12 @@ libBAT_la_LDFLAGS = -version-info 6:0:0
 libBAT_la_LDFLAGS += -L$(ROOTLIBDIR)
 libBAT_la_LIBADD = $(ROOTLIBS)
 
-AM_CXXFLAGS = $(ROOTAUXCFLAGS) -Wall -fPIC -I$(top_srcdir)/BAT $(ROOTCFLAGS)
+AM_CXXFLAGS = $(ROOTAUXCFLAGS) -Wall -fPIC -I$(top_srcdir)/BAT $(ROOTCFLAGS) $(CUBAINCLUDE)
 AM_LDFLAGS  = -O
 AM_SOFLAGS  = -shared
 
 if CUBA
-libBAT_la_LIBADD += -lcuba
+libBAT_la_LIBADD += $(CUBALIB)
 endif
 
 if DEBUG
