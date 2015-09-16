@@ -380,6 +380,8 @@ AC_OUTPUT(
 	models/base/Makefile
 	models/mtf/Makefile
 	models/mvc/Makefile
+	test/Makefile
+	tools/MakefileTemplate
 	examples/Makefile
 	examples/basic/Makefile
 	examples/basic/binomial/Makefile
@@ -409,6 +411,4 @@ AC_OUTPUT(
 	examples/advanced/referenceCounting/Makefile
 	examples/advanced/rooInterface/Makefile
 	examples/advanced/trialFunction/Makefile
-	test/Makefile
-	tools/MakefileTemplate
 )
