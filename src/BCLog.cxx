@@ -88,7 +88,7 @@ void BCLog::StartupInfo()
                               " +------------------------------------------------------+\n"
                               " |                                                      |\n"
                               " | BAT version %7s                                  |\n"
-                              " | Copyright (C) 2007-2014, the BAT core developer team |\n"
+                              " | Copyright (C) 2007-2015, the BAT core developer team |\n"
                               " | All rights reserved.                                 |\n"
                               " |                                                      |\n"
                               " | For the licensing terms see doc/COPYING              |\n"
@@ -128,25 +128,3 @@ std::string BCLog::ToString(BCLog::LogLevel loglevel)
             return "";
     }
 }
-
-// ---------------------------------------------------------
-
-int printBATUponLoading()
-{
-    /*
-      std::cout <<
-      " +------------------------------------------------------+\n"
-      " |                                                      |\n"
-      " | BAT version " << std::setw(7) << VERSION << "                                  |\n"
-      " | Copyright (C) 2007-2014, the BAT core developer team |\n"
-      " | All rights reserved.                                 |\n"
-      " |                                                      |\n"
-      " | For the licensing terms see doc/COPYING              |\n"
-      " | For documentation see http://mpp.mpg.de/bat          |\n"
-      " |                                                      |\n"
-      " +------------------------------------------------------+\n";
-    */
-    return 0;
-}
-
-static int tmpvarPrint = printBATUponLoading();
