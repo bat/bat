@@ -103,21 +103,20 @@ bool BCFitter::SetFitFunction(TF1* f)
 // ---------------------------------------------------------
 bool BCFitter::MCMCUserInitialize()
 {
-    if (fFitFunction.empty())
-        return false;
-    if (fFitFunction[0]) {
-        // add copies of the first function if necessary
-        while (fFitFunction.size() < fMCMCNChains)
-            fFitFunction.push_back(new TF1(*fFitFunction[0]));
-
-        // remove elements if necessary
-        while (fFitFunction.size() > fMCMCNChains) {
-            delete fFitFunction.back();
-            fFitFunction.pop_back();
-        }
-    } else {
+    if (fFitFunction.empty() || !fFitFunction[0]) {
+        BCLog::OutError("BCFitter::MCMCUserInitialize: No fit function available");
         return false;
     }
+    // add copies of the first function if necessary
+    while (fFitFunction.size() < fMCMCNChains)
+        fFitFunction.push_back(new TF1(*fFitFunction[0]));
+
+    // remove elements if necessary
+    while (fFitFunction.size() > fMCMCNChains) {
+        delete fFitFunction.back();
+        fFitFunction.pop_back();
+    }
+
     return true;
 }
 
