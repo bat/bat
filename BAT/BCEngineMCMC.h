@@ -1281,7 +1281,14 @@ public:
     bool MCMCInitialize();
 
     /**
-     * User-defined function called at the end of MCMCInitialize()
+     * User hook called from MCMCInitialize().
+     *
+     * MCMCUserInitialize() is called after all settings for the
+     * upcoming MCMC run are fixed. This is useful for the user, for
+     * example, to allocate separate copies of objects within the user
+     * model, one for each chain for thread safety. The user
+     * likelihood is only called after MCMCUserInitialize() returns.
+     *
      * @return Success of action. */
     virtual bool MCMCUserInitialize()
     { return true; }

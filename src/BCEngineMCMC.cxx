@@ -2263,6 +2263,11 @@ bool BCEngineMCMC::MCMCInitialize()
 
     SyncThreadStorage();
 
+    // initialize user-defined observables
+    fMCMCObservables.assign(fMCMCNChains, std::vector<double>(GetNObservables(), 0));
+
+    CreateHistograms(false);
+
     // set scale factors
     if (fMCMCMultivariateProposalFunction)
         // if multivariate
@@ -2292,6 +2297,14 @@ bool BCEngineMCMC::MCMCInitialize()
 
     // set that a main run has not been made
     fMCMCFlagRun = false;
+
+    // before we set the initial position and evaluate the likelihood, it's time to let the user initialize the model with #chains etc. fixed
+    if (!MCMCUserInitialize()) {
+        BCLog::OutError("MCMCUserInitialize failed");
+        return false;
+    }
+
+    /* set initial position */
 
     // this can be extended to user-settable member
     unsigned max_tries = 10;
@@ -2419,12 +2432,7 @@ bool BCEngineMCMC::MCMCInitialize()
         fMCMCLogPrior[c] = fMCMCLogPrior_Provisional[c];
     }
 
-    // initialize user-defined observables
-    fMCMCObservables.assign(fMCMCNChains, std::vector<double>(GetNObservables(), 0));
-
-    CreateHistograms(false);
-
-    return MCMCUserInitialize();
+    return true;
 }
 
 // ------------------------------------------------------------
