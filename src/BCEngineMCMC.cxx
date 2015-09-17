@@ -2300,8 +2300,8 @@ bool BCEngineMCMC::MCMCInitialize()
 
     // before we set the initial position and evaluate the likelihood, it's time to let the user initialize the model with #chains etc. fixed
     if (!MCMCUserInitialize()) {
-        BCLog::OutError("MCMCUserInitialize failed");
-        return false;
+        BCLog::OutError("MCMCUserInitialize failed. Exiting.");
+        exit(1);
     }
 
     /* set initial position */
