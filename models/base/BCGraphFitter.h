@@ -85,13 +85,6 @@ public:
     double LogLikelihood(const std::vector<double>& parameters);
 
     /**
-     * Returns the value of the 1D fit function for a given set of parameters
-     * at a given x.
-     * @param x points to calculate the function values at
-     * @param parameters parameters of the function */
-    double FitFunction(const std::vector<double>& x, const std::vector<double>& parameters);
-
-    /**
      * Performs the fit. The graph and the function has to be set beforehand.
      * @return Success of action. */
     bool Fit();

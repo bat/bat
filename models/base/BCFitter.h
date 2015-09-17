@@ -163,8 +163,7 @@ public:
      * @param parameters A set of parameter values
      * @param x A vector of x-values
      * @return The value of the fit function at the x-values given a set of parameters */
-    virtual double FitFunction(const std::vector<double>& /*x*/, const std::vector<double>& /*parameters*/)
-    { return 0; }
+    virtual double FitFunction(const std::vector<double>& x, const std::vector<double>& parameters);
 
     /**
      * 1dim cumulative distribution function of the probability

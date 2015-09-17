@@ -125,9 +125,9 @@ BCEfficiencyFitter::~BCEfficiencyFitter()
 // ---------------------------------------------------------
 double BCEfficiencyFitter::LogLikelihood(const std::vector<double>& params)
 {
-    int c = (fMCMCCurrentChain >= 0) ? fMCMCCurrentChain : 0;
+    unsigned c = MCMCGetThreadNum();
 
-    if (!fFitFunction[c] or !fHistogram1 or !fHistogram2)
+    if (!fFitFunction.at(c) or !fHistogram1 or !fHistogram2)
         return -std::numeric_limits<double>::quiet_NaN();
 
     // initialize probability
@@ -158,26 +158,19 @@ double BCEfficiencyFitter::LogLikelihood(const std::vector<double>& params)
 
         double eff = 0;
 
-        if (fFlagIntegration)				// use ROOT's TH1D::Integral method
+        if (fFlagIntegration) {
+            // use ROOT's TH1D::Integral method
             eff = fFitFunction[c]->Integral(xmin, xmax) / (xmax - xmin);
-        else												// use linear interpolation
+        } else {
+            // use linear interpolation
             eff = (fFitFunction[c]->Eval(xmax) + fFitFunction[c]->Eval(xmin)) / 2.;
+        }
 
         // get the value of the Poisson distribution
         loglikelihood += BCMath::LogApproxBinomial(n, k, eff);
     }
 
     return loglikelihood;
-}
-
-// ---------------------------------------------------------
-double BCEfficiencyFitter::FitFunction(const std::vector<double>& x, const std::vector<double>& params)
-{
-    int c = (fMCMCCurrentChain >= 0) ? fMCMCCurrentChain : 0;
-    // set the parameters of the function
-    fFitFunction[c]->SetParameters(&params[0]);
-    // and evaluate
-    return fFitFunction[c]->Eval(x[0]);
 }
 
 // ---------------------------------------------------------
