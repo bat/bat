@@ -399,6 +399,10 @@ public:
     { return fMCMCOutputFile; }
 
     /**
+     * @return 0 in serial mode, or the current thread number in parallel mode. */
+    unsigned MCMCGetThreadNum() const;
+
+    /**
      * Get combined statistics for all chains. */
     const BCEngineMCMC::MCMCStatistics& MCMCGetStatistics() const
     { return fMCMCStatistics_AllChains; }

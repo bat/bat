@@ -7,6 +7,7 @@
  */
 
 // ---------------------------------------------------------
+#include <config.h>
 
 #include "BCEngineMCMC.h"
 
@@ -45,6 +46,10 @@
 #include <TVectorD.h>
 
 #include <cmath>
+
+#if THREAD_PARALLELIZATION
+#include <omp.h>
+#endif
 
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC(std::string name)
@@ -587,6 +592,22 @@ BCH2D BCEngineMCMC::GetMarginalized(unsigned i, unsigned j) const
         bch.SetGlobalMode(GetGlobalMode()[i], GetGlobalMode()[j]);
 
     return bch;
+}
+
+// --------------------------------------------------------
+unsigned BCEngineMCMC::MCMCGetThreadNum() const
+{
+    // if the user sets the maximum number of threads to something
+    // larger than the number of chains, then I don't know if openMP
+    // assigns work only to the first threads. Let's hope it does but
+    // it may be implementation-dependent. If this every returns a
+    // thread id greater or equal to the number of chains, the
+    // thread-safety code may get into trouble.
+#if THREAD_PARALLELIZATION
+    return omp_get_thread_num();
+#else
+    return 0;
+#endif
 }
 
 // ---------------------------------------------------------
