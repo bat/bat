@@ -385,17 +385,17 @@ public:
 
     /**
      * Retrieve the tree containing the Markov chain. */
-    TTree* MCMCGetMarkovChainTree()
+    TTree* MCMCGetMarkovChainTree() const
     { return fMCMCTree;}
 
     /**
      * Retrieve the tree containing the parameter information. */
-    TTree* MCMCGetParameterTree()
+    TTree* MCMCGetParameterTree() const
     { return fParameterTree;}
 
     /**
      * Retrieve output file for MCMC. */
-    TFile* MCMCGetOutputFile()
+    TFile* MCMCGetOutputFile() const
     { return fMCMCOutputFile; }
 
     /**
