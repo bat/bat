@@ -64,8 +64,8 @@ void ensembleTest()
     TFile* file = TFile::Open(fname.data(), "READ");
 
     // check if file is open
-    if (!file->IsOpen()) {
-        BCLog::OutError("Could not open file " + fname + ".");
+    if (!file || !file->IsOpen()) {
+        BCLog::OutError(Form("Could not open file %s.", fname.c_str()));
         BCLog::OutError("Run macro CreateHistograms.C in Root to create the file.");
         return;
     }

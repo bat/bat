@@ -62,8 +62,8 @@ void twoChannels()
     TFile* file = TFile::Open(fname.c_str(), "READ");
 
     // check if file is open
-    if (!file->IsOpen()) {
-        BCLog::OutError("Could not open file " + fname.c_str " .");
+    if (!file || !file->IsOpen()) {
+        BCLog::OutError(Form("Could not open file %s.", fname.c_str()));
         BCLog::OutError("Run macro CreateHistograms.C in Root to create the file.");
         return;
     }
@@ -112,8 +112,8 @@ void twoChannels()
     m->SetTemplate("channel2", "background_channel2", *hist_bkg2, 1.0);
 
     // set priors
-    m->GetParameter("background_channel1")->SetPrior(new BCGaussianPrior(800., 10.));
-    m->GetParameter("background_channel2")->SetPrior(new BCGaussianPrior(500., 50.));
+    m->GetParameter("background_channel1").SetPrior(new BCGaussianPrior(800., 10.));
+    m->GetParameter("background_channel2").SetPrior(new BCGaussianPrior(500., 50.));
     m->GetParameter("signal").SetPriorConstant();
 
     // marginalize

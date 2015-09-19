@@ -17,7 +17,8 @@ SUBDIRS= \
 	models/base \
 	models/mtf \
 	models/mvc \
-	test
+	test \
+	examples
 
 EXTRA_DIST= \
 	INSTALL.md \

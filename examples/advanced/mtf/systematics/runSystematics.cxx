@@ -154,6 +154,5 @@ int main()
     // close log file
     BCLog::CloseLog();
 
-    return 1;
+    return 0;
 }
-
