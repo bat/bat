@@ -157,13 +157,6 @@ public:
     virtual double LogLikelihood(const std::vector<double>& parameters);
 
     /**
-     * Returns the y-value of the 1-dimensional fit function at an x and
-     * for a set of parameters.
-     * @param x A vector with the x-value.
-     * @param parameters A set of parameters. */
-    double FitFunction(const std::vector<double>& x, const std::vector<double>& parameters);
-
-    /**
      * Performs the fit.
      * @return Success of action. */
     bool Fit();

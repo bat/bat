@@ -385,18 +385,22 @@ public:
 
     /**
      * Retrieve the tree containing the Markov chain. */
-    TTree* MCMCGetMarkovChainTree()
+    TTree* MCMCGetMarkovChainTree() const
     { return fMCMCTree;}
 
     /**
      * Retrieve the tree containing the parameter information. */
-    TTree* MCMCGetParameterTree()
+    TTree* MCMCGetParameterTree() const
     { return fParameterTree;}
 
     /**
      * Retrieve output file for MCMC. */
-    TFile* MCMCGetOutputFile()
+    TFile* MCMCGetOutputFile() const
     { return fMCMCOutputFile; }
+
+    /**
+     * @return 0 in serial mode, or the current thread number in parallel mode. */
+    unsigned MCMCGetThreadNum() const;
 
     /**
      * Get combined statistics for all chains. */
@@ -1281,7 +1285,14 @@ public:
     bool MCMCInitialize();
 
     /**
-     * User-defined function called at the end of MCMCInitialize()
+     * User hook called from MCMCInitialize().
+     *
+     * MCMCUserInitialize() is called after all settings for the
+     * upcoming MCMC run are fixed. This is useful for the user, for
+     * example, to allocate separate copies of objects within the user
+     * model, one for each chain for thread safety. The user
+     * likelihood is only called after MCMCUserInitialize() returns.
+     *
      * @return Success of action. */
     virtual bool MCMCUserInitialize()
     { return true; }

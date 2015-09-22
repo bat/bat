@@ -35,6 +35,11 @@ public:
     // loglikelihood function - probability of the data given the parameters
     double LogLikelihood(const std::vector<double>& par);
 
+    // this likelihood is thread safe, so there is nothing to do
+    virtual bool MCMCUserInitialize()
+    {
+        return true;
+    }
 };
 
 #endif

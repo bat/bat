@@ -101,9 +101,9 @@ BCGraphFitter::~BCGraphFitter()
 // ---------------------------------------------------------
 double BCGraphFitter::LogLikelihood(const std::vector<double>& params)
 {
-    int c = (fMCMCCurrentChain >= 0) ? fMCMCCurrentChain : 0;
+    unsigned c = MCMCGetThreadNum();
 
-    if (!fFitFunction[c] or !GetDataSet() or GetDataSet()->GetNDataPoints() == 0)
+    if (!fFitFunction.at(c) or !GetDataSet() or GetDataSet()->GetNDataPoints() == 0)
         return std::numeric_limits<double>::quiet_NaN();
 
     // set the parameters of the function
@@ -127,22 +127,6 @@ double BCGraphFitter::LogLikelihood(const std::vector<double>& params)
                                 true); // include normalization factor
 
     return logl;
-}
-
-// ---------------------------------------------------------
-
-double BCGraphFitter::FitFunction(const std::vector<double>& x, const std::vector<double>& params)
-{
-    int c = (fMCMCCurrentChain >= 0) ? fMCMCCurrentChain : 0;
-
-    // set the parameters of the function
-    // passing the pointer to first element of the vector is
-    // not completely safe as there might be an implementation where
-    // the vector elements are not stored consecutively in memory.
-    // however it is much faster than copying the contents, especially
-    // for large number of parameters
-    fFitFunction[c]->SetParameters(&params[0]);
-    return fFitFunction[c]->Eval(x[0]);
 }
 
 // ---------------------------------------------------------

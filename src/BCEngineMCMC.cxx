@@ -7,6 +7,7 @@
  */
 
 // ---------------------------------------------------------
+#include <config.h>
 
 #include "BCEngineMCMC.h"
 
@@ -45,6 +46,10 @@
 #include <TVectorD.h>
 
 #include <cmath>
+
+#if THREAD_PARALLELIZATION
+#include <omp.h>
+#endif
 
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC(std::string name)
@@ -587,6 +592,22 @@ BCH2D BCEngineMCMC::GetMarginalized(unsigned i, unsigned j) const
         bch.SetGlobalMode(GetGlobalMode()[i], GetGlobalMode()[j]);
 
     return bch;
+}
+
+// --------------------------------------------------------
+unsigned BCEngineMCMC::MCMCGetThreadNum() const
+{
+    // if the user sets the maximum number of threads to something
+    // larger than the number of chains, then I don't know if openMP
+    // assigns work only to the first threads. Let's hope it does but
+    // it may be implementation-dependent. If this every returns a
+    // thread id greater or equal to the number of chains, the
+    // thread-safety code may get into trouble.
+#if THREAD_PARALLELIZATION
+    return omp_get_thread_num();
+#else
+    return 0;
+#endif
 }
 
 // ---------------------------------------------------------
@@ -2263,6 +2284,11 @@ bool BCEngineMCMC::MCMCInitialize()
 
     SyncThreadStorage();
 
+    // initialize user-defined observables
+    fMCMCObservables.assign(fMCMCNChains, std::vector<double>(GetNObservables(), 0));
+
+    CreateHistograms(false);
+
     // set scale factors
     if (fMCMCMultivariateProposalFunction)
         // if multivariate
@@ -2292,6 +2318,14 @@ bool BCEngineMCMC::MCMCInitialize()
 
     // set that a main run has not been made
     fMCMCFlagRun = false;
+
+    // before we set the initial position and evaluate the likelihood, it's time to let the user initialize the model with #chains etc. fixed
+    if (!MCMCUserInitialize()) {
+        BCLog::OutError("MCMCUserInitialize failed. Exiting.");
+        exit(1);
+    }
+
+    /* set initial position */
 
     // this can be extended to user-settable member
     unsigned max_tries = 10;
@@ -2419,12 +2453,7 @@ bool BCEngineMCMC::MCMCInitialize()
         fMCMCLogPrior[c] = fMCMCLogPrior_Provisional[c];
     }
 
-    // initialize user-defined observables
-    fMCMCObservables.assign(fMCMCNChains, std::vector<double>(GetNObservables(), 0));
-
-    CreateHistograms(false);
-
-    return MCMCUserInitialize();
+    return true;
 }
 
 // ------------------------------------------------------------

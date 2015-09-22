@@ -82,7 +82,7 @@ void histogramFitterExample()
     f1->SetParLimits(0,  0.0, 200.0);
     f1->SetParLimits(1, 55.0,  75.0);
     f1->SetParLimits(2,  0.1,  10.0);
-    f1->SetParLimits(3,  0.0, 200.0);
+    f1->SetParLimits(3,  0.0,   2.0);
     // -------------------------
 
     // create a new histogram fitter

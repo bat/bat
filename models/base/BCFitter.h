@@ -18,8 +18,6 @@
  * For documentation see http://mpp.mpg.de/bat
  */
 
-// ---------------------------------------------------------
-
 class TF1;
 class TGraph;
 class TH2D;
@@ -27,8 +25,6 @@ class TH2D;
 #include "../../BAT/BCModel.h"
 
 #include <string>
-
-// ---------------------------------------------------------
 
 class BCFitter : public BCModel
 {
@@ -64,14 +60,14 @@ public:
     { return (fFitFunction.empty()) ? (TF1*)0 : fFitFunction[index]; }
 
     /**
-    * @return pointer to the error band */
+     * @return pointer to the error band */
     TGraph* GetErrorBand()
-    { return fErrorBand; };
+    { return fErrorBand; }
 
     /**
      * @return pointer to a graph for the fit function */
     TGraph* GetGraphFitFunction()
-    { return fGraphFitFunction; };
+    { return fGraphFitFunction; }
 
     /**
      * const BCParameter * GetParameter(const char * name);
@@ -106,7 +102,7 @@ public:
     bool GetFixedDataAxis(unsigned int index) const;
 
     double GetPValue() const
-    {	return fPValue; }
+    { return fPValue; }
 
     /* @} */
 
@@ -153,7 +149,10 @@ public:
      * @param indexx Index of the x values
      * @param indexy Index of the y values */
     void SetFitFunctionIndices(int indexx, int indexy)
-    { SetFitFunctionIndexX(indexx); SetFitFunctionIndexY(indexy); }
+    {
+        SetFitFunctionIndexX(indexx);
+        SetFitFunctionIndexY(indexy);
+    }
 
     /**
      * Sets the error band flag to continuous function */
@@ -164,8 +163,7 @@ public:
      * @param parameters A set of parameter values
      * @param x A vector of x-values
      * @return The value of the fit function at the x-values given a set of parameters */
-    virtual double FitFunction(const std::vector<double>& /*x*/, const std::vector<double>& /*parameters*/)
-    { return 0; }
+    virtual double FitFunction(const std::vector<double>& x, const std::vector<double>& parameters);
 
     /**
      * 1dim cumulative distribution function of the probability
@@ -177,7 +175,7 @@ public:
      * Return the CDF for the count one less than actually observed, e.g.
      * in Poisson process, if 3 actually observed, then CDF(2) is returned */
     virtual double CDF(const std::vector<double>& /*parameters*/,  int /*index*/, bool /*lower=false*/)
-    {return 0.0;}
+    { return 0.0; }
 
     /* @} */
     /** \name Member functions (miscellaneous methods) */
@@ -220,8 +218,8 @@ public:
     /* @} */
 
     /**
-     * Sync TF1 pointers for thread safety */
-    bool MCMCUserInitialize();
+     * Create enough TF1 copies for thread safety */
+    virtual bool MCMCUserInitialize();
 
 protected:
 
