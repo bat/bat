@@ -9,7 +9,7 @@ Platforms
 
 BAT has been developed on Linux machines running different
 distributions and different versions of the kernel and gcc. As far as
-we know there is nothing distribution dependent inside of BAT. A gcc
+we know there is nothing distribution-dependent inside of BAT. A gcc
 version >4.2 should suffice to compile the C++ code.
 
 The installation and functionality of BAT has also been tested on MAC OS X.
@@ -22,9 +22,8 @@ Dependencies
 ### Required: ROOT
 
 ROOT is an object-oriented data-analysis framework. You can obtain it
-from http://root.cern.ch/. Since BAT version 0.4.2 a ROOT version 5.22
-or later is needed to compile and run BAT. ROOT 6 is supported as
-well.
+from http://root.cern.ch/. For BAT version 1.0, a ROOT version 5.27/04
+or later is needed to compile. ROOT 6 is supported as well.
 
 Please check your Linux distribution for the availability of
 precompiled packages on your system. Many distributions offer the ROOT
@@ -100,10 +99,10 @@ The configure script checks for ROOT availability in the system and
 fails if ROOT is not installed. You can specify the `ROOTSYS` directory
 using `--with-rootsys=/path/to/rootsys`
 
-You can configure BAT with the RooFit/RooStats support using
-`--enable-roostats`. The configure script will check whether the version of
-ROOT is sufficient and whether the ROOT was compiled with RooFit/RooStats
-support.
+BAT support for RooFit/RooStats is turned on by default. The configure
+script will check whether the version of ROOT is sufficient and
+whether ROOT was compiled with RooFit/RooStats support. The feature
+can be turned off explicitly with `--disable-roostats`.
 
 ### openMP
 
@@ -116,6 +115,8 @@ implementation dependent and may also depend on the current load of
 the CPU. Manual control over the number of threads is achieved
 entirely by openMP means such as setting the environment variable
 `OMP_NUM_THREADS` before running an executable.
+
+The default version of clang does not implement openMP.
 
 ### Cuba
 
