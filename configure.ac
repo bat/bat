@@ -298,18 +298,16 @@ AC_DEFUN(
 	[REQUIRE_ROOT_VERSION],
 	[require_ROOT_version=$1]
 )
-REQUIRE_ROOT_VERSION([5.22])
+REQUIRE_ROOT_VERSION([5.27.04])
 
 dnl RooStats
 AC_ARG_ENABLE(
 	[roostats],
-	[AS_HELP_STRING([--enable-roostats],[compile with RooStats support (default no)])],
+	[AS_HELP_STRING([--disable-roostats],[compile with RooStats support (default yes if available)])],
 	[
-		use_roostats=yes
-		REQUIRE_ROOT_VERSION([5.27.04])
-		echo "compiling with RooStats support: required ROOT version $require_ROOT_version or later"
+		use_roostats=${enable_val}
 	],
-	[use_roostats=no]
+	[use_roostats=yes]
 )
 dnl ROOT
 m4_include(tools/build/root.m4)
@@ -326,7 +324,10 @@ ROOT_PATH(
 dnl add some libraries to set of basic root libraries
 ROOTLIBS="$ROOTLIBS -lMinuit"
 
-dnl mathmore is a requirement of roostats
+dnl mathmore is a requirement of roostats and allows us to use
+dnl features from the GSL. The check is done again inside HAS_ROOSTATS
+dnl but we can't get that result. So the output `checking whether ROOT
+dnl is compiled with MathMore support... ` can appear twice. Not big deal.
 AC_MSG_CHECKING(whether ROOT is compiled with MathMore support)
 hasmathmore=`$ROOTCONF --has-mathmore`
 AC_MSG_RESULT($hasmathmore)
@@ -335,11 +336,11 @@ AM_CONDITIONAL([ROOTMATHMORE], [test x$hasmathmore = xyes])
 dnl RooFit
 if test $use_roostats = yes; then
 	HAS_ROOSTATS(
-		,
+		AC_MSG_RESULT([Compiling BAT with RooStats support.]),
 		[
-			AC_MSG_ERROR([ROOT was compiled without RooFit support.
-				Recompile ROOT or provide path to different version.])
-			AC_MSG_ERROR([Compiling BAT without RooStats support.])
+			AC_MSG_RESULT([ROOT was compiled without RooFit support.])
+			AC_MSG_RESULT([To add RooStats support, recompile ROOT or provide path to different version.])
+			AC_MSG_RESULT([Compiling BAT without RooStats support.])
 			use_roostats=no
 		]
 	)
