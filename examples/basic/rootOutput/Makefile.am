@@ -7,4 +7,4 @@ runRootOutput_SOURCES = runRootOutput.cxx GaussModel.cxx
 
 TESTS = runRootOutput.cxx readRootOutput.cxx
 
-runRootOutput.log: readRootOutput.log
+readRootOutput.log: runRootOutput.log
