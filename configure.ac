@@ -118,7 +118,7 @@ elif test "$with_cuba" = "download"; then
 		&& (
 			cd "${local_cuba_dir}" \
 			&& CFLAGS="-fPIC -O3 -fomit-frame-pointer -ffast-math -Wall" ./configure \
-			&& make
+			&& make lib
 		)
 	else
 		AC_MSG_NOTICE([Reusing existing local cuba build in $local_cuba_dir])
