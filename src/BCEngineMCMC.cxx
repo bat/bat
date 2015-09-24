@@ -3712,7 +3712,7 @@ void BCEngineMCMC::MCMCStatistics::Update(double prob, const std::vector<double>
     probability_mean += prob_delta / n_samples;
     probability_variance += (n_samples > 1) ? prob_delta * prob_delta / n_samples - probability_variance / (n_samples - 1) : 0;
 
-    // update parameter means and (co)variances, and maximums and minimums:
+    // update parameter means and (co)variances, and maxima and minima:
 
     // vector to store difference from current mean
     std::vector<double> delta(mean.size(), 0);
