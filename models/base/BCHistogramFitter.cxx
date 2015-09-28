@@ -61,7 +61,7 @@ bool BCHistogramFitter::SetHistogram(TH1D* hist)
 {
     // check if histogram exists
     if (!hist) {
-        BCLog::OutError("BCHistogramFitter::SetHistogram : TH1D not created.");
+        BCLog_ERROR("Histogram not defined.");
         return false;
     }
 
@@ -107,7 +107,7 @@ bool BCHistogramFitter::SetHistogramExpected(const std::vector<double>& paramete
     // get the number of bins
     int nBins = fHistogramExpected->GetNbinsX();
 
-    unsigned c = MCMCGetThreadNum();
+    const unsigned c = MCMCGetThreadNum();
 
     //set the parameters of fit function
     fFitFunction[c]->SetParameters(&parameters[0]);
@@ -149,7 +149,7 @@ BCHistogramFitter::~BCHistogramFitter()
 // ---------------------------------------------------------
 double BCHistogramFitter::LogLikelihood(const std::vector<double>& params)
 {
-    unsigned c = MCMCGetThreadNum();
+    const unsigned c = MCMCGetThreadNum();
 
     if (!fFitFunction.at(c) or !fHistogram)
         return std::numeric_limits<double>::quiet_NaN();
@@ -207,7 +207,7 @@ bool BCHistogramFitter::Fit(TH1D* hist, TF1* func)
     if (hist)
         SetHistogram(hist);
     else {
-        BCLog::OutError("BCHistogramFitter::Fit : Histogram not defined.");
+        BCLog_ERROR("Histogram not defined.");
         return false;
     }
 
@@ -215,7 +215,7 @@ bool BCHistogramFitter::Fit(TH1D* hist, TF1* func)
     if (func)
         SetFitFunction(func);
     else {
-        BCLog::OutError("BCHistogramFitter::Fit : Fit function not defined.");
+        BCLog_ERROR("Fit function not defined.");
         return false;
     }
 
@@ -226,12 +226,12 @@ bool BCHistogramFitter::Fit(TH1D* hist, TF1* func)
 bool BCHistogramFitter::Fit()
 {
     if (!fHistogram) {
-        BCLog::OutError("BCHistogramFitter::Fit : Histogram not defined.");
+        BCLog_ERROR("Histogram not defined.");
         return false;
     }
 
     if (fFitFunction.empty()) {
-        BCLog::OutError("BCHistogramFitter::Fit : Fit function not defined.");
+        BCLog_ERROR("Fit function not defined.");
         return false;
     }
 
@@ -246,8 +246,8 @@ bool BCHistogramFitter::Fit()
     SetOptimizationMethod(method_temp);
 
     // calculate the p-value using the fast MCMC algorithm
-    if ( !CalculatePValueFast(GetGlobalMode()))
-        BCLog::OutWarning("BCHistogramFitter::Fit : Could not use the fast p-value evaluation.");
+    if (!CalculatePValueFast(GetGlobalMode()))
+        BCLog_WARNING("Could not use the fast p-value evaluation.");
 
     // print summary to screen
     PrintShortFitSummary();
@@ -260,17 +260,17 @@ bool BCHistogramFitter::Fit()
 void BCHistogramFitter::DrawFit(const char* options, bool flaglegend)
 {
     if (!fHistogram) {
-        BCLog::OutError("BCHistogramFitter::DrawFit : Histogram not defined.");
+        BCLog_ERROR("Histogram not defined.");
         return;
     }
 
     if (fFitFunction.empty()) {
-        BCLog::OutError("BCHistogramFitter::DrawFit : Fit function not defined.");
+        BCLog_ERROR("Fit function not defined.");
         return;
     }
 
     if (!fErrorBandXY or GetGlobalMode().empty()) {
-        BCLog::OutError("BCHistogramFitter::DrawFit : Fit not performed yet.");
+        BCLog_ERROR("Fit not performed yet.");
         return;
     }
 
@@ -314,13 +314,12 @@ bool BCHistogramFitter::CalculatePValueFast(const std::vector<double>& par, unsi
 {
     // check size of parameter vector
     if (par.size() < GetNParameters()) {
-        BCLog::OutError("BCHistogramFitter::CalculatePValueFast : Number of parameters is inconsistent.");
+        BCLog_ERROR("Number of parameters is inconsistent.");
         return false;
     }
 
-    // check if histogram exists
     if (!fHistogram) {
-        BCLog::OutError("BCHistogramFitter::CalculatePValueFast : Histogram not defined.");
+        BCLog_ERROR("Histogram not defined.");
         return false;
     }
 
@@ -420,10 +419,13 @@ bool BCHistogramFitter::CalculatePValueLeastSquares(const std::vector<double>& p
 // ---------------------------------------------------------
 bool BCHistogramFitter::CalculatePValueKolmogorov(const std::vector<double>& par)
 {
-    if (!fHistogramExpected or !fHistogram) {
-        BCLog::OutError("BCHistogramFitter::CalculatePValueKolmogorov: "
-                        "Please define the reference distribution by calling \n"
-                        "BCHistogramFitter::SetHistogramExpected() first!");
+    if (!fHistogramExpected) {
+        BCLog_ERROR("Please define the reference distribution by calling SetHistogramExpected() first!");
+        return false;
+    }
+
+    if (!fHistogram) {
+        BCLog_ERROR("Histogram not defined.");
         return false;
     }
 
@@ -443,12 +445,12 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index, 
 {
 
     if (fFitFunction.empty()) {
-        BCLog::OutError("BCHistogramFitter::CDF : no function set.");
+        BCLog_ERROR("Fit function not defined.");
         return -1;
     }
 
     if ((int)parameters.size() < fFitFunction[0]->GetNpar()) {
-        BCLog::OutError("BCHistogramFitter::CDF : too few parameters specified.");
+        BCLog_ERROR("too few parameters specified.");
         return -1;
     }
 
@@ -465,11 +467,12 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index, 
     // expectation value of this bin
     double yExp = 0.0;
 
-    unsigned c = MCMCGetThreadNum();
+    const unsigned c = MCMCGetThreadNum();
+
+    fFitFunction.at(c)->SetParameters(&parameters[0]);
 
     // use ROOT's TH1D::Integral method
     if (fFlagIntegration) {
-        fFitFunction[c]->SetParameters(&parameters[0]);
         yExp = fFitFunction[c]->Integral(xmin, xmax);
     } else													// use linear interpolation
         yExp = (fFitFunction[c]->Eval(xmin) + fFitFunction[c]->Eval(xmax)) * (xmax - xmin) / 2;
@@ -485,10 +488,7 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index, 
     }
     // what if yObs as double doesn't represent a whole number? exception?
     if ((double) (unsigned int) yObs != yObs) {
-        BCLog::OutWarning(Form(
-                              "BCHistogramFitter::CDF: Histogram values should be integer!\n"
-                              " Bin %d = %f", index, yObs));
-
+        BCLog_WARNING(Form("Histogram values should be integer! Bin %d = %f", index, yObs));
 
         //convert randomly to integer
         // ex. yObs = 9.785 =>
