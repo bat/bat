@@ -2765,7 +2765,7 @@ void BCEngineMCMC::PrintMarginalizationSummary() const
 
 
 // ---------------------------------------------------------
-void BCEngineMCMC::PrintParameters(const std::vector<double>& P, void (*output)(std::string) ) const
+void BCEngineMCMC::PrintParameters(const std::vector<double>& P, void (*output)(const std::string&) ) const
 {
     if ( P.size() != GetNParameters() and P.size() != GetNVariables() )
         return;

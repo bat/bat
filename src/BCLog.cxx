@@ -40,7 +40,7 @@ BCLog::BCLog()
 
 // ---------------------------------------------------------
 
-void BCLog::OpenLog(std::string filename, BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen)
+void BCLog::OpenLog(const std::string& filename, BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen)
 {
     // suppress the ROOT Info printouts
     gErrorIgnoreLevel = 2000;
@@ -62,7 +62,7 @@ void BCLog::OpenLog(std::string filename, BCLog::LogLevel loglevelfile, BCLog::L
 
 // ---------------------------------------------------------
 
-void BCLog::Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, std::string message)
+void BCLog::Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, const std::string& message)
 {
     // if this is the first call to Out(), call StartupInfo() first
     if (!fFirstOutputDone)

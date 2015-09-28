@@ -1075,7 +1075,7 @@ public:
      * Print parameters
      * @param P vector of the parameter values to be printed
      * @param output pointer to the output function to be used, which defaults to BCLog::OutSummary */
-    void PrintParameters(const std::vector<double>& P, void (*output)(std::string) = BCLog::OutSummary) const;
+    void PrintParameters(const std::vector<double>& P, void (*output)(const std::string&) = BCLog::OutSummary) const;
 
     /**
      * Print all marginalizations.

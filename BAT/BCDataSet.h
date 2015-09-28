@@ -246,7 +246,7 @@ public:
     /**
      * Print summary to string handler
      * @param output String handler (default = BCLog::OutSummary). */
-    void PrintSummary(void (*output)(std::string) = BCLog::OutSummary) const;
+    void PrintSummary(void (*output)(const std::string&) = BCLog::OutSummary) const;
 
     /**
      * Get data set as ROOT TGraph object,

@@ -279,7 +279,7 @@ void BCDataSet::SetBounds(unsigned index, double lower_bound, double upper_bound
 }
 
 // ---------------------------------------------------------
-void BCDataSet::PrintSummary(void (*output)(std::string)) const
+void BCDataSet::PrintSummary(void (*output)(const std::string&)) const
 {
     output("Data set summary:");
     output(Form("Number of points           : %u", GetNDataPoints()));

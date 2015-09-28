@@ -122,7 +122,7 @@ public:
     /**
      * Print summary of data point to the string handler.
      * @param output String handler (default = BCLog::OutSummary. */
-    void PrintSummary(void (*output)(std::string) = BCLog::OutSummary) const;
+    void PrintSummary(void (*output)(const std::string&) = BCLog::OutSummary) const;
 
     /** @} */
 
