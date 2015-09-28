@@ -6,8 +6,6 @@
  * For documentation see http://mpp.mpg.de/bat
  */
 
-// ---------------------------------------------------------
-
 #include "BCGraphFitter.h"
 
 #include <BAT/BCDataSet.h>
@@ -176,8 +174,11 @@ bool BCGraphFitter::Fit()
     // to the global maximum from the MCMC
     BCIntegrate::BCOptimizationMethod method_temp = GetOptimizationMethod();
     SetOptimizationMethod(BCIntegrate::kOptMinuit);
-    FindMode( GetGlobalMode());
+    FindMode(GetGlobalMode());
     SetOptimizationMethod(method_temp);
+
+    // p value with (approximate) correction for degrees of freedom
+    CalculatePValue(GetGlobalMode(), true);
 
     // print summary to screen
     PrintShortFitSummary();
@@ -253,43 +254,44 @@ double BCGraphFitter::CDF(const std::vector<double>& parameters,  int index, boo
 }
 
 // ---------------------------------------------------------
-double BCGraphFitter::GetChi2(const std::vector<double>& pars)
+double BCGraphFitter::CalculateChi2(const std::vector<double>& pars)
 {
     if (fFitFunction.empty() or !GetDataSet())
         return std::numeric_limits<double>::quiet_NaN();
 
-    int c = (fMCMCCurrentChain >= 0) ? fMCMCCurrentChain : 0;
+    const unsigned c = MCMCGetThreadNum();
 
     // set pars into fit function
     fFitFunction[c]->SetParameters(&pars[0]);
 
-    double chi2 = 0;
-    for (unsigned i = 0; i < GetDataSet()->GetNDataPoints(); ++i)
-        chi2 += BCMath::LogGaus(GetDataSet()->GetDataPoint(i)[1], // y value of point
-                                fFitFunction[c]->Eval(GetDataSet()->GetDataPoint(i)[0]), // f(x value of point)
-                                GetDataSet()->GetDataPoint(i)[3], // uncertainty on y value of point
-                                false); // forego normalization factor
+    double chi, chi2 = 0;
+    for (unsigned i = 0; i < GetDataSet()->GetNDataPoints(); ++i) {
+        chi = (GetDataSet()->GetDataPoint(i)[1] - fFitFunction[c]->Eval(GetDataSet()->GetDataPoint(i)[0])) / GetDataSet()->GetDataPoint(i)[3];
+        chi2 += chi * chi;
+    }
+
     return chi2;
 }
 
-
 // ---------------------------------------------------------
-double BCGraphFitter::GetPValue(const std::vector<double>& pars, bool ndf)
+double BCGraphFitter::CalculatePValue(const std::vector<double>& pars, bool ndf)
 {
-    double chi2 = GetChi2(pars);
+    const double chi2 = CalculateChi2(pars);
 
-    if (chi2 < 0)
+    if (chi2 < 0) {
+        BCLog_ERROR("chi2 is negative.");
         fPValue = -1;
+    }
 
     else if (ndf) {
         if (GetNDoF() <= 0) {
-            BCLog::OutError("BCGraphFitter::GetPValue : number of degrees of freedom is less than or equal to zero.");
+            BCLog_ERROR("number of degrees of freedom is not positive.");
             fPValue = -1;
         }
         fPValue = TMath::Prob(chi2, GetNDoF());
 
     } else if (GetNDataPoints() == 0) {
-        BCLog::OutError("BCGraphFitter::GetPValue : number of data points is zero.");
+        BCLog::OutError("BCGraphFitter::CalculatePValue : number of data points is zero.");
         fPValue = -1;
 
     } else

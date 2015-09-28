@@ -112,7 +112,7 @@ public:
      * Calculate chi^2, the sum of [(y-f(x))/sigma_y]^2 for all data points.
      * @param pars Parameter set to evaluate function values with.
      * @return chi^2 evalued with pars. */
-    virtual double GetChi2(const std::vector<double>& pars);
+    virtual double CalculateChi2(const std::vector<double>& pars);
 
 
     using BCFitter::GetPValue;
@@ -123,7 +123,7 @@ public:
      * @param pars Parameter set to calculate p value of.
      * @param ndf Flag for choosing to include numbers of degrees of freedom.
      * @return p value if successful, negative is unsuccessful. */
-    virtual double GetPValue(const std::vector<double>& pars, bool ndf = true);
+    virtual double CalculatePValue(const std::vector<double>& pars, bool ndf = true);
 
     /* @} */
 
