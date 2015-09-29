@@ -31,19 +31,19 @@
       (std::string(__PRETTY_FUNCTION__) + ": " + s); \
     } while (false)
 
-#define BCLog_DEBUG(s) \
+#define BCLOG_DEBUG(s) \
   BCLOG_INTERNAL_OUT(OutDebug, s)
 
-#define BCLog_DETAIL(s) \
+#define BCLOG_DETAIL(s) \
   BCLOG_INTERNAL_OUT(OutDetail, s)
 
-#define BCLog_ERROR(s) \
+#define BCLOG_ERROR(s) \
     BCLOG_INTERNAL_OUT(OutError, s)
 
-#define BCLog_SUMMARY(s) \
+#define BCLOG_SUMMARY(s) \
   BCLOG_INTERNAL_OUT(OutSummary, s)
 
-#define BCLog_WARNING(s) \
+#define BCLOG_WARNING(s) \
   BCLOG_INTERNAL_OUT(OutWarning, s)
 
 // ---------------------------------------------------------

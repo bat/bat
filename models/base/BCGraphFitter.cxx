@@ -279,13 +279,13 @@ double BCGraphFitter::CalculatePValue(const std::vector<double>& pars, bool ndf)
     const double chi2 = CalculateChi2(pars);
 
     if (chi2 < 0) {
-        BCLog_ERROR("chi2 is negative.");
+        BCLOG_ERROR("chi2 is negative.");
         fPValue = -1;
     }
 
     else if (ndf) {
         if (GetNDoF() <= 0) {
-            BCLog_ERROR("number of degrees of freedom is not positive.");
+            BCLOG_ERROR("number of degrees of freedom is not positive.");
             fPValue = -1;
         }
         fPValue = TMath::Prob(chi2, GetNDoF());
