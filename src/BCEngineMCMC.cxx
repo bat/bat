@@ -129,6 +129,7 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool loadObse
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
     : fMCMCThreadLocalStorage(other.fMCMCThreadLocalStorage),
+      fChainIndex(other.fChainIndex),
       fName(other.fName),
       fSafeName(other.fSafeName),
       fParameters(other.fParameters),
@@ -137,7 +138,6 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
       fMCMCNLag(other.fMCMCNLag),
       fMCMCNIterations(other.fMCMCNIterations),
       fMCMCCurrentIteration(other.fMCMCCurrentIteration),
-      fMCMCCurrentChain(other.fMCMCCurrentChain),
       fMCMCNIterationsPreRunCheck(other.fMCMCNIterationsPreRunCheck),
       fMCMCPreRunCheckClear(other.fMCMCPreRunCheckClear),
       fMCMCNIterationsConvergenceGlobal(other.fMCMCNIterationsConvergenceGlobal),
@@ -228,6 +228,7 @@ BCEngineMCMC::~BCEngineMCMC()
 void swap(BCEngineMCMC& A, BCEngineMCMC& B)
 {
     std::swap(A.fMCMCThreadLocalStorage, B.fMCMCThreadLocalStorage);
+    std::swap(A.fChainIndex, B.fChainIndex);
     std::swap(A.fName, B.fName);
     std::swap(A.fSafeName, B.fSafeName);
     std::swap(A.fParameters, B.fParameters);
@@ -236,7 +237,6 @@ void swap(BCEngineMCMC& A, BCEngineMCMC& B)
     std::swap(A.fMCMCNLag, B.fMCMCNLag);
     std::swap(A.fMCMCNIterations, B.fMCMCNIterations);
     std::swap(A.fMCMCCurrentIteration, B.fMCMCCurrentIteration);
-    std::swap(A.fMCMCCurrentChain, B.fMCMCCurrentChain);
     std::swap(A.fMCMCNIterationsPreRunCheck, B.fMCMCNIterationsPreRunCheck);
     std::swap(A.fMCMCPreRunCheckClear, B.fMCMCPreRunCheckClear);
     std::swap(A.fMCMCNIterationsConvergenceGlobal, B.fMCMCNIterationsConvergenceGlobal);
@@ -595,19 +595,22 @@ BCH2D BCEngineMCMC::GetMarginalized(unsigned i, unsigned j) const
 }
 
 // --------------------------------------------------------
-unsigned BCEngineMCMC::MCMCGetThreadNum() const
+unsigned BCEngineMCMC::MCMCGetCurrentChain() const
 {
-    // if the user sets the maximum number of threads to something
-    // larger than the number of chains, then I don't know if openMP
-    // assigns work only to the first threads. Let's hope it does but
-    // it may be implementation-dependent. If this every returns a
-    // thread id greater or equal to the number of chains, the
-    // thread-safety code may get into trouble.
+    // serial case is the default
+    static const unsigned defaultChain = 0;
+    int threadIndex = 0;
+
+    if (fChainIndex.empty())
+        return defaultChain;
+
 #if THREAD_PARALLELIZATION
-    return omp_get_thread_num();
-#else
-    return 0;
+    threadIndex = omp_get_thread_num();
 #endif
+    ChainIndex_t::const_iterator it = fChainIndex.find(threadIndex);
+    if (it == fChainIndex.cend())
+        return defaultChain;
+    return it->second;
 }
 
 // ---------------------------------------------------------
@@ -1256,7 +1259,7 @@ void BCEngineMCMC::Remarginalize(bool autorange)
                             XMax[fMCMCTree_Parameters.size() + i] = fMCMCTree_Observables[i];
                     }
                 } else {
-                    fMCMCCurrentChain = fMCMCTree_Chain;
+                    UpdateChainIndex(fMCMCTree_Chain);
                     CalculateObservables(fMCMCTree_Parameters);
                     for (unsigned i = fMCMCTree_Parameters.size(); i < XMin.size(); ++i) {
                         if (fObservables[i - fMCMCTree_Parameters.size()].Value() < XMin[i])
@@ -1471,8 +1474,6 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned ichain, unsigned ipar
 // --------------------------------------------------------
 bool BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned chain, unsigned parameter)
 {
-    fMCMCCurrentChain = chain;
-
     // increase counter
     fMCMCNIterations[chain]++;
 
@@ -1517,8 +1518,6 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned chain, unsigned parameter)
 // --------------------------------------------------------
 bool BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned chain)
 {
-    fMCMCCurrentChain = chain;
-
     // increase counter
     fMCMCNIterations[chain]++;
 
@@ -1566,37 +1565,43 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis()
 {
     bool return_value = true;
 
-    if ( !fMCMCMultivariateProposalFunction ) { // run over pars one at a time
+    // define threading scheme with openMP
+    unsigned chunk = 1;
+    (void) chunk;
+    unsigned ichain;
+    (void) ichain;
+
+    // start with an empty thread->chain map
+    fChainIndex.clear();
+
+    if (!fMCMCMultivariateProposalFunction) {
+        /* run over parameters one at a time */
 
         for (unsigned ipar = 0; ipar < GetNParameters(); ++ipar) {
-            if ( GetParameter(ipar).Fixed() )
+            if (GetParameter(ipar).Fixed())
                 continue;
 
             //loop over chains
-            unsigned chunk = 1;
-            (void) chunk;
-            unsigned ichain;
-            (void) ichain;
             #pragma omp parallel for shared(chunk) private(ichain) schedule(static, chunk)
-            for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain)
+            for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
+                UpdateChainIndex(ichain);
                 return_value *= MCMCGetNewPointMetropolis(ichain, ipar);
-
-            fMCMCCurrentChain = -1;
+            }
         }
 
-    } else {											// run over all pars at once
+    } else {
+        /* run over all pars at once */
 
         //loop over chains
-        unsigned chunk = 1;
-        (void) chunk;
-        unsigned ichain;
-        (void) ichain;
         #pragma omp parallel for shared(chunk) private(ichain) schedule(static, chunk)
-        for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain)
+        for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
+            UpdateChainIndex(ichain);
             return_value *= MCMCGetNewPointMetropolis(ichain);
-
-        fMCMCCurrentChain = -1;
+        }
     }
+
+    // leave with an empty thread->chain map
+    fChainIndex.clear();
 
     // increase number of iterations used in each chain for calculating efficiencies
     for (unsigned c = 0; c < fMCMCNChains; ++c)
@@ -1990,7 +1995,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
     fMCMCCurrentIteration = -1;
 
     // reset current chain
-    fMCMCCurrentChain = -1;
+    fChainIndex.clear();
 
     if (fMCMCFlagWritePreRunToFile) {
         // UpdateParameterTree();
@@ -2187,7 +2192,7 @@ bool BCEngineMCMC::MCMCMetropolis()
     fMCMCCurrentIteration = -1;
 
     // reset current chain
-    fMCMCCurrentChain = -1;
+    fChainIndex.clear();
 
     // set flags
     fMCMCFlagRun = true;
@@ -2208,10 +2213,10 @@ void BCEngineMCMC::EvaluateObservables(unsigned chain)
 {
     if (chain > fMCMCNChains)
         return;
-    fMCMCCurrentChain = chain;
-    CalculateObservables(fMCMCx[fMCMCCurrentChain]);
+
+    CalculateObservables(fMCMCx[chain]);
     for (unsigned j = 0; j < GetNObservables(); ++j)
-        fMCMCObservables[fMCMCCurrentChain][j] = GetObservable(j).Value();
+        fMCMCObservables[chain][j] = GetObservable(j).Value();
 }
 
 // --------------------------------------------------------
@@ -2219,7 +2224,7 @@ void BCEngineMCMC::ResetResults()
 {
     // reset variables
     fMCMCCurrentIteration = -1;
-    fMCMCCurrentChain = -1;
+    fChainIndex.clear();
     fMCMCStatistics.clear();
     fMCMCStatistics_AllChains.Clear();
     fMCMCTrialFunctionScaleFactor.clear();
@@ -2349,33 +2354,33 @@ bool BCEngineMCMC::MCMCInitialize()
         // use range centers
         case kMCMCInitCenter : {
             fMCMCx.assign(fMCMCNChains, GetParameters().GetRangeCenters());
-            for (fMCMCCurrentChain = 0; fMCMCCurrentChain < static_cast<int>(fMCMCNChains); ++fMCMCCurrentChain) {
-                fMCMCprob[fMCMCCurrentChain] = LogEval(fMCMCx[fMCMCCurrentChain]);
-                if (!std::isfinite(fMCMCprob[fMCMCCurrentChain])) {
+            for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
+                fMCMCprob[ichain] = LogEval(fMCMCx[ichain]);
+                if (!std::isfinite(fMCMCprob[ichain])) {
                     BCLog::OutError("BCEngineMCMC::MCMCInitialize : Range center as initial point yields invalid probability.");
                     fMCMCx.clear();
                     return false;
                 }
             }
-            fMCMCCurrentChain = -1;
+
             break;
         }
 
         // uniformly distribute all coordinates in provided ranges
         case kMCMCInitRandomUniform : {
             fMCMCx.assign(fMCMCNChains, std::vector<double>());
-            for (fMCMCCurrentChain = 0; fMCMCCurrentChain < static_cast<int>(fMCMCNChains); ++fMCMCCurrentChain) {
-                for (unsigned n = 0; n < max_tries && !std::isfinite(fMCMCprob[fMCMCCurrentChain]); ++n) {
-                    fMCMCx[fMCMCCurrentChain] = GetParameters().GetUniformRandomValues(fMCMCThreadLocalStorage[fMCMCCurrentChain].rng);
-                    fMCMCprob[fMCMCCurrentChain] = LogEval(fMCMCx[fMCMCCurrentChain]);
+            for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
+                for (unsigned n = 0; n < max_tries && !std::isfinite(fMCMCprob[ichain]); ++n) {
+                    fMCMCx[ichain] = GetParameters().GetUniformRandomValues(fMCMCThreadLocalStorage[ichain].rng);
+                    fMCMCprob[ichain] = LogEval(fMCMCx[ichain]);
                 }
-                if (!std::isfinite(fMCMCprob[fMCMCCurrentChain])) {
+                if (!std::isfinite(fMCMCprob[ichain])) {
                     BCLog::OutError(Form("BCEngineMCMC::MCMCInitialize : Could not generate uniformly distributed initial point with valid probability in %u tries.", max_tries));
                     fMCMCx.clear();
                     return false;
                 }
             }
-            fMCMCCurrentChain = -1;
+
             break;
         }
 
@@ -2391,22 +2396,22 @@ bool BCEngineMCMC::MCMCInitialize()
             // set fixed values then check whether initial positions are within bounds
             // check whether initial positions are within bounds
             // also checks that initial position vectors are correct size
-            for (fMCMCCurrentChain = 0; fMCMCCurrentChain < static_cast<int>(fMCMCNChains); ++fMCMCCurrentChain) {
-                GetParameters().ApplyFixedValues(fMCMCx[fMCMCCurrentChain]);
-                if (!GetParameters().IsWithinLimits(fMCMCx[fMCMCCurrentChain])) {
+            for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
+                GetParameters().ApplyFixedValues(fMCMCx[ichain]);
+                if (!GetParameters().IsWithinLimits(fMCMCx[ichain])) {
                     BCLog::OutError("BCEngineMCMC::MCMCInitialize : User-defined initial point is out of bounds.");
                     fMCMCx.clear();
                     return false;
                 } else {
-                    fMCMCprob[fMCMCCurrentChain] = LogEval(fMCMCx[fMCMCCurrentChain]);
-                    if (!std::isfinite(fMCMCprob[fMCMCCurrentChain])) {
+                    fMCMCprob[ichain] = LogEval(fMCMCx[ichain]);
+                    if (!std::isfinite(fMCMCprob[ichain])) {
                         BCLog::OutError("BCEngineMCMC::MCMCInitialize : User-defined initial point yields invalid probability.");
                         fMCMCx.clear();
                         return false;
                     }
                 }
             }
-            fMCMCCurrentChain = -1;
+
             break;
         }
 
@@ -2417,24 +2422,24 @@ bool BCEngineMCMC::MCMCInitialize()
                 return false;
             }
             fMCMCx.assign(fMCMCNChains, std::vector<double>());
-            for (fMCMCCurrentChain = 0; fMCMCCurrentChain < static_cast<int>(fMCMCNChains); ++fMCMCCurrentChain) {
-                for (unsigned n = 0; n < max_tries && !std::isfinite(fMCMCprob[fMCMCCurrentChain]); ++n) {
-                    fMCMCx[fMCMCCurrentChain] = GetParameters().GetRandomValuesAccordingToPriors(fMCMCThreadLocalStorage[fMCMCCurrentChain].rng);
+            for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
+                for (unsigned n = 0; n < max_tries && !std::isfinite(fMCMCprob[ichain]); ++n) {
+                    fMCMCx[ichain] = GetParameters().GetRandomValuesAccordingToPriors(fMCMCThreadLocalStorage[ichain].rng);
                     // check new point
-                    if (!GetParameters().IsWithinLimits(fMCMCx[fMCMCCurrentChain])) {
+                    if (!GetParameters().IsWithinLimits(fMCMCx[ichain])) {
                         BCLog::OutError("BCEngineMCMC::MCMCInitialize : Could not generate random point within limits.");
                         fMCMCx.clear();
                         return false;
                     }
-                    fMCMCprob[fMCMCCurrentChain] = LogEval(fMCMCx[fMCMCCurrentChain]);
+                    fMCMCprob[ichain] = LogEval(fMCMCx[ichain]);
                 }
-                if (!std::isfinite(fMCMCprob[fMCMCCurrentChain])) {
+                if (!std::isfinite(fMCMCprob[ichain])) {
                     BCLog::OutError(Form("BCEngineMCMC::MCMCInitialize : Could not generate initial point from prior with valid probability in %u tries.", max_tries));
                     fMCMCx.clear();
                     return false;
                 }
             }
-            fMCMCCurrentChain = -1;
+
             break;
         }
 
@@ -3565,36 +3570,47 @@ void BCEngineMCMC::SyncThreadStorage()
 }
 
 // ---------------------------------------------------------
-BCEngineMCMC::MCMCStatistics::MCMCStatistics(const BCEngineMCMC::MCMCStatistics& other)
-    : n_samples(other.n_samples)
-    , mean(other.mean)
-    , variance(other.variance)
-    , covariance(other.covariance)
-    , minimum(other.minimum)
-    , maximum(other.maximum)
-    , probability_mean(other.probability_mean)
-    , probability_variance(other.probability_variance)
-    , mode(other.mode)
-    , probability_at_mode(other.probability_at_mode)
-    , n_samples_efficiency(other.n_samples_efficiency)
-    , efficiency(other.efficiency)
+void BCEngineMCMC::UpdateChainIndex(int chain)
+{
+#if THREAD_PARALLELIZATION
+    // encapsula write access in critical section to avoid seg faults when a dangling reference is returned
+    #pragma omp critical(BCEngineMCMC_UpdateChainIndex)
+    { fChainIndex[omp_get_thread_num()] = chain; }
+#else
+    fChainIndex[0] = chain;
+#endif
+}
+
+// ---------------------------------------------------------
+BCEngineMCMC::MCMCStatistics::MCMCStatistics(const BCEngineMCMC::MCMCStatistics& other) :
+    n_samples(other.n_samples), mean(other.mean),
+    variance(other.variance),
+    covariance(other.covariance),
+    minimum(other.minimum),
+    maximum(other.maximum),
+    probability_mean(other.probability_mean),
+    probability_variance(other.probability_variance),
+    mode(other.mode),
+    probability_at_mode(other.probability_at_mode),
+    n_samples_efficiency(other.n_samples_efficiency),
+    efficiency(other.efficiency)
 {
 }
 
 // ---------------------------------------------------------
-BCEngineMCMC::MCMCStatistics::MCMCStatistics(unsigned n_par, unsigned n_obs)
-    :	n_samples(0),
-      mean(n_par + n_obs, 0),
-      variance(mean.size(), 0),
-      covariance(mean.size(), std::vector<double>(mean.size(), 0)),
-      minimum(mean.size(), +std::numeric_limits<double>::infinity()),
-      maximum(mean.size(), -std::numeric_limits<double>::infinity()),
-      probability_mean(0),
-      probability_variance(0),
-      mode(mean.size(), 0),
-      probability_at_mode(-std::numeric_limits<double>::infinity()),
-      n_samples_efficiency(0),
-      efficiency(n_par, 0.)
+BCEngineMCMC::MCMCStatistics::MCMCStatistics(unsigned n_par, unsigned n_obs) :
+    n_samples(0),
+    mean(n_par + n_obs, 0),
+    variance(mean.size(), 0),
+    covariance(mean.size(), std::vector<double>(mean.size(), 0)),
+    minimum(mean.size(), +std::numeric_limits<double>::infinity()),
+    maximum(mean.size(), -std::numeric_limits<double>::infinity()),
+    probability_mean(0),
+    probability_variance(0),
+    mode(mean.size(), 0),
+    probability_at_mode(-std::numeric_limits<double>::infinity()),
+    n_samples_efficiency(0),
+    efficiency(n_par, 0.)
 {
 }
 

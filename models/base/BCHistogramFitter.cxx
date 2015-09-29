@@ -107,7 +107,7 @@ bool BCHistogramFitter::SetHistogramExpected(const std::vector<double>& paramete
     // get the number of bins
     int nBins = fHistogramExpected->GetNbinsX();
 
-    const unsigned c = MCMCGetThreadNum();
+    const unsigned c = MCMCGetCurrentChain();
 
     //set the parameters of fit function
     fFitFunction[c]->SetParameters(&parameters[0]);
@@ -149,7 +149,7 @@ BCHistogramFitter::~BCHistogramFitter()
 // ---------------------------------------------------------
 double BCHistogramFitter::LogLikelihood(const std::vector<double>& params)
 {
-    const unsigned c = MCMCGetThreadNum();
+    const unsigned c = MCMCGetCurrentChain();
 
     if (!fFitFunction.at(c) or !fHistogram)
         return std::numeric_limits<double>::quiet_NaN();
@@ -195,7 +195,7 @@ double BCHistogramFitter::LogLikelihood(const std::vector<double>& params)
 double BCHistogramFitter::FitFunction(const std::vector<double>& x, const std::vector<double>& params)
 {
     // update parameters in right TF1 and evaluate
-    const unsigned c = MCMCGetThreadNum();
+    const unsigned c = MCMCGetCurrentChain();
     fFitFunction.at(c)->SetParameters(&params[0]);
     return fFitFunction.at(c)->Eval(x[0]) * fHistogram->GetBinWidth(fHistogram->FindBin(x[0]));
 }
@@ -467,7 +467,7 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index, 
     // expectation value of this bin
     double yExp = 0.0;
 
-    const unsigned c = MCMCGetThreadNum();
+    const unsigned c = MCMCGetCurrentChain();
 
     fFitFunction.at(c)->SetParameters(&parameters[0]);
 

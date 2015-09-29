@@ -99,7 +99,7 @@ BCGraphFitter::~BCGraphFitter()
 // ---------------------------------------------------------
 double BCGraphFitter::LogLikelihood(const std::vector<double>& params)
 {
-    unsigned c = MCMCGetThreadNum();
+    unsigned c = MCMCGetCurrentChain();
 
     if (!fFitFunction.at(c) or !GetDataSet() or GetDataSet()->GetNDataPoints() == 0)
         return std::numeric_limits<double>::quiet_NaN();
@@ -259,7 +259,7 @@ double BCGraphFitter::CalculateChi2(const std::vector<double>& pars)
     if (fFitFunction.empty() or !GetDataSet())
         return std::numeric_limits<double>::quiet_NaN();
 
-    const unsigned c = MCMCGetThreadNum();
+    const unsigned c = MCMCGetCurrentChain();
 
     // set pars into fit function
     fFitFunction[c]->SetParameters(&pars[0]);

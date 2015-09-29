@@ -125,7 +125,7 @@ BCEfficiencyFitter::~BCEfficiencyFitter()
 // ---------------------------------------------------------
 double BCEfficiencyFitter::LogLikelihood(const std::vector<double>& params)
 {
-    unsigned c = MCMCGetThreadNum();
+    unsigned c = MCMCGetCurrentChain();
 
     if (!fFitFunction.at(c) or !fHistogram1 or !fHistogram2)
         return -std::numeric_limits<double>::quiet_NaN();

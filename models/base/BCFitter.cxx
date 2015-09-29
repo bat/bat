@@ -235,7 +235,7 @@ void BCFitter::FillErrorBand()
 double BCFitter::FitFunction(const std::vector<double>& x, const std::vector<double>& params)
 {
     // update parameters in right TF1 and evaluate
-    const unsigned c = MCMCGetThreadNum();
+    const unsigned c = MCMCGetCurrentChain();
     fFitFunction.at(c)->SetParameters(&params[0]);
     return fFitFunction.at(c)->Eval(x[0]);
 }
