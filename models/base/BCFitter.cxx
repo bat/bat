@@ -74,11 +74,11 @@ bool BCFitter::SetFitFunction(TF1* f)
         delete fFitFunction[i];
     fFitFunction.assign(1, new TF1(*f));
 
-#if ROOTVERSION >= 6005002
+#if ROOTVERSION == 6005002
     // due to a bug in root, the normalization member is not copied and gets a random initialization can be `true`
     // giving rise to a lot of useless integrals.
-    // But we want to interpret the function as 'as is' and not as a pdf => no normalization integral
-    fFitFunction.back()->SetNormalized(false);
+    // But we want to interpret the function as 'as is'. If the user want to normalize it, we should not change that.
+    fFitFunction.back()->SetNormalized(f->IsEvalNormalized());
 #endif
     if (!fFitFunction[0]) {
         BCLog::OutError("BCFitter::SetFitFunction : could not copy TF1.");
@@ -120,8 +120,8 @@ bool BCFitter::MCMCUserInitialize()
 #if ROOTVERSION >= 6005002
         // due to a bug in root, the normalization member is not copied and gets a random initialization can be `true`
         // giving rise to a lot of useless integrals.
-        // But we want to interpret the function as 'as is' and not as a pdf => no normalization integral
-        fFitFunction.back()->SetNormalized(false);
+        // But we want to interpret the function as 'as is'. If the user want to normalize it, we should not change that.
+        fFitFunction.back()->SetNormalized(fFitFunction[0]->IsEvalNormalized());
 #endif
     }
 
