@@ -334,7 +334,7 @@ AC_MSG_RESULT($hasmathmore)
 AM_CONDITIONAL([ROOTMATHMORE], [test x$hasmathmore = xyes])
 
 dnl RooFit
-if test $use_roostats = yes; then
+if test x$use_roostats = xyes; then
 	HAS_ROOSTATS(
 		AC_MSG_RESULT([Compiling BAT with RooStats support.]),
 		[
@@ -346,7 +346,7 @@ if test $use_roostats = yes; then
 	)
 fi
 AM_CONDITIONAL([ROOSTATS], [test x$use_roostats = xyes])
-if test $use_roostats = yes; then
+if test x$use_roostats = xyes; then
 	ROOTLIBS="$ROOTLIBS -lRooFitCore -lRooFit -lRooStats -lFoam"
 fi
 
