@@ -608,7 +608,7 @@ unsigned BCEngineMCMC::MCMCGetCurrentChain() const
     threadIndex = omp_get_thread_num();
 #endif
     ChainIndex_t::const_iterator it = fChainIndex.find(threadIndex);
-    if (it == fChainIndex.cend())
+    if (it == fChainIndex.end())
         return defaultChain;
     return it->second;
 }
