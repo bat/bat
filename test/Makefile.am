@@ -13,13 +13,13 @@ AM_CXXFLAGS += -g -O0 -Wall -Wextra -pedantic -Wno-long-long -Wno-unknown-pragma
 else
 AM_CXXFLAGS += -O2 -Wno-unknown-pragmas
 endif
+AM_LDFLAGS = -L$(ROOTLIBDIR)
 
 noinst_LIBRARIES = libBATtest.a
 
 libBATtest_a_SOURCES = \
 	test.cxx test.h \
 	GaussModel.cxx GaussModel.h
-
 
 # Use extension .TEST for test binaries need to make test depencencies work:
 TEST_EXTENSIONS = .TEST
@@ -49,8 +49,6 @@ LDADD = \
 	$(top_builddir)/models/mvc/libBATmvc.la \
 	$(top_builddir)/models/mtf/libBATmtf.la \
 	$(ROOTLIBS)
-
-LDFLAGS = -L$(ROOTLIBDIR)
 
 check_PROGRAMS = $(TESTS)
 

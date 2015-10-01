@@ -61,6 +61,7 @@ doc/introduction/versions.tex
 !doc/quickstart/Makefile
 *.el
 *.aux
+doc/ref-guide/
 
 # Editors
 .autotools
@@ -87,7 +88,9 @@ runTestSuite
 
 # unit tests
 *_TEST
+*.TEST
 *.trs
+log.txt
 
 # local cuba directory
 /external/cuba-*
