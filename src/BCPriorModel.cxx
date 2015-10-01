@@ -43,7 +43,9 @@ bool BCPriorModel::PreparePriorModel()
 // ---------------------------------------------------------
 void BCPriorModel::CalculateObservables(const std::vector<double>& parameters)
 {
-    fModel.fMCMCCurrentChain = fMCMCCurrentChain;
+    // help with thread safety and correctness of sampling
+    fModel.UpdateChainIndex(MCMCGetCurrentChain());
+
     if (fCallLikelihood)
         fModel.LogLikelihood(parameters);
     fModel.CalculateObservables(parameters);

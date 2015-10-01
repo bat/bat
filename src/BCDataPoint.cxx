@@ -41,7 +41,7 @@ void BCDataPoint::SetValues(const std::vector<double>& values)
 }
 
 // ---------------------------------------------------------
-void BCDataPoint::PrintSummary(void (*output)(std::string)) const
+void BCDataPoint::PrintSummary(void (*output)(const std::string&)) const
 {
     for (unsigned i = 0; i < fData.size(); ++i)
         output(Form("%u : %12.5g", i, fData[i]));

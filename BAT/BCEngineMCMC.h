@@ -37,6 +37,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <map>
 #include <string>
 #include <utility>
 #include <vector>
@@ -211,9 +212,9 @@ public:
     { return fMCMCCurrentIteration; }
 
     /**
-     * @return current chain index */
-    int MCMCGetCurrentChain() const
-    { return fMCMCCurrentChain; }
+     * @return current chain index. If no chain is currently selected
+     * (for example, not within mcmc), return 0. */
+    unsigned MCMCGetCurrentChain() const;
 
     /**
      * @return number of iterations needed for all chains to
@@ -397,10 +398,6 @@ public:
      * Retrieve output file for MCMC. */
     TFile* MCMCGetOutputFile() const
     { return fMCMCOutputFile; }
-
-    /**
-     * @return 0 in serial mode, or the current thread number in parallel mode. */
-    unsigned MCMCGetThreadNum() const;
 
     /**
      * Get combined statistics for all chains. */
@@ -1075,7 +1072,7 @@ public:
      * Print parameters
      * @param P vector of the parameter values to be printed
      * @param output pointer to the output function to be used, which defaults to BCLog::OutSummary */
-    void PrintParameters(const std::vector<double>& P, void (*output)(std::string) = BCLog::OutSummary) const;
+    void PrintParameters(const std::vector<double>& P, void (*output)(const std::string&) = BCLog::OutSummary) const;
 
     /**
      * Print all marginalizations.
@@ -1382,6 +1379,13 @@ public:
      * Update cholesky-decompositions for multivariate proposal function. */
     virtual bool UpdateCholeskyDecompositions();
 
+    /**
+     * Keep track of which chain is currently computed (within a thread).
+     *
+     * @warning Call this method only if you know what you are doing!
+     */
+    void UpdateChainIndex(int chain);
+
     /** @} */
 
 private:
@@ -1422,6 +1426,9 @@ private:
     /**
      * Ensure that there are as many storages as chains */
     void SyncThreadStorage();
+
+    typedef std::map<int, unsigned> ChainIndex_t;
+    ChainIndex_t fChainIndex;
 
 protected:
 
@@ -1494,11 +1501,6 @@ protected:
      * The current iteration number. If not called within the running
      * of the algorithm, return -1. */
     int fMCMCCurrentIteration;
-
-    /**
-     * The current chain index. If not called within the running of the
-     * algorithm, return -1. */
-    int fMCMCCurrentChain;
 
     /**
      * Number of iterations between scale adjustments and convergence

@@ -87,7 +87,7 @@ double BCModel::LogProbabilityNN(const std::vector<double>& parameters)
 {
     double ll = LogLikelihood(parameters);
     double lp = LogAPrioriProbability(parameters);
-    if (MCMCGetCurrentChain() >= 0 and MCMCGetCurrentChain() < (int)fMCMCLogLikelihood_Provisional.size() and MCMCGetCurrentChain() < (int)fMCMCLogPrior_Provisional.size()) {
+    if (MCMCGetCurrentChain() < fMCMCLogLikelihood_Provisional.size() and MCMCGetCurrentChain() < fMCMCLogPrior_Provisional.size()) {
         fMCMCLogLikelihood_Provisional[MCMCGetCurrentChain()] = ll;
         fMCMCLogPrior_Provisional[MCMCGetCurrentChain()] = lp;
     }
@@ -197,7 +197,7 @@ void BCModel::PrintHessianMatrix(std::vector<double> parameters)
     BCLog::OutSummary("Hessian matrix elements: ");
     BCLog::OutSummary("Parameter values:");
 
-    for (int i = 0; i < int(parameters.size()); i++)
+    for (unsigned i = 0; i < parameters.size(); ++i)
         BCLog::OutSummary(Form("Parameter %d : %f", i, parameters.at(i)));
 
     BCLog::OutSummary("Hessian matrix:");

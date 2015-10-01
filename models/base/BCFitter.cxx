@@ -7,6 +7,7 @@
  */
 
 // ---------------------------------------------------------
+#include <config.h>
 
 #include "BCFitter.h"
 
@@ -50,8 +51,7 @@ BCFitter::BCFitter(TF1* f, std::string name)
       fErrorBandNbinsY(500),
       fErrorBandXY(0)
 {
-    if (f)
-        SetFitFunction(f);
+    SetFitFunction(f);
 }
 
 // ---------------------------------------------------------
@@ -69,10 +69,17 @@ bool BCFitter::SetFitFunction(TF1* f)
         return false;
     }
 
-    // delete fFitFunction contents
+    // reset fFitFunction contents
     for (unsigned i = 0; i < fFitFunction.size(); ++i)
         delete fFitFunction[i];
     fFitFunction.assign(1, new TF1(*f));
+
+#if ROOTVERSION == 6005002
+    // due to a bug in root, the normalization member is not copied and gets a random initialization can be `true`
+    // giving rise to a lot of useless integrals.
+    // But we want to interpret the function as 'as is'. If the user want to normalize it, we should not change that.
+    fFitFunction.back()->SetNormalized(f->IsEvalNormalized());
+#endif
     if (!fFitFunction[0]) {
         BCLog::OutError("BCFitter::SetFitFunction : could not copy TF1.");
         fFitFunction.clear();
@@ -108,8 +115,15 @@ bool BCFitter::MCMCUserInitialize()
         return false;
     }
     // add copies of the first function if necessary
-    while (fFitFunction.size() < fMCMCNChains)
+    while (fFitFunction.size() < fMCMCNChains) {
         fFitFunction.push_back(new TF1(*fFitFunction[0]));
+#if ROOTVERSION >= 6005002
+        // due to a bug in root, the normalization member is not copied and gets a random initialization can be `true`
+        // giving rise to a lot of useless integrals.
+        // But we want to interpret the function as 'as is'. If the user want to normalize it, we should not change that.
+        fFitFunction.back()->SetNormalized(fFitFunction[0]->IsEvalNormalized());
+#endif
+    }
 
     // remove elements if necessary
     while (fFitFunction.size() > fMCMCNChains) {
@@ -221,7 +235,7 @@ void BCFitter::FillErrorBand()
 double BCFitter::FitFunction(const std::vector<double>& x, const std::vector<double>& params)
 {
     // update parameters in right TF1 and evaluate
-    const unsigned c = MCMCGetThreadNum();
+    const unsigned c = MCMCGetCurrentChain();
     fFitFunction.at(c)->SetParameters(&params[0]);
     return fFitFunction.at(c)->Eval(x[0]);
 }

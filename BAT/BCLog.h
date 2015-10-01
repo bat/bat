@@ -22,6 +22,27 @@
 
 // ---------------------------------------------------------
 
+/**
+ * Macros to output a message to the log including the class and method name.
+ */
+#define BCLOG_INTERNAL_OUT(t, s) \
+    do {\
+    BCLog:: t \
+      (std::string(__PRETTY_FUNCTION__) + ": " + s); \
+    } while (false)
+
+#define BCLOG_DEBUG(s)   BCLOG_INTERNAL_OUT(OutDebug, s)
+
+#define BCLOG_DETAIL(s)  BCLOG_INTERNAL_OUT(OutDetail, s)
+
+#define BCLOG_ERROR(s)   BCLOG_INTERNAL_OUT(OutError, s)
+
+#define BCLOG_SUMMARY(s) BCLOG_INTERNAL_OUT(OutSummary, s)
+
+#define BCLOG_WARNING(s) BCLOG_INTERNAL_OUT(OutWarning, s)
+
+// ---------------------------------------------------------
+
 #include <fstream>
 #include <string>
 
@@ -105,7 +126,7 @@ public:
      * @param filename log filename
      * @param loglevelfile minimum log level for file output
      * @param loglevelscreen minimum log level for screen output */
-    static void OpenLog(std::string filename = "log.txt", BCLog::LogLevel loglevelfile = BCLog::debug, BCLog::LogLevel loglevelscreen = BCLog::summary);
+    static void OpenLog(const std::string& filename = "log.txt", BCLog::LogLevel loglevelfile = BCLog::debug, BCLog::LogLevel loglevelscreen = BCLog::summary);
 
     /**
      * @returns true if log file is open or false if not. */
@@ -122,27 +143,27 @@ public:
      * @param loglevelfile loglevel for the current message
      * @param loglevelscreen loglevel for the current message
      * @param message string to write to the file and screen log */
-    static void Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, std::string message);
+    static void Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, const std::string& message);
 
-    static void Out(std::string message)
+    static void Out(const std::string& message)
     { Out(BCLog::fMinimumLogLevelFile, BCLog::fMinimumLogLevelScreen, message); }
 
-    static void Out(BCLog::LogLevel loglevel, std::string message)
+    static void Out(BCLog::LogLevel loglevel, const std::string& message)
     { Out(loglevel, loglevel, message); };
 
-    static void OutError(std::string message)
+    static void OutError(const std::string& message)
     { Out(error, message); };
 
-    static void OutWarning(std::string message)
+    static void OutWarning(const std::string& message)
     { Out(warning, message); };
 
-    static void OutSummary(std::string message)
+    static void OutSummary(const std::string& message)
     { Out(summary, message); };
 
-    static void OutDetail(std::string message)
+    static void OutDetail(const std::string& message)
     { Out(detail, message); };
 
-    static void OutDebug(std::string message)
+    static void OutDebug(const std::string& message)
     { Out(debug, message); };
 
     /**
@@ -151,7 +172,7 @@ public:
 
     /**
      * @return string containing the version number  */
-    static std::string GetVersion()
+    static const std::string& GetVersion()
     { return fVersion; };
 
     /**

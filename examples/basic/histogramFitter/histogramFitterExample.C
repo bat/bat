@@ -105,10 +105,7 @@ void histogramFitterExample()
 
     // calculate p values
     hf->CalculatePValueFast(hf->GetGlobalMode());
-    double pvalue = hf->GetPValue();
-    double pvalueCorrected = hf->GetPValueNDoF();
-
-    cout << "Pvalue " << pvalue << ", corrected " << pvalueCorrected << endl;
+    cout << "Pvalue " << hf->GetPValue() << ", corrected for degrees of freedom " << hf->GetPValueNDoF() << endl;
 
     // print marginalized distributions
     hf->PrintAllMarginalized("distributions.pdf");
