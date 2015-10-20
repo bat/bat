@@ -516,7 +516,7 @@ double BCIntegrate::Integrate(BCIntegrationMethod type, tRandomizer randomizer, 
     (*updater)(sums, fNIterations, integral, absprecision);
     relprecision = absprecision / integral;
 
-    if (unsigned(fNIterations) >= fMCMCNIterationsPreRunMax)
+    if (fNIterations >= GetNIterationsMax())
         BCLog::OutWarning("BCIntegrate::Integrate: Did not converge within maximum number of iterations");
 
     // print to log
@@ -1956,14 +1956,14 @@ std::string BCIntegrate::DumpCubaIntegrationMethod(BCIntegrate::BCCubaMethod typ
 }
 
 // ---------------------------------------------------------
-BCCubaOptions::General::General()
-    :	ncomp(1)
-    , flags(0)
-    , nregions(0)
-    , neval(0)
-    , fail(0)
-    , error(0)
-    , prob(0)
+BCCubaOptions::General::General():
+    ncomp(1),
+    flags(0),
+    nregions(0),
+    neval(0),
+    fail(0),
+    error(0),
+    prob(0)
 {}
 
 // ---------------------------------------------------------
@@ -1971,43 +1971,42 @@ BCCubaOptions::General::~General()
 {}
 
 /*
- * copy values from demo-c.c shipping with cuba 3.2
- * for three-dimensional examples.
+ * Copy default values from sec. 7.3.1 of the cuba manual for version 4.2.
  */
 
 // ---------------------------------------------------------
-BCCubaOptions::Vegas::Vegas()
-    : General()
-    , nstart(1000)
-    , nincrease(500)
-    , nbatch(1000)
-    , gridno(0)
+BCCubaOptions::Vegas::Vegas():
+    General(),
+    nstart(1000),
+    nincrease(500),
+    nbatch(1000),
+    gridno(0)
 {}
 
 // ---------------------------------------------------------
-BCCubaOptions::Suave::Suave()
-    : General()
-    , nmin(2)
-    , nnew(1000)
-    , flatness(25)
+BCCubaOptions::Suave::Suave():
+    General(),
+    nmin(2),
+    nnew(1000),
+    flatness(50)
 {}
 
 // ---------------------------------------------------------
-BCCubaOptions::Divonne::Divonne()
-    : General()
-    , key1(47)
-    , key2(1)
-    , key3(1)
-    , maxpass(5)
-    , border(0)
-    , maxchisq(10)
-    , mindeviation(0.25)
+BCCubaOptions::Divonne::Divonne():
+    General(),
+    key1(47),
+    key2(1),
+    key3(1),
+    maxpass(5),
+    border(0),
+    maxchisq(10),
+    mindeviation(0.25)
 {}
 
 // ---------------------------------------------------------
-BCCubaOptions::Cuhre::Cuhre()
-    : General()
-    , key(0) // let cuba choose default cubature rule
+BCCubaOptions::Cuhre::Cuhre():
+    General(),
+    key(0) // let cuba choose default cubature rule
 {}
 
 // ---------------------------------------------------------
