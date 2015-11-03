@@ -29,7 +29,7 @@ public:
     /* @{ */
 
     /** The default constructor */
-    TestSuite();
+    TestSuite(bool multivariate, double dof);
 
     /** The default destructor */
     ~TestSuite();
@@ -37,14 +37,6 @@ public:
     /* @} */
     /** \name Member functions (Set) */
     /* @{ */
-
-    /** MCMC with multivariate proposal
-     */
-    void SetMultivariate(bool flag);
-
-    /** Set the lag of the tests
-     */
-    void SetLag(unsigned lag);
 
     /** Set the precision of the tests
      * @param the precision. */
@@ -84,8 +76,8 @@ public:
 
     /** Get the number of tests which belong to this test.
      * @return the number of tests. */
-    int GetNTests()
-    { return int(fTestContainer.size()); };
+    size_t GetNTests()
+    { return fTestContainer.size(); };
 
     /** Get the number of tests which belong to this test with
      * specified status.
@@ -96,7 +88,7 @@ public:
     /** Find a test by index
      * @param index the index of the test.
      * @return the subtest. */
-    PerfTest* GetTest(int index)
+    PerfTest* GetTest(unsigned index)
     { return fTestContainer.at(index); };
 
     /** Find a test by name
@@ -134,6 +126,13 @@ public:
 
     /* @} */
 
+protected:
+    /** Multivariate MCMC proposal */
+    bool fMultivariate;
+
+    /** Student's T degree of freedom */
+    double fDof;
+
 private:
 
     /** A container of tests which belong to the test suite. */
@@ -159,8 +158,6 @@ private:
 
     /** Set file extension for the html files (.html by default) */
     std::string fHtmlFileExtension;
-
 };
 
 #endif
-

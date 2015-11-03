@@ -331,6 +331,10 @@ dnl is compiled with MathMore support... ` can appear twice. Not big deal.
 AC_MSG_CHECKING(whether ROOT is compiled with MathMore support)
 hasmathmore=`$ROOTCONF --has-mathmore`
 AC_MSG_RESULT($hasmathmore)
+if test x$hasmathmore = xyes; then
+   ROOTLIBS="$ROOTLIBS -lMathMore"
+   AC_DEFINE([ROOTMATHMORE], 1,  [ROOT MathMore available])
+fi
 AM_CONDITIONAL([ROOTMATHMORE], [test x$hasmathmore = xyes])
 
 dnl RooFit

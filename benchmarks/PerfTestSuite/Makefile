@@ -1,8 +1,8 @@
 # Programs
 CXX          = g++
-CXXFLAGS     = -g -Wall -fPIC -Wno-deprecated -O2
+CXXFLAGS     = -g -O0 -Wall -Wextra -pedantic -Werror -fPIC
 LD           = g++
-LDFLAGS      = -g -O2
+LDFLAGS      = -g -O0
 SOFLAGS      = -shared
 
 AR           = ar

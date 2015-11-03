@@ -302,6 +302,13 @@ int PerfTest1DFunction::PostTest()
     // free memory
     delete rnd;
 
+// If we don't delete, there are memory leaks but otherwise some output plots are missing
+#if 0
+    delete hist_func;
+    delete hist_marg;
+    delete hist_diff;
+    delete hist_diff_1sigma;
+#endif
     // no error
     return 1;
 }

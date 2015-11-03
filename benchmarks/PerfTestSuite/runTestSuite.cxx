@@ -12,22 +12,18 @@ using namespace std;
 int main()
 {
     // create new test suite
-    ReleaseTestSuite rts;
+    static const bool multivariate = false;
+    static const double dof = 1.0;
+    ReleaseTestSuite rts(multivariate, dof);
 
     // prepare test suite
     rts.PrepareTests();
 
     // setup html output as needed for BAT webpage
-//    rts.WebpageSetup();
+    //    rts.WebpageSetup();
 
     // set precision: kCoarse, kMedium, kDetail
     rts.SetPrecision(PerfTest::kMedium);
-
-    // call after SetPrecision
-    rts.SetLag(20);
-
-    // multivariate proposal
-    rts.SetMultivariate(true);
 
     // run all tests
     rts.RunTests();

@@ -50,8 +50,13 @@ public:
      * @param par the parameter value
      * @param name the name of the varied parameter.
      * @return an error code. */
-    virtual int SetVarPar(double value, std::string name)
+    virtual int SetVarPar(double /*value*/, std::string /*name*/)
     { return 0; };
+
+    virtual void SetProposal(bool multivariate, double dof)
+    {
+        fTest->SetProposal(multivariate, dof);
+    }
 
     /* @} */
     /** \name Member functions (Get)  */
@@ -66,6 +71,10 @@ public:
     /** Return the number of variation parameters. */
     int GetNVarPar()
     { return int(fVarParValues.size()); };
+
+    /** The underlying BCModel */
+    BCModel* GetModel()
+    { return fTest; }
 
     /* @} */
 
@@ -91,7 +100,6 @@ protected:
 
     /** Name of the variation parameter. */
     std::string fVarParName;
-
 private:
 
     /** The associated test. */

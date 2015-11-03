@@ -74,7 +74,6 @@ if ROOTMATHMORE
 libBATtest_a_SOURCES +=	IntegrationModel.cxx IntegrationModel.h
 TESTS += BCIntegrate.TEST
 BCIntegrate_TEST_SOURCES = BCIntegrate_TEST.cxx
-LDADD += -lMathMore
 if THREAD_PARALLELIZATION
 BCIntegrate.log: BCSummaryTool.log
 endif

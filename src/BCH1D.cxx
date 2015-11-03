@@ -13,20 +13,22 @@
 #include "BCLog.h"
 #include "BCMath.h"
 
-#include <TH1D.h>
-#include <TAxis.h>
-#include <TROOT.h>
-#include <TStyle.h>
-#include <TPad.h>
-#include <TLine.h>
-#include <TMarker.h>
 #include <TArrow.h>
+#include <TAxis.h>
+#include <TH1D.h>
 #include <TLegend.h>
 #include <TLegendEntry.h>
+#include <TLine.h>
+#include <TMarker.h>
+#include <TROOT.h>
 #include <TString.h>
+#include <TStyle.h>
+#include <TPad.h>
 
-#include <math.h>
 #include <algorithm>
+#include <limits>
+#include <math.h>
+
 
 // ---------------------------------------------------------
 BCH1D::BCH1D(const TH1* const hist)
@@ -475,3 +477,24 @@ std::vector<BCH1D::BCH1DSmallestInterval> BCH1D::GetSmallestIntervals(std::vecto
     }
     return result;
 }
+
+// ---------------------------------------------------------
+BCH1D::BCH1DInterval::BCH1DInterval():
+    xmin(std::numeric_limits<double>::quiet_NaN()),
+    xmax(std::numeric_limits<double>::quiet_NaN()),
+    mode(std::numeric_limits<double>::quiet_NaN()),
+    relative_height(0),
+    relative_mass(0)
+{
+}
+
+// ---------------------------------------------------------
+BCH1D::BCH1DSmallestInterval::BCH1DSmallestInterval():
+    intervals(),
+    total_mass(0),
+    mode(0),
+    max_val(0)
+{
+}
+
+

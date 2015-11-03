@@ -65,8 +65,11 @@ public:
      * @param par the parameter value
      * @param name the name of the varied parameter.
      * @return an error code. */
-    virtual int SetVarPar(double value, std::string name)
+    virtual int SetVarPar(double /*value*/, std::string /*name*/)
     { return 0; };
+
+    /** Turn on multivariate proposal with degrees of freedom */
+    virtual void SetProposal(bool multivariate, double dof) = 0;
 
     /* @} */
     /** \name Member functions (Get)  */
@@ -245,4 +248,3 @@ private:
 };
 
 #endif
-
