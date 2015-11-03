@@ -98,7 +98,7 @@ BCIntegrate::BCIntegrate(std::string name)
     ,	fRelativePrecision(1e-2)
     ,	fAbsolutePrecision(1e-6)
     ,	fError(-999.)
-    ,	fCubaIntegrationMethod(BCIntegrate::kCubaVegas)
+    ,	fCubaIntegrationMethod(BCIntegrate::kCubaDivonne)
 {
     fMinuitArglist[0] = 20000;
     fMinuitArglist[1] = 0.01;
@@ -138,7 +138,7 @@ BCIntegrate::BCIntegrate(std::string filename, std::string name, bool loadObserv
     ,	fRelativePrecision(1e-2)
     ,	fAbsolutePrecision(1e-6)
     ,	fError(-999.)
-    ,	fCubaIntegrationMethod(BCIntegrate::kCubaVegas)
+    ,	fCubaIntegrationMethod(BCIntegrate::kCubaDivonne)
 {
     fMinuitArglist[0] = 20000;
     fMinuitArglist[1] = 0.01;
@@ -329,14 +329,19 @@ double BCIntegrate::Integrate()
 
         // default
         case BCIntegrate::kIntDefault: {
-            if (GetNFreeParameters() <= 2)
+            if (GetNFreeParameters() <= 3) {
+#ifdef HAVE_CUBA_H
+                SetIntegrationMethod(BCIntegrate::kIntCuba);
+#else
                 SetIntegrationMethod(BCIntegrate::kIntGrid);
-            else
+#endif
+            } else {
 #ifdef HAVE_CUBA_H
                 SetIntegrationMethod(BCIntegrate::kIntCuba);
 #else
                 SetIntegrationMethod(BCIntegrate::kIntMonteCarlo);
 #endif
+            }
             return Integrate();
         }
 
@@ -689,6 +694,9 @@ int BCIntegrate::MarginalizeAll()
             fH1Marginalized.assign(GetNParameters(), NULL);
             fH2Marginalized.assign(GetNParameters(), std::vector<TH2*>(GetNParameters(), NULL));
 
+            // count how often posterior is evaluated
+            unsigned nIterations = 0;
+
             // store highest probability
             double log_max_val = -std::numeric_limits<double>::infinity();
             std::vector<double> bestfit_parameters = fixpoint;
@@ -700,7 +708,7 @@ int BCIntegrate::MarginalizeAll()
                         continue;
 
                     // calculate slice
-                    fH1Marginalized[i] = GetSlice(i, log_max_val, fixpoint, 0, false);
+                    fH1Marginalized[i] = GetSlice(i, nIterations, log_max_val, fixpoint, 0, false);
 
                     if ( fH1Marginalized[i]->Integral() > 0 ) { // histogram is nonempty
                         const int index = fH1Marginalized[i]->GetMaximumBin();
@@ -718,7 +726,7 @@ int BCIntegrate::MarginalizeAll()
                             continue;
 
                         // calculate slice
-                        fH2Marginalized[i][j] = GetSlice(i, j, log_max_val, fixpoint, 0, false);
+                        fH2Marginalized[i][j] = GetSlice(i, j, nIterations, log_max_val, fixpoint, 0, false);
 
                         if ( fH2Marginalized[i][j]->Integral() > 0 ) { // histogram is nonempty
                             int index1, index2, useless_index;
@@ -804,7 +812,7 @@ int BCIntegrate::MarginalizeAll(BCIntegrate::BCMarginalizationMethod margmethod)
 }
 
 // ---------------------------------------------------------
-TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, double& log_max_val, const std::vector<double> parameters, int nbins, bool normalize)
+TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, unsigned& nIterations, double& log_max_val, const std::vector<double> parameters, int nbins, bool normalize)
 {
     if (indices.empty()) {
         BCLog::OutError("BCIntegrate::GetSlice : No parameter indices provided.");
@@ -837,7 +845,7 @@ TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, double& log_max_val, c
                 indices.push_back(i);
 
         // slice in full free dimensions
-        TH1* slice_NnD = GetSlice(indices, log_max_val, parameters, nbins, normalize);
+        TH1* slice_NnD = GetSlice(indices, nIterations, log_max_val, parameters, nbins, normalize);
         if (slice_NnD == NULL)
             return NULL;
 
@@ -936,6 +944,7 @@ TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, double& log_max_val, c
             parameters_temp[indices[2]] = h->GetZaxis()->GetBinCenter(bz);
         // calculate log of function value at parameters
         double log_eval = LogEval(parameters_temp);
+        ++nIterations;
 
         // check max val
         log_max_val = std::max<double>(log_max_val, log_eval);
@@ -967,11 +976,11 @@ TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, double& log_max_val, c
 }
 
 // ---------------------------------------------------------
-TH2* BCIntegrate::GetSlice(unsigned index1, unsigned index2, double& log_max_val, const std::vector<double> parameters, int nbins, bool normalize)
+TH2* BCIntegrate::GetSlice(unsigned index1, unsigned index2, unsigned& nIterations, double& log_max_val, const std::vector<double> parameters, int nbins, bool normalize)
 {
     std::vector<unsigned> indices(1, index1);
     indices.push_back(index2);
-    return (TH2*) GetSlice(indices, log_max_val, parameters, nbins, normalize);
+    return (TH2*) GetSlice(indices, nIterations, log_max_val, parameters, nbins, normalize);
 }
 
 // ---------------------------------------------------------
@@ -1852,9 +1861,11 @@ double BCIntegrate::IntegrateSlice()
     LogOutputAtStartOfIntegration(fIntegrationMethodCurrent, NCubaMethods);
 
     double integral = -1;
+    fError = -1;
+
+    // precision isn't estimated here
     double absprecision  = -1;
     double relprecision  = -1;
-    fError = -1;
 
     // get vector of fixed values
     std::vector<double> fixpoint = GetParameters().GetFixedValues();
@@ -1866,18 +1877,20 @@ double BCIntegrate::IntegrateSlice()
             indices.push_back(i);
 
     // check size of vector of indices
-    if (indices.size() > 2) {
-        BCLog::OutWarning("BCIntegrate::IntegrateSlice: Method only implemented for 1D and 2D problems. Return -1.");
+    if (indices.size() > 3) {
+        BCLog::OutWarning("BCIntegrate::IntegrateSlice: Method only implemented for 1D, 2D, and 3D problems. Return -1.");
         integral = -1;
     }
 
+    unsigned nIterations = 0;
     double log_max_val = -std::numeric_limits<double>::infinity();
+
     // get slice, without normalizing
-    TH1* h = GetSlice(indices, log_max_val, fixpoint, 0, false);
+    TH1* h = GetSlice(indices, nIterations, log_max_val, fixpoint, 0, false);
     integral = h->Integral("width") * exp(log_max_val);
 
     // print to log
-    LogOutputAtEndOfIntegration(integral, absprecision, relprecision, -1);
+    LogOutputAtEndOfIntegration(integral, absprecision, relprecision, nIterations);
 
     return integral;
 }
