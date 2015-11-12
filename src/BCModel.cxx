@@ -85,8 +85,11 @@ void swap(BCModel& A, BCModel& B)
 // ---------------------------------------------------------
 double BCModel::LogProbabilityNN(const std::vector<double>& parameters)
 {
-    double ll = LogLikelihood(parameters);
+    // first calculate prior (which is usually cheaper than likelihood)
     double lp = LogAPrioriProbability(parameters);
+    // then calculation likelihood, or set to -inf, if prior already invalid
+    double ll = (std::isfinite(lp)) ? LogLikelihood(parameters) : -std::numeric_limits<double>::infinity();;
+
     if (MCMCGetCurrentChain() < fMCMCLogLikelihood_Provisional.size() and MCMCGetCurrentChain() < fMCMCLogPrior_Provisional.size()) {
         fMCMCLogLikelihood_Provisional[MCMCGetCurrentChain()] = ll;
         fMCMCLogPrior_Provisional[MCMCGetCurrentChain()] = lp;
