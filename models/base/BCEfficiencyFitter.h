@@ -27,13 +27,12 @@
 
 #include "BCFitter.h"
 
+#include <TH1D.h>
+
 #include <vector>
 
 // ROOT classes
-class TF1;
 class TGraphAsymmErrors;
-class TH1;
-class TH1D;
 
 // ---------------------------------------------------------
 
@@ -76,17 +75,12 @@ public:
     /* @{ */
 
     /**
-     * Constructor
-     * @param name name of the model */
-    BCEfficiencyFitter(std::string name = "efficiency_fitter_model");
-
-    /**
      * Constructor.
-     * @param hist1 The histogram with the larger numbers
-     * @param hist2 The histogram with the smaller numbers
+     * @param trials The histogram with the number of trials.
+     * @param successes The histogram with the number of successes.
      * @param func The fit function.
      * @param name name fo the model */
-    BCEfficiencyFitter(TH1* hist1, TH1* hist2, TF1* func, std::string name = "efficiency_fitter_model");
+    BCEfficiencyFitter(const TH1& trials, const TH1& successes, const TF1& func, const std::string& name = "efficiency_fitter_model");
 
     /**
      * The default destructor. */
@@ -97,19 +91,14 @@ public:
     /* @{ */
 
     /**
-     * @return The histogram 1 */
-    TH1* GetHistogram1()
-    { return fHistogram1; };
+     * @return The histogram with the number of trials */
+    TH1& GetTrials()
+    { return fTrials; };
 
     /**
-     * @return The histogram 2 */
-    TH1* GetHistogram2()
-    { return fHistogram2; };
-
-    /**
-     * @return The histogram ratio */
-    TGraphAsymmErrors* GetHistogramRatio()
-    { return fHistogramRatio; };
+     * @return The histogram with the number of successes. */
+    TH1& GetSuccesses()
+    { return fSuccesses; };
 
     /**
      * Calculates the central value and the lower and upper limits for a given probability.
@@ -125,19 +114,6 @@ public:
     /* @} */
     /** \name Member functions (set) */
     /* @{ */
-
-    /**
-     * @param hist The histogram 1
-     * @param hist The histogram 2
-     * @return Success of action. */
-    bool SetHistograms(TH1* hist1, TH1* hist2);
-
-    /**
-     * Sets the flag for integration. \n
-     * true: use ROOT's TH1::Integrate() \n
-     * false: use linear interpolation */
-    void SetFlagIntegration(bool flag)
-    { fFlagIntegration = flag; };
 
     /** Set type of point to be used to plot the efficiency data */
     void SetDataPointType(DataPointType type)
@@ -160,19 +136,11 @@ public:
     /**
      * Performs the fit.
      * @return Success of action. */
-    bool Fit();
-
-    /**
-     * Performs the fit.
-     * @param hist1 The histogram with the larger number.
-     * @param hist2 The histogram with the smaller number.
-     * @param func The fit function.
-     * @return Success of action. */
-    bool Fit(TH1* hist1, TH1* hist2, TF1* func);
+    virtual bool Fit();
 
     /**
      * Draw the fit in the current pad. */
-    void DrawFit(const char* options = "", bool flaglegend = false);
+    virtual void DrawFit(const char* options = "", bool flaglegend = false);
 
     /**
      * Calculate the p-value using fast-MCMC. In every iteration, a new toy data set is created.
@@ -202,31 +170,20 @@ public:
     /* @} */
 
 private:
-
     /**
      * The histogram containing the larger numbers. */
-    TH1* fHistogram1;
+    TH1D fTrials;
 
     /**
      * The histogram containing the smaller numbers. */
-    TH1* fHistogram2;
+    TH1D fSuccesses;
 
     /**
-     * The efficiency histogram. */
-    TGraphAsymmErrors* fHistogramRatio;
-
-    /**
-     * Flag for using the ROOT TH1::Integral method (true), or linear
-     * interpolation (false) */
-    bool fFlagIntegration;
-
-    /**
-     * Temporary histogram for calculating the binomial qunatiles */
-    TH1D* fHistogramBinomial;
+     * Temporary histogram for calculating the binomial quantiles */
+    TH1D fHistogramBinomial;
 
     /** Type of point to plot for efficiency data */
     DataPointType fDataPointType;
-
 };
 
 // ---------------------------------------------------------

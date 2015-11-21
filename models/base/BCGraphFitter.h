@@ -25,11 +25,10 @@
 
 #include "BCFitter.h"
 
+#include <TGraphErrors.h>
+
 #include <string>
 #include <vector>
-
-class TF1;
-class TGraphErrors;
 
 // ---------------------------------------------------------
 
@@ -39,18 +38,12 @@ public:
 
     /** \name Constructors and destructors */
     /* @{ */
-
-    /**
-     * Constructor
-     * @param name name of the model */
-    BCGraphFitter(std::string name = "graph_fitter_model");
-
     /**
      * Constructor
      * @param graph pointer to TGraphErrors
      * @param func pointer to TF1
      * @param name name of the model */
-    BCGraphFitter(TGraphErrors* graph, TF1* func, std::string name = "");
+    BCGraphFitter(const TGraphErrors& graph, const TF1& func, const std::string& name = "graph_fitter_model");
 
     /**
      * The default destructor. */
@@ -63,26 +56,18 @@ public:
 
     /**
      * @return pointer to TGraphErrors */
-    TGraphErrors* GetGraph()
+    const TGraphErrors& GetGraph()
     { return fGraph; };
 
     /* @} */
 
-    /** \name Member functions (set) */
-    /* @{ */
-
-    /**
-     * @param graph pointer to TGraphErrors object */
-    int SetGraph(TGraphErrors* graph);
-
-    /* @} */
     /** \name Member functions (miscellaneous methods) */
     /* @{ */
 
     /**
      * The log of the conditional probability.
      * @param parameters vector containing the parameter values */
-    double LogLikelihood(const std::vector<double>& parameters);
+    virtual double LogLikelihood(const std::vector<double>& parameters);
 
     /**
      * Performs the fit. The graph and the function has to be set beforehand.
@@ -90,23 +75,8 @@ public:
     bool Fit();
 
     /**
-     * Performs the fit of the graph with the function.
-     * @param graph pointer to TGraphErrors object
-     * @param func pointer to TF1 object
-     * @return Success of action. */
-    bool Fit(TGraphErrors* graph, TF1* func);
-
-    /**
      * Draw the fit in the current pad. */
     void DrawFit(const char* options = "", bool flaglegend = false);
-
-    /**
-     * Cumulative distribution function.
-     * @param parameters
-     * @param index
-     * @param lower
-     * @return */
-    virtual double CDF(const std::vector<double>& parameters,  int index, bool lower = false);
 
     /**
      * Calculate chi^2, the sum of [(y-f(x))/sigma_y]^2 for all data points.
@@ -131,8 +101,7 @@ private:
 
     /**
      * The graph containing the data. */
-    TGraphErrors* fGraph;
-
+    TGraphErrors fGraph;
 };
 
 // ---------------------------------------------------------

@@ -23,113 +23,71 @@
 #include <TH1D.h>
 #include <TH2D.h>
 
-// ---------------------------------------------------------
-BCFitter::BCFitter(std::string name)
-    : BCModel(name),
-      fGraphFitFunction(0),
-      fErrorBand(0),
-      fFlagFillErrorBand(true),
-      fFitFunctionIndexX(-1),
-      fFitFunctionIndexY(-1),
-      fErrorBandContinuous(true),
-      fErrorBandNbinsX(100),
-      fErrorBandNbinsY(500),
-      fErrorBandXY(0)
-{
-}
+// due to a bug in root, the normalization member is not copied in the
+// TF1 copy ctor and gets a random initialization that can be `true`
+// giving rise to a lot of useless integrals. Copy manually in root
+// versions affected by the bug.
+#ifndef ROOTVERSION
+#error "root version not defined"
+#elif ROOTVERSION >= 6005000 && ROOTVERSION < 6006000
+#define BAT_FIX_TF1
+#endif
 
 // ---------------------------------------------------------
-BCFitter::BCFitter(TF1* f, std::string name)
+BCFitter::BCFitter(const TF1& f, const std::string& name)
     : BCModel(name),
-      fGraphFitFunction(0),
-      fErrorBand(0),
+      fFitFunction(1, f),
       fFlagFillErrorBand(true),
       fFitFunctionIndexX(-1),
       fFitFunctionIndexY(-1),
       fErrorBandContinuous(true),
       fErrorBandNbinsX(100),
-      fErrorBandNbinsY(500),
-      fErrorBandXY(0)
+      fErrorBandNbinsY(500)
 {
-    SetFitFunction(f);
+#ifdef BAT_FIX_TF1
+    fFitFunction.front().SetNormalized(f.IsEvalNormalized());
+#endif
+
+    // set name if name empty
+    if (name.empty())
+        SetName(std::string("fitter_model_") + fFitFunction.front().GetName());
+
+    // fill parameter set
+    fParameters = BCParameterSet();
+    for (int i = 0; i < fFitFunction.front().GetNpar(); ++i) {
+        double xmin;
+        double xmax;
+
+        fFitFunction.front().GetParLimits(i, xmin, xmax);
+
+        AddParameter(fFitFunction.front().GetParName(i), xmin, xmax);
+    }
+
+    // create a data set. this is necessary in order to calculate the
+    // error band.
+    SetDataSet(&fFitterDataSet);
+
+    // by default set all priors constant
+    fParameters.SetPriorConstantAll();
 }
 
 // ---------------------------------------------------------
 BCFitter::~BCFitter()
 {
-    for (unsigned i = 0; i < fFitFunction.size(); ++i)
-        delete fFitFunction[i];
-}
-
-// ---------------------------------------------------------
-bool BCFitter::SetFitFunction(TF1* f)
-{
-    if (!f) {
-        BCLog::OutError("BCFitter::SetFitFunction : TF1 pointer points to null.");
-        return false;
-    }
-
-    // reset fFitFunction contents
-    for (unsigned i = 0; i < fFitFunction.size(); ++i)
-        delete fFitFunction[i];
-    fFitFunction.assign(1, new TF1(*f));
-
-#if ROOTVERSION == 6005002
-    // due to a bug in root, the normalization member is not copied and gets a random initialization can be `true`
-    // giving rise to a lot of useless integrals.
-    // But we want to interpret the function as 'as is'. If the user want to normalize it, we should not change that.
-    fFitFunction.back()->SetNormalized(f->IsEvalNormalized());
-#endif
-    if (!fFitFunction[0]) {
-        BCLog::OutError("BCFitter::SetFitFunction : could not copy TF1.");
-        fFitFunction.clear();
-        return false;
-    }
-
-    // set name if name empty
-    if (fName.empty())
-        SetName(std::string("fitter_model_") + fFitFunction[0]->GetName());
-
-    // fill parameter set
-    fParameters = BCParameterSet();
-    for (int i = 0; i < fFitFunction[0]->GetNpar(); ++i) {
-        double xmin;
-        double xmax;
-
-        fFitFunction[0]->GetParLimits(i, xmin, xmax);
-
-        AddParameter(fFitFunction[0]->GetParName(i), xmin, xmax);
-    }
-
-    // by default set all priors constant
-    fParameters.SetPriorConstantAll();
-
-    return true;
 }
 
 // ---------------------------------------------------------
 bool BCFitter::MCMCUserInitialize()
 {
-    if (fFitFunction.empty() || !fFitFunction[0]) {
-        BCLog::OutError("BCFitter::MCMCUserInitialize: No fit function available");
-        return false;
-    }
-    // add copies of the first function if necessary
-    while (fFitFunction.size() < fMCMCNChains) {
-        fFitFunction.push_back(new TF1(*fFitFunction[0]));
-#if ROOTVERSION >= 6005002
-        // due to a bug in root, the normalization member is not copied and gets a random initialization can be `true`
-        // giving rise to a lot of useless integrals.
-        // But we want to interpret the function as 'as is'. If the user want to normalize it, we should not change that.
-        fFitFunction.back()->SetNormalized(fFitFunction[0]->IsEvalNormalized());
+    // add or remove copies
+    fFitFunction.resize(fMCMCNChains, fFitFunction.front());
+#ifdef BAT_FIX_TF1
+    // due to a bug in root, the normalization member is not copied and gets a random initialization can be `true`
+    // giving rise to a lot of useless integrals.
+    // But we want to interpret the function as 'as is'. If the user want to normalize it, we should not change that.
+    for (unsigned i = 0; i < fFitFunction.size(); ++i)
+        fFitFunction[i].SetNormalized(fFitFunction.front().IsEvalNormalized());
 #endif
-    }
-
-    // remove elements if necessary
-    while (fFitFunction.size() > fMCMCNChains) {
-        delete fFitFunction.back();
-        fFitFunction.pop_back();
-    }
 
     return true;
 }
@@ -157,19 +115,19 @@ void BCFitter::MarginalizePreprocess()
         dx = GetDataSet()->GetRangeWidth(fFitFunctionIndexX) / fErrorBandNbinsX;
         dy = GetDataSet()->GetRangeWidth(fFitFunctionIndexY) / fErrorBandNbinsY;
 
-        fErrorBandXY = new TH2D(TString::Format("errorbandxy_%s", GetSafeName().data()), "",
-                                fErrorBandNbinsX,
-                                GetDataSet()->GetLowerBound(fFitFunctionIndexX) - dx / 2,
-                                GetDataSet()->GetUpperBound(fFitFunctionIndexX) + dx / 2,
-                                fErrorBandNbinsY,
-                                GetDataSet()->GetLowerBound(fFitFunctionIndexY) - dy / 2,
-                                GetDataSet()->GetUpperBound(fFitFunctionIndexY) + dy / 2);
-        fErrorBandXY->SetStats(kFALSE);
+        fErrorBandXY = TH2D(TString::Format("errorbandxy_%s", GetSafeName().data()), "",
+                            fErrorBandNbinsX,
+                            GetDataSet()->GetLowerBound(fFitFunctionIndexX) - dx / 2,
+                            GetDataSet()->GetUpperBound(fFitFunctionIndexX) + dx / 2,
+                            fErrorBandNbinsY,
+                            GetDataSet()->GetLowerBound(fFitFunctionIndexY) - dy / 2,
+                            GetDataSet()->GetUpperBound(fFitFunctionIndexY) + dy / 2);
+        fErrorBandXY.SetStats(kFALSE);
 
         // why are we doing this?
         for (unsigned ix = 1; ix <= fErrorBandNbinsX; ++ix)
             for (unsigned iy = 1; iy <= fErrorBandNbinsX; ++iy)
-                fErrorBandXY->SetBinContent(ix, iy, 0.);
+                fErrorBandXY.SetBinContent(ix, iy, 0.);
     }
 
 }
@@ -186,7 +144,7 @@ void BCFitter::FillErrorBand()
         double x = 0;
         for (unsigned ix = 0; ix < fErrorBandNbinsX; ix++) {
             // calculate x
-            x = fErrorBandXY->GetXaxis()->GetBinCenter(ix + 1);
+            x = fErrorBandXY.GetXaxis()->GetBinCenter(ix + 1);
 
             // calculate y
             std::vector<double> xvec;
@@ -198,7 +156,7 @@ void BCFitter::FillErrorBand()
                 double y = FitFunction(xvec, MCMCGetx(ichain));
 
                 // fill histogram
-                fErrorBandXY->Fill(x, y);
+                fErrorBandXY.Fill(x, y);
             }
 
             xvec.clear();
@@ -223,7 +181,7 @@ void BCFitter::FillErrorBand()
                 double y = FitFunction(xvec, MCMCGetx(ichain));
 
                 // fill histogram
-                fErrorBandXY->Fill(x, y);
+                fErrorBandXY.Fill(x, y);
             }
 
             xvec.clear();
@@ -235,9 +193,30 @@ void BCFitter::FillErrorBand()
 double BCFitter::FitFunction(const std::vector<double>& x, const std::vector<double>& params)
 {
     // update parameters in right TF1 and evaluate
-    const unsigned c = MCMCGetCurrentChain();
-    fFitFunction.at(c)->SetParameters(&params[0]);
-    return fFitFunction.at(c)->Eval(x[0]);
+    TF1& f = GetFitFunction();
+    f.SetParameters(&params[0]);
+    return f.Eval(x[0]);
+}
+
+double BCFitter::Integral(const std::vector<double>& params, const double xmin, const double xmax)
+{
+    TF1& f = GetFitFunction();
+
+    // set the parameters of the function
+    // passing the pointer to first element of the vector is
+    // not completely safe as there might be an implementation where
+    // the vector elements are not stored consecutively in memory.
+    // however it is much faster than copying the contents, especially
+    // for large number of parameters
+    f.SetParameters(&params[0]);
+
+    // use ROOT's TH1::Integral method
+    if (fFlagIntegration) {
+        return f.Integral(xmin, xmax);
+    } // use linear interpolation
+    else {
+        return (f.Eval(xmin) + f.Eval(xmax)) * (xmax - xmin) / 2.;
+    }
 }
 
 // ---------------------------------------------------------
@@ -256,15 +235,12 @@ std::vector<double> BCFitter::GetErrorBand(double level) const
 {
     std::vector<double> errorband;
 
-    if (!fErrorBandXY)
-        return errorband;
-
-    int nx = fErrorBandXY->GetNbinsX();
+    int nx = fErrorBandXY.GetNbinsX();
     errorband.assign(nx, 0.);
 
     // loop over x and y bins
     for (int ix = 1; ix <= nx; ix++) {
-        TH1D* temphist = fErrorBandXY->ProjectionY("temphist", ix, ix);
+        TH1D* temphist = fErrorBandXY.ProjectionY("temphist", ix, ix);
 
         int nprobSum = 1;
         double q[1];
@@ -274,6 +250,7 @@ std::vector<double> BCFitter::GetErrorBand(double level) const
         temphist->GetQuantiles(nprobSum, q, probSum);
 
         errorband[ix - 1] = q[0];
+        delete temphist;
     }
 
     return errorband;
@@ -282,11 +259,8 @@ std::vector<double> BCFitter::GetErrorBand(double level) const
 // ---------------------------------------------------------
 TGraph* BCFitter::GetErrorBandGraph(double level1, double level2) const
 {
-    if (!fErrorBandXY)
-        return 0;
-
     // define new graph
-    int nx = fErrorBandXY->GetNbinsX();
+    int nx = fErrorBandXY.GetNbinsX();
 
     TGraph* graph = new TGraph(2 * nx);
     graph->SetFillStyle(1001);
@@ -297,8 +271,8 @@ TGraph* BCFitter::GetErrorBandGraph(double level1, double level2) const
     std::vector<double> ymax = GetErrorBand(level2);
 
     for (int i = 0; i < nx; i++) {
-        graph->SetPoint(i, fErrorBandXY->GetXaxis()->GetBinCenter(i + 1), ymin[i]);
-        graph->SetPoint(nx + i, fErrorBandXY->GetXaxis()->GetBinCenter(nx - i), ymax[nx - i - 1]);
+        graph->SetPoint(i, fErrorBandXY.GetXaxis()->GetBinCenter(i + 1), ymin[i]);
+        graph->SetPoint(nx + i, fErrorBandXY.GetXaxis()->GetBinCenter(nx - i), ymax[nx - i - 1]);
     }
 
     return graph;
@@ -307,28 +281,23 @@ TGraph* BCFitter::GetErrorBandGraph(double level1, double level2) const
 // ---------------------------------------------------------
 TH2* BCFitter::GetGraphicalErrorBandXY(double level, int nsmooth, bool overcoverage) const
 {
-    if (!fErrorBandXY)
-        return 0;
-
-    int nx = fErrorBandXY->GetNbinsX();
-    int ny = fErrorBandXY->GetNbinsY();
+    int nx = fErrorBandXY.GetNbinsX();
+    int ny = fErrorBandXY.GetNbinsY();
 
     // copy existing histogram
-    TH2* hist_tempxy = (TH2*) fErrorBandXY->Clone(TString::Format("%s_sub_%f.2", fErrorBandXY->GetName(), level));
+    TH2* hist_tempxy = (TH2*) fErrorBandXY.Clone(TString::Format("%s_sub_%f.2", fErrorBandXY.GetName(), level));
     hist_tempxy->Reset();
     hist_tempxy->SetFillColor(kYellow);
 
     // loop over x bins
     for (int ix = 1; ix < nx; ix++) {
-        BCH1D* hist_temp = new BCH1D(fErrorBandXY->ProjectionY("temphist", ix, ix));
+        BCH1D hist_temp(fErrorBandXY.ProjectionY("temphist", ix, ix));
         if (nsmooth > 0)
-            hist_temp->Smooth(nsmooth);
-        std::vector<std::pair<double, double> > bound = hist_temp->GetSmallestIntervalBounds(std::vector<double>(1, level), overcoverage);
+            hist_temp.Smooth(nsmooth);
+        std::vector<std::pair<double, double> > bound = hist_temp.GetSmallestIntervalBounds(std::vector<double>(1, level), overcoverage);
         for (int iy = 1; iy <= ny; ++iy)
-            if (hist_temp->GetHistogram()->GetBinContent(iy) >= bound.front().first)
+            if (hist_temp.GetHistogram()->GetBinContent(iy) >= bound.front().first)
                 hist_tempxy->SetBinContent(ix, iy, 1);
-
-        delete hist_temp;
     }
 
     return hist_tempxy;
@@ -337,16 +306,13 @@ TH2* BCFitter::GetGraphicalErrorBandXY(double level, int nsmooth, bool overcover
 // ---------------------------------------------------------
 TGraph* BCFitter::GetFitFunctionGraph(const std::vector<double>& parameters)
 {
-    if (!fErrorBandXY)
-        return 0;
-
     // define new graph
-    int nx = fErrorBandXY->GetNbinsX();
+    int nx = fErrorBandXY.GetNbinsX();
     TGraph* graph = new TGraph(nx);
 
     // loop over x values
     for (int i = 0; i < nx; i++) {
-        double x = fErrorBandXY->GetXaxis()->GetBinCenter(i + 1);
+        double x = fErrorBandXY.GetXaxis()->GetBinCenter(i + 1);
 
         std::vector<double> xvec;
         xvec.push_back(x);
@@ -383,41 +349,15 @@ TGraph* BCFitter::GetFitFunctionGraph(const std::vector<double>& parameters, dou
 }
 
 // ---------------------------------------------------------
-int BCFitter::ReadErrorBandFromFile(const char* file)
-{
-    TFile* froot = TFile::Open(file);
-    if (!froot->IsOpen()) {
-        BCLog::OutError(Form("BCFitter::ReadErrorBandFromFile. Couldn't open file %s.", file));
-        return 0;
-    }
-
-    int r = 0;
-
-    TH2* h2 = (TH2*) froot->Get("errorbandxy");
-    if (h2) {
-        h2->SetDirectory(0);
-        h2->SetName(TString::Format("errorbandxy_%s", GetSafeName().data()));
-        SetErrorBandHisto(h2);
-        r = 1;
-    } else
-        BCLog::OutWarning(
-            Form("BCFitter::ReadErrorBandFromFile : Couldn't read histogram \"errorbandxy\" from file %s.", file));
-
-    froot->Close();
-
-    return r;
-}
-
-// ---------------------------------------------------------
 void BCFitter::FixDataAxis(unsigned int index, bool fixed)
 {
-    fDataSet->Fix(index, fixed);
+    fFitterDataSet.Fix(index, fixed);
 }
 
 // ---------------------------------------------------------
 bool BCFitter::GetFixedDataAxis(unsigned int index) const
 {
-    return fDataSet->IsFixed(index);
+    return fFitterDataSet.IsFixed(index);
 }
 
 // ---------------------------------------------------------

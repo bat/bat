@@ -60,60 +60,60 @@ void histogramFitterExample()
     // -------------------------
     // Create data
     // initialize random number generator
-    gRandom = new TRandom3(1234);
+    TRandom3 random(1234);
 
     // create new histogram
-    TH1D* hist = new TH1D("data", ";x;N", 100, 0.0, 100.0);
-    hist->SetStats(kFALSE);
+    TH1D hist("data", ";x;N", 100, 0.0, 100.0);
+    hist.SetStats(kFALSE);
 
     // fill signal, 100 events distributed by Gaussian with mean = 65, sigma = 5
     for (int i = 0; i < 100; ++i)
-        hist->Fill(gRandom->Gaus(65, 5));
+        hist.Fill(random.Gaus(65, 5));
 
     // fill background, 100 events, uniformly distributed
     for (int i = 0; i < 100; ++i)
-        hist->Fill(gRandom->Uniform() * 100);
+        hist.Fill(random.Uniform() * 100);
     // -------------------------
 
     // -------------------------
     // Define a fit function, which is also used to generate data
-    TF1* f1 = new TF1("f1", "[0]/sqrt(2*pi)/[2] * exp(-0.5*((x-[1])/[2])^2) + [3]", 0., 100.);
-    f1->SetParNames("SignalYield", "SignalMean", "SignalSigma", "BackgroundYield");
-    f1->SetParLimits(0,  0.0, 200.0);
-    f1->SetParLimits(1, 55.0,  75.0);
-    f1->SetParLimits(2,  0.1,  10.0);
-    f1->SetParLimits(3,  0.0,   2.0);
+    TF1 f1("f1", "[0]/sqrt(2*pi)/[2] * exp(-0.5*((x-[1])/[2])^2) + [3]", 0., 100.);
+    f1.SetParNames("SignalYield", "SignalMean", "SignalSigma", "BackgroundYield");
+    f1.SetParLimits(0,  0.0, 200.0);
+    f1.SetParLimits(1, 55.0,  75.0);
+    f1.SetParLimits(2,  0.1,  10.0);
+    f1.SetParLimits(3,  0.0,   2.0);
     // -------------------------
 
     // create a new histogram fitter
-    BCHistogramFitter* hf = new BCHistogramFitter(hist, f1);
+    BCHistogramFitter hf(hist, f1);
 
     // set Metropolis as marginalization method
-    hf->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+    hf.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
     // set precision
-    hf->MCMCSetPrecision(BCEngineMCMC::kQuick);
+    hf.MCMCSetPrecision(BCEngineMCMC::kQuick);
 
     // integrate function over bin (true) or use linear interpolation
-    hf->SetFlagIntegration(false);
+    hf.SetFlagIntegration(false);
 
     // set priors
-    hf->GetParameters().SetPriorConstantAll();
+    hf.GetParameters().SetPriorConstantAll();
 
     // perform fit
-    hf->Fit();
+    hf.Fit();
 
     // calculate p values
-    hf->CalculatePValueFast(hf->GetGlobalMode());
-    cout << "Pvalue " << hf->GetPValue() << ", corrected for degrees of freedom " << hf->GetPValueNDoF() << endl;
+    hf.CalculatePValueFast(hf.GetGlobalMode());
+    cout << "p value " << hf.GetPValue() << ", corrected for degrees of freedom " << hf.GetPValueNDoF() << endl;
 
     // print marginalized distributions
-    hf->PrintAllMarginalized("distributions.pdf");
+    hf.PrintAllMarginalized("distributions.pdf");
 
     // print data and fit
-    TCanvas* c1 = new TCanvas("c1");
-    hf->DrawFit("", true); // draw with a legend
-    c1->Print("fit.pdf");
+    TCanvas c1("c1");
+    hf.DrawFit("", true); // draw with a legend
+    c1.Print("fit.pdf");
 
     return;
 }

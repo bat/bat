@@ -56,27 +56,28 @@ void efficiencyFitterExample()
 
     // -------------------------
     // define the fit function, which is also used in the generation of the data
-    TF1* f1 = new TF1("f1", "0.5*(1 + TMath::Erf((x-[0])/[1]))", 0.0, 100.0);
-    f1->SetParLimits(0, 35.0, 45.0);
-    f1->SetParLimits(1, 10.0, 20.0);
-    f1->SetParNames("mean", "sigma");
+    TF1 f1("f1", "0.5*(1 + TMath::Erf((x-[0])/[1]))", 0.0, 100.0);
+    f1.SetParLimits(0, 35.0, 45.0);
+    f1.SetParLimits(1, 10.0, 20.0);
+    f1.SetParNames("mean", "sigma");
     // -------------------------
 
     // -------------------------
     // Create new histograms:
-    TH1D* h_denom = new TH1D("h_denom", ";x;N", 100, 0.0, 100.0);
-    h_denom->SetStats(kFALSE);
+    TH1D h_denom("h_denom", ";x;N", 100, 0.0, 100.0);
+    h_denom.SetStats(kFALSE);
 
     // cloning ensures identical binning
-    TH1D* h_numer = (TH1D*)h_denom->Clone("h_numer");
+    TH1D h_numer(h_denom);
+    h_numer.SetName("h_numer");
 
     // set drawing options
-    h_denom->SetLineColor(kBlack);
-    h_denom->SetFillColor(5);
-    h_denom->SetFillStyle(1001);
+    h_denom.SetLineColor(kBlack);
+    h_denom.SetFillColor(5);
+    h_denom.SetFillStyle(1001);
 
-    h_numer->SetLineColor(kRed);
-    h_numer->SetLineWidth(2);
+    h_numer.SetLineColor(kRed);
+    h_numer.SetLineWidth(2);
     // -------------------------
 
     // -------------------------
@@ -87,49 +88,49 @@ void efficiencyFitterExample()
     // Fill h_denom randomly from Landau distribution
     // with mean = 30 and sigma = 8; simulate 1000 events
     for (unsigned i = 0; i < 1000 ; ++i)
-        h_denom->Fill( gRandom->Landau(30., 8.) );
+        h_denom.Fill( gRandom->Landau(30., 8.) );
 
     // Fill h_numer, with probability of accenting entry from h_denom
     // following an error function with a smearing according to the
     // binomial distribution with parameters (mean, sigma) := (40, 15)
-    f1->SetParameters(40, 15);
-    for (int b = 1; b <= h_numer->GetNbinsX(); ++b) {
-        double eff = f1->Integral(h_numer->GetXaxis()->GetBinLowEdge(b), h_numer->GetXaxis()->GetBinUpEdge(b)) / h_numer->GetXaxis()->GetBinWidth(b);
-        h_numer->SetBinContent(b, gRandom->Binomial(int(h_denom->GetBinContent(b)), eff));
+    f1.SetParameters(40, 15);
+    for (int b = 1; b <= h_numer.GetNbinsX(); ++b) {
+        double eff = f1.Integral(h_numer.GetXaxis()->GetBinLowEdge(b), h_numer.GetXaxis()->GetBinUpEdge(b)) / h_numer.GetXaxis()->GetBinWidth(b);
+        h_numer.SetBinContent(b, gRandom->Binomial(int(h_denom.GetBinContent(b)), eff));
     }
     // -------------------------
 
     // create a new efficiency fitter
-    BCEfficiencyFitter* hef = new BCEfficiencyFitter(h_denom, h_numer, f1);
+    BCEfficiencyFitter hef(h_denom, h_numer, f1);
+    hef.MCMCSetRandomSeed(1346);
 
     // set options for evaluating the fit function
-    hef->SetFlagIntegration(false);
+    hef.SetFlagIntegration(false);
 
     // set Metropolis as marginalization method
-    hef->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+    hef.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
     // set options for MCMC
-    hef->MCMCSetPrecision(BCEngineMCMC::kQuick);
+    hef.MCMCSetPrecision(BCEngineMCMC::kQuick);
 
     // // perform fit
-    hef->Fit();
+    hef.Fit();
 
     // print data and fit
-    TCanvas* c = new TCanvas("c1", "");
-    c->Divide(2, 1);
+    TCanvas c("c1", "");
+    c.Divide(2, 1);
 
-    c->cd(1);
-    h_denom->Draw();
-    h_numer->Draw("same");
+    c.cd(1);
+    h_denom.Draw();
+    h_numer.Draw("same");
 
-    c->cd(2);
+    c.cd(2);
 
-    hef->DrawFit("", true); // draw with a legend
+    hef.DrawFit("", true); // draw with a legend
 
     // print to file
-    c->Print("fit.pdf");
+    c.Print("fit.pdf");
 
     // print marginalized distributions
-    hef->PrintAllMarginalized("distributions.pdf");
+    hef.PrintAllMarginalized("distributions.pdf");
 }
-
