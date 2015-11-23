@@ -100,4 +100,5 @@ install-data-hook:
 # format all C++ source files except root dictionaries as they are messed up
 .PHONY: format
 format:
+	cd $(top_srcdir) && \
 	astyle --options=tools/astylerc --formatted `find BAT/ benchmarks/ examples/ tools $(SUBDIRS) -name '*.C' -o \( -name '*.cxx' ! -name '*rdict.cxx' \) -o -name '*.h'`
