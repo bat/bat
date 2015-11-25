@@ -67,62 +67,62 @@ void graphFitterAdvancedExample()
     // (all parameter limits must be set!)
 
     // 2nd order polynomial
-    TF1* f1 = new TF1("f1", "[0] + [1]*x + [2]*x^2", 0., 100.);
-    f1->SetParNames("offset", "slope", "quad");
-    f1->SetParLimits(0,   0.,    5.);  // offset
-    f1->SetParLimits(1,   0.,    1.2); // slope
-    f1->SetParLimits(2,  -0.1,   0.1); // quad
+    TF1 f1("f1", "[0] + [1]*x + [2]*x^2", 0., 100.);
+    f1.SetParNames("offset", "slope", "quad");
+    f1.SetParLimits(0,   0.,    5.);  // offset
+    f1.SetParLimits(1,   0.,    1.2); // slope
+    f1.SetParLimits(2,  -0.1,   0.1); // quad
 
     // gaussian + constant
-    TF1* f2 = new TF1("f2", "[0]/sqrt(2*pi)/[2] * exp(-0.5*((x-[1])/[2])^2) + [3]", 0., 100.);
-    f2->SetParNames("A_gauss", "mean", "sigma", "offset");
-    f2->SetParLimits(0,   0.,  200.); // A_gauss
-    f2->SetParLimits(1,   2.,   18.); // mean
-    f2->SetParLimits(2,   .2,    4.); // sigma
-    f2->SetParLimits(3,   0.,   10.); // offset
+    TF1 f2("f2", "[0]/sqrt(2*pi)/[2] * exp(-0.5*((x-[1])/[2])^2) + [3]", 0., 100.);
+    f2.SetParNames("A_gauss", "mean", "sigma", "offset");
+    f2.SetParLimits(0,   0.,  200.); // A_gauss
+    f2.SetParLimits(1,   2.,   18.); // mean
+    f2.SetParLimits(2,   .2,    4.); // sigma
+    f2.SetParLimits(3,   0.,   10.); // offset
 
     // gaussian + line
-    TF1* f3 = new TF1("f3", "[0]/sqrt(2*pi)/[2] * exp(-0.5*((x-[1])/[2])^2) + [3] + [4]*x", 0., 100.);
-    f3->SetParNames("A_gauss", "mean", "sigma", "offset", "slope");
-    f3->SetParLimits(0,   0.,  200.); // A_gauss
-    f3->SetParLimits(1,   2.,   18.); // mean
-    f3->SetParLimits(2,   .2,    4.); // sigma
-    f3->SetParLimits(3,   0.,   10.); // offset
-    f3->SetParLimits(4,   0.,    2.); // slope
+    TF1 f3("f3", "[0]/sqrt(2*pi)/[2] * exp(-0.5*((x-[1])/[2])^2) + [3] + [4]*x", 0., 100.);
+    f3.SetParNames("A_gauss", "mean", "sigma", "offset", "slope");
+    f3.SetParLimits(0,   0.,  200.); // A_gauss
+    f3.SetParLimits(1,   2.,   18.); // mean
+    f3.SetParLimits(2,   .2,    4.); // sigma
+    f3.SetParLimits(3,   0.,   10.); // offset
+    f3.SetParLimits(4,   0.,    2.); // slope
 
     // gaussian + 2nd order polynomial
-    TF1* f4 = new TF1("f4", "[0]/sqrt(2*pi)/[2] * exp(-0.5*((x-[1])/[2])^2) + [3] + [4]*x + [5]*x^2", 0., 100.);
-    f4->SetParNames("A_gauss", "mean", "sigma", "offset", "slope", "quad");
-    f4->SetParLimits(0,   0.,  200.); // A_gauss
-    f4->SetParLimits(1,   2.,   18.); // mean
-    f4->SetParLimits(2,   .2,    4.); // sigma
-    f4->SetParLimits(3,   0.,   10.); // offset
-    f4->SetParLimits(4,   0.,    2.); // slope
-    f4->SetParLimits(5,   0.,    .5); // quad
+    TF1 f4("f4", "[0]/sqrt(2*pi)/[2] * exp(-0.5*((x-[1])/[2])^2) + [3] + [4]*x + [5]*x^2", 0., 100.);
+    f4.SetParNames("A_gauss", "mean", "sigma", "offset", "slope", "quad");
+    f4.SetParLimits(0,   0.,  200.); // A_gauss
+    f4.SetParLimits(1,   2.,   18.); // mean
+    f4.SetParLimits(2,   .2,    4.); // sigma
+    f4.SetParLimits(3,   0.,   10.); // offset
+    f4.SetParLimits(4,   0.,    2.); // slope
+    f4.SetParLimits(5,   0.,    .5); // quad
 
     // -------------------------
 
     //-------------------------
     // Create data
-    TGraphErrors* gr = 0;
+    TGraphErrors gr;
 
     if (true) { // set false to generate data anew (below)
 
         // read data from the file supplied with BAT distribution
         // is data/datax.txt and contains the data which were
         // used in the BAT paper
-        gr = new TGraphErrors("data/datax.txt", "%lg %lg %lg");
+        gr = TGraphErrors("data.txt", "%lg %lg %lg");
 
     } else {
 
         // generate data anew from f4 defined above, with parameters:
-        f4->SetParameters(150, 5, 0.5, 0, 50, 2);
+        f4.SetParameters(150, 5, 0.5, 0, 50, 2);
 
         // and smear from value by Gaussian with sigma:
         double sigmay = 40.;
 
         // initialize random number generator
-        gRandom = new TRandom3(1234);
+        TRandom3 random(1234);
 
         // define range to generate data in
         double xmin = 0.1;
@@ -133,31 +133,32 @@ void graphFitterAdvancedExample()
 
         double dx = (xmax - xmin) / (n - 1);
 
-        gr = new TGraphErrors();
         for (unsigned i = 0; i < n; ++i) {
 
             // get x value
             double x = xmin + i * dx;
 
             // smear from f4 value
-            gr->SetPoint(i, x, gRandom->Gaus(f4->Eval(x), sigmay));
+            gr.SetPoint(i, x, random.Gaus(f4.Eval(x), sigmay));
             // set uncertainty to tenth of smearing sigma
-            gr->SetPointError(i, 0, sigmay / 10);
+            gr.SetPointError(i, 0, sigmay / 10);
         }
     }
     // -------------------------
 
 
     // setup all graph fitters
-    std::vector<BCGraphFitter*> models;
-    models.push_back(new BCGraphFitter(gr, f1, f1->GetName()));
-    models.push_back(new BCGraphFitter(gr, f2, f2->GetName()));
-    models.push_back(new BCGraphFitter(gr, f3, f3->GetName()));
-    models.push_back(new BCGraphFitter(gr, f4, f4->GetName()));
+    // old-fashioned approach for compatibility with CINT from root 5
+    const unsigned nmodels = 4;
+    BCGraphFitter* models[] = {
+        new BCGraphFitter(gr, f1, f1.GetName()),
+        new BCGraphFitter(gr, f2, f2.GetName()),
+        new BCGraphFitter(gr, f3, f3.GetName()),
+        new BCGraphFitter(gr, f4, f4.GetName())
+    };
 
     // perform the analysis on all models
-    for (unsigned i = 0; i < models.size(); ++i) {
-
+    for (unsigned i = 0; i < nmodels; ++i) {
         // set precision
         models[i]->MCMCSetPrecision(BCEngineMCMC::kQuick);
 
@@ -175,29 +176,32 @@ void graphFitterAdvancedExample()
         // models[i]->PrintParameterLatex("summary_pars-" + models[i]->GetSafeName() + ".tex");
     }
 
-    TCanvas* c = new TCanvas();
+    TCanvas c;
 
     // draw fit including the error band
-    c->Divide(2, 2);
-    for (unsigned i = 0; i < models.size(); ++i) {
-        c->cd(i + 1);
+    c.Divide(2, 2);
+    for (unsigned i = 0; i < nmodels; ++i) {
+        c.cd(i + 1);
         models[i]->DrawFit();
     }
-    c->Print("data-all-band.pdf");
+    c.Print("data-all-band.pdf");
 
     // draw data and all fits in the same plot (w/o error bands)
-    c->Clear();
-    c->cd(1);
+    c.Clear();
+    c.cd(1);
 
-    gr->SetMarkerStyle(20);
-    gr->SetMarkerSize(.5);
-    gr->Draw("ap");
+    gr.SetMarkerStyle(20);
+    gr.SetMarkerSize(.5);
+    gr.Draw("ap");
 
-    for (unsigned i = 0; i < models.size(); ++i) {
-        models[i]->GetFitFunction()->SetLineColor(i + 1);
-        models[i]->GetFitFunction()->SetLineWidth(2);
-        models[i]->GetFitFunction()->Draw("l same");
+    for (unsigned i = 0; i < nmodels; ++i) {
+        models[i]->GetFitFunction().SetLineColor(i + 1);
+        models[i]->GetFitFunction().SetLineWidth(2);
+        models[i]->GetFitFunction().Draw("l same");
     }
-    c->Print("data-all.pdf");
+    c.Print("data-all.pdf");
 
+    // clean up
+    for (unsigned i = 0; i < nmodels; ++i)
+        delete models[i];
 }
