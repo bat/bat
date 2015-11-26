@@ -13,7 +13,6 @@ runCombineGaussians
 runCombination
 runEfficiency
 runErrorPropagation
-runMVCombination
 runMyCombination
 runMyFit
 runPoissonCounting

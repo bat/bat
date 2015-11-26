@@ -17,7 +17,6 @@ Makefile
 /test/Makefile.in
 /models/base/Makefile.in
 /models/mtf/Makefile.in
-/models/mvc/Makefile.in
 /src/Makefile.in
 missing
 stamp-h1

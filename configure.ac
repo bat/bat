@@ -360,7 +360,7 @@ DEP_LIBS="$DEP_LIBS -L$ROOTLIBDIR $ROOTLIBS"
 AC_SUBST(DEP_CFLAGS)
 AC_SUBST(DEP_LIBS)
 
-PKG_LIBS="-lBAT -lBATmodels -lBATmtf -lBATmvc"
+PKG_LIBS="-lBAT -lBATmodels -lBATmtf"
 AC_SUBST(PKG_LIBS)
 
 AC_CHECK_PROGS(PKGCONFIG, pkg-config, false)
@@ -384,7 +384,6 @@ AC_OUTPUT(
 	src/Makefile
 	models/base/Makefile
 	models/mtf/Makefile
-	models/mvc/Makefile
 	test/Makefile
 	tools/MakefileTemplate
 	examples/Makefile
@@ -406,12 +405,6 @@ AC_OUTPUT(
 	examples/advanced/mtf/singleChannel/Makefile
 	examples/advanced/mtf/systematics/Makefile
 	examples/advanced/mtf/twoChannels/Makefile
-	examples/advanced/mvc/Makefile
-	examples/advanced/mvc/constraints/Makefile
-	examples/advanced/mvc/inverseProblem/Makefile
-	examples/advanced/mvc/nuisance/Makefile
-	examples/advanced/mvc/oneObservable/Makefile
-	examples/advanced/mvc/PPP/Makefile
 	examples/advanced/polynomialFit/Makefile
 	examples/advanced/referenceCounting/Makefile
 	examples/advanced/rooInterface/Makefile

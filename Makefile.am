@@ -16,7 +16,6 @@ SUBDIRS= \
 	src \
 	models/base \
 	models/mtf \
-	models/mvc \
 	test \
 	examples
 

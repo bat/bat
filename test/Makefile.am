@@ -47,7 +47,6 @@ LDADD = \
 	libBATtest.a \
 	$(top_builddir)/src/libBAT.la \
 	$(top_builddir)/models/base/libBATmodels.la \
-	$(top_builddir)/models/mvc/libBATmvc.la \
 	$(top_builddir)/models/mtf/libBATmtf.la \
 	$(ROOTLIBS)
 
