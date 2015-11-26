@@ -3,5 +3,5 @@ SUBDIRS = \
 	basic
 
 EXTRA_DIST = \
-	README \
+	README.md \
     run-bin-of-cxx.sh
