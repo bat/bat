@@ -1288,22 +1288,23 @@ public:
     static double RValue(std::vector<double> means, std::vector<double> variances, unsigned n, bool correctForSamplingVariability = true);
 
     /**
-     * Resets all containers used in MCMC and initializes starting points.
-     * @return Success of action. */
-    bool MCMCInitialize();
+     * Resets all containers used in MCMC and initializes starting points. */
+    void MCMCInitialize();
 
     /**
      * User hook called from MCMCInitialize().
      *
      * MCMCUserInitialize() is called after all settings for the
-     * upcoming MCMC run are fixed. This is useful for the user, for
-     * example, to allocate separate copies of objects within the user
-     * model, one for each chain for thread safety. The user
-     * likelihood is only called after MCMCUserInitialize() returns.
+     * upcoming MCMC run are fixed but before the initial point is
+     * chosen and before any call to user methods such as
+     * LogLikelihood() or LogAPrioriProbability() are
+     * issued. MCMCUserInitialize() is useful for example to allocate
+     * separate copies of objects within the user model, one per
+     * chain, for thread safety.
      *
-     * @return Success of action. */
-    virtual bool MCMCUserInitialize()
-    { return true; }
+     * @note Any error inside MCMCUserInitialize() should be signaled via an exception. */
+    virtual void MCMCUserInitialize()
+    {}
 
     /**
      * Reset the MCMC variables. */

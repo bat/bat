@@ -27,20 +27,14 @@ public:
     { return false; }
 
     // necessary to overload pure virtual BCFitter function
-    virtual void DrawFit(const char* options, bool flaglegend = false)
-    { }
+    void DrawFit(const char* options, bool flaglegend = false)
+    {}
 
     // fit function returning expectation value for each data point
     virtual double FitFunction(double* x, double* par);
 
     // loglikelihood function - probability of the data given the parameters
-    virtual double LogLikelihood(const std::vector<double>& par);
-
-    // this likelihood is thread safe, so there is nothing to do
-    virtual bool MCMCUserInitialize()
-    {
-        return true;
-    }
+    double LogLikelihood(const std::vector<double>& par);
 };
 
 #endif

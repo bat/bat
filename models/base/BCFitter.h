@@ -182,7 +182,7 @@ public:
 
     /**
      * Create enough TF1 copies for thread safety */
-    virtual bool MCMCUserInitialize();
+    virtual void MCMCUserInitialize();
 
 private:
     /** Fit function (as vector for thread safety) */

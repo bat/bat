@@ -23,6 +23,8 @@
 #include <TH1D.h>
 #include <TH2D.h>
 
+#include <stdexcept>
+
 // due to a bug in root, the normalization member is not copied in the
 // TF1 copy ctor and gets a random initialization that can be `true`
 // giving rise to a lot of useless integrals. Copy manually in root
@@ -77,7 +79,7 @@ BCFitter::~BCFitter()
 }
 
 // ---------------------------------------------------------
-bool BCFitter::MCMCUserInitialize()
+void BCFitter::MCMCUserInitialize()
 {
     // add or remove copies
     fFitFunction.resize(fMCMCNChains, fFitFunction.front());
@@ -88,8 +90,6 @@ bool BCFitter::MCMCUserInitialize()
     for (unsigned i = 0; i < fFitFunction.size(); ++i)
         fFitFunction[i].SetNormalized(fFitFunction.front().IsEvalNormalized());
 #endif
-
-    return true;
 }
 
 // ---------------------------------------------------------

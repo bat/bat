@@ -2281,7 +2281,7 @@ void BCEngineMCMC::ResetResults()
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::MCMCInitialize()
+void BCEngineMCMC::MCMCInitialize()
 {
     // reset convergence
     fMCMCNIterationsConvergenceGlobal = -1;
@@ -2350,10 +2350,7 @@ bool BCEngineMCMC::MCMCInitialize()
     fMCMCFlagRun = false;
 
     // before we set the initial position and evaluate the likelihood, it's time to let the user initialize the model with #chains etc. fixed
-    if (!MCMCUserInitialize()) {
-        BCLog::OutError("MCMCUserInitialize failed. Exiting.");
-        exit(1);
-    }
+    MCMCUserInitialize();
 
     /* set initial position */
 
@@ -2365,13 +2362,12 @@ bool BCEngineMCMC::MCMCInitialize()
 
         // keep previous values
         case kMCMCInitContinue : {
-            BCLog::OutError("BCEngineMCMC::MCMCInitialize : Continuing chains not yet supported. Sorry!");
-            return false;
+            throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Continuing chains not yet supported. Sorry!");
+
             // check position vector size
-            if (fMCMCx.size() != fMCMCNChains) {
-                BCLog::OutError("BCEngineMCMC::MCMCInitialize : Number of chains has been changed; cannot continue previous chains.");
-                return false;
-            }
+            if (fMCMCx.size() != fMCMCNChains)
+                throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Number of chains has been changed; cannot continue previous chains.");
+
             // else do nothing --- continue chains
             break;
         }
@@ -2381,11 +2377,8 @@ bool BCEngineMCMC::MCMCInitialize()
             fMCMCx.assign(fMCMCNChains, GetParameters().GetRangeCenters());
             for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
                 fMCMCprob[ichain] = LogEval(fMCMCx[ichain]);
-                if (!std::isfinite(fMCMCprob[ichain])) {
-                    BCLog::OutError("BCEngineMCMC::MCMCInitialize : Range center as initial point yields invalid probability.");
-                    fMCMCx.clear();
-                    return false;
-                }
+                if (!std::isfinite(fMCMCprob[ichain]))
+                    throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Range center as initial point yields invalid probability.");
             }
 
             break;
@@ -2399,11 +2392,8 @@ bool BCEngineMCMC::MCMCInitialize()
                     fMCMCx[ichain] = GetParameters().GetUniformRandomValues(fMCMCThreadLocalStorage[ichain].rng);
                     fMCMCprob[ichain] = LogEval(fMCMCx[ichain]);
                 }
-                if (!std::isfinite(fMCMCprob[ichain])) {
-                    BCLog::OutError(Form("BCEngineMCMC::MCMCInitialize : Could not generate uniformly distributed initial point with valid probability in %u tries.", max_tries));
-                    fMCMCx.clear();
-                    return false;
-                }
+                if (!std::isfinite(fMCMCprob[ichain]))
+                    throw std::runtime_error(Form("BCEngineMCMC::MCMCInitialize : Could not generate uniformly distributed initial point with valid probability in %u tries.", max_tries));
             }
 
             break;
@@ -2412,10 +2402,9 @@ bool BCEngineMCMC::MCMCInitialize()
         // use user-defined starting points
         case kMCMCInitUserDefined : {
             // check initial position vector size
-            if (fMCMCInitialPosition.size() < fMCMCNChains) {
-                BCLog::OutError("BCEngineMCMC::MCMCInitialize : Too few initial positions provided.");
-                return false;
-            }
+            if (fMCMCInitialPosition.size() < fMCMCNChains)
+                throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Too few initial positions provided.");
+
             // copy positions
             fMCMCx.assign(fMCMCInitialPosition.begin(), fMCMCInitialPosition.begin() + fMCMCNChains);
             // set fixed values then check whether initial positions are within bounds
@@ -2423,17 +2412,12 @@ bool BCEngineMCMC::MCMCInitialize()
             // also checks that initial position vectors are correct size
             for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
                 GetParameters().ApplyFixedValues(fMCMCx[ichain]);
-                if (!GetParameters().IsWithinLimits(fMCMCx[ichain])) {
-                    BCLog::OutError("BCEngineMCMC::MCMCInitialize : User-defined initial point is out of bounds.");
-                    fMCMCx.clear();
-                    return false;
-                } else {
+                if (!GetParameters().IsWithinLimits(fMCMCx[ichain]))
+                    throw std::runtime_error("BCEngineMCMC::MCMCInitialize : User-defined initial point is out of bounds.");
+                else {
                     fMCMCprob[ichain] = LogEval(fMCMCx[ichain]);
-                    if (!std::isfinite(fMCMCprob[ichain])) {
-                        BCLog::OutError("BCEngineMCMC::MCMCInitialize : User-defined initial point yields invalid probability.");
-                        fMCMCx.clear();
-                        return false;
-                    }
+                    if (!std::isfinite(fMCMCprob[ichain]))
+                        throw std::runtime_error("BCEngineMCMC::MCMCInitialize : User-defined initial point yields invalid probability.");
                 }
             }
 
@@ -2442,48 +2426,38 @@ bool BCEngineMCMC::MCMCInitialize()
 
         // randomly distribute according to factorized priors
         case kMCMCInitRandomPrior : {
-            if (!GetParameters().ArePriorsSet(true)) {
-                BCLog::OutError("BCEngineMCMC::MCMCInitialize : Not all unfixed parameters have priors set.");
-                return false;
-            }
+            if (!GetParameters().ArePriorsSet(true))
+                throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Not all unfixed parameters have priors set.");
+
             fMCMCx.assign(fMCMCNChains, std::vector<double>());
             for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
                 for (unsigned n = 0; n < max_tries && !std::isfinite(fMCMCprob[ichain]); ++n) {
                     fMCMCx[ichain] = GetParameters().GetRandomValuesAccordingToPriors(fMCMCThreadLocalStorage[ichain].rng);
                     // check new point
-                    if (!GetParameters().IsWithinLimits(fMCMCx[ichain])) {
-                        BCLog::OutError("BCEngineMCMC::MCMCInitialize : Could not generate random point within limits.");
-                        fMCMCx.clear();
-                        return false;
-                    }
+                    if (!GetParameters().IsWithinLimits(fMCMCx[ichain]))
+                        throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Could not generate random point within limits.");
+
                     fMCMCprob[ichain] = LogEval(fMCMCx[ichain]);
                 }
-                if (!std::isfinite(fMCMCprob[ichain])) {
-                    BCLog::OutError(Form("BCEngineMCMC::MCMCInitialize : Could not generate initial point from prior with valid probability in %u tries.", max_tries));
-                    fMCMCx.clear();
-                    return false;
-                }
+                if (!std::isfinite(fMCMCprob[ichain]))
+                    throw std::runtime_error(Form("BCEngineMCMC::MCMCInitialize : Could not generate initial point from prior with valid probability in %u tries.", max_tries));
             }
 
             break;
         }
 
         default:
-            fMCMCx.clear();
-            BCLog::OutError("BCEngineMCMC::MCMCInitialize : No MCMC position initialization scheme specified.");
-            return false;
+            throw std::runtime_error("BCEngineMCMC::MCMCInitialize : No MCMC position initialization scheme specified.");
     }
 
     if (fMCMCx.empty())
-        return false;
+        throw std::runtime_error("BCEngineMCMC::MCMCInitialize failed.");
 
     // fill likelihood and prior from calculation
     for (unsigned c = 0; c < fMCMCNChains; ++c) {
         fMCMCLogLikelihood[c] = fMCMCLogLikelihood_Provisional[c];
         fMCMCLogPrior[c] = fMCMCLogPrior_Provisional[c];
     }
-
-    return true;
 }
 
 // ------------------------------------------------------------
