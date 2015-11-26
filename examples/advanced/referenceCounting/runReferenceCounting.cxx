@@ -32,10 +32,10 @@ int main()
     double rate    = bkg_exp / bkg_std / bkg_std;
 
     // set option of how to evaluate prior
-    // uncomment one to choose method
-    m.SetPrior(ReferenceCounting::kAnalytic, shape, rate);
-    // m.SetPrior(ReferenceCounting::kHistogram, shape, rate);
-    // m.SetPrior(ReferenceCounting::kApprox, shape, rate);
+    // uncomment one to choose method, kAnalytic is the slowest
+    //    m.SetPrior(ReferenceCounting::kAnalytic, shape, rate);
+    m.SetPrior(ReferenceCounting::kHistogram, shape, rate);
+    //    m.SetPrior(ReferenceCounting::kApprox, shape, rate);
 
     // set precision level
     m.MCMCSetPrecision(BCEngineMCMC::kQuick);
