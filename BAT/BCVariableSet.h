@@ -37,7 +37,8 @@ public:
 
     /**
      * Constructor */
-    BCVariableSet() : fMaxNameLength(0)
+    BCVariableSet() :
+        fMaxNameLength(0)
     {
     }
 
@@ -51,7 +52,7 @@ public:
      * Add a variable if no variable of same name exists yet.
      * @param par Variable
      * @return Success of action. */
-    virtual bool Add(T& var)
+    virtual bool Add(const T& var)
     {
         // check if variable with same name or same safe name exists
         for (unsigned int i = 0; i < fVars.size() ; ++i)

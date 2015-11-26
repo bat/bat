@@ -135,7 +135,6 @@ public:
      * @param upperlimit The upper limit of the variable values. */
     virtual void SetLimits(double lowerlimit = 0, double upperlimit = 1);
 
-
     /**
      * Fix parameter to value (set prior to delta).
      * @param value value to fix parameter to. */
