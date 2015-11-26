@@ -49,12 +49,12 @@ public:
 
     /**
      * Returns a constant prior. */
-    double LogAPrioriProbability(const std::vector<double>& /*parameters*/)
+    virtual double LogAPrioriProbability(const std::vector<double>& /*parameters*/)
     { return 0; }
 
     /**
       * Returns prior of model as posterior of PriorModel. */
-    double LogLikelihood(const std::vector<double>& parameters)
+    virtual double LogLikelihood(const std::vector<double>& parameters)
     { return fModel.LogAPrioriProbability(parameters); }
 
     /**
