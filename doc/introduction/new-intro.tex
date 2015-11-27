@@ -1,0 +1,158 @@
+\documentclass[11pt, a4paper]{article}
+
+%\usepackage{geometry}
+%\usepackage{epsfig}
+%\usepackage{epstopdf}
+%\usepackage{graphics}
+\usepackage{booktabs}
+\usepackage[svgnames]{xcolor}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{parskip}
+\usepackage{url}
+
+\setlength{\oddsidemargin}{0cm}
+\setlength{\evensidemargin}{0cm}
+\setlength{\topmargin}{-1cm}
+\setlength{\textheight}{23cm}
+\setlength{\textwidth}{16cm}
+
+%\setlength{\parindent}{0pt}
+
+\pagestyle{headings}
+
+\newcommand{\bat}{{\sc BAT}}
+\newcommand{\BAT}{\bat}
+\newcommand{\Root}{{\sc Root}}
+
+\input{versions}
+\newcommand{\version}{version~\versionno}
+\newcommand{\Version}{Version~\versionno}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\newcommand{\dan}[1]{{\color{red}{Dan: #1}}}
+\newcommand{\fred}[1]{{\color{blue}{Fred: #1}}}
+
+%--------------------------------------------------------
+
+\begin{document}
+
+% --------------------------------------------------------
+% title
+% --------------------------------------------------------
+
+\thispagestyle{empty}
+
+\begin{figure}
+\includegraphics[scale=0.25]{bat}
+\end{figure}
+
+\vspace*{1cm}
+
+\begin{center}
+
+
+{\Large An introduction to \bat}
+\\
+
+\vspace{1cm}
+
+{\large \bat\ \version}
+
+\end{center}
+
+\thispagestyle{empty}
+
+\vfill
+
+\begin{center}
+\today
+\end{center}
+
+\pagebreak
+
+% --------------------------------------------------------
+% table of contents
+% --------------------------------------------------------
+
+\thispagestyle{empty}
+
+\enlargethispage{2cm}
+
+\tableofcontents
+
+\section{Intro to Bayesian Statistics (for our purposes)}
+\fred
+
+\section{Intro to Markov Chain Monte Carlo (for our purposes)}
+\fred
+
+R value.
+
+\section{Basic BAT}
+
+Goal of this section is that if you can read and test as you go along, and end up with functioning code.
+
+\subsection{Non-code parts of BAT}
+\dan
+
+bat-project, bat-config
+
+\subsection{Absolutely necessary requirements of your model}
+\dan
+
+Parameters, LogLikelihood, some form of setting a prior.
+
+\subsection{Running the analysis}
+\dan
+
+Functions to call. How to output. Basic tuning. How to interpret runtime log output \& trouble shooting (nonconvergence, poor efficiencies). How to interpret summary log output.
+
+\subsection{Plots}
+\dan
+
+Interpreting the basic output: marginals; parameters; knowledge update; correlation matrix.
+
+Options for the different output types.
+
+
+\section{Non-MCMC parts of BAT}
+
+\subsubsection{Integration}
+\fred
+
+\subsubsection{Optimization}
+\fred
+
+\section{Accompanying Models}
+
+\subsection{Using BAT's native data structures}
+
+\subsection{base}
+
+\subsection{mtf}
+
+
+\section{Advanced BAT}
+
+\subsection{ModelManager for Model Comparison}
+\fred
+
+\subsection{Defining your own factorized prior}
+\dan
+
+\subsection{Sharing / Loading samples}
+\dan
+
+\subsection{Performance / Threading / User's attention to thread-safety}
+
+tips.
+
+\section{Examples}
+
+\section{Validation}
+
+Proof we've checked BAT works.
+
+\end{document}
