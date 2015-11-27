@@ -303,12 +303,13 @@ REQUIRE_ROOT_VERSION([5.27.04])
 dnl RooStats
 AC_ARG_ENABLE(
 	[roostats],
-	[AS_HELP_STRING([--disable-roostats],[compile with RooStats support (default yes if available)])],
+	[AS_HELP_STRING([--enable-roostats],[compile with RooStats support (default: no)])],
 	[
-		use_roostats=${enable_val}
+		use_roostats=${enableval};
 	],
-	[use_roostats=yes]
+	[use_roostats=no]
 )
+
 dnl ROOT
 m4_include(tools/build/root.m4)
 ROOT_PATH(
