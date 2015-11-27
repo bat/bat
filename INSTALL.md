@@ -12,7 +12,8 @@ distributions and different versions of the kernel and gcc. As far as
 we know there is nothing distribution-dependent inside of BAT. A gcc
 version >4.2 should suffice to compile the C++ code.
 
-The installation and functionality of BAT has also been tested on MAC OS X.
+The installation and functionality of BAT has also been tested on Mac
+OS X with gcc and clang.
 
 Windows is not supported.
 
@@ -34,23 +35,23 @@ interface, you may still have to compile ROOT yourself.
 
 #### Note
 
-For the interface to RooFit/RooStats, a ROOT version
-5.27/04 or later is necessary and ROOT has to be compiled with
-MathMore enabled.
+For the interface to RooFit/RooStats, a ROOT version 5.27/04 or later
+is necessary and ROOT must be compiled with support for MathMore, which
+in turn relies on the GNU scientific library (GSL).
 
 ### Optional: Cuba
 
-Cuba is a library containing general purpose multidimensional
+Cuba is a library containing general-purpose multidimensional
 integration algorithms. It can be obtained from
 http://www.feynarts.de/cuba/. BAT is compatible with Cuba versions 3.3
-through least 4.2.
+through at least 4.2.
 
 Cuba is not necessary to run BAT. We recommend it for model comparison
 where expensive integrals are needed. Cuba provides integration
 routines tuned for performance, which are useful for integration in
 problems with not too many dimensions (~10). By default, Cuba will
 evaluate in parallel and take all idle cores; the number of cores can
-be set through the environment variable. For a single core, set
+be set through an environment variable. For a single core, set
 
     CUBACORES=1
 
@@ -71,27 +72,38 @@ position-independent code:
 Building
 ----------------------
 
-Unpack the tarball containing the BAT source usually named like
-BAT-x.x.tar.gz (here x.x is the version number) using command
+### Obtaining BAT
+
+You can download the latest release of BAT from http://mpp.mpg.de/bat/.
+Unpack the tarball usually named like BAT-x.x.tar.gz (here x.x is
+the version number) and switch to the directory
 
     tar -xzf BAT-x.x.tar.gz
-
-A directory called BAT-x.x will be created containing the source code.
-Enter the directory and run the configuration using commands
-
     cd BAT-x.x
+
+Alternatively, you can clone the git repository https://github.com/bat/bat (we
+recommend using the master branch):
+
+    git clone https://github.com/bat/bat
+    cd bat
+    ./autogen.sh
+
+Now start the configuration with
+
     ./configure
 
 This will check your system for all components needed to compile BAT
-and set up the paths for installation. You can add option
-`--prefix=/path/to/install/bat` to `./configure` to specify the the
-prefix to the BAT installation path. The BAT library files will be
-installed to `$prefix/lib` and the include files to
-`$prefix/include`. The default installation prefix is `/usr/local`.
+and set up the paths for installation. You can add the option
+`--prefix=/path/to/install/bat` to `./configure`. The BAT library
+files will then be installed to `$prefix/lib` and the include files to
+`$prefix/include`. The default installation prefix is `/usr/local`,
+which requires super-user privileges.
 
 You can list all available options using
 
     ./configure --help
+
+In the following, we describe the most useful options in detail.
 
 ### ROOT
 
@@ -99,15 +111,15 @@ The configure script checks for ROOT availability in the system and
 fails if ROOT is not installed. You can specify the `ROOTSYS` directory
 using `--with-rootsys=/path/to/rootsys`
 
-BAT support for RooFit/RooStats is turned on by default. The configure
+BAT support for RooFit/RooStats is turned off by default. The feature
+can be turned on explicitly with `--enable-roostats`. The configure
 script will check whether the version of ROOT is sufficient and
-whether ROOT was compiled with RooFit/RooStats support. The feature
-can be turned off explicitly with `--disable-roostats`.
+whether ROOT was compiled with RooFit/RooStats support.
 
 ### openMP
 
 Support for openMP threading to run multiple Markov chains in parallel
-is available through the configure option `--enable-parallelization`;
+is available through the configure option `--enable-parallel`;
 it is disabled by default. This requires a version of gcc accepting
 the `-fopenmp` flag, anything >= 4.2 should suffice.  Note that if
 threads are enabled, the default number of threads actually used is
@@ -120,16 +132,26 @@ The default version of clang does not implement openMP.
 
 ### Cuba
 
-If you configured BAT with the option `--with-cuba=download`, BAT
-will download, compile, and use Cuba automatically.
-Otherwise, use the configure option `--with-cuba[=DIR]` to enable Cuba.
-If you installed Cuba including the `partview` executable, the Cuba
-installation path will be derived from its location. Otherwise, the
-configure script will search for `libcuba.a` and `cuba.h` in the system
-paths. If you manually specify the Cuba install path as `DIR`, configure
-will look in `DIR/lib/` and `DIR/include/` instead.  For more
-fine-grained control, use `--with-cuba-include-dir=/path/to/cuba/header`
-and `--with-cuba-lib-dir=/path/to/cuba/lib`.
+If you configured BAT with the option `--with-cuba=download`, BAT will
+download, compile, and use Cuba automatically.  For manual
+configuration, use the configure option `--with-cuba[=DIR]` to enable
+Cuba. If you installed Cuba including the `partview` executable, the
+Cuba installation path will be derived from its location. Otherwise,
+the configure script will search for `libcuba.a` and `cuba.h` in the
+system paths. If you manually specify the Cuba install path as `DIR`,
+configure will look in `DIR/lib/` and `DIR/include/` instead.  For
+more fine-grained control, use
+`--with-cuba-include-dir=/path/to/cuba/header` and
+`--with-cuba-lib-dir=/path/to/cuba/lib`.
+
+### Advanced options
+
+If you want to be able to step through BAT line by line with a
+debugger, use `--enable-debug`. This slows down execution as it turns
+off code optimization but it improves the compilation time. Another
+way to speed up the build is to create only shared libraries if you
+don't need static libraries: `--disable-static`. Finally, you can
+reduce the output to the terminal with `--enable-silent-rules`.
 
 ### Compile
 
@@ -138,24 +160,19 @@ After a successful configuration, run
     make
     make install
 
-to compile and install BAT. Note that depending on the setting of
-installation prefix you might need root privileges to be able to
+to compile and install BAT. Note that depending on the setting of the
+installation prefix you might need super-user privileges to be able to
 install BAT and run `sudo make install` instead of plain `make
 install`. In the former case, you might need to run `sudo ldconfig`
-just once to help the linker pick up the new libraries immediately.
+just once to help the loader pick up the new libraries immediately.
 
 System setup
 ------------
 
 After installation, BAT offers two mechanisms to make BAT available:
 
-1. The script `bat-config` returns the installation prefix, the
-   libraries for linking, the C flags, and the version as
-
-        bat-config --prefix
-        bat-config --libs
-        bat-config --cflags
-        bat-config --version
+1. The script `bat-config` returns details of the BAT installation
+   directories and compilation settings; see `bat-config`.
 
 2. The file `bat.pc` contains the same information as above and can be
    used by the more powerful `pkg-config`; e.g.,
@@ -164,7 +181,7 @@ After installation, BAT offers two mechanisms to make BAT available:
         pkg-config --libs bat
 
 If you do not install BAT to the system directories, you need to
-manually add the path to `bat-config`, `bat.pc`, the libraries, and to
+manually add the path to `bat-config`, `bat.pc`, the libraries, and
 the include files to the search paths. Depending on your shell you can
 do that via the commands
 
@@ -176,7 +193,7 @@ export CPATH="$BATPREFIX/include:$CPATH"
 export PKG_CONFIG_PATH="$BATPREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 ```
 
-or
+for bash-compatible shells or
 
 ```bash
 set BATPREFIX = /bat/install/prefix
@@ -186,16 +203,16 @@ setenv CPATH             "${BATPREFIX}/include:${CPATH}"
 setenv PKG_CONFIG_PATH   "${BATPREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
 ```
 
-for bash and csh compatible shells, respectively. On Mac OS X you
-might also need to setup `DYLD_LIBRARY_PATH`. If you want to make BAT
-permanently available, add the above commands to your `.bashrc` or
-`.tcshrc`.
+for csh-compatible shells. On Mac OS X you might also need to setup
+`DYLD_LIBRARY_PATH`. If you want to make BAT permanently available,
+add the above commands to your login script; for example `.profile` or
+`.bashrc`.
 
-Note that `bat-config` needs to be on the `PATH` to compile the
-programs that ship with BAT in the `examples/` subdirectory.
+Note that `bat-config` needs to be available to compile the examples
+in the `examples/` subdirectory after installation.
 
-The variable `CPATH` is required if you work with ROOT macros
-that use BAT (both for ROOT 5 and 6)
+Updating `$CPATH` is required if you work with ROOT macros that use
+BAT (both for ROOT 5 and 6).
 
 Including BAT in your project
 -----------------------------
@@ -206,15 +223,14 @@ The most basic way to compile and link a file `example.cxx` with BAT is
 gcc `bat-config --cflags` `bat-config --libs` example.cxx -o
 ```
 
-In makefile projects, simply add option for use in compiled programs
-would also be to add `bat-config --cflags` to CXXFLAGS and `bat-config
---libs` to `LDFLAGS` in your Makefile. However, there will be an error
-at runtime, for example in interactive ROOT macros, if
+In a makefile, simply query `bat-config` to set appropriate
+variables. However, there will be an error at runtime, for example in
+interactive ROOT macros, if
 
     libBAT.so, libBATmodels.so, libBATmtf.so,
     libBAT.rootmap, libBATmodels.rootmap, libBATmtf.rootmap
 
-are not in the directories found be the library loader; see above how
+are not in the directories searched by the library loader; see above how
 to setup the `LD_LIBRARY_PATH` and the `CPATH`.
 
 Interactive ROOT macros
@@ -234,11 +250,13 @@ int main() {
 }
 ```
 
-instead of the other way around around because `OpenLog` creates a singleton object.
+instead of the other way around around because `OpenLog` creates a
+singleton object.
 
 Contact
 -------
 
-Please, consult the BAT web page http://mpp.mpg.de/bat/ for further
-information. You can also contact the authors directly via email:
-bat@mpp.mpg.de
+Please consult the BAT web page http://mpp.mpg.de/bat/ for further
+information. In case of questions or problems, please don't hesitate
+to create an issue at https://github.com/bat/bat/issues/ or contact
+the authors directly via email through bat@mpp.mpg.de.

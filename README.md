@@ -42,16 +42,19 @@ Contents
 Directory `bat/`:
 
 * `doc/`: documentation about BAT
-* `examples/`: well commented example programs
+* `examples/`: well commented example programs, see `examples/README.md`
 * `BAT/`: BAT header files
-* `src/`: BAT source files
-* `models`: models and interfaces for BAT
-* `tools`: tools useful for BAT
+* `src/`: source files of the BAT core library
+* `models`: models for specific data-analysis problems: fast fitters
+  in `base/` and the multi-template fitter in `mtf`
+* `benchmarks`: performance test suite with html output
+* `test`: unit tests
+* `tools`: template script to generate a BAT project and build utilities
 * `INSTALL.md`: instructions to install BAT on your system
-* `README.md`: basic information about BAT
+* `README.md`: this document
 
-Other files distributed with BAT are part of installation and configuration
-system.
+Other files distributed with BAT are part of the configuration and
+build system.
 
 Installation
 -------------
