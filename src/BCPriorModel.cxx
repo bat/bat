@@ -13,10 +13,10 @@
 #include <TH1.h>
 
 // ---------------------------------------------------------
-BCPriorModel::BCPriorModel(BCModel& model, bool call_likelihood)
-    : BCModel(model.GetName() + "_prior")
-    , fModel(model)
-    , fCallLikelihood(call_likelihood)
+BCPriorModel::BCPriorModel(BCModel& model, bool call_likelihood) :
+    BCModel(model.GetName() + "_prior"),
+    fModel(model),
+    fCallLikelihood(call_likelihood)
 {
     PreparePriorModel();
 }

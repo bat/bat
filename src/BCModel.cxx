@@ -90,7 +90,7 @@ double BCModel::LogProbabilityNN(const std::vector<double>& parameters)
     // then calculation likelihood, or set to -inf, if prior already invalid
     double ll = (std::isfinite(lp)) ? LogLikelihood(parameters) : -std::numeric_limits<double>::infinity();;
 
-    if (MCMCGetCurrentChain() < fMCMCLogLikelihood_Provisional.size() and MCMCGetCurrentChain() < fMCMCLogPrior_Provisional.size()) {
+    if (MCMCGetCurrentChain() < fMCMCLogLikelihood_Provisional.size() && MCMCGetCurrentChain() < fMCMCLogPrior_Provisional.size()) {
         fMCMCLogLikelihood_Provisional[MCMCGetCurrentChain()] = ll;
         fMCMCLogPrior_Provisional[MCMCGetCurrentChain()] = lp;
     }
@@ -234,11 +234,11 @@ BCH1D BCModel::GetPrior(unsigned index)
     if (index > GetNVariables())
         return prior;
 
-    if (index < GetNParameters() and GetParameter(index).Fixed())
+    if (index < GetNParameters() && GetParameter(index).Fixed())
         return prior;
 
     // check for factorized prior
-    if (fFactorizedPrior and index < GetNParameters() and GetParameter(index).GetPrior() != NULL) {
+    if (fFactorizedPrior && index < GetNParameters() && GetParameter(index).GetPrior() != NULL) {
         TH1* h = GetVariable(index).CreateH1("getprior1d_temp");
         prior = GetParameter(index).GetPrior()->GetBCH1D(h, Form("%s_%d_prior", GetSafeName().data(), index));
         delete h;
@@ -254,7 +254,7 @@ BCH1D BCModel::GetPrior(unsigned index)
     }
 
     // else use marginalized prior, if it exists
-    if (!prior.Valid() and fPriorModel->MarginalizedHistogramExists(index))
+    if (!prior.Valid() && fPriorModel->MarginalizedHistogramExists(index))
         prior = fPriorModel->GetMarginalized(index);
 
     if (prior.Valid())
@@ -268,21 +268,21 @@ BCH2D BCModel::GetPrior(unsigned index1, unsigned index2)
 {
     BCH2D prior;
 
-    if (index1 > GetNVariables() or index2 > GetNVariables())
+    if (index1 > GetNVariables() || index2 > GetNVariables())
         return prior;
 
-    if (index1 < GetNParameters() and GetParameter(index1).Fixed())
+    if (index1 < GetNParameters() && GetParameter(index1).Fixed())
         return prior;
 
-    if (index2 < GetNParameters() and GetParameter(index2).Fixed())
+    if (index2 < GetNParameters() && GetParameter(index2).Fixed())
         return prior;
 
     std::string title = "prior";
 
     // check for factorized priors
-    if (fFactorizedPrior and
-            index1 < GetNParameters() and GetParameter(index1).GetPrior() != NULL and
-            index2 < GetNParameters() and GetParameter(index2).GetPrior() != NULL) {
+    if (fFactorizedPrior &&
+            index1 < GetNParameters() && GetParameter(index1).GetPrior() != NULL &&
+            index2 < GetNParameters() && GetParameter(index2).GetPrior() != NULL) {
 
         TH2* h2 = fPriorModel->GetVariable(index1).CreateH2("getprior2d_temp", fPriorModel->GetVariable(index2));
         prior = GetParameter(index1).GetPrior()->GetBCH2D(GetParameter(index2).GetPrior(), h2, Form("h2d_prior_%s_%d_%d", GetName().data(), index1, index2));
@@ -296,11 +296,11 @@ BCH2D BCModel::GetPrior(unsigned index1, unsigned index2)
                 prior.SetLocalMode((unsigned)0, GetParameter(index1).GetRangeCenter());
             if (const_prior2)
                 prior.SetLocalMode((unsigned)1, GetParameter(index2).GetRangeCenter());
-            if (const_prior1 and !const_prior2)
+            if (const_prior1 && !const_prior2)
                 title += " (flat in " + fPriorModel->GetVariable(index1).GetLatexName() + ")";
-            else if (!const_prior1 and const_prior2)
+            else if (!const_prior1 && const_prior2)
                 title += " (flat in " + fPriorModel->GetVariable(index2).GetLatexName() + ")";
-            else if (const_prior1 and const_prior2) {
+            else if (const_prior1 && const_prior2) {
                 title += " (both flat)";
                 prior.SetNBands(0);
             }
@@ -308,7 +308,7 @@ BCH2D BCModel::GetPrior(unsigned index1, unsigned index2)
     }
 
     // else use marginalized prior, if it exists
-    if (!prior.Valid() and (fPriorModel->MarginalizedHistogramExists(index1, index2) or fPriorModel->MarginalizedHistogramExists(index2, index1)))
+    if (!prior.Valid() && (fPriorModel->MarginalizedHistogramExists(index1, index2) || fPriorModel->MarginalizedHistogramExists(index2, index1)))
         prior = fPriorModel->GetMarginalized(index1, index2);
 
     if (prior.Valid())
@@ -330,7 +330,7 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv,
     }
 
     // prepare prior
-    if ( !GetPriorModel(true, call_likelihood) or fPriorModel->GetNParameters() == 0 )
+    if (!GetPriorModel(true, call_likelihood) || fPriorModel->GetNParameters() == 0 )
         return 0;
 
     BCAux::DefaultToPDF(filename);
@@ -340,7 +340,7 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv,
     // call prior evalution once to set fFactorizedPrior:
     LogAPrioriProbability(std::vector<double>(GetNParameters(), 0));
 
-    if (!fFactorizedPrior or !GetParameters().ArePriorsSet(true) or GetNObservables() > 0) {
+    if (!fFactorizedPrior || !GetParameters().ArePriorsSet(true) || GetNObservables() > 0) {
         BCLog::OutSummary("Marginalizing prior...");
         fPriorModel->MarginalizeAll();
     }
@@ -388,7 +388,7 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv,
         h2.push_back(std::make_pair(prior, posterior));
     }
 
-    if (h1.empty() and h2.empty()) {
+    if (h1.empty() && h2.empty()) {
         BCLog::OutWarning("BCModel::PrintKnowledgeUpdatePlots : No update plots to print.");
         return 0;
     }
@@ -466,62 +466,6 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv,
     return nplots;
 
 }
-
-/*
-// ---------------------------------------------------------
-unsigned BCModel::PrintPriors(std::string filename, unsigned hdiv, unsigned vdiv, bool call_likelihood)
-{
-    if (GetNVariables() == 0) {
-        BCLog::OutError("BCModel::PrintPriors : No variables defined!");
-        return 0;
-    }
-
-    // prepare prior
-    if ( !GetPriorModel(true, call_likelihood) or fPriorModel->GetNParameters() == 0 )
-        return 0;
-
-    BCAux::DefaultToPDF(filename);
-    if (filename.empty())
-        return 0;
-
-    // call prior evalution once to set fFactorizedPrior:
-    LogAPrioriProbability(std::vector<double>(GetNParameters(), 0));
-
-    if (!fFactorizedPrior or !GetParameters().ArePriorsSet(true) or GetNObservables() > 0) {
-        BCLog::OutSummary("Marginalizing prior...");
-         fPriorModel->MarginalizeAll();
-    }
-    fPriorModel->FindMode();
-
-    // Find nonempty H1's
-    std::vector<unsigned> H1Indices = GetH1DPrintOrder();
-    std::vector<BCH1D> h1;
-    h1.reserve(H1Indices.size());
-    for (unsigned i = 0; i < H1Indices.size(); ++i) {
-        h1.push_back(GetPrior(H1Indices[i]));
-        if (h1.back().Valid())
-            h1.back().CopyOptions(fBCH1DdrawingOptions);
-        else
-            h1.pop_back();
-    }
-
-    // Find nonempty H2's
-    std::vector<std::pair<unsigned, unsigned> > H2Coords = GetH2DPrintOrder();
-    std::vector<BCH2D> h2;
-    h2.reserve(H2Coords.size());
-    for (unsigned k = 0; k < H2Coords.size(); ++k) {
-        unsigned i = H2Coords[k].first;
-        unsigned j = H2Coords[k].second;
-        h2.push_back(GetPrior(i, j));
-        if (h2.back().Valid())
-            h2.back().CopyOptions(fBCH2DdrawingOptions);
-        else
-            h2.pop_back();
-    }
-
-    return BCAux::PrintPlots(h1, h2, filename, hdiv, vdiv);
-}
-*/
 
 // ---------------------------------------------------------
 void BCModel::SetKnowledgeUpdateDrawingStyle(BCAux::BCKnowledgeUpdateDrawingStyle style)

@@ -34,7 +34,7 @@ public:
      * Constructor */
     BCParameterSet();
 
-    /*
+    /**
      * Destructor */
     virtual ~BCParameterSet() {};
 

@@ -27,11 +27,6 @@
 #include <string>
 #include <vector>
 
-// ROOT classes
-class TF1;
-class TH1;
-class TH1D;
-
 // ---------------------------------------------------------
 
 class BCHistogramFitter : public BCFitter
@@ -40,18 +35,12 @@ public:
 
     /** \name Constructors and destructors */
     /* @{ */
-
     /**
      * Constructor
-     * @param name name of the model */
-    BCHistogramFitter(std::string name = "histogram_fitter_model");
-
-    /**
-     * Constructor
-     * @param hist histogram to fit
+     * @param hist Histogram with observed number of counts. Any non-integer values will be converted to integer.
      * @param func fit function
      * @param name name of the model */
-    BCHistogramFitter(TH1* hist, TF1* func, std::string name = "histogram_fitter_model");
+    BCHistogramFitter(const TH1& hist, const TF1& func, const std::string& name = "histogram_fitter_model");
 
     /**
      * The default destructor. */
@@ -64,13 +53,8 @@ public:
 
     /**
      * @return The data histogram */
-    TH1* GetHistogram()
+    const TH1& GetHistogram()
     { return fHistogram; };
-
-    /**
-     * @return The  histogram of expected counts*/
-    TH1D* GetHistogramExpected()
-    { return fHistogramExpected; };
 
     /**
      * @return p Value accounting for degrees of freedom */
@@ -79,27 +63,6 @@ public:
 
     /* @} */
 
-    /** \name Member functions (set) */
-    /* @{ */
-
-    /**
-     * @param hist The histogram containing the data
-     * @return Success of action. */
-    bool SetHistogram(TH1* hist);
-
-    /**
-     * @param hist The histogram with the expected counts (typically non-integer values!)
-     * @return Success of action. */
-    bool SetHistogramExpected(const std::vector<double>& parameters);
-
-    /**
-     * Sets the flag for integration. \n
-     * true: use ROOT's TH1::Integrate() \n
-     * false: use linear interpolation */
-    void SetFlagIntegration(bool flag)
-    { fFlagIntegration = flag; };
-
-    /* @} */
     /** \name Member functions (miscellaneous methods) */
     /* @{ */
 
@@ -109,23 +72,9 @@ public:
     virtual double LogLikelihood(const std::vector<double>& parameters);
 
     /**
-     * Returns the y-value of the 1-dimensional fit function at an x and
-     * for a set of parameters.
-     * @param x A vector with the x-value.
-     * @param parameters A set of parameters. */
-    double FitFunction(const std::vector<double>& x, const std::vector<double>& parameters);
-
-    /**
      * Performs the fit.
      * @return Success of action. */
     bool Fit();
-
-    /**
-     * Performs the fit.
-     * @param hist The histogram (TH1).
-     * @param func The fit function.
-     * @return Success of action. */
-    bool Fit(TH1* hist, TF1* func);
 
     /**
      * Draw the fit in the current pad. */
@@ -159,48 +108,17 @@ public:
      * @param weight use the variance from the expected #counts (true) or the measured counts (false)
      * @return Success of action. */
     bool CalculatePValueLeastSquares(const std::vector<double>& par, bool weightExpect = true);
-
-    /**
-     * Calculate the p-value using Kolmogorov-Smirnov test. Note that the
-     * reference distribution is known only asymptotically. Some explanation is given in
-     * http://root.cern.ch/root/htmldoc/TMath.html
-     * @param par The set of parameter values used in the model, usually the best fit parameters
-     * @param pvalue The pvalue
-     * @return Success of action. */
-    bool CalculatePValueKolmogorov(const std::vector<double>& par);
-
-    /**
-     * 1dim cumulative distribution function of the probability
-     * to get the data f(x_i|param) for a single measurement, assumed to
-     * be of identical functional form for all measurements
-     * @param parameters The parameter values at which point to compute the cdf
-     * @param index The data point index starting at 0,1...N-1
-     * @param lower only needed for discrete distributions!
-     * @return the CDF for the count one less than actually observed, e.g.
-     * in Poisson process, if 3 actually observed, then CDF(2) is returned */
-    double CDF(const std::vector<double>& parameters, int index, bool lower = false);
-
     /* @} */
 
 protected:
 
     /**
-     * The histogram containing the data. */
-    TH1* fHistogram;
-
-    /**
-     * Flag for using the ROOT TH1::Integral method (true), or linear
-     * interpolation (false) */
-    bool fFlagIntegration;
-
-    /**
-     * The histogram containing the expected data. */
-    TH1D* fHistogramExpected;
+     * The histogram with observed number of counts. */
+    TH1I fHistogram;
 
     /**
      * fPValue accounting for degrees of freedom. */
     double fPValueNDoF;
-
 };
 
 // ---------------------------------------------------------

@@ -227,4 +227,4 @@ public:
 
     }
 
-} bcaux_Test;
+} bcprior_Test;

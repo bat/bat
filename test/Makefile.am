@@ -30,6 +30,7 @@ TESTS = \
 	BCEngineMCMC.TEST \
 	BCMath.TEST \
 	BCModel.TEST \
+	BCParameter.TEST \
 	BCPrior.TEST \
 	BCSummaryTool.TEST \
 	parallel.TEST
@@ -61,6 +62,8 @@ BCEngineMCMC_TEST_SOURCES = BCEngineMCMC_TEST.cxx
 BCMath_TEST_SOURCES = BCMath_TEST.cxx
 
 BCModel_TEST_SOURCES = BCModel_TEST.cxx
+
+BCParameter_TEST_SOURCES = BCParameter_TEST.cxx
 
 BCPrior_TEST_SOURCES = BCPrior_TEST.cxx
 

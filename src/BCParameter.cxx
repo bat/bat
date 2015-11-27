@@ -23,32 +23,32 @@
 
 
 // ---------------------------------------------------------
-BCParameter::BCParameter()
-    :	BCVariable()
-    , fFixed(false)
-    , fFixedValue(std::numeric_limits<double>::infinity())
-    , fPrior(NULL)
+BCParameter::BCParameter() :
+    BCVariable(),
+    fFixed(false),
+    fFixedValue(std::numeric_limits<double>::infinity()),
+    fPrior(NULL)
 {
     fPrefix = "Parameter";
 }
 
 // ---------------------------------------------------------
-BCParameter::BCParameter(const BCParameter& other)
-    : BCVariable(other)
-    , fFixed(other.fFixed)
-    , fFixedValue(other.fFixedValue)
-    , fPrior(NULL)
+BCParameter::BCParameter(const BCParameter& other) :
+    BCVariable(other),
+    fFixed(other.fFixed),
+    fFixedValue(other.fFixedValue),
+    fPrior(NULL)
 {
     if (other.fPrior)
         SetPrior(other.fPrior->Clone());
 }
 
 // ---------------------------------------------------------
-BCParameter::BCParameter(std::string name, double lowerlimit, double upperlimit, std::string latexname, std::string unitstring)
-    : BCVariable(name, lowerlimit, upperlimit, latexname, unitstring)
-    , fFixed(false)
-    , fFixedValue(std::numeric_limits<double>::infinity())
-    , fPrior(NULL)
+BCParameter::BCParameter(std::string name, double lowerlimit, double upperlimit, std::string latexname, std::string unitstring) :
+    BCVariable(name, lowerlimit, upperlimit, latexname, unitstring),
+    fFixed(false),
+    fFixedValue(std::numeric_limits<double>::infinity()),
+    fPrior(NULL)
 {
     fPrefix = "Parameter";
 }

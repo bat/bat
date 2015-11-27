@@ -119,6 +119,47 @@ void DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posterior, boo
  * @return Number of plots printed */
 unsigned PrintPlots(std::vector<BCH1D>& h1, std::vector<BCH2D>& h2, std::string filename, unsigned hdiv = 1, unsigned vdiv = 1);
 
+/**
+ * A trash to keep heap-allocated objects of type T alive until the
+ * trash goes out of scope. Then they are deleted. Ownership is not
+ * transferred in copies, only during a swap.
+ */
+template <typename T>
+class BCTrash
+{
+public:
+    BCTrash() {}
+    BCTrash(const BCTrash<T>&) {}
+    BCTrash<T>& operator=(const BCTrash<T>&) {}
+    void swap(BCTrash<T>& other)
+    {
+        std::swap(fStorage, other.fStorage);
+    }
+
+    ~BCTrash()
+    {
+        for (unsigned i = 0; i < fStorage.size(); ++i)
+            delete fStorage[i];
+    }
+
+    void Put(T* object)
+    {
+        fStorage.push_back(object);
+    }
+
+private:
+    std::vector<T*> fStorage;
+};
+
+}
+
+namespace std
+{
+template <typename T>
+void swap(BCAux::BCTrash<T>& a, BCAux::BCTrash<T>& b)
+{
+    a.swap(b);
+}
 }
 
 // ---------------------------------------------------------

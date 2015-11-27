@@ -16,7 +16,8 @@ class PolAsymm : public BCFitter
 {
 public:
 
-    PolAsymm(std::string name);
+    /** Create a polynomial model with name and the parameters. */
+    PolAsymm(const std::string& name, const BCParameterSet& parameters);
 
     ~PolAsymm()
     { /* empty destructor */ }
@@ -26,14 +27,14 @@ public:
     { return false; }
 
     // necessary to overload pure virtual BCFitter function
-    void DrawFit(const char* options, bool flaglegend = false)
+    virtual void DrawFit(const char* options, bool flaglegend = false)
     { }
 
     // fit function returning expectation value for each data point
-    double FitFunction(const std::vector<double>& x, const std::vector<double>& par);
+    virtual double FitFunction(double* x, double* par);
 
     // loglikelihood function - probability of the data given the parameters
-    double LogLikelihood(const std::vector<double>& par);
+    virtual double LogLikelihood(const std::vector<double>& par);
 
     // this likelihood is thread safe, so there is nothing to do
     virtual bool MCMCUserInitialize()
@@ -43,4 +44,3 @@ public:
 };
 
 #endif
-

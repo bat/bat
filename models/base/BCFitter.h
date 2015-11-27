@@ -4,10 +4,7 @@
 /*!
  * \class BCFitter
  * \brief A base class for all fitting classes
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 08.2013
- * \detail A base class for all fitting classes
+ * \detail This a general class around fitting a 1D function to data of various kinds with uncertainty propagation.
  */
 
 /*
@@ -20,13 +17,14 @@
 
 // ---------------------------------------------------------
 
+#include "../../BAT/BCAux.h"
+#include "../../BAT/BCDataSet.h"
 #include "../../BAT/BCModel.h"
 
-#include <string>
+#include <TF1.h>
+#include <TH2D.h>
 
-class TGraph;
-class TH2;
-class TH2D;
+#include <string>
 
 // ---------------------------------------------------------
 
@@ -39,18 +37,13 @@ public:
 
     /**
      * Constructor
-     * @param name name of the model */
-    BCFitter(std::string name = "fitter_model");
-
-    /**
-     * Constructor
      * @param f pointer to TF1 to copy into fitter object
-     * @param name name of the model */
-    BCFitter(TF1* f, std::string name = "");
+     * @param name name of the model. If empty, take the name from f. */
+    BCFitter(const TF1& f, const std::string& name = "fitter_model");
 
     /**
      * The default destructor. */
-    virtual ~BCFitter();
+    virtual ~BCFitter() = 0;
 
     /* @} */
 
@@ -58,26 +51,9 @@ public:
     /* @{ */
 
     /**
-     * Get fit function
-     * @param index index of chain to return fit function for (default = 0) */
-    TF1* GetFitFunction(unsigned index = 0)
-    { return (fFitFunction.empty()) ? (TF1*)0 : fFitFunction[index]; }
-
-    /**
-     * @return pointer to the error band */
-    TGraph* GetErrorBand()
-    { return fErrorBand; }
-
-    /**
-     * @return pointer to a graph for the fit function */
-    TGraph* GetGraphFitFunction()
-    { return fGraphFitFunction; }
-
-    /**
-     * const BCParameter * GetParameter(const char * name);
-     * @return The 2D histogram of the error band. */
-    TH2* GetErrorBandXY() const
-    { return fErrorBandXY; }
+     * Get fit function. */
+    TF1& GetFitFunction()
+    { return fFitFunction.at(MCMCGetCurrentChain()); }
 
     /**
      * @param level Desired probability mass
@@ -114,21 +90,14 @@ public:
     /* @{ */
 
     /**
-     * Set fit function
-     * @param f pointer to TF1 to copy into object.
-     * @return success of action. */
-    bool SetFitFunction(TF1* func);
+     * Sets the error band flag to continuous function */
+    void SetErrorBandContinuous(bool flag);
 
     /**
      * Turn on or off the filling of the error band during the MCMC run.
      * @param flag set to true for turning on the filling */
     void SetFillErrorBand(bool flag = true)
     { fFlagFillErrorBand = flag; }
-
-    /**
-     * Sets errorband histogram */
-    void SetErrorBandHisto(TH2* h)
-    { fErrorBandXY = h; }
 
     /**
      * Turn off filling of the error band during the MCMC run.
@@ -159,8 +128,11 @@ public:
     }
 
     /**
-     * Sets the error band flag to continuous function */
-    void SetErrorBandContinuous(bool flag);
+     * Sets the flag for integration. \n
+     * true: use ROOT's TF1::Integrate() \n
+     * false: use linear interpolation */
+    void SetFlagIntegration(bool flag)
+    { fFlagIntegration = flag; };
 
     /**
      * Defines a fit function.
@@ -170,25 +142,17 @@ public:
     virtual double FitFunction(const std::vector<double>& x, const std::vector<double>& parameters);
 
     /**
-     * 1dim cumulative distribution function of the probability
-     * to get the data f(x_i|param) for a single measurement, assumed to
-     * be of identical functional form for all measurements
-     * @param parameters The parameter values at which point to compute the cdf
-     * @param index The data point index starting at 0,1...N-1
-     * @param lower only needed for discrete distributions!
-     * Return the CDF for the count one less than actually observed, e.g.
-     * in Poisson process, if 3 actually observed, then CDF(2) is returned */
-    virtual double CDF(const std::vector<double>& /*parameters*/,  int /*index*/, bool /*lower=false*/)
-    { return 0.0; }
+     * Compute the integral of the fit function between xmin and xmax.
+     *
+     * @note Internally, the fit function needs to be integrated over the range.
+     *       The integration algorithm can be toggled with SetFlagIntegration().
+     */
+    double Integral(const std::vector<double>& parameters, double xmin, double xmax);
+
 
     /* @} */
     /** \name Member functions (miscellaneous methods) */
     /* @{ */
-
-    /**
-     * Read */
-    int ReadErrorBandFromFile(const char* file);
-
     /**
      * Performs the fit.
      * @return Success of action. */
@@ -200,16 +164,11 @@ public:
 
     /**
      * Overloaded from BCEngineMCMC */
-    void MCMCIterationInterface();
+    virtual void MCMCIterationInterface();
 
     /**
      * Overloaded from BCIntegrate. */
-    void MarginalizePreprocess();
-
-    /**
-     * Overloaded from BCIntegrate. */
-    void MarginalizePostprocess()
-    {}
+    virtual void MarginalizePreprocess();
 
     /**
      * Fill error band histogram for curreent iteration. This method is called from MCMCIterationInterface() */
@@ -225,19 +184,11 @@ public:
      * Create enough TF1 copies for thread safety */
     virtual bool MCMCUserInitialize();
 
-protected:
-
+private:
     /** Fit function (as vector for thread safety) */
-    std::vector<TF1*> fFitFunction;
+    std::vector<TF1> fFitFunction;
 
-    /**
-     * Pointer to a graph for displaying the fit function */
-    TGraph* fGraphFitFunction;
-
-    /**
-     * Pointer to the error band (for legend) */
-    TGraph* fErrorBand;
-
+protected:
     /**
      * Flag whether or not to fill the error band */
     bool fFlagFillErrorBand;
@@ -261,11 +212,28 @@ protected:
     unsigned fErrorBandNbinsY;
 
     /**
-     * The error band histogram */
-    TH2* fErrorBandXY;
-
+     * p value for goodness of fit */
     double fPValue;
 
+    /**
+     * The error band histogram */
+    TH2D fErrorBandXY;
+
+    /** Needed for uncertainty propagation */
+    BCDataSet fFitterDataSet;
+
+    /**
+     * Flag for using the ROOT TH1::Integral method (true), or linear
+     * interpolation (false) */
+    bool fFlagIntegration;
+
+    /** Storage for plot objects with proper clean-up */
+    mutable BCAux::BCTrash<TObject> fObjectTrash;
+
+    /** Don't allow user to accidentally set the data set,
+     * as it is used internally. */
+    using BCModel::SetDataSet;
+    using BCModel::GetDataSet;
 };
 
 // ---------------------------------------------------------
