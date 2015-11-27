@@ -77,7 +77,7 @@ int main(int argc, char** argv)
     std::cout << " Mean  " << _myRooInterface.GetMarginalized(parIndex).GetHistogram()->GetMean() << std::endl;
     std::cout << " Median  " << _myRooInterface.GetMarginalized(parIndex).GetMedian() << std::endl;
     std::cout << " Marginal mode  " << _myRooInterface.GetMarginalized(parIndex).GetLocalMode() << std::endl;
-    std::cout << " Global mode  " << _myRooInterface.GetGlobalMode().at(0) << std::endl;
+    std::cout << " Global mode  " << _myRooInterface.GetBestFitParameters().at(0) << std::endl;
     std::cout << " Quantile 0.16  " << _myRooInterface.GetMarginalized(parIndex).GetQuantile(0.16) << std::endl;
     std::cout << " Quantile 0.84  " << _myRooInterface.GetMarginalized(parIndex).GetQuantile(0.84) << std::endl;
     std::cout << " Quantile 0.90  " << _myRooInterface.GetMarginalized(parIndex).GetQuantile(0.90) << std::endl;

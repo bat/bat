@@ -78,11 +78,11 @@ public:
     double GetLocalMode()
     { return GetLocalMode(0); }
 
-    using BCHistogramBase::GetGlobalMode;
+    using BCHistogramBase::GetBestFitParameters;
     /**
      * @return global mode. */
-    double GetGlobalMode()
-    { return GetGlobalMode(0); }
+    double GetBestFitParameters()
+    { return GetBestFitParameters(0); }
 
     /**
      * @return The median of the distribution. */

@@ -596,9 +596,9 @@ BCH1D BCEngineMCMC::GetMarginalized(unsigned index) const
 
     BCH1D bch(h);
 
-    if ( bch.Valid() && index < GetGlobalMode().size())
+    if ( bch.Valid() && index < GetBestFitParameters().size())
         // set global mode if available
-        bch.SetGlobalMode(GetGlobalMode()[index]);
+        bch.SetGlobalMode(GetBestFitParameters()[index]);
 
     return bch;
 }
@@ -616,8 +616,8 @@ BCH2D BCEngineMCMC::GetMarginalized(unsigned i, unsigned j) const
     BCH2D bch(h);
 
     // set global mode if available
-    if (bch.Valid() && i < GetGlobalMode().size() && j < GetGlobalMode().size())
-        bch.SetGlobalMode(GetGlobalMode()[i], GetGlobalMode()[j]);
+    if (bch.Valid() && i < GetBestFitParameters().size() && j < GetBestFitParameters().size())
+        bch.SetGlobalMode(GetBestFitParameters()[i], GetBestFitParameters()[j]);
 
     return bch;
 }
@@ -2665,7 +2665,7 @@ void BCEngineMCMC::PrintModelSummary() const
 // ---------------------------------------------------------
 void BCEngineMCMC::PrintBestFitSummary() const
 {
-    if (GetGlobalMode().size() != GetNParameters() && GetGlobalMode().size() != GetNVariables()) {
+    if (GetBestFitParameters().size() != GetNParameters() && GetBestFitParameters().size() != GetNVariables()) {
         BCLog::OutSummary("No best fit information available.");
         return;
     }
@@ -2676,7 +2676,7 @@ void BCEngineMCMC::PrintBestFitSummary() const
     BCLog::OutSummary("");
     BCLog::OutSummary(" Global mode:");
 
-    for (unsigned i = 0; i < GetGlobalMode().size(); ++i)
+    for (unsigned i = 0; i < GetBestFitParameters().size(); ++i)
         BCLog::OutSummary(GetBestFitSummary(i));
 }
 
@@ -2689,7 +2689,7 @@ std::string BCEngineMCMC::GetBestFitSummary(unsigned i) const
     unsigned n = (int)log10(GetNVariables()) + 1;
     std::string par_summary = Form(" %*d) %10s \"%s\"%*s : %.*g", n, i, GetVariable(i).GetPrefix().data(),
                                    GetVariable(i).GetName().data(), (int)(GetMaximumParameterNameLength() - GetVariable(i).GetName().length()), "",
-                                   GetVariable(i).GetPrecision(), GetGlobalMode()[i]);
+                                   GetVariable(i).GetPrecision(), GetBestFitParameters()[i]);
 
     if (i < GetNParameters() && GetParameter(i).Fixed())
         par_summary += " (fixed)";
@@ -2976,7 +2976,7 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
 
         // Global Mode
         x_i_bf.push_back(i);
-        global_mode.push_back(GetVariable(i).PositionInRange(GetGlobalMode()[i]));
+        global_mode.push_back(GetVariable(i).PositionInRange(GetBestFitParameters()[i]));
         mean.push_back(std::numeric_limits<double>::infinity());
         rms.push_back(0);
 
@@ -3464,7 +3464,7 @@ bool BCEngineMCMC::PrintParameterLatex(std::string filename) const
                 ofi << Form("        %*.*g & %*.*g & %*.*g & %*.*g & %*.*g & %*.*g & %*.*g\\\\\n",
                             texwidth, prec, bch1d.GetHistogram()->GetMean(),
                             texwidth, prec, bch1d.GetHistogram()->GetRMS(),
-                            texwidth, prec, GetGlobalMode()[i],
+                            texwidth, prec, GetBestFitParameters()[i],
                             texwidth, prec, bch1d.GetLocalMode(0),
                             texwidth, prec, bch1d.GetMedian(),
                             texwidth, prec, bch1d.GetQuantile(0.16),
@@ -3476,7 +3476,7 @@ bool BCEngineMCMC::PrintParameterLatex(std::string filename) const
                 ofi << Form("        %*s & %*s & %*.*g & %*s & %*s & %*s & %*s\\\\\n",
                             texwidth, blank,
                             texwidth, blank,
-                            texwidth, prec, GetGlobalMode()[i],
+                            texwidth, prec, GetBestFitParameters()[i],
                             texwidth, blank,
                             texwidth, blank,
                             texwidth, blank,

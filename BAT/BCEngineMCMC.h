@@ -648,7 +648,7 @@ public:
 
     /**
      * @return vector of parameter and observable values at global mode. */
-    virtual const std::vector<double>& GetGlobalMode() const
+    virtual const std::vector<double>& GetBestFitParameters() const
     { return fMCMCStatistics_AllChains.mode; }
 
     /**

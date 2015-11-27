@@ -21,7 +21,7 @@ int main()
     m.MarginalizeAll();
 
     // find mode
-    m.FindMode(m.GetGlobalMode());
+    m.FindMode(m.GetBestFitParameters());
 
     // draw all marginalized distributions into a PostScript file
     m.PrintAllMarginalized("CombinationModel_plots.pdf");

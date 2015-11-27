@@ -44,7 +44,7 @@ int main()
     m.MarginalizeAll(BCIntegrate::kMargMetropolis);
 
     // perform minimization with Minuit
-    m.FindMode(m.GetGlobalMode());
+    m.FindMode(m.GetBestFitParameters());
 
     // draw all marginalized distributions into a pdf file
     m.PrintAllMarginalized("ReferenceCounting_plots.pdf");

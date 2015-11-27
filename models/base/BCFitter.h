@@ -73,7 +73,7 @@ public:
     TGraph* GetFitFunctionGraph(const std::vector<double>& parameters);
 
     TGraph* GetFitFunctionGraph()
-    { return GetFitFunctionGraph(std::vector<double>(GetGlobalMode().begin(), GetGlobalMode().begin() + GetNParameters())); }
+    { return GetFitFunctionGraph(std::vector<double>(GetBestFitParameters().begin(), GetBestFitParameters().begin() + GetNParameters())); }
 
     TGraph* GetFitFunctionGraph(const std::vector<double>& parameters, double xmin, double xmax, int n = 1000);
 

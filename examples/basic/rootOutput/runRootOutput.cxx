@@ -33,7 +33,7 @@ int main()
     // if MCMC was run before (MarginalizeAll()) it is
     // possible to use the mode found by MCMC as
     // starting point of Minuit minimization
-    m.FindMode(m.GetGlobalMode());
+    m.FindMode(m.GetBestFitParameters());
 
     // draw all marginalized distributions into a PostScript file
     m.PrintAllMarginalized("GaussModel_plots.pdf");

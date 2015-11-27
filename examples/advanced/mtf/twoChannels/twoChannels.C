@@ -120,7 +120,7 @@ void twoChannels()
     m->MarginalizeAll();
 
     // find global mode
-    m->FindMode( m->GetGlobalMode() );
+    m->FindMode( m->GetBestFitParameters() );
 
     // print all marginalized distributions
     m->PrintAllMarginalized("marginalized.pdf");
@@ -132,7 +132,7 @@ void twoChannels()
     for (int i = 0; i < m->GetNChannels(); ++i) {
         BCMTFChannel* channel = m->GetChannel(i);
         channel->PrintTemplates(channel->GetSafeName() + "_templates.pdf");
-        m->PrintStack(i, m->GetGlobalMode(), channel->GetSafeName() + "_stack.pdf");
+        m->PrintStack(i, m->GetBestFitParameters(), channel->GetSafeName() + "_stack.pdf");
     }
 
     // ---- clean up ---- //

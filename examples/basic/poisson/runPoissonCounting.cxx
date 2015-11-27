@@ -22,7 +22,7 @@ int main()
     m.MarginalizeAll();
 
     // find mode starting from the best fit parameters
-    m.FindMode(m.GetGlobalMode());
+    m.FindMode(m.GetBestFitParameters());
 
     // draw all marginalized distributions into a PDF file
     m.PrintAllMarginalized("PoissonModel_plots.pdf");

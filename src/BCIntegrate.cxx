@@ -245,10 +245,10 @@ void swap(BCIntegrate& A, BCIntegrate& B)
 
 
 // ---------------------------------------------------------
-const std::vector<double>& BCIntegrate::GetGlobalMode() const
+const std::vector<double>& BCIntegrate::GetBestFitParameters() const
 {
-    if (fBestFitParameters.empty() and !BCEngineMCMC::GetGlobalMode().empty())
-        return BCEngineMCMC::GetGlobalMode();
+    if (fBestFitParameters.empty() and !BCEngineMCMC::GetBestFitParameters().empty())
+        return BCEngineMCMC::GetBestFitParameters();
     return fBestFitParameters;
 }
 
@@ -654,7 +654,7 @@ int BCIntegrate::MarginalizeAll()
 
             // check if mode is better than previous one
             if ( (!fFlagIgnorePrevOptimization) && (fLogMaximum < BCEngineMCMC::GetLogMaximum()) ) {
-                fBestFitParameters      = BCEngineMCMC::GetGlobalMode();
+                fBestFitParameters      = BCEngineMCMC::GetBestFitParameters();
                 fBestFitParameterErrors.assign(fBestFitParameters.size(), std::numeric_limits<double>::infinity());
                 fLogMaximum             = BCEngineMCMC::GetLogMaximum();
                 fOptimizationMethodUsed = BCIntegrate::kOptMetropolis;
@@ -754,7 +754,7 @@ int BCIntegrate::MarginalizeAll()
 
             BCLog::OutDetail(" --> Global mode from Grid:");
             BCLog::OutDebug(Form(" --> Posterior value: %g", log_max_val));
-            PrintParameters(GetGlobalMode(), BCLog::OutDetail);
+            PrintParameters(GetBestFitParameters(), BCLog::OutDetail);
 
             // start postprocess
             MarginalizePostprocess();
@@ -1007,8 +1007,8 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
         return std::vector<double>();
     }
 
-    if (start.empty() and GetGlobalMode().size() >= GetNParameters())
-        start = GetGlobalMode();
+    if (start.empty() and GetBestFitParameters().size() >= GetNParameters())
+        start = GetBestFitParameters();
 
     if (start.size() > GetNParameters())
         start.resize(GetNParameters());
@@ -1063,7 +1063,7 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
     if (fFlagIgnorePrevOptimization or fcnatmode_temp > fLogMaximum) {
         SetBestFitParameters(mode_temp);
         fBestFitParameterErrors = errors_temp;
-        fBestFitParameterErrors.resize(GetGlobalMode().size(), std::numeric_limits<double>::infinity());
+        fBestFitParameterErrors.resize(GetBestFitParameters().size(), std::numeric_limits<double>::infinity());
         fOptimizationMethodUsed = method_temp;
         fLogMaximum = fcnatmode_temp;
     }
@@ -2045,7 +2045,7 @@ void BCIntegrate::PrintMarginalizationSummary() const
 // ---------------------------------------------------------
 void BCIntegrate::PrintBestFitSummary() const
 {
-    if (GetGlobalMode().empty()) {
+    if (GetBestFitParameters().empty()) {
         BCLog::OutSummary("No best fit information available.");
         return;
     }

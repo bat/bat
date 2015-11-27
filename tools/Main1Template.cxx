@@ -36,7 +36,7 @@ int main()
     m.MarginalizeAll(BCIntegrate::kMargMetropolis);
 
     // run mode finding; by default using Minuit
-    m.FindMode(m.GetGlobalMode());
+    m.FindMode(m.GetBestFitParameters());
 
     // draw all marginalized distributions into a PDF file
     m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");

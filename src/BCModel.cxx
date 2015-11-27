@@ -180,9 +180,9 @@ void BCModel::PrintShortFitSummary()
         BCLog::OutSummary(Form("   Number of data points: Ndata = %i", GetNDataPoints()));
         BCLog::OutSummary(Form("   Number of degrees of freedom = %i", GetNDoF()));
     }
-    if (!GetGlobalMode().empty())
+    if (!GetBestFitParameters().empty())
         BCLog::OutSummary("   Best fit parameters (global):");
-    PrintParameters(GetGlobalMode(), BCLog::OutSummary);
+    PrintParameters(GetBestFitParameters(), BCLog::OutSummary);
 
     BCLog::OutSummary("---------------------------------------------------");
 }

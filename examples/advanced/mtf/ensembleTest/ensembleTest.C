@@ -128,7 +128,7 @@ void ensembleTest()
     m->MarginalizeAll();
 
     // find global mode
-    m->FindMode( m->GetGlobalMode() );
+    m->FindMode( m->GetBestFitParameters() );
 
     // print all marginalized distributions
     m->PrintAllMarginalized("marginalized.pdf");
@@ -140,7 +140,7 @@ void ensembleTest()
     for (int i = 0; i < m->GetNChannels(); ++i) {
         BCMTFChannel* channel = m->GetChannel(i);
         channel->PrintTemplates(channel->GetName() + "_templates.pdf");
-        m->PrintStack(i, m->GetGlobalMode(), channel->GetName() + "_stack.pdf");
+        m->PrintStack(i, m->GetBestFitParameters(), channel->GetName() + "_stack.pdf");
     }
 
     // ---- perform ensemble tests ---- //
@@ -156,7 +156,7 @@ void ensembleTest()
     file->cd();
 
     // create ensembles
-    TTree* tree = facility->BuildEnsembles( m->GetGlobalMode(), 2000 );
+    TTree* tree = facility->BuildEnsembles( m->GetBestFitParameters(), 2000 );
 
     // run ensemble test
     TTree* tree_out = facility->PerformEnsembleTest(tree, 2000);
