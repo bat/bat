@@ -48,7 +48,7 @@ public:
     virtual int SetVarPar(double value, std::string name);
 
     virtual void SetProposal(bool multivariate, double dof)
-    { MCMCSetMultivariateProposalFunction(multivariate, dof); }
+    { SetMultivariateProposalFunction(multivariate, dof); }
 
     /** Run before test.
      * @return an error code. */

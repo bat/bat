@@ -644,7 +644,7 @@ int BCIntegrate::MarginalizeAll()
             MarginalizePreprocess();
 
             // run the Markov chains
-            MCMCMetropolis();
+            Metropolis();
 
             // start postprocess
             MarginalizePostprocess();
@@ -1610,7 +1610,7 @@ void BCIntegrate::FCNLikelihood(int& /*npar*/, double* /*grad*/, double& fval, d
 std::vector<double> BCIntegrate::FindModeMCMC(std::vector<double>& mode, std::vector<double>& errors)
 {
     // call PreRun
-    MCMCMetropolisPreRun();
+    MetropolisPreRun();
 
     mode = fMCMCStatistics_AllChains.mode;
     errors.assign(fParameters.Size(), -1.);

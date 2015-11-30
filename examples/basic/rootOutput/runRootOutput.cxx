@@ -21,7 +21,7 @@ int main()
     m.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
     // set MCMC precision
-    m.MCMCSetPrecision(BCEngineMCMC::kMedium);
+    m.SetPrecision(BCEngineMCMC::kMedium);
 
     // switch writing of Markov Chains on
     m.WriteMarkovChain("GaussModel.root", "RECREATE");

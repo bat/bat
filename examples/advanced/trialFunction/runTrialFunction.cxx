@@ -19,10 +19,10 @@ int main()
     m.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
     // set MCMC precision
-    m.MCMCSetPrecision(BCEngineMCMC::kMedium);
+    m.SetPrecision(BCEngineMCMC::kMedium);
 
     // set scale factor upper limit
-    m.MCMCSetScaleFactorUpperLimit(10);
+    m.SetScaleFactorUpperLimit(10);
 
     // run MCMC and marginalize posterior wrt. all parameters
     // and all combinations of two parameters

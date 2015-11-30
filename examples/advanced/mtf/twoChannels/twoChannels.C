@@ -87,7 +87,7 @@ void twoChannels()
     BCMTF* m = new BCMTF();
 
     // set precision
-    m->MCMCSetPrecision(BCEngineMCMC::kQuick);
+    m->SetPrecision(BCEngineMCMC::kQuick);
 
     // add channels
     m->AddChannel("channel1");

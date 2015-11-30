@@ -73,20 +73,19 @@ BCEngineMCMC::BCEngineMCMC(std::string name)
       fMCMCOutputFileOption(""),
       fMCMCScaleFactorLowerLimit(0),
       fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max()),
-      fMCMCAutoSetTrialFunctionScaleFactors(true),
-      fMultivariateProposalFunctionCovarianceUpdates(0),
-      fMultivariateProposalFunctionCovarianceUpdateLambda(0.5),
-      fMultivariateProposalFunctionCovarianceUpdatesMinimum(2),
-      fMultivariateProposalFunctionEpsilon(5.e-2),
-      fMultivariateProposalFunctionScaleMultiplier(1.5),
+      fMultivariateCovarianceUpdates(0),
+      fMultivariateCovarianceUpdateLambda(0.5),
+      fMultivariateCovarianceUpdatesMinimum(2),
+      fMultivariateEpsilon(5.e-2),
+      fMultivariateScaleMultiplier(1.5),
       fMCMCFlagPreRun(true),
       fMCMCFlagRun(false),
       fMCMCEfficiencyMin(0.15),
       fMCMCEfficiencyMax(0.50),
-      fMCMCFlagInitialPosition(BCEngineMCMC::kMCMCInitRandomUniform),
-      fMCMCMultivariateProposalFunction(false),
-      fMCMCMultivariateProposalFunctionDof(0.0),
-      fMCMCPhase(BCEngineMCMC::kMCMCUnsetPhase),
+      fInitialPositionScheme(BCEngineMCMC::kInitRandomUniform),
+      fMCMCProposeMultivariate(false),
+      fMCMCProposalFunctionDof(0.0),
+      fMCMCPhase(BCEngineMCMC::kUnsetPhase),
       fCorrectRValueForSamplingVariability(false),
       fMCMCRValueParametersCriterion(1.1),
       fMCMCTree(0),
@@ -97,8 +96,8 @@ BCEngineMCMC::BCEngineMCMC(std::string name)
       fHistogramRescalePadding(0.1)
 {
     SetName(name);
-    MCMCSetPrecision(BCEngineMCMC::kMedium);
-    MCMCSetRandomSeed(0);
+    SetPrecision(BCEngineMCMC::kMedium);
+    SetRandomSeed(0);
 }
 
 // ---------------------------------------------------------
@@ -111,20 +110,19 @@ BCEngineMCMC::BCEngineMCMC(const std::string& filename, const std::string& name,
       fMCMCOutputFileOption(""),
       fMCMCScaleFactorLowerLimit(0),
       fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max()),
-      fMCMCAutoSetTrialFunctionScaleFactors(true),
-      fMultivariateProposalFunctionCovarianceUpdates(0),
-      fMultivariateProposalFunctionCovarianceUpdateLambda(0.5),
-      fMultivariateProposalFunctionCovarianceUpdatesMinimum(2),
-      fMultivariateProposalFunctionEpsilon(5.e-2),
-      fMultivariateProposalFunctionScaleMultiplier(1.5),
+      fMultivariateCovarianceUpdates(0),
+      fMultivariateCovarianceUpdateLambda(0.5),
+      fMultivariateCovarianceUpdatesMinimum(2),
+      fMultivariateEpsilon(5.e-2),
+      fMultivariateScaleMultiplier(1.5),
       fMCMCFlagPreRun(true),
       fMCMCFlagRun(false),
       fMCMCEfficiencyMin(0.15),
       fMCMCEfficiencyMax(0.50),
-      fMCMCFlagInitialPosition(BCEngineMCMC::kMCMCInitRandomUniform),
-      fMCMCMultivariateProposalFunction(false),
-      fMCMCMultivariateProposalFunctionDof(0.0),
-      fMCMCPhase(BCEngineMCMC::kMCMCUnsetPhase),
+      fInitialPositionScheme(BCEngineMCMC::kInitRandomUniform),
+      fMCMCProposeMultivariate(false),
+      fMCMCProposalFunctionDof(0.0),
+      fMCMCPhase(BCEngineMCMC::kUnsetPhase),
       fCorrectRValueForSamplingVariability(false),
       fMCMCRValueParametersCriterion(1.1),
       fMCMCTree(0),
@@ -135,8 +133,8 @@ BCEngineMCMC::BCEngineMCMC(const std::string& filename, const std::string& name,
       fHistogramRescalePadding(0.1)
 {
     SetName(name);
-    MCMCSetPrecision(BCEngineMCMC::kMedium);
-    MCMCSetRandomSeed(0);
+    SetPrecision(BCEngineMCMC::kMedium);
+    SetRandomSeed(0);
     LoadMCMC(filename, "", "", loadObservables);
 }
 
@@ -165,24 +163,23 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
       fMCMCOutputFileOption(other.fMCMCOutputFileOption),
       fMCMCScaleFactorLowerLimit(other.fMCMCScaleFactorLowerLimit),
       fMCMCScaleFactorUpperLimit(other.fMCMCScaleFactorUpperLimit),
-      fMCMCTrialFunctionScaleFactor(other.fMCMCTrialFunctionScaleFactor),
-      fMCMCTrialFunctionScaleFactorStart(other.fMCMCTrialFunctionScaleFactorStart),
-      fMCMCAutoSetTrialFunctionScaleFactors(other.fMCMCAutoSetTrialFunctionScaleFactors),
+      fMCMCProposalFunctionScaleFactor(other.fMCMCProposalFunctionScaleFactor),
+      fMCMCInitialScaleFactors(other.fMCMCInitialScaleFactors),
       fMultivariateProposalFunctionCovariance(other.fMultivariateProposalFunctionCovariance),
       fMultivariateProposalFunctionCholeskyDecomposition(other.fMultivariateProposalFunctionCholeskyDecomposition),
-      fMultivariateProposalFunctionCovarianceUpdates(other.fMultivariateProposalFunctionCovarianceUpdates),
-      fMultivariateProposalFunctionCovarianceUpdateLambda(other.fMultivariateProposalFunctionCovarianceUpdateLambda),
-      fMultivariateProposalFunctionCovarianceUpdatesMinimum(other.fMultivariateProposalFunctionCovarianceUpdatesMinimum),
-      fMultivariateProposalFunctionEpsilon(other.fMultivariateProposalFunctionEpsilon),
-      fMultivariateProposalFunctionScaleMultiplier(other.fMultivariateProposalFunctionScaleMultiplier),
+      fMultivariateCovarianceUpdates(other.fMultivariateCovarianceUpdates),
+      fMultivariateCovarianceUpdateLambda(other.fMultivariateCovarianceUpdateLambda),
+      fMultivariateCovarianceUpdatesMinimum(other.fMultivariateCovarianceUpdatesMinimum),
+      fMultivariateEpsilon(other.fMultivariateEpsilon),
+      fMultivariateScaleMultiplier(other.fMultivariateScaleMultiplier),
       fMCMCFlagPreRun(other.fMCMCFlagPreRun),
       fMCMCFlagRun(other.fMCMCFlagRun),
       fMCMCInitialPosition(other.fMCMCInitialPosition),
       fMCMCEfficiencyMin(other.fMCMCEfficiencyMin),
       fMCMCEfficiencyMax(other.fMCMCEfficiencyMax),
-      fMCMCFlagInitialPosition(other.fMCMCFlagInitialPosition),
-      fMCMCMultivariateProposalFunction(other.fMCMCMultivariateProposalFunction),
-      fMCMCMultivariateProposalFunctionDof(other.fMCMCMultivariateProposalFunctionDof),
+      fInitialPositionScheme(other.fInitialPositionScheme),
+      fMCMCProposeMultivariate(other.fMCMCProposeMultivariate),
+      fMCMCProposalFunctionDof(other.fMCMCProposalFunctionDof),
       fMCMCPhase(other.fMCMCPhase),
       fMCMCx(other.fMCMCx),
       fMCMCObservables(other.fMCMCObservables),
@@ -227,7 +224,7 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
 // ---------------------------------------------------------
 BCEngineMCMC::~BCEngineMCMC()
 {
-    MCMCCloseOutputFile();
+    CloseOutputFile();
 
     // delete 1-d marginalized distributions
     for (unsigned i = 0; i < fH1Marginalized.size(); ++i)
@@ -265,24 +262,23 @@ void swap(BCEngineMCMC& A, BCEngineMCMC& B)
     std::swap(A.fMCMCOutputFileOption, B.fMCMCOutputFileOption);
     std::swap(A.fMCMCScaleFactorLowerLimit, B.fMCMCScaleFactorLowerLimit);
     std::swap(A.fMCMCScaleFactorUpperLimit, B.fMCMCScaleFactorUpperLimit);
-    std::swap(A.fMCMCTrialFunctionScaleFactor, B.fMCMCTrialFunctionScaleFactor);
-    std::swap(A.fMCMCTrialFunctionScaleFactorStart, B.fMCMCTrialFunctionScaleFactorStart);
-    std::swap(A.fMCMCAutoSetTrialFunctionScaleFactors, B.fMCMCAutoSetTrialFunctionScaleFactors);
+    std::swap(A.fMCMCProposalFunctionScaleFactor, B.fMCMCProposalFunctionScaleFactor);
+    std::swap(A.fMCMCInitialScaleFactors, B.fMCMCInitialScaleFactors);
     std::swap(A.fMultivariateProposalFunctionCovariance, B.fMultivariateProposalFunctionCovariance);
     std::swap(A.fMultivariateProposalFunctionCholeskyDecomposition, B.fMultivariateProposalFunctionCholeskyDecomposition);
-    std::swap(A.fMultivariateProposalFunctionCovarianceUpdates, B.fMultivariateProposalFunctionCovarianceUpdates);
-    std::swap(A.fMultivariateProposalFunctionCovarianceUpdateLambda, B.fMultivariateProposalFunctionCovarianceUpdateLambda);
-    std::swap(A.fMultivariateProposalFunctionCovarianceUpdatesMinimum, B.fMultivariateProposalFunctionCovarianceUpdatesMinimum);
-    std::swap(A.fMultivariateProposalFunctionEpsilon, B.fMultivariateProposalFunctionEpsilon);
-    std::swap(A.fMultivariateProposalFunctionScaleMultiplier, B.fMultivariateProposalFunctionScaleMultiplier);
+    std::swap(A.fMultivariateCovarianceUpdates, B.fMultivariateCovarianceUpdates);
+    std::swap(A.fMultivariateCovarianceUpdateLambda, B.fMultivariateCovarianceUpdateLambda);
+    std::swap(A.fMultivariateCovarianceUpdatesMinimum, B.fMultivariateCovarianceUpdatesMinimum);
+    std::swap(A.fMultivariateEpsilon, B.fMultivariateEpsilon);
+    std::swap(A.fMultivariateScaleMultiplier, B.fMultivariateScaleMultiplier);
     std::swap(A.fMCMCFlagPreRun, B.fMCMCFlagPreRun);
     std::swap(A.fMCMCFlagRun, B.fMCMCFlagRun);
     std::swap(A.fMCMCInitialPosition, B.fMCMCInitialPosition);
     std::swap(A.fMCMCEfficiencyMin, B.fMCMCEfficiencyMin);
     std::swap(A.fMCMCEfficiencyMax, B.fMCMCEfficiencyMax);
-    std::swap(A.fMCMCFlagInitialPosition, B.fMCMCFlagInitialPosition);
-    std::swap(A.fMCMCMultivariateProposalFunction, B.fMCMCMultivariateProposalFunction);
-    std::swap(A.fMCMCMultivariateProposalFunctionDof, B.fMCMCMultivariateProposalFunctionDof);
+    std::swap(A.fInitialPositionScheme, B.fInitialPositionScheme);
+    std::swap(A.fMCMCProposeMultivariate, B.fMCMCProposeMultivariate);
+    std::swap(A.fMCMCProposalFunctionDof, B.fMCMCProposalFunctionDof);
     std::swap(A.fMCMCPhase, B.fMCMCPhase);
     std::swap(A.fMCMCx, B.fMCMCx);
     std::swap(A.fMCMCObservables, B.fMCMCObservables);
@@ -351,7 +347,7 @@ void BCEngineMCMC::SetPriorGauss(unsigned index, double mean, double sigma_below
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::MCMCSetNLag(unsigned n)
+void BCEngineMCMC::SetNLag(unsigned n)
 {
     if (n == 0) {
         BCLog::OutError("Invalid lag = 0 given. Set to lag = 1");
@@ -362,7 +358,7 @@ void BCEngineMCMC::MCMCSetNLag(unsigned n)
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
+void BCEngineMCMC::SetPrecision(BCEngineMCMC::Precision precision)
 {
 
     // all precision levels want a pre-run:
@@ -378,7 +374,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsRun                   = 10000;
             fMCMCNIterationsPreRunCheck           = 500;
             fMCMCPreRunCheckClear                 = 10;
-            fMultivariateProposalFunctionCovarianceUpdatesMinimum = 2;
+            fMultivariateCovarianceUpdatesMinimum = 2;
             break;
 
         case BCEngineMCMC::kQuick:
@@ -389,7 +385,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsRun                   = 10000;
             fMCMCNIterationsPreRunCheck           = 500;
             fMCMCPreRunCheckClear                 = 10;
-            fMultivariateProposalFunctionCovarianceUpdatesMinimum = 2;
+            fMultivariateCovarianceUpdatesMinimum = 2;
             break;
 
         case  BCEngineMCMC::kMedium:
@@ -400,7 +396,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsRun                   = 100000;
             fMCMCNIterationsPreRunCheck           = 500;
             fMCMCPreRunCheckClear                 = 10;
-            fMultivariateProposalFunctionCovarianceUpdatesMinimum = 2;
+            fMultivariateCovarianceUpdatesMinimum = 2;
             break;
 
         case  BCEngineMCMC::kHigh:
@@ -411,7 +407,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsRun                   = 1000000;
             fMCMCNIterationsPreRunCheck           = 1000;
             fMCMCPreRunCheckClear                 = 5;
-            fMultivariateProposalFunctionCovarianceUpdatesMinimum = 4;
+            fMultivariateCovarianceUpdatesMinimum = 4;
             break;
 
         case  BCEngineMCMC::kVeryHigh:
@@ -422,13 +418,13 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsRun                   = 10000000;
             fMCMCNIterationsPreRunCheck           = 1000;
             fMCMCPreRunCheckClear                 = 5;
-            fMultivariateProposalFunctionCovarianceUpdatesMinimum = 9;
+            fMultivariateCovarianceUpdatesMinimum = 9;
             break;
     }
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::MCMCSetPrecision(const BCEngineMCMC& other)
+void BCEngineMCMC::SetPrecision(const BCEngineMCMC& other)
 {
     fMCMCNChains                          = other.fMCMCNChains;
     fMCMCNLag                             = other.fMCMCNLag;
@@ -441,12 +437,12 @@ void BCEngineMCMC::MCMCSetPrecision(const BCEngineMCMC& other)
     fMCMCEfficiencyMin                    = other.fMCMCEfficiencyMin;
     fMCMCEfficiencyMax                    = other.fMCMCEfficiencyMax;
     fMCMCFlagPreRun                       = other.fMCMCFlagRun;
-    fMCMCMultivariateProposalFunction     = other.fMCMCMultivariateProposalFunction;
-    fMCMCMultivariateProposalFunctionDof  = other.fMCMCMultivariateProposalFunctionDof;
-    fMultivariateProposalFunctionEpsilon  = other.fMultivariateProposalFunctionEpsilon;
-    fMultivariateProposalFunctionScaleMultiplier = other.fMultivariateProposalFunctionScaleMultiplier;
-    fMultivariateProposalFunctionCovarianceUpdatesMinimum = other.fMultivariateProposalFunctionCovarianceUpdatesMinimum;
-    fMultivariateProposalFunctionCovarianceUpdateLambda = other.fMultivariateProposalFunctionCovarianceUpdateLambda;
+    fMCMCProposeMultivariate     = other.fMCMCProposeMultivariate;
+    fMCMCProposalFunctionDof  = other.fMCMCProposalFunctionDof;
+    fMultivariateEpsilon  = other.fMultivariateEpsilon;
+    fMultivariateScaleMultiplier = other.fMultivariateScaleMultiplier;
+    fMultivariateCovarianceUpdatesMinimum = other.fMultivariateCovarianceUpdatesMinimum;
+    fMultivariateCovarianceUpdateLambda = other.fMultivariateCovarianceUpdateLambda;
 }
 
 // --------------------------------------------------------
@@ -623,7 +619,7 @@ BCH2D BCEngineMCMC::GetMarginalized(unsigned i, unsigned j) const
 }
 
 // --------------------------------------------------------
-unsigned BCEngineMCMC::MCMCGetCurrentChain() const
+unsigned BCEngineMCMC::GetCurrentChain() const
 {
     // serial case is the default
     static const unsigned defaultChain = 0;
@@ -667,16 +663,16 @@ const std::vector<double>& BCEngineMCMC::GetLocalModes(bool force_recalculation)
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::MCMCSetInitialPositions(const std::vector<double>& x0s)
+void BCEngineMCMC::SetInitialPositions(const std::vector<double>& x0s)
 {
     fMCMCInitialPosition.clear();
     for (std::vector<double>::const_iterator it = x0s.begin(); it + GetNParameters() <= x0s.end(); it += GetNParameters())
         fMCMCInitialPosition.push_back(std::vector<double>(it, it + GetNParameters()));
-    MCMCSetFlagInitialPosition(BCEngineMCMC::kMCMCInitUserDefined);
+    SetInitialPositionScheme(BCEngineMCMC::kInitUserDefined);
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::MCMCSetRandomSeed(unsigned seed)
+void BCEngineMCMC::SetRandomSeed(unsigned seed)
 {
     // set main generator
     fRandom.SetSeed(seed);
@@ -810,9 +806,9 @@ void BCEngineMCMC::UpdateParameterTree()
     if (!fParameterTree)
         return;
 
-    unsigned nchains = MCMCGetNChains();
-    std::vector<double> scale(MCMCGetNChains(), 0);
-    std::vector<double> eff(MCMCGetNChains(), 0);
+    unsigned nchains = GetNChains();
+    std::vector<double> scale(GetNChains(), 0);
+    std::vector<double> eff(GetNChains(), 0);
 
     // check for branch existences
     TBranch* b_nchains = fParameterTree->GetBranch("nchains");
@@ -827,7 +823,7 @@ void BCEngineMCMC::UpdateParameterTree()
 
     // if scale branch doesn't exist, create it
     if (b_scale == 0)
-        b_scale = fParameterTree->Branch("scale", &(scale.front()), TString::Format("scale[%d]/D", MCMCGetNChains()));
+        b_scale = fParameterTree->Branch("scale", &(scale.front()), TString::Format("scale[%d]/D", GetNChains()));
     // else set 0, so as not to fill
     else
         b_scale = 0;
@@ -836,15 +832,15 @@ void BCEngineMCMC::UpdateParameterTree()
     unsigned i = 0;
     while (fParameterTree->GetBranch(TString::Format("efficiency_%d", i)))
         ++i;
-    TBranch* b_eff = fParameterTree->Branch(TString::Format("efficiency_%d", i), &(eff.front()), TString::Format("efficiency_%d[%d]/D", i, MCMCGetNChains()));
+    TBranch* b_eff = fParameterTree->Branch(TString::Format("efficiency_%d", i), &(eff.front()), TString::Format("efficiency_%d[%d]/D", i, GetNChains()));
 
     for (unsigned n = 0; n < fParameterTree->GetEntries(); ++n) {
         if (b_nchains)
             b_nchains->Fill();
 
         for (unsigned j = 0; j < nchains; ++j) {
-            scale[j] = (n < GetNParameters()) ? fMCMCTrialFunctionScaleFactor[j][n] : -1;
-            if (!fMCMCMultivariateProposalFunction)
+            scale[j] = (n < GetNParameters()) ? fMCMCProposalFunctionScaleFactor[j][n] : -1;
+            if (!fMCMCProposeMultivariate)
                 eff[j]   = (n < GetNParameters()) ? fMCMCStatistics[j].efficiency[n] : -1;
             else if (!fMCMCStatistics[j].efficiency.empty())
                 eff[j] = fMCMCStatistics[j].efficiency.front();
@@ -1308,7 +1304,7 @@ void BCEngineMCMC::Remarginalize(bool autorange)
         }
     }
 
-    fMCMCStatistics.assign(fMCMCNChains, BCEngineMCMC::MCMCStatistics(GetNParameters(), GetNObservables()));
+    fMCMCStatistics.assign(fMCMCNChains, BCEngineMCMC::Statistics(GetNParameters(), GetNObservables()));
     fMCMCStatistics_AllChains.Init(GetNParameters(), GetNObservables());
     fMCMCTree_Prob = -std::numeric_limits<double>::infinity();
 
@@ -1343,9 +1339,9 @@ void BCEngineMCMC::Remarginalize(bool autorange)
         MCMCCurrentPointInterface(fMCMCx[fMCMCTree_Chain], fMCMCTree_Chain, true);
 
         if (fMCMCTree_Chain == fMCMCNChains - 1) {
-            MCMCIterationInterface();
+            MCMCUserIterationInterface();
             if ( !fH1Marginalized.empty() || !fH2Marginalized.empty() )
-                MCMCInChainFillHistograms();
+                InChainFillHistograms();
         }
     }
 
@@ -1360,10 +1356,10 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
     if (fMultivariateProposalFunctionCovariance.size() != fMCMCNChains)
         return false;
 
-    ++fMultivariateProposalFunctionCovarianceUpdates;
+    ++fMultivariateCovarianceUpdates;
 
     // a = (1+t)^(-lambda)
-    double a = pow(1. + fMultivariateProposalFunctionCovarianceUpdates, -fMultivariateProposalFunctionCovarianceUpdateLambda);
+    double a = pow(1. + fMultivariateCovarianceUpdates, -fMultivariateCovarianceUpdateLambda);
 
     // Update covariance matricies
     unsigned I = 0;
@@ -1390,16 +1386,16 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
     for (unsigned c = 0; c < fMCMCNChains; ++c) {
 
         // try cholesky decomposition
-        CholeskyDecomposer.SetMatrix(fMultivariateProposalFunctionCovariance[c]*fMCMCTrialFunctionScaleFactor[c][0]);
+        CholeskyDecomposer.SetMatrix(fMultivariateProposalFunctionCovariance[c]*fMCMCProposalFunctionScaleFactor[c][0]);
         if (CholeskyDecomposer.Decompose())
             fMultivariateProposalFunctionCholeskyDecomposition[c].Transpose(CholeskyDecomposer.GetU());
 
         else {
             // try with covariance + epsilon
             BCLog::OutDetail(Form("BCEngineMCMC::UpdateCholeskyDecompositions : chain %u Cholesky decomposition failed! Adding epsilon*I and trying again.", c));
-            TMatrixDSym U(fMultivariateProposalFunctionCovariance[c]*fMCMCTrialFunctionScaleFactor[c][0]);
+            TMatrixDSym U(fMultivariateProposalFunctionCovariance[c]*fMCMCProposalFunctionScaleFactor[c][0]);
             for (int i = 0; i < U.GetNrows(); ++i)
-                U[i][i] *= (1 + fMultivariateProposalFunctionEpsilon);
+                U[i][i] *= (1 + fMultivariateEpsilon);
             CholeskyDecomposer.SetMatrix(U);
             if (CholeskyDecomposer.Decompose())
                 fMultivariateProposalFunctionCholeskyDecomposition[c].Transpose(CholeskyDecomposer.GetU());
@@ -1407,7 +1403,7 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
             else {
                 // diagonalize
                 BCLog::OutDetail(Form("BCEngineMCMC::UpdateCholeskyDecompositions : chain %u Cholesky decomposition failed! Setting off-diagonal elements of covariance to zero", c));
-                TMatrixDSym U(fMultivariateProposalFunctionCovariance[c]*fMCMCTrialFunctionScaleFactor[c][0]);
+                TMatrixDSym U(fMultivariateProposalFunctionCovariance[c]*fMCMCProposalFunctionScaleFactor[c][0]);
                 for (int i = 0; i < fMultivariateProposalFunctionCholeskyDecomposition[c].GetNrows(); ++i)
                     for (int j = 0; j < fMultivariateProposalFunctionCholeskyDecomposition[c].GetNcols(); ++j)
                         if (i != j)
@@ -1426,14 +1422,7 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::MCMCTrialFunction(unsigned ichain, std::vector<double>& x)
-{
-    for (unsigned i = 0; i < GetNParameters(); ++i)
-        x[i] = MCMCTrialFunctionSingle(ichain, i);
-}
-
-// --------------------------------------------------------
-double BCEngineMCMC::MCMCTrialFunctionSingle(unsigned ichain, unsigned iparameter)
+double BCEngineMCMC::ProposalFunction(unsigned ichain, unsigned iparameter)
 {
     // no check of range for performance reasons
 
@@ -1441,11 +1430,11 @@ double BCEngineMCMC::MCMCTrialFunctionSingle(unsigned ichain, unsigned iparamete
     //   return = fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter] * 2.0 * (0.5 - fRandom->Rndm());
 
     // Breit-Wigner width adjustable width
-    return fMCMCThreadLocalStorage[ichain].rng->BreitWigner(0.0, fMCMCTrialFunctionScaleFactor[ichain][iparameter]);
+    return fMCMCThreadLocalStorage[ichain].rng->BreitWigner(0.0, fMCMCProposalFunctionScaleFactor[ichain][iparameter]);
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned chain, std::vector<double>& x)
+bool BCEngineMCMC::GetProposalPointMetropolis(unsigned chain, std::vector<double>& x)
 {
     x = fMCMCx[chain];
 
@@ -1459,7 +1448,7 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned chain, std::vector<do
 
     // multiply by 1.0 (dof <=0) or chi2 random variable with specified (degrees of freedom >0)
     // with chi2 scaling, get Student's t distribution
-    const double scale = fMCMCThreadLocalStorage[chain].scale(fMCMCMultivariateProposalFunctionDof);
+    const double scale = fMCMCThreadLocalStorage[chain].scale(fMCMCProposalFunctionDof);
 
     // add values into x
     int I = 0;
@@ -1474,7 +1463,7 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned chain, std::vector<do
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned ichain, unsigned ipar, std::vector<double>& x)
+bool BCEngineMCMC::GetProposalPointMetropolis(unsigned ichain, unsigned ipar, std::vector<double>& x)
 {
     // copy the old point into the new
     x = fMCMCx[ichain];
@@ -1487,7 +1476,7 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned ichain, unsigned ipar
 
     // get unscaled random point in the dimension of the chosen
     // parameter. this point might not be in the correct volume.
-    double proposal = MCMCTrialFunctionSingle(ichain, ipar);
+    double proposal = ProposalFunction(ichain, ipar);
 
     // modify the parameter under study
     x[ipar] += proposal * GetParameter(ipar).GetRangeWidth();
@@ -1497,13 +1486,13 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned ichain, unsigned ipar
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned chain, unsigned parameter)
+bool BCEngineMCMC::GetNewPointMetropolis(unsigned chain, unsigned parameter)
 {
     // increase counter
     fMCMCNIterations[chain]++;
 
     // get proposal point
-    if ( MCMCGetProposalPointMetropolis(chain, parameter, fMCMCThreadLocalStorage[chain].xLocal) ) {
+    if ( GetProposalPointMetropolis(chain, parameter, fMCMCThreadLocalStorage[chain].xLocal) ) {
         // calculate probabilities of the old and new points
         double p0 = (std::isfinite(fMCMCprob[chain])) ? fMCMCprob[chain] : -std::numeric_limits<double>::max();
         double p1 = LogEval(fMCMCThreadLocalStorage[chain].xLocal);
@@ -1541,13 +1530,13 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned chain, unsigned parameter)
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned chain)
+bool BCEngineMCMC::GetNewPointMetropolis(unsigned chain)
 {
     // increase counter
     fMCMCNIterations[chain]++;
 
     // get proposal point
-    if ( MCMCGetProposalPointMetropolis(chain, fMCMCThreadLocalStorage[chain].xLocal) ) {
+    if ( GetProposalPointMetropolis(chain, fMCMCThreadLocalStorage[chain].xLocal) ) {
         // calculate probabilities of the old and new points
         double p0 = (std::isfinite(fMCMCprob[chain])) ? fMCMCprob[chain] : -std::numeric_limits<double>::max();
         double p1 = LogEval(fMCMCThreadLocalStorage[chain].xLocal);
@@ -1586,7 +1575,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned chain)
 }
 
 //--------------------------------------------------------
-bool BCEngineMCMC::MCMCGetNewPointMetropolis()
+bool BCEngineMCMC::GetNewPointMetropolis()
 {
     bool return_value = true;
 
@@ -1599,7 +1588,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis()
     // start with an empty thread->chain map
     fChainIndex.clear();
 
-    if (!fMCMCMultivariateProposalFunction) {
+    if (!fMCMCProposeMultivariate) {
         /* run over parameters one at a time */
 
         for (unsigned ipar = 0; ipar < GetNParameters(); ++ipar) {
@@ -1610,7 +1599,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis()
             #pragma omp parallel for shared(chunk) private(ichain) schedule(static, chunk)
             for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
                 UpdateChainIndex(ichain);
-                return_value *= MCMCGetNewPointMetropolis(ichain, ipar);
+                return_value *= GetNewPointMetropolis(ichain, ipar);
             }
         }
 
@@ -1621,7 +1610,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis()
         #pragma omp parallel for shared(chunk) private(ichain) schedule(static, chunk)
         for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
             UpdateChainIndex(ichain);
-            return_value *= MCMCGetNewPointMetropolis(ichain);
+            return_value *= GetNewPointMetropolis(ichain);
         }
     }
 
@@ -1637,7 +1626,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis()
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::MCMCInChainFillHistograms()
+void BCEngineMCMC::InChainFillHistograms()
 {
     // loop over chains
     for (unsigned c = 0; c < fMCMCNChains; ++c) {
@@ -1658,7 +1647,7 @@ void BCEngineMCMC::MCMCInChainFillHistograms()
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::MCMCInChainWriteChains()
+void BCEngineMCMC::InChainFillTree()
 {
     if (!fMCMCTree)
         return;
@@ -1674,7 +1663,7 @@ void BCEngineMCMC::MCMCInChainWriteChains()
 }
 
 //---------------------------------------------------------
-void BCEngineMCMC::MCMCCloseOutputFile()
+void BCEngineMCMC::CloseOutputFile()
 {
     if ( !fMCMCOutputFile )
         return;
@@ -1687,7 +1676,7 @@ void BCEngineMCMC::MCMCCloseOutputFile()
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::MCMCMetropolisPreRun()
+bool BCEngineMCMC::MetropolisPreRun()
 {
     // print on screen
     BCLog::OutSummary(Form("Pre-run Metropolis MCMC for model \"%s\" ...", GetName().data()));
@@ -1703,7 +1692,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
 
     const int old_error_ignore_level = gErrorIgnoreLevel;
 
-    if (fMCMCMultivariateProposalFunction) {
+    if (fMCMCProposeMultivariate) {
         // multivariate proposal function
 
         // suppress ROOT errors about Cholesky decomposition
@@ -1723,7 +1712,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
                         S0[I][I] = GetParameter(i).GetRangeWidth() * GetParameter(i).GetRangeWidth() / 12;
                 } else
                     S0[I][I] = GetParameter(i).GetRangeWidth() * GetParameter(i).GetRangeWidth() / 12;
-                CD0[I][I] = sqrt(fMCMCTrialFunctionScaleFactor[0][0] * S0[I][I]);
+                CD0[I][I] = sqrt(fMCMCProposalFunctionScaleFactor[0][0] * S0[I][I]);
                 ++I;
             }
         fMultivariateProposalFunctionCovariance.assign(fMCMCNChains, S0);
@@ -1735,7 +1724,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
     bool allEfficient = false;
     bool inefficientScalesAdjustable = true;
     fMCMCCurrentIteration = 0;
-    fMCMCPhase = BCEngineMCMC::kMCMCPreRun;
+    fMCMCPhase = BCEngineMCMC::kPreRun;
 
     unsigned nIterationsPreRunCheck = fMCMCNIterationsPreRunCheck;
 
@@ -1763,12 +1752,12 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
             && (fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMin
                 || (!allEfficient && inefficientScalesAdjustable)
                 || (fMCMCNChains > 1 && fMCMCNIterationsConvergenceGlobal < 0)
-                || (fMCMCMultivariateProposalFunction && fMultivariateProposalFunctionCovarianceUpdates < fMultivariateProposalFunctionCovarianceUpdatesMinimum))) {
+                || (fMCMCProposeMultivariate && fMultivariateCovarianceUpdates < fMultivariateCovarianceUpdatesMinimum))) {
 
         // Generate (nIterationsCheckConvergence) new points in each chain
         for (unsigned i = 0; i < nIterationsPreRunCheck && fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax; ++i) {
             // get new point & calculate observables
-            MCMCGetNewPointMetropolis();
+            GetNewPointMetropolis();
             EvaluateObservables();
 
             // update chain statistics
@@ -1777,7 +1766,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
 
             // update output tree
             if (fMCMCFlagWritePreRunToFile)
-                MCMCInChainWriteChains();
+                InChainFillTree();
         }
 
         //////////////////////////////////////////
@@ -1789,7 +1778,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
 
         for (unsigned c = 0; c < fMCMCNChains; ++c) {
 
-            if (fMCMCMultivariateProposalFunction) { // multivariate proposal function, one efficiency per chain
+            if (fMCMCProposeMultivariate) { // multivariate proposal function, one efficiency per chain
 
                 if (fMCMCStatistics[c].efficiency[0] >= fMCMCEfficiencyMin && fMCMCStatistics[c].efficiency[0] <= fMCMCEfficiencyMax)
                     continue; // since chain efficiency is in range,
@@ -1798,22 +1787,22 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
                     BCLog::OutDetail(Form("     * Efficiency status: Efficiencies not within predefined range after %i iterations. Efficiency of ", fMCMCCurrentIteration));
                 allEfficient = false;
 
-                double oldScale = fMCMCTrialFunctionScaleFactor[c][0];
+                double oldScale = fMCMCProposalFunctionScaleFactor[c][0];
 
                 if (fMCMCStatistics[c].efficiency[0] < fMCMCEfficiencyMin) { // efficiency too low... decrease scale factor
-                    fMCMCTrialFunctionScaleFactor[c][0] /= fMultivariateProposalFunctionScaleMultiplier;
+                    fMCMCProposalFunctionScaleFactor[c][0] /= fMultivariateScaleMultiplier;
 
-                    if (fMCMCTrialFunctionScaleFactor[c][0] > fMCMCScaleFactorLowerLimit) { // still room to tune
+                    if (fMCMCProposalFunctionScaleFactor[c][0] > fMCMCScaleFactorLowerLimit) { // still room to tune
                         if (fMCMCStatistics[c].efficiency[0] == 0)
-                            BCLog::OutDetail(Form("         chain %d is below %.0f %% (zero). Scale decreased to %.4g", c, 100 * fMCMCEfficiencyMin, fMCMCTrialFunctionScaleFactor[c][0]));
+                            BCLog::OutDetail(Form("         chain %d is below %.0f %% (zero). Scale decreased to %.4g", c, 100 * fMCMCEfficiencyMin, fMCMCProposalFunctionScaleFactor[c][0]));
                         else if (fMCMCStatistics[c].efficiency[0] < 1.e-2)
-                            BCLog::OutDetail(Form("         chain %d is below %.0f %% (%.0g %%). Scale decreased to %.4g", c, 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[0], fMCMCTrialFunctionScaleFactor[c][0]));
+                            BCLog::OutDetail(Form("         chain %d is below %.0f %% (%.0g %%). Scale decreased to %.4g", c, 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[0], fMCMCProposalFunctionScaleFactor[c][0]));
                         else
-                            BCLog::OutDetail(Form("         chain %d is below %.0f %% (%.0f %%). Scale decreased to %.4g", c, 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[0], fMCMCTrialFunctionScaleFactor[c][0]));
+                            BCLog::OutDetail(Form("         chain %d is below %.0f %% (%.0f %%). Scale decreased to %.4g", c, 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[0], fMCMCProposalFunctionScaleFactor[c][0]));
                         inefficientScalesAdjustable = true;
 
                     } else { // no more room to tune
-                        fMCMCTrialFunctionScaleFactor[c][0] = fMCMCScaleFactorLowerLimit;
+                        fMCMCProposalFunctionScaleFactor[c][0] = fMCMCScaleFactorLowerLimit;
                         if (fMCMCStatistics[c].efficiency[0] == 0)
                             BCLog::OutDetail(Form("         chain %d is below %.0f %% (zero). Scale now at lower limit (%.4g)", c, 100 * fMCMCEfficiencyMin, fMCMCScaleFactorLowerLimit));
                         else if (fMCMCStatistics[c].efficiency[0] < 1.e-2)
@@ -1824,18 +1813,18 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
                     }
 
                 } else { // efficiency too high... increase scale factor
-                    fMCMCTrialFunctionScaleFactor[c][0] *= fMultivariateProposalFunctionScaleMultiplier;
+                    fMCMCProposalFunctionScaleFactor[c][0] *= fMultivariateScaleMultiplier;
 
-                    if (fMCMCTrialFunctionScaleFactor[c][0] < fMCMCScaleFactorUpperLimit) { // still room to tune
-                        BCLog::OutDetail(Form("         chain %d is above %.0f %% (%.0f %%). Scale increased to %.4g", c, 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[0], fMCMCTrialFunctionScaleFactor[c][0]));
+                    if (fMCMCProposalFunctionScaleFactor[c][0] < fMCMCScaleFactorUpperLimit) { // still room to tune
+                        BCLog::OutDetail(Form("         chain %d is above %.0f %% (%.0f %%). Scale increased to %.4g", c, 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[0], fMCMCProposalFunctionScaleFactor[c][0]));
                         inefficientScalesAdjustable = true;
                     } else { // no more room to tune
-                        fMCMCTrialFunctionScaleFactor[c][0] = fMCMCScaleFactorUpperLimit;
+                        fMCMCProposalFunctionScaleFactor[c][0] = fMCMCScaleFactorUpperLimit;
                         BCLog::OutDetail(Form("         chain %d is above %.0f %% (%.0f %%). Scale now at upper limit (%.4g)", c, 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[0], fMCMCScaleFactorUpperLimit));
                     }
                 }
 
-                if (oldScale != fMCMCTrialFunctionScaleFactor[c][0])
+                if (oldScale != fMCMCProposalFunctionScaleFactor[c][0])
                     scalesAdjusted = true;
 
             } else { // factorized proposal function, one efficiency per parameter per chain
@@ -1852,42 +1841,42 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
                         BCLog::OutDetail(Form("     * Efficiency status: Efficiencies not within pre-defined range after %i iterations. Efficiency of ", fMCMCCurrentIteration));
                     allEfficient = false;
 
-                    double oldScale = fMCMCTrialFunctionScaleFactor[c][p];
+                    double oldScale = fMCMCProposalFunctionScaleFactor[c][p];
 
                     if (fMCMCStatistics[c].efficiency[p] < fMCMCEfficiencyMin) { // efficiency too low... decrease scale factor
-                        fMCMCTrialFunctionScaleFactor[c][p] /= (fMCMCStatistics[c].efficiency[p] < fMCMCEfficiencyMin / 2) ? 4 : 2;
+                        fMCMCProposalFunctionScaleFactor[c][p] /= (fMCMCStatistics[c].efficiency[p] < fMCMCEfficiencyMin / 2) ? 4 : 2;
 
-                        if (fMCMCTrialFunctionScaleFactor[c][p] > fMCMCScaleFactorLowerLimit ) { // still room to tune
+                        if (fMCMCProposalFunctionScaleFactor[c][p] > fMCMCScaleFactorLowerLimit ) { // still room to tune
                             if (fMCMCStatistics[c].efficiency[p] == 0)
-                                BCLog::OutDetail(Form("         %-*s is below %.0f %% (zero) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, c, fMCMCTrialFunctionScaleFactor[c][p]));
+                                BCLog::OutDetail(Form("         %-*s is below %.0f %% (zero) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, c, fMCMCProposalFunctionScaleFactor[c][p]));
                             else if (fMCMCStatistics[c].efficiency[p] < 1.e-2)
-                                BCLog::OutDetail(Form("         %-*s is below %.0f %% (%.0g %%) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
+                                BCLog::OutDetail(Form("         %-*s is below %.0f %% (%.0g %%) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCProposalFunctionScaleFactor[c][p]));
                             else
-                                BCLog::OutDetail(Form("         %-*s is below %.0f %% (%.0f %%) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
+                                BCLog::OutDetail(Form("         %-*s is below %.0f %% (%.0f %%) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCProposalFunctionScaleFactor[c][p]));
                             inefficientScalesAdjustable = true;
                         }	else { // no more room to tune
                             if (fMCMCStatistics[c].efficiency[p] == 0)
-                                BCLog::OutDetail(Form("         %-*s is below %.0f %% (zero) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, c, fMCMCTrialFunctionScaleFactor[c][p]));
+                                BCLog::OutDetail(Form("         %-*s is below %.0f %% (zero) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, c, fMCMCProposalFunctionScaleFactor[c][p]));
                             else if (fMCMCStatistics[c].efficiency[p] < 1.e-2)
-                                BCLog::OutDetail(Form("         %-*s is below %.0f %% (%.0g %%) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
+                                BCLog::OutDetail(Form("         %-*s is below %.0f %% (%.0g %%) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCProposalFunctionScaleFactor[c][p]));
                             else
-                                BCLog::OutDetail(Form("         %-*s is below %.0f %% (%.0f %%) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
-                            fMCMCTrialFunctionScaleFactor[c][p] = fMCMCScaleFactorLowerLimit;
+                                BCLog::OutDetail(Form("         %-*s is below %.0f %% (%.0f %%) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCProposalFunctionScaleFactor[c][p]));
+                            fMCMCProposalFunctionScaleFactor[c][p] = fMCMCScaleFactorLowerLimit;
                         }
 
                     } else { // if efficiency too high ... increase scale factor
-                        fMCMCTrialFunctionScaleFactor[c][p] *= 2;
+                        fMCMCProposalFunctionScaleFactor[c][p] *= 2;
 
-                        if ( fMCMCTrialFunctionScaleFactor[c][p] < fMCMCScaleFactorUpperLimit ) { // still room to tune
-                            BCLog::OutDetail(Form("         %-*s is above %.0f %% (%.0f %%) in chain %i. Scale increased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
+                        if ( fMCMCProposalFunctionScaleFactor[c][p] < fMCMCScaleFactorUpperLimit ) { // still room to tune
+                            BCLog::OutDetail(Form("         %-*s is above %.0f %% (%.0f %%) in chain %i. Scale increased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCProposalFunctionScaleFactor[c][p]));
                             inefficientScalesAdjustable = true;
                         } else { // no more room to tune
-                            fMCMCTrialFunctionScaleFactor[c][p] = fMCMCScaleFactorUpperLimit;
+                            fMCMCProposalFunctionScaleFactor[c][p] = fMCMCScaleFactorUpperLimit;
                             BCLog::OutDetail(Form("         %-*s is above %.0f %% (%.0f %%) in chain %i. Scale now at upper limit (%.4g)", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCScaleFactorUpperLimit));
                         }
                     }
 
-                    if (oldScale != fMCMCTrialFunctionScaleFactor[c][p])
+                    if (oldScale != fMCMCProposalFunctionScaleFactor[c][p])
                         scalesAdjusted = true;
                 } // end of parameter loop
             }
@@ -1942,7 +1931,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
             (fMCMCNChains == 1 || fMCMCNIterationsConvergenceGlobal > 0)
             and
             // minimum number of Multivar. tunings made (or factorized proposal function)
-            (!fMCMCMultivariateProposalFunction || fMultivariateProposalFunctionCovarianceUpdates >= fMultivariateProposalFunctionCovarianceUpdatesMinimum)) {
+            (!fMCMCProposeMultivariate || fMultivariateCovarianceUpdates >= fMultivariateCovarianceUpdatesMinimum)) {
 
             if (fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMin)
                 // still below minimum number of prerun iterations
@@ -1952,7 +1941,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
         }
 
         // Update multivariate proposal function covariances
-        if (fMCMCMultivariateProposalFunction)
+        if (fMCMCProposeMultivariate)
             UpdateCholeskyDecompositions();
 
         if (fMCMCCurrentIteration >= (int)fMCMCNIterationsPreRunMax)
@@ -1978,11 +1967,11 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
             BCLog::OutSummary(Form(" --> Set of %i Markov chains converged within %i iterations, but could not adjust all scales (scale limits reached).", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
         else
             BCLog::OutSummary(Form(" --> Set of %i Markov chains converged within %i iterations, but could not adjust all scales (maximum number of iterations reached).", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
-        if (fMCMCMultivariateProposalFunction) {
-            if (fMultivariateProposalFunctionCovarianceUpdates < fMultivariateProposalFunctionCovarianceUpdatesMinimum)
-                BCLog::OutSummary(Form(" --> Only %i updates to multivariate proposal function's covariances were made. A minimum of %i updates was requested.", fMultivariateProposalFunctionCovarianceUpdates, fMultivariateProposalFunctionCovarianceUpdatesMinimum));
+        if (fMCMCProposeMultivariate) {
+            if (fMultivariateCovarianceUpdates < fMultivariateCovarianceUpdatesMinimum)
+                BCLog::OutSummary(Form(" --> Only %i updates to multivariate proposal function's covariances were made. A minimum of %i updates was requested.", fMultivariateCovarianceUpdates, fMultivariateCovarianceUpdatesMinimum));
             else
-                BCLog::OutSummary(Form(" --> %i updates to multivariate proposal function's covariances were made.", fMultivariateProposalFunctionCovarianceUpdates));
+                BCLog::OutSummary(Form(" --> %i updates to multivariate proposal function's covariances were made.", fMultivariateCovarianceUpdates));
         }
     } else if (allEfficient)
         BCLog::OutSummary(Form(" --> Set of %i Markov chains did not converge within %i iterations, but all scales are adjusted.", fMCMCNChains, fMCMCNIterationsPreRunMax));
@@ -1997,11 +1986,11 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
     for (unsigned c = 0; c < fMCMCNChains; ++c)
         fMCMCStatistics_AllChains += fMCMCStatistics[c];
 
-    if (fMCMCMultivariateProposalFunction) {
+    if (fMCMCProposeMultivariate) {
         BCLog::OutDetail(Form(" --> Scale factors and efficiencies (measured in last %d iterations):", fMCMCStatistics.front().n_samples_efficiency));
         BCLog::OutDetail("       - Chain : Scale factor    Efficiency");
         for (unsigned c = 0; c < fMCMCNChains; ++c)
-            BCLog::OutDetail(Form("           %3d :       % 6.4g        %4.1f %%", c, fMCMCTrialFunctionScaleFactor[c][0], 100.*fMCMCStatistics[c].efficiency[0]));
+            BCLog::OutDetail(Form("           %3d :       % 6.4g        %4.1f %%", c, fMCMCProposalFunctionScaleFactor[c][0], 100.*fMCMCStatistics[c].efficiency[0]));
     } else {
         BCLog::OutDetail(Form(" --> Average scale factors and efficiencies (measured in last %d iterations):", fMCMCStatistics.front().n_samples_efficiency));
         BCLog::OutDetail(Form("       - %-*s : Scale factor    Efficiency", fParameters.MaxNameLength(), "Parameter"));
@@ -2011,7 +2000,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
                 continue;
             double scalefactors = 0;
             for (unsigned j = 0; j < fMCMCNChains; ++j)
-                scalefactors += fMCMCTrialFunctionScaleFactor[j][i] / fMCMCNChains;
+                scalefactors += fMCMCProposalFunctionScaleFactor[j][i] / fMCMCNChains;
             BCLog::OutDetail(Form("         %-*s :          % 6.4g %%        %4.1f %%", fParameters.MaxNameLength(), GetParameter(i).GetName().data(), 100.*scalefactors, 100.*fMCMCStatistics_AllChains.efficiency[i]));
         }
     }
@@ -2114,7 +2103,7 @@ double BCEngineMCMC::RValue(std::vector<double> means, std::vector<double> varia
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::MCMCMetropolis()
+bool BCEngineMCMC::Metropolis()
 {
     // check the number of free parameters
     if (GetNFreeParameters() <= 0) {
@@ -2124,7 +2113,7 @@ bool BCEngineMCMC::MCMCMetropolis()
 
     // check if prerun should be performed
     if (fMCMCFlagPreRun) {
-        if (!MCMCMetropolisPreRun())
+        if (!MetropolisPreRun())
             return false;
         if (!fMCMCFlagWritePreRunToFile && fMCMCFlagWriteChainToFile)
             InitializeMarkovChainTree();
@@ -2135,7 +2124,7 @@ bool BCEngineMCMC::MCMCMetropolis()
     }
 
     // make sure enough statistics containers exist
-    fMCMCStatistics.resize(fMCMCNChains, BCEngineMCMC::MCMCStatistics(GetNParameters(), GetNObservables()));
+    fMCMCStatistics.resize(fMCMCNChains, BCEngineMCMC::Statistics(GetNParameters(), GetNObservables()));
 
     // reset statistics
     for (unsigned c = 0; c < fMCMCNChains; ++c)
@@ -2145,7 +2134,7 @@ bool BCEngineMCMC::MCMCMetropolis()
     BCLog::OutSummary(Form("Run Metropolis MCMC for model \"%s\" ...", GetName().data()));
 
     // set phase and cycle number
-    fMCMCPhase = BCEngineMCMC::kMCMCMainRun;
+    fMCMCPhase = BCEngineMCMC::kMainRun;
 
     BCLog::OutSummary(Form(" --> Perform MCMC run with %i chains, each with %i iterations.", fMCMCNChains, fMCMCNIterationsRun));
 
@@ -2155,7 +2144,7 @@ bool BCEngineMCMC::MCMCMetropolis()
     fMCMCCurrentIteration = 0;
     while ( fMCMCCurrentIteration < (int)fMCMCNIterationsRun ) {
 
-        MCMCGetNewPointMetropolis();
+        GetNewPointMetropolis();
         EvaluateObservables();
 
         if ( fMCMCCurrentIteration % nwrite == 0 ) {
@@ -2167,18 +2156,18 @@ bool BCEngineMCMC::MCMCMetropolis()
         if (fMCMCCurrentIteration % fMCMCNLag != 0) // apply lag
             continue;
 
-        MCMCIterationInterface();		// user action (overloadable)
+        MCMCUserIterationInterface();		// user action (overloadable)
 
         for (unsigned c = 0; c < fMCMCNChains; ++c)
             fMCMCStatistics[c].Update(fMCMCprob[c], fMCMCx[c], fMCMCObservables[c]);
 
         // fill histograms
         if ( !fH1Marginalized.empty() || !fH2Marginalized.empty() )
-            MCMCInChainFillHistograms();
+            InChainFillHistograms();
 
         // write chain to file
         if ( fMCMCFlagWriteChainToFile )
-            MCMCInChainWriteChains();
+            InChainFillTree();
 
     } // end run
 
@@ -2191,7 +2180,7 @@ bool BCEngineMCMC::MCMCMetropolis()
         fMCMCStatistics_AllChains += fMCMCStatistics[c];
 
     // print efficiencies
-    if (fMCMCMultivariateProposalFunction) {
+    if (fMCMCProposeMultivariate) {
         BCLog::OutDetail(Form(" --> Efficiencies (measured in %d iterations):", fMCMCStatistics.front().n_samples_efficiency));
         BCLog::OutDetail("       - Chain : Efficiency");
         for (unsigned c = 0; c < fMCMCNChains; ++c)
@@ -2252,7 +2241,7 @@ void BCEngineMCMC::ResetResults()
     fChainIndex.clear();
     fMCMCStatistics.clear();
     fMCMCStatistics_AllChains.Clear();
-    fMCMCTrialFunctionScaleFactor.clear();
+    fMCMCProposalFunctionScaleFactor.clear();
     fMCMCx.clear();
     fMCMCObservables.clear();
     fMCMCprob.clear();
@@ -2290,7 +2279,7 @@ void BCEngineMCMC::MCMCInitialize()
     fMCMCNIterations.assign(fMCMCNChains, 0);
 
     // reset statistics counters
-    fMCMCStatistics.assign(fMCMCNChains, BCEngineMCMC::MCMCStatistics(GetNParameters(), GetNObservables()));
+    fMCMCStatistics.assign(fMCMCNChains, BCEngineMCMC::Statistics(GetNParameters(), GetNObservables()));
     fMCMCStatistics_AllChains.Init(GetNParameters(), GetNObservables());
 
     // reset likelihood & probability holders
@@ -2310,7 +2299,7 @@ void BCEngineMCMC::MCMCInitialize()
     fLocalModes.clear();
 
     // clear number of multivariate proposal function covariance updates performed
-    fMultivariateProposalFunctionCovarianceUpdates = 0;
+    fMultivariateCovarianceUpdates = 0;
 
     SyncThreadStorage();
 
@@ -2320,15 +2309,15 @@ void BCEngineMCMC::MCMCInitialize()
     CreateHistograms(false);
 
     // set scale factors
-    if (fMCMCMultivariateProposalFunction)
+    if (fMCMCProposeMultivariate)
         // if multivariate
         // initialize proposal function scale factors to 2.38^2 / number of dimensions
-        fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains, std::vector<double>(1, 2.38 * 2.38 / GetNFreeParameters()));
+        fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, std::vector<double>(1, 2.38 * 2.38 / GetNFreeParameters()));
     // else
-    else if (fMCMCTrialFunctionScaleFactorStart.size() == GetNParameters())
+    else if (fMCMCInitialScaleFactors.size() == GetNParameters())
         // if provided by user
-        fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains, fMCMCTrialFunctionScaleFactorStart);
-    else if (fMCMCAutoSetTrialFunctionScaleFactors) {
+        fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, fMCMCInitialScaleFactors);
+    else {
         // calculated from priors
         std::vector<double> temp;
         for (unsigned i = 0; i < GetNParameters(); ++i)
@@ -2341,10 +2330,8 @@ void BCEngineMCMC::MCMCInitialize()
                 else
                     temp.push_back(1. / sqrt(12));
             }
-        fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains, temp);
-    } else
-        // set to 1/sqrt(12)
-        fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains, std::vector<double>(GetNParameters(), 1. / sqrt(12)));
+        fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, temp);
+    }
 
     // set that a main run has not been made
     fMCMCFlagRun = false;
@@ -2358,10 +2345,10 @@ void BCEngineMCMC::MCMCInitialize()
     unsigned max_tries = 10;
 
     // initialize markov chain positions
-    switch (fMCMCFlagInitialPosition) {
+    switch (fInitialPositionScheme) {
 
         // keep previous values
-        case kMCMCInitContinue : {
+        case kInitContinue : {
             throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Continuing chains not yet supported. Sorry!");
 
             // check position vector size
@@ -2373,7 +2360,7 @@ void BCEngineMCMC::MCMCInitialize()
         }
 
         // use range centers
-        case kMCMCInitCenter : {
+        case kInitCenter : {
             fMCMCx.assign(fMCMCNChains, GetParameters().GetRangeCenters());
             for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
                 fMCMCprob[ichain] = LogEval(fMCMCx[ichain]);
@@ -2385,7 +2372,7 @@ void BCEngineMCMC::MCMCInitialize()
         }
 
         // uniformly distribute all coordinates in provided ranges
-        case kMCMCInitRandomUniform : {
+        case kInitRandomUniform : {
             fMCMCx.assign(fMCMCNChains, std::vector<double>());
             for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
                 for (unsigned n = 0; n < max_tries && !std::isfinite(fMCMCprob[ichain]); ++n) {
@@ -2400,7 +2387,7 @@ void BCEngineMCMC::MCMCInitialize()
         }
 
         // use user-defined starting points
-        case kMCMCInitUserDefined : {
+        case kInitUserDefined : {
             // check initial position vector size
             if (fMCMCInitialPosition.size() < fMCMCNChains)
                 throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Too few initial positions provided.");
@@ -2425,7 +2412,7 @@ void BCEngineMCMC::MCMCInitialize()
         }
 
         // randomly distribute according to factorized priors
-        case kMCMCInitRandomPrior : {
+        case kInitRandomPrior : {
             if (!GetParameters().ArePriorsSet(true))
                 throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Not all unfixed parameters have priors set.");
 
@@ -2737,7 +2724,7 @@ void BCEngineMCMC::PrintMarginalizationSummary() const
         BCLog::OutSummary(" Status of the MCMC");
         BCLog::OutSummary(" ==================");
 
-        if (MCMCGetNIterationsConvergenceGlobal() > 0) {
+        if (GetNIterationsConvergenceGlobal() > 0) {
             BCLog::OutSummary(" Convergence reached:                    yes");
             BCLog::OutSummary(Form(" Number of iterations until convergence: %d", fMCMCNIterationsConvergenceGlobal));
         } else
@@ -2746,11 +2733,11 @@ void BCEngineMCMC::PrintMarginalizationSummary() const
         BCLog::OutSummary(Form(" Number of chains:                       %u", fMCMCNChains));
         BCLog::OutSummary(Form(" Number of iterations per chain:         %u", fMCMCNIterationsRun));
 
-        if (fMCMCMultivariateProposalFunction) {
+        if (fMCMCProposeMultivariate) {
             BCLog::OutSummary(" Scale factors and efficiencies (measured in last %d iterations):");
             BCLog::OutSummary(" Chain : Scale factor    Efficiency");
             for (unsigned c = 0; c < fMCMCNChains; ++c)
-                BCLog::OutDetail(Form("   %3d :       % 6.4g        %4.1f %%", c, fMCMCTrialFunctionScaleFactor[c][0], 100.*fMCMCStatistics[c].efficiency[0]));
+                BCLog::OutDetail(Form("   %3d :       % 6.4g        %4.1f %%", c, fMCMCProposalFunctionScaleFactor[c][0], 100.*fMCMCStatistics[c].efficiency[0]));
 
         } else {
             BCLog::OutSummary(" Average scale factors and efficiencies:");
@@ -2760,7 +2747,7 @@ void BCEngineMCMC::PrintMarginalizationSummary() const
                     continue;
                 double scalefactor = 0;
                 for (unsigned j = 0; j < fMCMCNChains; ++j)
-                    scalefactor += fMCMCTrialFunctionScaleFactor[j][i] / fMCMCNChains;
+                    scalefactor += fMCMCProposalFunctionScaleFactor[j][i] / fMCMCNChains;
                 BCLog::OutDetail(Form(" %-*s :          % 6.4g %%        %4.1f %%", fParameters.MaxNameLength(), GetParameter(i).GetName().data(), 100.*scalefactor, 100.*fMCMCStatistics_AllChains.efficiency[i]));
             }
         }
@@ -3514,7 +3501,7 @@ unsigned BCEngineMCMC::UpdateFrequency(unsigned N) const
 }
 
 // ---------------------------------------------------------
-BCEngineMCMC::MCMCThreadLocalStorage::MCMCThreadLocalStorage(const unsigned& dim) :
+BCEngineMCMC::ThreadLocalStorage::ThreadLocalStorage(const unsigned& dim) :
     xLocal(dim, 0.0),
     rng(new TRandom3(0)),
     rngGSL(NULL),
@@ -3524,7 +3511,7 @@ BCEngineMCMC::MCMCThreadLocalStorage::MCMCThreadLocalStorage(const unsigned& dim
 }
 
 // ---------------------------------------------------------
-BCEngineMCMC::MCMCThreadLocalStorage::MCMCThreadLocalStorage(const MCMCThreadLocalStorage& other)    :
+BCEngineMCMC::ThreadLocalStorage::ThreadLocalStorage(const ThreadLocalStorage& other)    :
     xLocal(other.xLocal),
     rng(new TRandom3(*other.rng)),
     rngGSL(NULL),
@@ -3536,13 +3523,13 @@ BCEngineMCMC::MCMCThreadLocalStorage::MCMCThreadLocalStorage(const MCMCThreadLoc
 }
 
 // ---------------------------------------------------------
-BCEngineMCMC::MCMCThreadLocalStorage& BCEngineMCMC::MCMCThreadLocalStorage::operator = (MCMCThreadLocalStorage other)
+BCEngineMCMC::ThreadLocalStorage& BCEngineMCMC::ThreadLocalStorage::operator = (ThreadLocalStorage other)
 {
     swap(*this, other);
     return *this;
 }
 
-void BCEngineMCMC::MCMCThreadLocalStorage::swap(BCEngineMCMC::MCMCThreadLocalStorage& A, BCEngineMCMC::MCMCThreadLocalStorage& B)
+void BCEngineMCMC::ThreadLocalStorage::swap(BCEngineMCMC::ThreadLocalStorage& A, BCEngineMCMC::ThreadLocalStorage& B)
 {
     std::swap(A.xLocal, B.xLocal);
     std::swap(A.rng, B.rng);
@@ -3551,7 +3538,7 @@ void BCEngineMCMC::MCMCThreadLocalStorage::swap(BCEngineMCMC::MCMCThreadLocalSto
 }
 
 // ---------------------------------------------------------
-BCEngineMCMC::MCMCThreadLocalStorage::~MCMCThreadLocalStorage()
+BCEngineMCMC::ThreadLocalStorage::~ThreadLocalStorage()
 {
 #if ROOTMATHMORE
     delete static_cast<GSLRng*>(rngGSL);
@@ -3560,7 +3547,7 @@ BCEngineMCMC::MCMCThreadLocalStorage::~MCMCThreadLocalStorage()
 }
 
 // ---------------------------------------------------------
-double BCEngineMCMC::MCMCThreadLocalStorage::scale(const double& dof)
+double BCEngineMCMC::ThreadLocalStorage::scale(const double& dof)
 {
     if (dof <= 0)
         return 1;
@@ -3580,7 +3567,7 @@ void BCEngineMCMC::SyncThreadStorage()
 
     // add storage until equal to number of chains
     while (fMCMCThreadLocalStorage.size() < fMCMCNChains)
-        fMCMCThreadLocalStorage.push_back(MCMCThreadLocalStorage(GetNParameters()));
+        fMCMCThreadLocalStorage.push_back(ThreadLocalStorage(GetNParameters()));
 
     // remove storage until equal to number of chain
     while (fMCMCThreadLocalStorage.size() > fMCMCNChains)
@@ -3595,7 +3582,7 @@ void BCEngineMCMC::SyncThreadStorage()
         fMCMCThreadLocalStorage[i].rng->SetSeed(fRandom.GetSeed() + i);
         fMCMCThreadLocalStorage[i].rng->Rndm();
 #if ROOTMATHMORE
-        if (fMCMCMultivariateProposalFunctionDof > 0) {
+        if (fMCMCProposalFunctionDof > 0) {
             // GSL and ROOT MersenneTwister are coded identically. To avoid getting the same numbers,
             // we have to use a different GSLRng. Here we can't know if it is different, so let's use a different seed.
             const unsigned seed = fRandom.GetSeed() + fMCMCNChains + i;
@@ -3622,7 +3609,7 @@ void BCEngineMCMC::UpdateChainIndex(int chain)
 }
 
 // ---------------------------------------------------------
-BCEngineMCMC::MCMCStatistics::MCMCStatistics(unsigned n_par, unsigned n_obs) :
+BCEngineMCMC::Statistics::Statistics(unsigned n_par, unsigned n_obs) :
     n_samples(0),
     mean(n_par + n_obs, 0),
     variance(mean.size(), 0),
@@ -3639,7 +3626,7 @@ BCEngineMCMC::MCMCStatistics::MCMCStatistics(unsigned n_par, unsigned n_obs) :
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::MCMCStatistics::Clear(bool clear_mode, bool clear_efficiency)
+void BCEngineMCMC::Statistics::Clear(bool clear_mode, bool clear_efficiency)
 {
     n_samples = 0;
     mean.clear();
@@ -3660,7 +3647,7 @@ void BCEngineMCMC::MCMCStatistics::Clear(bool clear_mode, bool clear_efficiency)
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::MCMCStatistics::Init(unsigned n_par, unsigned n_obs)
+void BCEngineMCMC::Statistics::Init(unsigned n_par, unsigned n_obs)
 {
     n_samples = 0;
     mean.assign(n_par + n_obs, 0);
@@ -3677,7 +3664,7 @@ void BCEngineMCMC::MCMCStatistics::Init(unsigned n_par, unsigned n_obs)
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::MCMCStatistics::Reset(bool reset_mode, bool reset_efficiency)
+void BCEngineMCMC::Statistics::Reset(bool reset_mode, bool reset_efficiency)
 {
     n_samples = 0;
     mean.assign(mean.size(), 0);
@@ -3698,14 +3685,14 @@ void BCEngineMCMC::MCMCStatistics::Reset(bool reset_mode, bool reset_efficiency)
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::MCMCStatistics::ResetEfficiencies()
+void BCEngineMCMC::Statistics::ResetEfficiencies()
 {
     efficiency.assign(efficiency.size(), 0);
     n_samples_efficiency = 0;
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::MCMCStatistics::Update(double prob, const std::vector<double>& par, const std::vector<double>& obs)
+void BCEngineMCMC::Statistics::Update(double prob, const std::vector<double>& par, const std::vector<double>& obs)
 {
     if (mean.size() != par.size() + obs.size())
         return;
@@ -3758,7 +3745,7 @@ void BCEngineMCMC::MCMCStatistics::Update(double prob, const std::vector<double>
 }
 
 // ---------------------------------------------------------
-BCEngineMCMC::MCMCStatistics& BCEngineMCMC::MCMCStatistics::operator+=(const BCEngineMCMC::MCMCStatistics& rhs)
+BCEngineMCMC::Statistics& BCEngineMCMC::Statistics::operator+=(const BCEngineMCMC::Statistics& rhs)
 {
     // if rhs is empty
     if (rhs.n_samples == 0)

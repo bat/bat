@@ -61,14 +61,14 @@ PerfTestMCMC::~PerfTestMCMC()
 int PerfTestMCMC::SetVarPar(double value, std::string name)
 {
     if (name == "lag") {
-        int n = MCMCGetNIterationsRun();
-        int lag = MCMCGetNLag();
+        int n = GetNIterationsRun();
+        int lag = GetNLag();
         int iter = int( n * value / double(lag) );
-        MCMCSetNLag(int(value));
-        MCMCSetNIterationsRun(iter);
+        SetNLag(int(value));
+        SetNIterationsRun(iter);
         return 1;
     } else if (name == "iterations") {
-        MCMCSetNIterationsRun(int(value));
+        SetNIterationsRun(int(value));
         return 1;
     } else
         return 0;
@@ -104,7 +104,7 @@ int PerfTestMCMC::PostTest()
     int npar = GetNParameters();
     for (int i = 0; i < npar; ++i) {
         TCanvas* c_corr = new TCanvas();
-        TH2D* hist = new TH2D("", ";Iteration; correlation coefficient", 1, 0., MCMCGetNIterationsRun() / MCMCGetNLag() + 1, 1, -1., 1.0);
+        TH2D* hist = new TH2D("", ";Iteration; correlation coefficient", 1, 0., GetNIterationsRun() / GetNLag() + 1, 1, -1., 1.0);
         hist->SetStats(kFALSE);
         hist->Draw();
         fCorrelation.at(i)->Draw("SAMEP");
@@ -170,23 +170,23 @@ void PerfTestMCMC::PrecisionSettings(PerfTest::Precision precision)
 {
     unsigned lag = 1;
     if (precision == PerfTest::kCoarse) {
-        MCMCSetPrecision(BCEngineMCMC::kLow);
+        SetPrecision(BCEngineMCMC::kLow);
     } else if (precision == PerfTest::kMedium) {
-        MCMCSetPrecision(BCEngineMCMC::kMedium);
-        MCMCSetNIterationsRun(5000);
+        SetPrecision(BCEngineMCMC::kMedium);
+        SetNIterationsRun(5000);
         lag = 50;
     } else if (precision == PerfTest::kDetail) {
-        MCMCSetPrecision(BCEngineMCMC::kMedium);
+        SetPrecision(BCEngineMCMC::kMedium);
         lag = 100;
     } else {
-        MCMCSetNIterationsRun(10000);
+        SetNIterationsRun(10000);
     }
 
     // interpret NIterationsRun as desired #independent samples
-    unsigned temp(MCMCGetNIterationsRun() * lag);
-    unsigned iter = temp / MCMCGetNLag();
-    MCMCSetNLag(lag);
-    MCMCSetNIterationsRun(iter);
+    unsigned temp(GetNIterationsRun() * lag);
+    unsigned iter = temp / GetNLag();
+    SetNLag(lag);
+    SetNIterationsRun(iter);
 }
 
 //______________________________________________________________________________
@@ -198,14 +198,14 @@ void PerfTestMCMC::MCMCUserIterationInterface()
         return;
     }
 
-    unsigned iteration = MCMCGetCurrentIteration();
-    unsigned nlag = MCMCGetNLag();
+    unsigned iteration = GetCurrentIteration();
+    unsigned nlag = GetNLag();
 
     if ((iteration % nlag) == 0) {
 
         // loop over parameters
         unsigned npar = GetNParameters();
-        unsigned nchains = MCMCGetNChains();
+        unsigned nchains = GetNChains();
 
         for (unsigned i = 0; i < npar; ++i) {
             TH2D* hist = fHistCorr.at(i);
@@ -214,8 +214,8 @@ void PerfTestMCMC::MCMCUserIterationInterface()
                 hist->Fill(fXOld.at(j).at(i), fMCMCx.at(j).at(i));
             }
 
-            if (iteration / nlag % (MCMCGetNIterationsRun() / 100 / nlag) == 0) {
-                (fCorrelation[i])->SetPoint( (iteration / nlag) / (MCMCGetNIterationsRun() / 100 / nlag),
+            if (iteration / nlag % (GetNIterationsRun() / 100 / nlag) == 0) {
+                (fCorrelation[i])->SetPoint( (iteration / nlag) / (GetNIterationsRun() / 100 / nlag),
                                              iteration / nlag,
                                              hist->GetCorrelationFactor());
             }

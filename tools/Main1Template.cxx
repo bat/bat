@@ -22,7 +22,7 @@ int main()
     ((MODEL)) m("Name_Me");
 
     // set precision
-    m.MCMCSetPrecision(BCEngineMCMC::kMedium);
+    m.SetPrecision(BCEngineMCMC::kMedium);
 
     BCLog::OutSummary("Test model created");
 

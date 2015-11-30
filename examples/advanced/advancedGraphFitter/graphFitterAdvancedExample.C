@@ -160,7 +160,7 @@ void graphFitterAdvancedExample()
     // perform the analysis on all models
     for (unsigned i = 0; i < nmodels; ++i) {
         // set precision
-        models[i]->MCMCSetPrecision(BCEngineMCMC::kQuick);
+        models[i]->SetPrecision(BCEngineMCMC::kQuick);
 
         // run the fitting (MCMC + Minuit)
         models[i]->Fit();

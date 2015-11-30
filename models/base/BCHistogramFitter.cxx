@@ -49,7 +49,7 @@ BCHistogramFitter::BCHistogramFitter(const TH1& hist, const TF1& func, const std
     // set the indeces for fitting.
     SetFitFunctionIndices(0, 1);
 
-    MCMCSetNIterationsRun(2000);
+    SetNIterationsRun(2000);
     SetFillErrorBand(true);
     fFlagIntegration = true;
 

@@ -38,7 +38,7 @@ int main()
     //    m.SetPrior(ReferenceCounting::kApprox, shape, rate);
 
     // set precision level
-    m.MCMCSetPrecision(BCEngineMCMC::kQuick);
+    m.SetPrecision(BCEngineMCMC::kQuick);
 
     // perform sampling with MCMC
     m.MarginalizeAll(BCIntegrate::kMargMetropolis);

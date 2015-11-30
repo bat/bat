@@ -62,7 +62,7 @@ int main(int argc, char** argv)
     BCRooInterface _myRooInterface;
     _myRooInterface.Initialize(rootFile, wsName, "data", "model", "priorPOI", "priorNuisance", "parameters", "POI");
 
-    _myRooInterface.MCMCSetNIterationsRun(nMCMC);
+    _myRooInterface.SetNIterationsRun(nMCMC);
 
     // perform your analysis here
     _myRooInterface.MarginalizeAll();

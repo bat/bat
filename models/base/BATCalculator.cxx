@@ -226,7 +226,7 @@ RooAbsPdf* BATCalculator::GetPosteriorPdf1D(const char* POIname) const
 
     //initialize RooInterface object
     _myRooInterface->Initialize(*fData, *fPdf, *fPrior, fparams, fPOI);
-    _myRooInterface->MCMCSetNIterationsRun(_nMCMC);
+    _myRooInterface->SetNIterationsRun(_nMCMC);
     _myRooInterface->MarginalizeAll();
     _myRooInterface->FindMode();
     const BCParameter& myPOI = _myRooInterface->GetParameter(POIname);
@@ -651,7 +651,7 @@ MCMCInterval* BATCalculator::GetInterval() const
     if (!fPosteriorPdf) {
         //initialize RooInterface object
         _myRooInterface->Initialize(*fData, *fPdf, *fPrior, fparams, fPOI);
-        _myRooInterface->MCMCSetNIterationsRun(_nMCMC);
+        _myRooInterface->SetNIterationsRun(_nMCMC);
         _myRooInterface->MarginalizeAll();
         _myRooInterface->FindMode();
     }

@@ -111,7 +111,7 @@ void mcstat()
 
     // ---- perform ensemble tests ---- //
 
-    m->MCMCSetPrecision(BCEngineMCMC::kQuick);
+    m->SetPrecision(BCEngineMCMC::kQuick);
 
     // create new analysis facility
     BCMTFAnalysisFacility* facility = new BCMTFAnalysisFacility(m);

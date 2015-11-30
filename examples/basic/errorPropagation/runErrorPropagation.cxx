@@ -19,7 +19,7 @@ int main()
     m.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
     // set precision
-    m.MCMCSetPrecision(BCEngineMCMC::kMedium);
+    m.SetPrecision(BCEngineMCMC::kMedium);
 
     // run the MCMC and marginalize w.r.t. to all parameters
     m.MarginalizeAll();

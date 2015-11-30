@@ -50,7 +50,7 @@ public:
         m.SetModality(modality);
         m.SetComplexity(complexity);
         m.PopulatePolynomialDegrees();
-        m.MCMCSetRandomSeed(1346);
+        m.SetRandomSeed(1346);
 
         return m;
     }
@@ -111,8 +111,8 @@ public:
         TEST_CHECK_NEARLY_EQUAL(m.FindMode(BCIntegrate::kOptSimAnn, std::vector<double>(1, 0.9)).front(), 1, 1e-3);
 
         // chain can find either mode
-        m.MCMCSetNIterationsPreRunMin(5000);
-        m.MCMCSetRandomSeed(1346);
+        m.SetNIterationsPreRunMin(5000);
+        m.SetRandomSeed(1346);
         const double& mode = m.FindMode(BCIntegrate::kOptMetropolis).front();
         const double target = mode > 0.5 ? 1.0 : 0.0;
         TEST_CHECK_NEARLY_EQUAL(mode, target, 1e-3);
@@ -125,7 +125,7 @@ public:
     {
         static const unsigned ndim = 4;
         GaussModel m("Fixed parameter example", ndim);
-        m.MCMCSetRandomSeed(613);
+        m.SetRandomSeed(613);
         m.GetParameter(3).Fix(0.5);
 
         // integrate over normalized Gaussian likelihood

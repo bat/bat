@@ -48,7 +48,7 @@ public:
     {
         const unsigned fixed = 1;
         GaussModel m("Turn off filling for par 1", 4);
-        m.MCMCSetPrecision(BCEngineMCMC::kLow);
+        m.SetPrecision(BCEngineMCMC::kLow);
         m.GetParameter(fixed).FillHistograms(false);
         count_marginals(m, fixed);
     }
@@ -61,11 +61,11 @@ public:
     void fixing() const
     {
         GaussModel m("Fix", 4);
-        m.MCMCSetPrecision(BCEngineMCMC::kMedium);
-        m.MCMCSetNIterationsRun(30000);
-        m.MCMCSetNIterationsPreRunMax(6000);
-        m.MCMCSetNIterationsPreRunMin(6000);
-        m.MCMCSetRandomSeed(235);
+        m.SetPrecision(BCEngineMCMC::kMedium);
+        m.SetNIterationsRun(30000);
+        m.SetNIterationsPreRunMax(6000);
+        m.SetNIterationsPreRunMin(6000);
+        m.SetRandomSeed(235);
 
         static const double eps = 5e-2;
 
@@ -103,7 +103,7 @@ public:
     void deltaPrior() const
     {
         GaussModel m("set delta prior for par 1", 4);
-        m.MCMCSetPrecision(BCEngineMCMC::kMedium);
+        m.SetPrecision(BCEngineMCMC::kMedium);
         const int fixed = 0;
         m.GetParameter(fixed).Fix(0.);
         count_marginals(m, fixed);
@@ -114,7 +114,7 @@ public:
         GaussModel m("copy", 1);
 
         // use non-default values
-        m.MCMCSetNChains(m.MCMCGetNChains() + 1);
+        m.SetNChains(m.GetNChains() + 1);
 
         m.MarginalizeAll();
 
@@ -122,7 +122,7 @@ public:
         GaussModel m2 = m;
 
         // non-default values should be taken over
-        TEST_CHECK_EQUAL(m2.MCMCGetNChains(), m.MCMCGetNChains());
+        TEST_CHECK_EQUAL(m2.GetNChains(), m.GetNChains());
     }
 
     virtual void run() const

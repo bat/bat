@@ -102,7 +102,7 @@ void singleChannel()
     m->GetParameter("signal").SetPriorConstant();
 
     // set precision
-    m->MCMCSetPrecision(BCEngineMCMC::kQuick);
+    m->SetPrecision(BCEngineMCMC::kQuick);
 
     // marginalize
     m->MarginalizeAll(BCIntegrate::kMargMetropolis);

@@ -35,7 +35,7 @@ bool BCPriorModel::PreparePriorModel()
             GetVariable(i).SetNbins(fModel.GetMarginalizedHistogram(i)->GetNbinsX());
 
     // set default MCMC setup to the one of the original model
-    MCMCSetPrecision(fModel);
+    SetPrecision(fModel);
 
     return true;
 }
@@ -44,7 +44,7 @@ bool BCPriorModel::PreparePriorModel()
 void BCPriorModel::CalculateObservables(const std::vector<double>& parameters)
 {
     // help with thread safety and correctness of sampling
-    fModel.UpdateChainIndex(MCMCGetCurrentChain());
+    fModel.UpdateChainIndex(GetCurrentChain());
 
     if (fCallLikelihood)
         fModel.LogLikelihood(parameters);

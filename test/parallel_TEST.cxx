@@ -166,16 +166,16 @@ public:
         GaussModel m(parallelization ? "Parallel evaluation" : "Serial evaluation", config.num_parameters, config.delay);
 
         // set MCMC precision
-        m.MCMCSetPrecision(BCEngineMCMC::kMedium);
-        m.MCMCSetNIterationsRun(config.num_iterations);
-        m.MCMCSetNChains(config.num_chains);
+        m.SetPrecision(BCEngineMCMC::kMedium);
+        m.SetNIterationsRun(config.num_iterations);
+        m.SetNChains(config.num_chains);
 
         // switch writing of Markov Chains on
         m.WriteMarkovChain(parallelization ? config.rootFileNameParallel.c_str() : config.rootFileNameSerial.c_str(), "RECREATE", true);
 
-        m.MCMCSetMultivariateProposalFunction(config.multivariate, config.dof);
+        m.SetMultivariateProposalFunction(config.multivariate, config.dof);
 
-        m.MCMCSetRandomSeed(seed);
+        m.SetRandomSeed(seed);
 
         TStopwatch sw;
         sw.Start();
@@ -287,8 +287,8 @@ public:
         // chi2 distribution has std. dev sqrt(2 / npar). Allow 2 sigma range
         TEST_CHECK_NEARLY_EQUAL(meanChi2 / npar, 1.0, 2 * std::sqrt(2.0 / npar));
 
-        for (unsigned c = 0; c < models[0].MCMCGetNChains(); ++c) {
-            const BCEngineMCMC::MCMCStatistics& s = models[0].MCMCGetStatistics(c);
+        for (unsigned c = 0; c < models[0].GetNChains(); ++c) {
+            const BCEngineMCMC::MCMCStatistics& s = models[0].GetStatistics(c);
             TEST_CHECK_EQUAL(s.n_samples, config.num_iterations);
 
             // unit Gaussian
