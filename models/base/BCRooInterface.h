@@ -61,7 +61,6 @@ public:
     /// return the RooStats Markov Chain (empty if corresponding constructor option not set)
     RooStats::MarkovChain* GetRooStatsMarkovChain() { return _roostatsMarkovChain;}
     RooArgSet* GetArgSetForMarkovChain() {return &_parametersForMarkovChainCurrent;}
-    //RooArgSet GetArgSetForMarkovChainTest(){return _parametersForMarkovChain_test;}
 
 private:
 

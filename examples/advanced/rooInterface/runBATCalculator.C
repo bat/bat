@@ -1,9 +1,7 @@
 /////////////////////////////////////////////////////////////////////////
-//
-// 'Using BATCalculator ' macro No. 1
 // author: Stefan A. Schmitz
-// date: July 2010
-// last update: October 2012
+// date: Jul 2010
+// last update: Dec 2015
 /////////////////////////////////////////////////////////////////////////
 
 // this macro shows how to use the RooStats Interface (BATCalculator) to BAT
@@ -87,7 +85,7 @@ void runBATCalculator()
     modelconfig.SetObservables(*(myWS->set("obsSet")));
 
 
-    // use BATCalculator to the derive confidence intervals as a function of the observed number of
+    // use BATCalculator to the derive credibility intervals as a function of the observed number of
     // events in the hypothetical experiment
 
     // define vector with tested numbers of events
@@ -105,7 +103,7 @@ void runBATCalculator()
     BATll.ResizeTo(obslimit);
 
 
-    cout << "starting the calculation of Bayesian confidence intervals with BATCalculator" << endl;
+    cout << "starting the calculation of Bayesian credibility intervals with BATCalculator" << endl;
     // loop over observed number of events in the hypothetical experiment
     for (int obs = 1; obs <= obslimit; obs++) {
 
@@ -127,16 +125,18 @@ void runBATCalculator()
         batcalc.SetName(namestring);
 
         // fix amount of posterior probability in the calculated interval.
+        // the name confidence level is incorrect here
         batcalc.SetConfidenceLevel(0.90);
-        // fix number of Markov chain elements. (in general: the longer the Markov chain the more
+
+        // fix length of the Markov chain. (in general: the longer the Markov chain the more
         // precise will be the results)
-        batcalc.SetnMCMC(300000);
+        batcalc.SetnMCMC(20000);
 
         // retrieve SimpleInterval object containing the information about the interval (this
         // triggers the actual calculations)
         SimpleInterval* interval = batcalc.GetInterval1D("sigma_s");
 
-        std::cout << "BATCalculator: 90% CL interval: [ " << interval->LowerLimit() << " - " << interval->UpperLimit() << " ] or 95% CL upper limit\n";
+        std::cout << "BATCalculator: 90% credibility interval: [ " << interval->LowerLimit() << " - " << interval->UpperLimit() << " ] or 95% credibility upper limit\n";
 
         // add the interval borders for the current number of observed events to the vectors
         // containing the lower and upper limits
@@ -165,7 +165,7 @@ void runBATCalculator()
 
     // create and draw multigraph
     TMultiGraph* mg = new TMultiGraph("BayesianLimitsBATCalculator", "BayesianLimitsBATCalculator");
-    mg->SetTitle("example of Bayesian confidence intervals derived with BATCAlculator ");
+    mg->SetTitle("example of Bayesian credibility intervals derived with BATCAlculator ");
 
     mg->Add(grBATll);
     mg->Add(grBATul);
@@ -176,5 +176,4 @@ void runBATCalculator()
     mg->GetYaxis()->SetTitle("limits on signal S (size of test: 0.1)");
 
     mg->Draw("AC");
-
 }

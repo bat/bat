@@ -88,6 +88,8 @@ void BCRooInterface::Initialize( const char* rootFile,
 
     std::cout << "Opening " << rootFile << std::endl;
     TFile* file = TFile::Open(rootFile);
+    if (!file)
+        throw std::runtime_error(std::string("Could not open ") + rootFile);
     std::cout << "content :\n";
     file->ls();
 

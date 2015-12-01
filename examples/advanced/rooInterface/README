@@ -106,12 +106,6 @@ Using the default arguments would be similar to:
 
     ./runRooInterface bat_workspace.root myWS
 
-More documentation, examples and maybe an undated version of BCRooInterface
-might be available on the webpage:
-
-    http://www-ekp.physik.uni-karlsruhe.de/~schott/BCRooInterface/
-
-
 RUNNING THE BATCalculator EXAMPLE
 ---------------------------------
 
@@ -123,10 +117,9 @@ The tutorial macro runBATCalulator.C can be be run via
 Further explanations about the example can be found within the code.
 
 It is possible to use the BATCalculator class within C++ programs by
-making use of the BAT libraries .
+making use of the BAT libraries.
 
 ----------------------------------------------------------------------------
-BCRooInterface and BATCalculator are provided by:
-- Gregory Schott <gregory.schott@cern.ch>
-- Stefan A. Schmitz <staschmitz@physik.rwth-aachen.de>
-
+BCRooInterface and BATCalculator were originally written by Gregory
+Schott <gregory.schott@cern.ch> and Stefan A. Schmitz
+<staschmitz@physik.rwth-aachen.de>.

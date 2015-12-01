@@ -13,13 +13,13 @@ input_workspaces = \
 	WS_Poisson.root \
 	WS_Poisson_withSystematics.root
 
+CLEANFILES += *.txt
 $(input_workspaces): WS_%.root: PrepareWorkspace_%.C
-	$(ROOTEXEC) -l -b -q $<
+	$(ROOTEXEC) -l -x -q $<
 
 TEST_EXTENSIONS += .root
 ROOT_LOG_COMPILER = $(builddir)/runRooInterface
 
-# Disabled:
-# TESTS = $(input_workspaces)
+TESTS = $(input_workspaces) runBATCalculator.C
 
 endif
