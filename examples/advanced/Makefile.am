@@ -1,7 +1,6 @@
 SUBDIRS = \
 	advancedGraphFitter \
 	mtf \
-	mvc \
 	polynomialFit \
 	referenceCounting \
 	rooInterface \

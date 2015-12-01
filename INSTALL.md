@@ -211,9 +211,8 @@ would also be to add `bat-config --cflags` to CXXFLAGS and `bat-config
 --libs` to `LDFLAGS` in your Makefile. However, there will be an error
 at runtime, for example in interactive ROOT macros, if
 
-    libBAT.so, libBATmodels.so,
-    libBATmtf.so, libBATmvc.so, libBAT.rootmap, libBATmodels.rootmap,
-    libBATmtf.rootmap, libBATmvc.rootmap
+    libBAT.so, libBATmodels.so, libBATmtf.so,
+    libBAT.rootmap, libBATmodels.rootmap, libBATmtf.rootmap
 
 are not in the directories found be the library loader; see above how
 to setup the `LD_LIBRARY_PATH` and the `CPATH`.
