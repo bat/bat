@@ -96,8 +96,9 @@ install-data-hook:
 	@echo "   ============================================================"
 	@echo
 
-# format all C++ source files except root dictionaries as they are messed up
+# format all C++ source files. Exclude certain files for which astyle
+# doesn't work.
 .PHONY: format
 format:
 	cd $(top_srcdir) && \
-	astyle --options=tools/astylerc --formatted `find BAT/ benchmarks/ examples/ tools $(SUBDIRS) -name '*.C' -o \( -name '*.cxx' ! -name '*rdict.cxx' \) -o -name '*.h'`
+	astyle --options=tools/astylerc --formatted `find BAT/ benchmarks/ examples/ tools $(SUBDIRS) -name '*.C' -o -name '*.cxx' -o -name '*.h' | egrep -v -f tools/astyle-ignore`
