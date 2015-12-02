@@ -6,7 +6,7 @@
 #include <cmath>
 
 // ---------------------------------------------------------
-GaussModel::GaussModel(std::string name) : BCModel(name)
+GaussModel::GaussModel(const std::string& name) : BCModel(name)
 {
     AddParameter("x", -10.0, 50.0); // index 0
     AddParameter("y",  -5.0,  5.0); // index 1

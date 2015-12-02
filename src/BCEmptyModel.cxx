@@ -11,13 +11,13 @@
 #include "BCEmptyModel.h"
 
 // ---------------------------------------------------------
-BCEmptyModel::BCEmptyModel(std::string name)
+BCEmptyModel::BCEmptyModel(const std::string& name)
     : BCModel(name)
 {
 }
 
 // ---------------------------------------------------------
-BCEmptyModel::BCEmptyModel(std::string filename, std::string name, bool reuseObservables)
+BCEmptyModel::BCEmptyModel(std::string filename, const std::string& name, bool reuseObservables)
     : BCModel(filename, name, reuseObservables)
 {
 }

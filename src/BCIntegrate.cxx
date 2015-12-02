@@ -65,7 +65,7 @@ public:
 }
 
 // ---------------------------------------------------------
-BCIntegrate::BCIntegrate(std::string name)
+BCIntegrate::BCIntegrate(const std::string& name)
     : BCEngineMCMC(name)
     ,	fMinuit(0)
     ,	fMinuitErrorFlag(0)
@@ -105,7 +105,7 @@ BCIntegrate::BCIntegrate(std::string name)
 }
 
 // ---------------------------------------------------------
-BCIntegrate::BCIntegrate(std::string filename, std::string name, bool loadObservables)
+BCIntegrate::BCIntegrate(std::string filename, const std::string& name, bool loadObservables)
     : BCEngineMCMC(filename, name, loadObservables)
     ,	fMinuit(0)
     ,	fMinuitErrorFlag(0)

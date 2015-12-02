@@ -33,7 +33,7 @@ public:
     /* @{ */
 
     /** The default constructor */
-    PerfSubTest(std::string name = "unknown");
+    PerfSubTest(const std::string& name = "unknown");
 
     /** The default destructor */
     ~PerfSubTest();
@@ -44,7 +44,7 @@ public:
 
     /** Set the name of the subtest.
      * @param name the name of the subtest. */
-    void SetName(std::string name)
+    void SetName(const std::string& name)
     { fName = name; };
 
     /** Set the description of the subtest.

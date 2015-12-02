@@ -94,7 +94,7 @@ public:
     /** Find a test by name
      * @param name the name of the test.
      * @return the test. */
-    PerfTest* GetTest(std::string name);
+    PerfTest* GetTest(const std::string& name);
 
     /* @} */
     /** \name Member functions (misc) */

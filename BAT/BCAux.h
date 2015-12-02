@@ -49,7 +49,7 @@ void DefaultToPDF(std::string& filename);
  * @param h 2D histogram to transpose
  * @param name Name to give to transposed histogram, if empty, "_tr" is added to original hist's name.
  * @return Transposed independent histogram. */
-TH2* Transpose(const TH2* const h, std::string name = "");
+TH2* Transpose(const TH2* const h, const std::string& name = "");
 
 /** Range types. */
 enum BCRange {
@@ -76,7 +76,7 @@ void MakeFinite(double& xmin, double& xmax);
 
 /**
  * Convert a name into a safe name for use in ROOT object naming. */
-std::string SafeName(std::string name);
+std::string SafeName(const std::string& name);
 
 /**
  * @return Whether character is allowed in a safe name. */

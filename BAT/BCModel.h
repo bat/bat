@@ -47,7 +47,7 @@ public:
     /**
      * Default constructor.
      * @param name The name of the model */
-    BCModel(std::string name = "model");
+    BCModel(const std::string& name = "model");
 
     /**
      * Copy constructor. */
@@ -59,7 +59,7 @@ public:
      * @param name Name of model (file should contain TTree's [name]_mcmc and [name]_parameters.\n
      * if empty string is given, properly matching TTrees are searched for in the file.
      * @param loadObservables Flag for whether to load observables for file (true; default) or to let user respecify observables.*/
-    BCModel(std::string filename, std::string name, bool loadObservables = true);
+    BCModel(std::string filename, const std::string& name, bool loadObservables = true);
 
     /**
      * Destructor. */

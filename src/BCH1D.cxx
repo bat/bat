@@ -348,7 +348,7 @@ void BCH1D::DrawMedian()
 }
 
 // ---------------------------------------------------------
-TH1* BCH1D::GetSubHistogram(double min, double max, std::string name, bool preserve_range)
+TH1* BCH1D::GetSubHistogram(double min, double max, const std::string& name, bool preserve_range)
 {
     if (min == max or !GetHistogram())
         return 0;
@@ -361,8 +361,9 @@ TH1* BCH1D::GetSubHistogram(double min, double max, std::string name, bool prese
     if (max<xmin or min>xmax)
         return 0;
 
+    std::string newName(name);
     if (name.empty())
-        name = std::string(GetHistogram()->GetName()) + "_subhist";
+        newName = std::string(GetHistogram()->GetName()) + "_subhist";
 
     if ( min <= xmin and max >= xmax )
         return (TH1*) GetHistogram()->Clone(name.data());
@@ -389,7 +390,7 @@ TH1* BCH1D::GetSubHistogram(double min, double max, std::string name, bool prese
         bins[n++] = GetHistogram()->GetXaxis()->GetBinUpEdge(i1);
 
     // now define the new histogram
-    TH1D* h0 = new TH1D(name.data(), Form("%s;%s;%s", GetHistogram()->GetTitle(), GetHistogram()->GetXaxis()->GetTitle(), GetHistogram()->GetYaxis()->GetTitle()), n - 1, &bins[0]);
+    TH1D* h0 = new TH1D(newName.data(), Form("%s;%s;%s", GetHistogram()->GetTitle(), GetHistogram()->GetXaxis()->GetTitle(), GetHistogram()->GetYaxis()->GetTitle()), n - 1, &bins[0]);
     imin = h0->FindFixBin(min);
     imax = h0->FindFixBin(max);
     for (int i = imin; i <= imax; ++i)

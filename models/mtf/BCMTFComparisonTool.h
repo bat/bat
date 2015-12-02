@@ -39,7 +39,7 @@ public:
     /**
      * The default constructor.
      * @param name The name of the class. */
-    BCMTFComparisonTool(std::string name);
+    BCMTFComparisonTool(const std::string& name);
 
     /**
      * The defaul destructor. */
@@ -69,7 +69,7 @@ public:
     /** @{ */
 
     /** Set name */
-    void SetName(std::string name)
+    void SetName(const std::string& name)
     { fName = name; fSafeName = BCAux::SafeName(name); }
 
     /** @} */
@@ -80,14 +80,14 @@ public:
      * Add a constribution.
      * @param name The name of the contribution.
      * @param hist The histogram. */
-    void AddContribution(std::string name, TH1D hist);
+    void AddContribution(const std::string& name, TH1D hist);
 
     /**
      * Add a constribution.
      * @param name The name of the contribution.
      * @param centralvalue The central value.
      * @param uncertainty The uncertainty. */
-    void AddContribution(std::string name, double centralvalue, double uncertainty);
+    void AddContribution(const std::string& name, double centralvalue, double uncertainty);
 
     /**
      * Draw an overview. */

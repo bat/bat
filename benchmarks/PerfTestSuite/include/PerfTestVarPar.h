@@ -37,7 +37,7 @@ public:
     /* @{ */
 
     /** The default constructor */
-    PerfTestVarPar(std::string name, PerfTestMCMC* test);
+    PerfTestVarPar(const std::string& name, PerfTestMCMC* test);
 
     /** The default destructor */
     ~PerfTestVarPar();
@@ -66,7 +66,7 @@ public:
      * @param par a vector of parameter values.
      * @param name the name of the varied parameter.
      * @return an error code */
-    int AddVarPar(std::vector<double> values, std::string name);
+    int AddVarPar(std::vector<double> values, const std::string& name);
 
     /** Return the number of variation parameters. */
     int GetNVarPar()

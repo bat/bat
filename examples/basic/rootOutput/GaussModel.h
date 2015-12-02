@@ -9,7 +9,7 @@ class GaussModel : public BCModel
 {
 public:
 
-    GaussModel(std::string name);
+    GaussModel(const std::string& name);
 
     ~GaussModel()
     { /* empty destructor */ }

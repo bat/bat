@@ -9,7 +9,7 @@ class PoissonModel : public BCModel
 {
 public:
 
-    PoissonModel(std::string name);
+    PoissonModel(const std::string& name);
 
     ~PoissonModel()
     { /* empty desctructor */ }

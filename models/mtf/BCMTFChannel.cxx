@@ -22,7 +22,7 @@
 #include "BCMTFChannel.h"
 
 // ---------------------------------------------------------
-BCMTFChannel::BCMTFChannel(std::string name)
+BCMTFChannel::BCMTFChannel(const std::string& name)
     : fData(0)
     , fFlagChannelActive(true)
     , fHistUncertaintyBandExpectation(0)

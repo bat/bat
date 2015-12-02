@@ -270,7 +270,7 @@ public:
      * @param name Name for new histogram; empty string (default) appends "subhist" to histogram name.
      * @param preserve_range If true, preserves original histograms range, setting bins outside subhistogram range to zero.
      * @return new histogram which is nonzero only between min and max */
-    TH1* GetSubHistogram(double min, double max, std::string name = "", bool preserve_range = false);
+    TH1* GetSubHistogram(double min, double max, const std::string& name = "", bool preserve_range = false);
 
     /** @} */
 

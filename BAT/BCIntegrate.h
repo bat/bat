@@ -163,7 +163,7 @@ public:
 
     /**
      * Default constructor */
-    BCIntegrate(std::string name = "model");
+    BCIntegrate(const std::string& name = "model");
 
     /**
      * Copy constructor */
@@ -175,7 +175,7 @@ public:
      * @param name Name of model (file should contain TTree's [name]_mcmc and [name]_parameters.\n
      * if empty string is given, properly matching TTrees are searched for in the file.
      * @param loadObservables Flag for whether to load observables for file (true; default) or to let user respecify observables.*/
-    BCIntegrate(std::string filename, std::string name, bool loadObservables = true);
+    BCIntegrate(std::string filename, const std::string& name, bool loadObservables = true);
 
     /**
      * Destructor */
@@ -306,7 +306,7 @@ public:
      * @param nbins The number of bins of the 1D-histogram.
      * @param normalize Flag for turning on normalization of histogram.
      * @return The 1D slice. */
-    TH1* GetSlice(std::string name, unsigned& nIterations, double& log_max_val, const std::vector<double> parameters = std::vector<double>(0), int nbins = 0, bool normalize = true)
+    TH1* GetSlice(const std::string& name, unsigned& nIterations, double& log_max_val, const std::vector<double> parameters = std::vector<double>(0), int nbins = 0, bool normalize = true)
     { return GetSlice(fParameters.Index(name), nIterations, log_max_val, parameters, nbins, normalize); }
 
     /**
@@ -331,7 +331,7 @@ public:
      * @param nbins The number of bins on each axis of the 2D-histogram.
      * @param normalize Flag for turning on normalization of histogram.
      * @return The 2D slice. */
-    TH2* GetSlice(std::string name1, std::string name2, unsigned& nIterations, double& log_max_val, const std::vector<double> parameters = std::vector<double>(0), int nbins = 0, bool normalize = true)
+    TH2* GetSlice(const std::string& name1, const std::string& name2, unsigned& nIterations, double& log_max_val, const std::vector<double> parameters = std::vector<double>(0), int nbins = 0, bool normalize = true)
     { return GetSlice(fParameters.Index(name1), fParameters.Index(name2), nIterations, log_max_val, parameters, nbins, normalize); }
 
     /**

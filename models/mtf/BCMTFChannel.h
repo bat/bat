@@ -44,7 +44,7 @@ public:
     /**
      * The default constructor.
      * @param name The name of the channel. */
-    BCMTFChannel(std::string name);
+    BCMTFChannel(const std::string& name);
 
     /**
      * The default destructor. */
@@ -118,7 +118,7 @@ public:
     /**
      * Set the name of the channel.
      * @param name The name of the channel. */
-    void SetName(std::string name)
+    void SetName(const std::string& name)
     { fName = name; fSafeName = BCAux::SafeName(fName); };
 
     /**

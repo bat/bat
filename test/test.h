@@ -87,7 +87,7 @@ public:
 
     virtual ~TestCase();
 
-    std::string name() const;
+    const std::string& name() const;
 
     virtual void run() const = 0;
 };

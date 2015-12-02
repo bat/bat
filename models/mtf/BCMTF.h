@@ -46,7 +46,7 @@ public:
     /**
      * A constructor.
      * @param name The name of the model */
-    BCMTF(std::string name = "multi_template_fitter");
+    BCMTF(const std::string& name = "multi_template_fitter");
 
     /**
      * The default destructor. */
@@ -74,17 +74,17 @@ public:
     /**
      * @param name The name of the channel.
      * @return The channel index. */
-    int GetChannelIndex(std::string name) const;
+    int GetChannelIndex(const std::string& name) const;
 
     /**
      * @param name The name of the process.
      * @return The process index. */
-    int GetProcessIndex(std::string name) const;
+    int GetProcessIndex(const std::string& name) const;
 
     /**
      * @param name The name of the systematic.
      * @return The systematic uncertainty index. */
-    int GetSystematicIndex(std::string name) const;
+    int GetSystematicIndex(const std::string& name) const;
 
     /**
      * @param index The parameter index (mtf counting) .
@@ -227,7 +227,7 @@ public:
      * Add a channel
      * @param name The channel name.
      * @return An error code. */
-    int AddChannel(std::string name);
+    int AddChannel(const std::string& name);
 
     /**
      * Add a process and the associated BAT parameter.
@@ -238,7 +238,7 @@ public:
      * @param fillstyle The histogram fill style
      * @param linestyle The histogram line style
      * @return An error code. */
-    int AddProcess(std::string name, double nmin = 0., double nmax = 1., int color = -1, int fillstyle = -1, int linestyle = -1);
+    int AddProcess(const std::string& name, double nmin = 0., double nmax = 1., int color = -1, int fillstyle = -1, int linestyle = -1);
 
     /**
      * Add a source of systematic uncertainty and the associated BAT (nuisance) parameter.
@@ -246,7 +246,7 @@ public:
      * @param min The lower limit on the BAT parameter values, typically -5 sigma if Gaussian constraint is used.
      * @param max The upper limit on the BAT parameter values, typically +5 sigma if Gaussian constraint is used.
      * @return  */
-    int AddSystematic(std::string name, double min = -5., double max = 5.);
+    int AddSystematic(const std::string& name, double min = -5., double max = 5.);
 
     /**
      * Return the expected number of events for a channel and bin.

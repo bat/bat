@@ -41,7 +41,7 @@ public:
     /* @{ */
 
     /** The default constructor */
-    PerfTest(std::string name = "unknown");
+    PerfTest(const std::string& name = "unknown");
 
     /** The default destructor */
     virtual ~PerfTest();
@@ -127,7 +127,7 @@ public:
     /** Find a subtest by name
      * @param name the name of the subtest.
      * @return the subtest. */
-    PerfSubTest* GetSubtest(std::string name);
+    PerfSubTest* GetSubtest(const std::string& name);
 
     /** Return a canvas from the container.
      * @param index the canvas index.

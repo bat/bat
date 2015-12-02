@@ -24,7 +24,7 @@
 #include "include/PerfTest1DFunction.h"
 
 //______________________________________________________________________________
-PerfTest1DFunction::PerfTest1DFunction(std::string name, TF1* func)
+PerfTest1DFunction::PerfTest1DFunction(const std::string& name, TF1* func)
     : PerfTestMCMC(name)
     , fFunction(func)
 {

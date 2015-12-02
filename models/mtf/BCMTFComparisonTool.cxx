@@ -19,7 +19,7 @@
 #include <iostream>
 
 // ---------------------------------------------------------
-BCMTFComparisonTool::BCMTFComparisonTool(std::string name)
+BCMTFComparisonTool::BCMTFComparisonTool(const std::string& name)
 {
     SetName(name);
 }
@@ -32,7 +32,7 @@ BCMTFComparisonTool::~BCMTFComparisonTool()
 }
 
 // ---------------------------------------------------------
-void BCMTFComparisonTool::AddContribution(std::string name, TH1D hist)
+void BCMTFComparisonTool::AddContribution(const std::string& name, TH1D hist)
 {
     // add name to container
     fNameContainer.push_back(name);
@@ -48,7 +48,7 @@ void BCMTFComparisonTool::AddContribution(std::string name, TH1D hist)
 }
 
 // ---------------------------------------------------------
-void BCMTFComparisonTool::AddContribution(std::string name, double centralvalue, double uncertainty)
+void BCMTFComparisonTool::AddContribution(const std::string& name, double centralvalue, double uncertainty)
 {
     // add name to container
     fNameContainer.push_back(name);

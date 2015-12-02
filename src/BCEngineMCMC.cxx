@@ -64,7 +64,7 @@ typedef ROOT::Math::Random<ROOT::Math::GSLRngRanLuxD1> GSLRng;
 }
 
 // ---------------------------------------------------------
-BCEngineMCMC::BCEngineMCMC(std::string name)
+BCEngineMCMC::BCEngineMCMC(const std::string& name)
     : fMCMCNIterationsConvergenceGlobal(-1),
       fMCMCFlagWriteChainToFile(false),
       fMCMCFlagWritePreRunToFile(false),
@@ -317,7 +317,7 @@ void swap(BCEngineMCMC& A, BCEngineMCMC& B)
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::SetName(std::string name)
+void BCEngineMCMC::SetName(const std::string& name)
 {
     fName = name;
     fSafeName = BCAux::SafeName(name);

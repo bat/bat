@@ -8,7 +8,7 @@
 #include <cmath>
 
 // ---------------------------------------------------------
-PoissonModel::PoissonModel(std::string name)
+PoissonModel::PoissonModel(const std::string& name)
     :	BCModel(name),
       fNObs(0)
 {

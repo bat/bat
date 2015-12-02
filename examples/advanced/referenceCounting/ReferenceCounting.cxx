@@ -12,7 +12,7 @@
 #include <TF1.h>
 
 // ---------------------------------------------------------
-ReferenceCounting::ReferenceCounting(std::string name, unsigned nobs)
+ReferenceCounting::ReferenceCounting(const std::string& name, unsigned nobs)
     : BCModel(name),
       fNObs(nobs)
 {

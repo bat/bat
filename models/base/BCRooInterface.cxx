@@ -139,7 +139,7 @@ void BCRooInterface::Initialize( const char* rootFile,
 }
 
 // ---------------------------------------------------------
-BCRooInterface::BCRooInterface(std::string name, bool fillChain) :
+BCRooInterface::BCRooInterface(const std::string& name, bool fillChain) :
     BCModel(name),
     fData(NULL),
     fModel(NULL),

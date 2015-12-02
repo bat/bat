@@ -5,7 +5,7 @@
 #include <TRandom3.h>
 
 // ---------------------------------------------------------
-GaussModel::GaussModel(std::string name) : BCModel(name)
+GaussModel::GaussModel(const std::string& name) : BCModel(name)
 {
     // add parameters x and y
     AddParameter("x", -10.0, 50.0); // index 0

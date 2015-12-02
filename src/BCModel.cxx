@@ -26,7 +26,7 @@
 #include <TTree.h>
 
 // ---------------------------------------------------------
-BCModel::BCModel(std::string name)
+BCModel::BCModel(const std::string& name)
     : BCIntegrate(name)
     , fDataSet(0)
     , fPriorModel(0)
@@ -37,7 +37,7 @@ BCModel::BCModel(std::string name)
 }
 
 // ---------------------------------------------------------
-BCModel::BCModel(std::string filename, std::string name, bool loadObservables)
+BCModel::BCModel(std::string filename, const std::string& name, bool loadObservables)
     : BCIntegrate(filename, name, loadObservables)
     , fDataSet(0)
     , fPriorModel(0)

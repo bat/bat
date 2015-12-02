@@ -47,7 +47,7 @@ TestCase::~TestCase()
 {
 }
 
-std::string
+const std::string&
 TestCase::name() const
 {
     return _name;

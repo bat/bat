@@ -56,7 +56,7 @@ public:
      * @param obs Pointer to double which stores value to be plotted (the value must be set by model during calculation of likelihood).
      * @param latexname The latex name of the variable used in axis labeling.
      * @param unitstring Unit string to be printed for variable. */
-    BCObservable(std::string name, double lowerlimit, double upperlimit, std::string latexname = "", std::string unitstring = "");
+    BCObservable(const std::string& name, double lowerlimit, double upperlimit, std::string latexname = "", std::string unitstring = "");
 
     /**
      * Destructor */

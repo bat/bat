@@ -11,7 +11,7 @@
 #include "include/PerfSubTest.h"
 
 //______________________________________________________________________________
-PerfSubTest::PerfSubTest(std::string name)
+PerfSubTest::PerfSubTest(const std::string& name)
     : fTestValue(-1)
     , fTestUncertainty(-1)
     , fStatusRegion(std::vector<double>(3))

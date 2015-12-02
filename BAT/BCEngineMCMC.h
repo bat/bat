@@ -146,7 +146,7 @@ public:
 
     /**
      * Default constructor. */
-    BCEngineMCMC(std::string name = "model");
+    BCEngineMCMC(const std::string& name = "model");
 
     /**
      * Copy constructor. */
@@ -455,7 +455,7 @@ public:
      * @note The most efficient method is to access by index.
      * @param name The parameter's name
      * @return 1D marginalized probability */
-    TH1* GetMarginalizedHistogram(std::string name) const
+    TH1* GetMarginalizedHistogram(const std::string& name) const
     { return GetMarginalizedHistogram(fParameters.Index(name)); }
 
     /**
@@ -472,7 +472,7 @@ public:
      * @param name1 Name of first parameter
      * @param name2 Name of second parameter
      * @return 2D marginalized probability */
-    TH2* GetMarginalizedHistogram(std::string name1, std::string name2) const
+    TH2* GetMarginalizedHistogram(const std::string& name1, const std::string& name2) const
     { return GetMarginalizedHistogram(fParameters.Index(name1), fParameters.Index(name2)); }
 
     /**
@@ -490,7 +490,7 @@ public:
      * @note Ownership of the returned heap object is conferred to the caller.
      * @param name The parameter's name
      * @return 1D marginalized probability */
-    BCH1D GetMarginalized(std::string name) const
+    BCH1D GetMarginalized(const std::string& name) const
     { return GetMarginalized(fParameters.Index(name)); }
 
     /**
@@ -509,7 +509,7 @@ public:
      * @param name1 Name of first parameter
      * @param name2 Name of second parameter
      * @return 2D marginalized probability */
-    BCH2D GetMarginalized(std::string name1, std::string name2) const
+    BCH2D GetMarginalized(const std::string& name1, const std::string& name2) const
     { return GetMarginalized(fParameters.Index(name1), fParameters.Index(name2)); }
 
     /**
@@ -683,7 +683,7 @@ public:
     /**
      * Sets the name of the engine.
      * @param name Name of the engine */
-    void SetName(std::string name);
+    void SetName(const std::string& name);
 
     /**
      * Set scale factor lower limit */
@@ -968,7 +968,7 @@ public:
      * @deprecated Instead call: GetParameter(name)->SetPriorConstant()
      * Set constant prior for this parameter
      * @param name the name of the parameter */
-    void SetPriorConstant(std::string name)
+    void SetPriorConstant(const std::string& name)
     { SetPriorConstant(fParameters.Index(name)); }
 
     /**
@@ -985,7 +985,7 @@ public:
      * @param name The parameter name
      * @param f A function describing the prior
      * @param logL Whether function is of log of prior (true) or just prior (false)*/
-    void SetPrior(std::string name, TF1& f, bool logL = true)
+    void SetPrior(const std::string& name, TF1& f, bool logL = true)
     { return SetPrior(fParameters.Index(name), f, logL); }
 
     /**
@@ -1001,7 +1001,7 @@ public:
      * Fixes parameter to value.
      * @param name The parameter name
      * @param value The position of the delta function. */
-    void SetPriorDelta(std::string name, double value)
+    void SetPriorDelta(const std::string& name, double value)
     { SetPriorDelta(fParameters.Index(name), value); }
 
     /**
@@ -1018,7 +1018,7 @@ public:
      * @param name The parameter name
      * @param mean The mean of the Gaussian
      * @param sigma The sigma of the Gaussian */
-    void SetPriorGauss(std::string name, double mean, double sigma)
+    void SetPriorGauss(const std::string& name, double mean, double sigma)
     { SetPriorGauss(fParameters.Index(name), mean, sigma); }
 
     /**
@@ -1037,7 +1037,7 @@ public:
      * @param mode The mode of the Gaussian
      * @param sigma_below Standard deviation below mode.
      * @param sigma_above Standard deviation above mode. */
-    void SetPriorGauss(std::string name, double mode, double sigmadown, double sigmaup)
+    void SetPriorGauss(const std::string& name, double mode, double sigmadown, double sigmaup)
     {	SetPriorGauss(fParameters.Index(name), mode, sigmadown, sigmaup); }
 
     /**
@@ -1055,7 +1055,7 @@ public:
      * @param h histogram describing the prior
      * @param interpolate whether or not to use linear interpolation
      * @return success of action. */
-    void SetPrior(std::string name, TH1& h, bool interpolate = false)
+    void SetPrior(const std::string& name, TH1& h, bool interpolate = false)
     { SetPrior(fParameters.Index(name), h, interpolate); }
 
     /**
@@ -1156,7 +1156,7 @@ public:
      * @param latexname Optional latexname used for plotting
      * @param unitstring Unit string to be printed for parameter.
      * @return Success of action. */
-    virtual bool AddParameter(std::string name, double min, double max, std::string latexname = "", std::string unitstring = "")
+    virtual bool AddParameter(const std::string& name, double min, double max, std::string latexname = "", std::string unitstring = "")
     { return fParameters.Add(name, min, max, latexname, unitstring); }
 
     /**
@@ -1176,7 +1176,7 @@ public:
      * @param latexname Optional latexname used for plotting
      * @param unitstring Unit string to be printed for observable.
      * @return Success of action. */
-    virtual bool AddObservable(std::string name, double min, double max, std::string latexname = "", std::string unitstring = "")
+    virtual bool AddObservable(const std::string& name, double min, double max, std::string latexname = "", std::string unitstring = "")
     { return fObservables.Add(name, min, max, latexname, unitstring); }
 
     /**

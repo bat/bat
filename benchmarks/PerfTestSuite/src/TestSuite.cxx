@@ -73,7 +73,7 @@ int TestSuite::GetNTests(PerfSubTest::Status status)
 }
 
 //______________________________________________________________________________
-PerfTest* TestSuite::GetTest(std::string name)
+PerfTest* TestSuite::GetTest(const std::string& name)
 {
     // get number of sub tests
     int n = GetNTests();

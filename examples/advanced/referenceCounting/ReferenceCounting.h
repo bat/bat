@@ -18,7 +18,7 @@ public:
     };
 
     // Constructor
-    ReferenceCounting(std::string name, unsigned nobs = 0);
+    ReferenceCounting(const std::string& name, unsigned nobs = 0);
 
     // Destructor
     ~ReferenceCounting()

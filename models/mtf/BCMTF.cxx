@@ -32,7 +32,7 @@
 #include "BCMTF.h"
 
 // ---------------------------------------------------------
-BCMTF::BCMTF(std::string name)
+BCMTF::BCMTF(const std::string& name)
     : BCModel(name)
     , fNChannels(0)
     , fNProcesses(0)
@@ -49,7 +49,7 @@ BCMTF::~BCMTF()
 }
 
 // ---------------------------------------------------------
-int BCMTF::GetChannelIndex(std::string name) const
+int BCMTF::GetChannelIndex(const std::string& name) const
 {
     // loop over all channels and compare names
     for (int i = 0; i < fNChannels; ++i)
@@ -62,7 +62,7 @@ int BCMTF::GetChannelIndex(std::string name) const
 }
 
 // ---------------------------------------------------------
-int BCMTF::GetProcessIndex(std::string name) const
+int BCMTF::GetProcessIndex(const std::string& name) const
 {
     // loop over all processs and compare names
     for (int i = 0; i < fNProcesses; ++i)
@@ -75,7 +75,7 @@ int BCMTF::GetProcessIndex(std::string name) const
 }
 
 // ---------------------------------------------------------
-int BCMTF::GetSystematicIndex(std::string name) const
+int BCMTF::GetSystematicIndex(const std::string& name) const
 {
     // loop over all systematics and compare names
     for (int i = 0; i < fNSystematics; ++i) {
@@ -257,7 +257,7 @@ int BCMTF::SetData(std::string channelname, TH1D hist, double minimum, double ma
 }
 
 // ---------------------------------------------------------
-int BCMTF::AddChannel(std::string name)
+int BCMTF::AddChannel(const std::string& name)
 {
     // check if channel exists
     for (int i = 0; i < fNChannels; ++i) {
@@ -305,7 +305,7 @@ int BCMTF::AddChannel(std::string name)
 }
 
 // ---------------------------------------------------------
-int BCMTF::AddProcess(std::string name, double nmin, double nmax, int color, int fillstyle, int linestyle)
+int BCMTF::AddProcess(const std::string& name, double nmin, double nmax, int color, int fillstyle, int linestyle)
 {
     // check if process exists
     for (int i = 0; i < fNProcesses; ++i) {
@@ -363,7 +363,7 @@ int BCMTF::AddProcess(std::string name, double nmin, double nmax, int color, int
 }
 
 // ---------------------------------------------------------
-int BCMTF::AddSystematic(std::string name, double min, double max)
+int BCMTF::AddSystematic(const std::string& name, double min, double max)
 {
     // check if systematic exists
     for (int i = 0; i < fNSystematics; ++i) {

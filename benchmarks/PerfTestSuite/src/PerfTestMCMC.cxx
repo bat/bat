@@ -25,7 +25,7 @@
 #include <iostream>
 
 //______________________________________________________________________________
-PerfTestMCMC::PerfTestMCMC(std::string name)
+PerfTestMCMC::PerfTestMCMC(const std::string& name)
     : PerfTest(name)
     , BCModel(name.c_str())
     , fCorrelation(std::vector<TGraph * >(0))
@@ -58,7 +58,7 @@ PerfTestMCMC::~PerfTestMCMC()
 }
 
 //______________________________________________________________________________
-int PerfTestMCMC::SetVarPar(double value, std::string name)
+int PerfTestMCMC::SetVarPar(double value, const std::string& name)
 {
     if (name == "lag") {
         int n = MCMCGetNIterationsRun();

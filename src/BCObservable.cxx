@@ -27,7 +27,7 @@ BCObservable::BCObservable(const BCObservable& other, bool share_pointer)
 }
 
 // ---------------------------------------------------------
-BCObservable::BCObservable(std::string name, double lowerlimit, double upperlimit, std::string latexname, std::string unitstring)
+BCObservable::BCObservable(const std::string& name, double lowerlimit, double upperlimit, std::string latexname, std::string unitstring)
     :	BCVariable(name, lowerlimit, upperlimit, latexname, unitstring)
     , fObservableValue(new double)
 {
