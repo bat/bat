@@ -175,7 +175,7 @@ public:
      * @param name Name of model (file should contain TTree's [name]_mcmc and [name]_parameters.\n
      * if empty string is given, properly matching TTrees are searched for in the file.
      * @param loadObservables Flag for whether to load observables for file (true; default) or to let user respecify observables.*/
-    BCIntegrate(std::string filename, const std::string& name, bool loadObservables = true);
+    BCIntegrate(const std::string& filename, const std::string& name, bool loadObservables = true);
 
     /**
      * Destructor */
@@ -495,7 +495,7 @@ public:
      * @param filename Name of file to.
      * @param file-open options (TFile), must be "NEW", "CREATE", "RECREATE", or "UPDATE" (i.e. writeable).
      * @param autoclose Toggle autoclosing of file after simulated annealing. */
-    void WriteSAToFile(std::string filename, std::string option, bool autoclose = true);
+    void WriteSAToFile(const std::string& filename, const std::string& option, bool autoclose = true);
 
     /**
      * Close SA output file. */

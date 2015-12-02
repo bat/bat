@@ -64,7 +64,7 @@ void BCMTFComparisonTool::AddContribution(const std::string& name, double centra
 }
 
 // ---------------------------------------------------------
-void BCMTFComparisonTool::PrintHistograms(std::string filename)
+void BCMTFComparisonTool::PrintHistograms(const std::string& filename)
 {
     // get number of histograms
     int nhistograms = (int) fHistogramContainer.size();
@@ -166,7 +166,7 @@ void BCMTFComparisonTool::DrawOverview()
 }
 
 // ---------------------------------------------------------
-void BCMTFComparisonTool::PrintOverview(std::string filename)
+void BCMTFComparisonTool::PrintOverview(const std::string& filename)
 {
     // create canvas
     TCanvas* c1 = new TCanvas();

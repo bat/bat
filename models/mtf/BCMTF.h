@@ -128,7 +128,7 @@ public:
      * @param minimum The minimum number of expected events (used for calculation of uncertainty bands).
      * @param maximum The maximum number of expected events (used for calculation of uncertainty bands).
      * @return An error code. */
-    int SetData(std::string channelname, TH1D hist, double minimum = -1, double maximum = -1);
+    int SetData(const std::string& channelname, TH1D hist, double minimum = -1, double maximum = -1);
 
     /**
      * Set the template for a specific process in a particular channel.
@@ -137,7 +137,7 @@ public:
      * @param hist The TH1D histogram.
      * @param efficiency The efficiency of this process in this channel.
      * @return An error code. */
-    int SetTemplate(std::string channelname, std::string processname, TH1D hist, double efficiency = 1., double norm = 1.);
+    int SetTemplate(const std::string& channelname, const std::string& processname, TH1D hist, double efficiency = 1., double norm = 1.);
 
     /**
      * Set the template for a specific process in a particular
@@ -153,7 +153,7 @@ public:
      * @param efficiency The efficiency of this process in this channel.
      * @return An error code.
      * @see SetTemplate(const char * channelname, const char * processname, TH1D hist, double efficiency = 1.) */
-    int SetTemplate(std::string channelname, std::string processname, std::vector<TF1*>* funccont, int nbins, double efficiency = 1.);
+    int SetTemplate(const std::string& channelname, const std::string& processname, std::vector<TF1*>* funccont, int nbins, double efficiency = 1.);
 
     /**
      * Set an expectation function.
@@ -177,7 +177,7 @@ public:
      * @param variation_up The relative shift between the up-variation and the nominal template: (up-nom)/nom.
      * @param variation_down The relative shift between the down-variation and the nominal template: (nom-down)/nom.
      * @return An error code. */
-    int SetSystematicVariation(std::string channelname, std::string processname,  std::string systematicname, double variation_up, double variation_down);
+    int SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, double variation_up, double variation_down);
 
     /**
      * Set the impact of a source of systematic uncertainty for a
@@ -191,7 +191,7 @@ public:
      * @param hist_down The TH1D histogram defining the relative shift between the down-variation and the nominal template: (nom-down)/nom.
      * @return An error code.
      * @see SetSystematicVariation(const char * channelname, const char * processname,  const char * systematicname, double variation_up, double variation_down) */
-    int SetSystematicVariation(std::string channelname, std::string processname,  std::string systematicname, TH1D hist_up, TH1D hist_down);
+    int SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, TH1D hist_up, TH1D hist_down);
 
     /**
      * Set the impact of a source of systematic uncertainty for a
@@ -207,7 +207,7 @@ public:
      * @param hist_down The TH1D histogram after down-scaling of the systematic uncertainty.
      * @return An error code.
      * @see SetSystematicVariation(const char * channelname, const char * processname,  const char * systematicname, double variation_up, double variation_down) */
-    int SetSystematicVariation(std::string channelname, std::string processname,  std::string systematicname, TH1D hist, TH1D hist_up, TH1D hist_down);
+    int SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, TH1D hist, TH1D hist_up, TH1D hist_down);
 
     /**
      * Set a flag for the efficiency: if true then the total
@@ -363,7 +363,7 @@ public:
      * @param parameters A reference to the parameters used to scale the templates.
      * @param options The plotting options.
      * @return An error code. */
-    int PrintStack(int channelindex, const std::vector<double>& parameters, std::string filename = "stack.pdf", const char* options = "e1b0stack");
+    int PrintStack(int channelindex, const std::vector<double>& parameters, const std::string& filename = "stack.pdf", const char* options = "e1b0stack");
 
     /**
      * Print the stack of templates together with the data in a
@@ -373,7 +373,7 @@ public:
      * @param options The plotting options.
      * @return An error code.
      * @see PrintStack(int channelindex, const std::vector<double> & parameters, const char * filename = "stack.pdf", const char * options = "e1b0stack") */
-    int PrintStack(std::string channelname, const std::vector<double>& parameters, std::string filename = "stack.pdf", const char* options = "e1b0stack");
+    int PrintStack(const std::string& channelname, const std::vector<double>& parameters, const std::string& filename = "stack.pdf", const char* options = "e1b0stack");
 
     /** @} */
 
@@ -450,4 +450,3 @@ private:
 // ---------------------------------------------------------
 
 #endif
-

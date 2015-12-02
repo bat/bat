@@ -472,7 +472,7 @@ public:
     { fIntervals.push_back(interval); }
 
     /** Set ROOT drawing options. */
-    void SetROOToptions(std::string options)
+    void SetROOToptions(const std::string& options)
     { fROOToptions = options; }
 
     /** @} */
@@ -503,7 +503,7 @@ public:
 
     /**
      * Draw bands. */
-    virtual void DrawBands(std::string /*options*/)
+    virtual void DrawBands(const std::string& /*options*/)
     { }
 
     /**
@@ -578,11 +578,11 @@ public:
 
     /**
      * Add legend entry, checking first for unused extra entries. */
-    TLegendEntry* AddLegendEntry(TObject* obj, std::string label, std::string options);
+    TLegendEntry* AddLegendEntry(TObject* obj, const std::string& label, const std::string& options);
 
     /**
      * Add band legend entry, creating unused extra entries if necessary. */
-    TLegendEntry* AddBandLegendEntry(TObject* obj, std::string label, std::string options);
+    TLegendEntry* AddBandLegendEntry(TObject* obj, const std::string& label, const std::string& options);
 
     /** @} */
 

@@ -33,7 +33,7 @@ BCVariable::BCVariable()
 }
 
 // ---------------------------------------------------------
-BCVariable::BCVariable(const std::string& name, double lowerlimit, double upperlimit, std::string latexname, std::string unitstring)
+BCVariable::BCVariable(const std::string& name, double lowerlimit, double upperlimit, const std::string& latexname, const std::string& unitstring)
     :	fPrefix("Variable")
     , fLowerLimit(-std::numeric_limits<double>::infinity())
     , fUpperLimit(+std::numeric_limits<double>::infinity())

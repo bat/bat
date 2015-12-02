@@ -458,7 +458,7 @@ void BCAux::DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posteri
 }
 
 // ---------------------------------------------------------
-unsigned BCAux::PrintPlots(std::vector<BCH1D>& h1, std::vector<BCH2D>& h2, std::string filename, unsigned hdiv, unsigned vdiv)
+unsigned BCAux::PrintPlots(std::vector<BCH1D>& h1, std::vector<BCH2D>& h2, const std::string& filename, unsigned hdiv, unsigned vdiv)
 {
     const unsigned nplots = h1.size() + h2.size();
     if (nplots == 0) {

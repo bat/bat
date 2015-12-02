@@ -131,7 +131,7 @@ std::vector<double> BCH1D::DefaultIntervals(int nbands)
 }
 
 // ---------------------------------------------------------
-void BCH1D::DrawBands(std::string options)
+void BCH1D::DrawBands(const std::string& options)
 {
     GetHistogram()->SetLineColor(GetLineColor());
     GetHistogram()->Draw(options.data());
@@ -399,7 +399,7 @@ TH1* BCH1D::GetSubHistogram(double min, double max, const std::string& name, boo
 }
 
 // ---------------------------------------------------------
-void BCH1D::PrintSummary(std::string prefix, unsigned prec, std::vector<double> intervals)
+void BCH1D::PrintSummary(const std::string& prefix, unsigned prec, std::vector<double> intervals)
 {
     if (!GetHistogram())
         return;

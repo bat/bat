@@ -830,7 +830,7 @@ public:
      * @param x Name of parameter for horizontal axis.
      * @param y Name of parameter for vertical axis.
      * @param flag Whether to fill histogram. */
-    void SetFillHistogramParPar(std::string x, std::string y, bool flag = true)
+    void SetFillHistogramParPar(const std::string& x, const std::string& y, bool flag = true)
     { SetFillHistogramParPar(fParameters.Index(x), fParameters.Index(y), flag); }
 
     /** Sets whether to fill particular H2 histogram: obs(y) vs. par(x)
@@ -844,7 +844,7 @@ public:
      * @param x Name of parameter for horizontal axis.
      * @param y Name of observable for vertical axis.
      * @param flag Whether to fill histogram. */
-    void SetFillHistogramParObs(std::string x, std::string y, bool flag = true)
+    void SetFillHistogramParObs(const std::string& x, const std::string& y, bool flag = true)
     { SetFillHistogramParObs(fParameters.Index(x), fObservables.Index(y), flag); }
 
     /** Sets whether to fill particular H2 histogram: obs(y) vs. obs(x)
@@ -858,7 +858,7 @@ public:
      * @param x Name of observable for horizontal axis.
      * @param y Name of observable for vertical axis.
      * @param flag Whether to fill histogram. */
-    void SetFillHistogramObsObs(std::string x, std::string y, bool flag = true)
+    void SetFillHistogramObsObs(const std::string& x, const std::string& y, bool flag = true)
     { SetFillHistogramObsObs(fObservables.Index(x), fObservables.Index(y), flag); }
 
     /** Sets whether to fill particular H2 histogram: par(y) vs. obs(x)
@@ -872,7 +872,7 @@ public:
      * @param x Name of observable for horizontal axis.
      * @param y Name of parameter for vertical axis.
      * @param flag Whether to fill histogram. */
-    void SetFillHistogramObsPar(std::string x, std::string y, bool flag = true)
+    void SetFillHistogramObsPar(const std::string& x, const std::string& y, bool flag = true)
     { SetFillHistogramObsPar(fObservables.Index(x), fParameters.Index(y), flag); }
 
     /** Sets the flag if a prerun should be performed or not. */
@@ -947,7 +947,7 @@ public:
      * @param option file-open options (TFile), must be "NEW", "CREATE", "RECREATE", or "UPDATE" (i.e. writeable).
      * @param flag_run Flag for writing run Markov chain to ROOT file (true) or not (false).
      * @param flag prerun Flag for writing prerun Markov chain to ROOT file (true) or not (false). */
-    void WriteMarkovChain(std::string filename, std::string option, bool flag_run = true, bool flag_prerun = true);
+    void WriteMarkovChain(const std::string& filename, const std::string& option, bool flag_run = true, bool flag_prerun = true);
 
     /** @} */
 
@@ -1073,7 +1073,7 @@ public:
      * @param filename Path to write file to.
      * @param option Options passed to ROOT's TFile::Open.
      * @param closeExistingFile if file is already open, whether to close it after writing. */
-    void WriteMarginalizedDistributions(std::string filename, std::string option, bool closeExistingFile = false);
+    void WriteMarginalizedDistributions(const std::string& filename, const std::string& option, bool closeExistingFile = false);
 
     /**
      * Prints a summary to the logs. */
@@ -1091,7 +1091,7 @@ public:
      * @param hdiv Number of columns of plots per page
      * @param vdiv Number of rows of plots per page
      * @return Number of plots printed */
-    unsigned PrintAllMarginalized(std::string filename, unsigned hdiv = 1, unsigned vdiv = 1) const;
+    unsigned PrintAllMarginalized(const std::string& filename, unsigned hdiv = 1, unsigned vdiv = 1) const;
 
     /**
      * Print a summary plot for the parameters and user-defined observables.
@@ -1101,7 +1101,7 @@ public:
      * @param quantile_values Vector of quantile values to draw
      * @param rescale_ranges Flag for rescaling to range surveyed by MCMC chains
      * @return Number of pages printed. */
-    unsigned PrintParameterPlot(std::string filename, int npar = 10, double interval_content = 68e-2, std::vector<double> quantile_vals = std::vector<double>(0), bool rescale_ranges = true) const;
+    unsigned PrintParameterPlot(const std::string& filename, int npar = 10, double interval_content = 68e-2, std::vector<double> quantile_vals = std::vector<double>(0), bool rescale_ranges = true) const;
 
     /**
      * Draw a summary plot for the parameters in the range provided to current pad
@@ -1117,20 +1117,20 @@ public:
      * Print a correlation matrix for the parameters.
      * @param filename Path to file to print correlation matrix to.
      * @return Success of action. */
-    bool PrintCorrelationMatrix(std::string filename = "matrix.pdf") const;
+    bool PrintCorrelationMatrix(const std::string& filename = "matrix.pdf") const;
 
     /**
      * Print a correlation plot for the parameters.
      * @param filename Path to file to print correlation plot to.
      * @param include_observables Flag for including observables (default: true)
      * @return Success of action. */
-    bool PrintCorrelationPlot(std::string filename = "correlation.pdf", bool include_observables = true) const;
+    bool PrintCorrelationPlot(const std::string& filename = "correlation.pdf", bool include_observables = true) const;
 
     /**
      * Print a LaTeX table of the parameters.
      * @param filename Path to file tp print LaTeX table of parameters to.
      * @return Success of action. */
-    bool PrintParameterLatex(std::string filename) const;
+    bool PrintParameterLatex(const std::string& filename) const;
 
     /** @} **/
     /** \name Miscellaneous methods */
@@ -1156,7 +1156,7 @@ public:
      * @param latexname Optional latexname used for plotting
      * @param unitstring Unit string to be printed for parameter.
      * @return Success of action. */
-    virtual bool AddParameter(const std::string& name, double min, double max, std::string latexname = "", std::string unitstring = "")
+    virtual bool AddParameter(const std::string& name, double min, double max, const std::string& latexname = "", const std::string& unitstring = "")
     { return fParameters.Add(name, min, max, latexname, unitstring); }
 
     /**
@@ -1176,7 +1176,7 @@ public:
      * @param latexname Optional latexname used for plotting
      * @param unitstring Unit string to be printed for observable.
      * @return Success of action. */
-    virtual bool AddObservable(const std::string& name, double min, double max, std::string latexname = "", std::string unitstring = "")
+    virtual bool AddObservable(const std::string& name, double min, double max, const std::string& latexname = "", const std::string& unitstring = "")
     { return fObservables.Add(name, min, max, latexname, unitstring); }
 
     /**
@@ -1355,7 +1355,7 @@ public:
      * @param mcmcTreeName Name of tree inside file containing MCMC, empty string (default) loads [modelname]_mcmc.
      * @param parameterTreeName Name of tree inside file containing parameter list, empty string (default) loads [modelname]_parameters.
      * @param loadObservables Flag for whether to load observables from parameter list and MCMC trees. */
-    virtual bool LoadMCMC(const std::string& filename, std::string mcmcTreeName = "", std::string parameterTreeName = "", bool loadObservables = true);
+    virtual bool LoadMCMC(const std::string& filename, const std::string& mcmcTreeName = "", const std::string& parameterTreeName = "", bool loadObservables = true);
 
     /**
      * Load previous MCMC run.

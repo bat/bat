@@ -89,7 +89,7 @@ int BCMTF::GetSystematicIndex(const std::string& name) const
 }
 
 // ---------------------------------------------------------
-int BCMTF::SetTemplate(std::string channelname, std::string processname, TH1D hist, double efficiency, double norm)
+int BCMTF::SetTemplate(const std::string& channelname, const std::string& processname, TH1D hist, double efficiency, double norm)
 {
     // get channel index
     int channelindex = GetChannelIndex(channelname);
@@ -147,7 +147,7 @@ int BCMTF::SetTemplate(std::string channelname, std::string processname, TH1D hi
 }
 
 // ---------------------------------------------------------
-int BCMTF::SetTemplate(std::string channelname, std::string processname, std::vector<TF1*>* funccont, int nbins, double efficiency)
+int BCMTF::SetTemplate(const std::string& channelname, const std::string& processname, std::vector<TF1*>* funccont, int nbins, double efficiency)
 {
     // get channel index
     int channelindex = GetChannelIndex(channelname);
@@ -184,7 +184,7 @@ int BCMTF::SetTemplate(std::string channelname, std::string processname, std::ve
 }
 
 // ---------------------------------------------------------
-int BCMTF::SetData(std::string channelname, TH1D hist, double minimum, double maximum)
+int BCMTF::SetData(const std::string& channelname, TH1D hist, double minimum, double maximum)
 {
     int channelindex = GetChannelIndex(channelname);
 
@@ -410,7 +410,7 @@ int BCMTF::AddSystematic(const std::string& name, double min, double max)
 }
 
 // ---------------------------------------------------------
-int BCMTF::SetSystematicVariation(std::string channelname, std::string processname,  std::string systematicname, double variation_up, double variation_down)
+int BCMTF::SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, double variation_up, double variation_down)
 {
 
     // get channel index
@@ -469,7 +469,7 @@ int BCMTF::SetSystematicVariation(std::string channelname, std::string processna
 }
 
 // ---------------------------------------------------------
-int BCMTF::SetSystematicVariation(std::string channelname, std::string processname,  std::string systematicname, TH1D hist_up, TH1D hist_down)
+int BCMTF::SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, TH1D hist_up, TH1D hist_down)
 {
     // get channel index
     int channelindex = GetChannelIndex(channelname);
@@ -512,7 +512,7 @@ int BCMTF::SetSystematicVariation(std::string channelname, std::string processna
 }
 
 // ---------------------------------------------------------
-int BCMTF::SetSystematicVariation(std::string channelname, std::string processname,  std::string systematicname, TH1D hist, TH1D hist_up, TH1D hist_down)
+int BCMTF::SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, TH1D hist, TH1D hist_up, TH1D hist_down)
 {
     // get number of bins
     int nbins = hist.GetNbinsX();
@@ -680,7 +680,7 @@ double BCMTF::Probability(int channelindex, int processindex, int binindex, cons
 }
 
 // ---------------------------------------------------------
-int BCMTF::PrintStack(std::string channelname, const std::vector<double>& parameters, std::string filename, const char* options)
+int BCMTF::PrintStack(const std::string& channelname, const std::vector<double>& parameters, const std::string& filename, const char* options)
 {
     int index = GetChannelIndex(channelname);
 
@@ -688,7 +688,7 @@ int BCMTF::PrintStack(std::string channelname, const std::vector<double>& parame
 }
 
 // ---------------------------------------------------------
-int BCMTF::PrintStack(int channelindex, const std::vector<double>& parameters, std::string filename, const char* options)
+int BCMTF::PrintStack(int channelindex, const std::vector<double>& parameters, const std::string& filename, const char* options)
 {
     // todo:
     // - add difference/ratio/significance plot below

@@ -466,7 +466,7 @@ void BCEngineMCMC::WriteMarkovChainPreRun(bool flag)
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::WriteMarkovChain(std::string filename, std::string option, bool flag_run, bool flag_prerun)
+void BCEngineMCMC::WriteMarkovChain(const std::string& filename, const std::string& option, bool flag_run, bool flag_prerun)
 {
     // if setting both false
     if (!flag_run && !flag_prerun)
@@ -484,7 +484,7 @@ void BCEngineMCMC::WriteMarkovChain(std::string filename, std::string option, bo
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::WriteMarginalizedDistributions(std::string filename, std::string option, bool closeExistingFile)
+void BCEngineMCMC::WriteMarginalizedDistributions(const std::string& filename, const std::string& option, bool closeExistingFile)
 {
     // remember current directory
     TDirectory* dir = gDirectory;
@@ -1074,7 +1074,7 @@ bool BCEngineMCMC::ParameterTreeMatchesModel(TTree* partree, bool checkObservabl
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::LoadMCMC(const std::string& filename, std::string mcmcTreeName, std::string parameterTreeName, bool loadObservables)
+bool BCEngineMCMC::LoadMCMC(const std::string& filename, const std::string& mcmcTreeName, const std::string& parameterTreeName, bool loadObservables)
 {
     // save current directory
     TDirectory* dir = gDirectory;
@@ -1132,23 +1132,25 @@ bool BCEngineMCMC::LoadMCMC(const std::string& filename, std::string mcmcTreeNam
             SetName(model_names[0]);
         }
     }
+    std::string newMCMCTreeName(mcmcTreeName);
+    std::string newParameterTreeName(mcmcTreeName);
 
     // set tree names if empty
-    if ( mcmcTreeName.empty() )		// default mcmc tree name
-        mcmcTreeName = Form("%s_mcmc", GetSafeName().data());
-    if ( parameterTreeName.empty() ) // default parameter tree name
-        parameterTreeName = Form("%s_parameters", GetSafeName().data());
+    if (newMCMCTreeName.empty())		// default mcmc tree name
+        newMCMCTreeName = Form("%s_mcmc", GetSafeName().data());
+    if (parameterTreeName.empty()) // default parameter tree name
+        newParameterTreeName = Form("%s_parameters", GetSafeName().data());
 
     TTree* mcmcTree = NULL;
-    inputfile->GetObject(mcmcTreeName.data(), mcmcTree);
+    inputfile->GetObject(newMCMCTreeName.data(), mcmcTree);
     if ( !mcmcTree )
-        BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s", filename.data(), mcmcTreeName.data()));
+        BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s", filename.data(), newMCMCTreeName.data()));
 
 
     TTree* parTree = NULL;
-    inputfile->GetObject(parameterTreeName.data(), parTree);
+    inputfile->GetObject(newParameterTreeName.data(), parTree);
     if ( !parTree )
-        BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s", filename.data(), mcmcTreeName.data()));
+        BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s", filename.data(), newMCMCTreeName.data()));
 
     gDirectory = dir;
     return LoadMCMC(mcmcTree, parTree, loadObservables);
@@ -2820,7 +2822,7 @@ std::vector<std::pair<unsigned, unsigned> > BCEngineMCMC::GetH2DPrintOrder() con
 }
 
 // ---------------------------------------------------------
-unsigned BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned hdiv, unsigned vdiv) const
+unsigned BCEngineMCMC::PrintAllMarginalized(const std::string& filename, unsigned hdiv, unsigned vdiv) const
 {
     if (GetNVariables() == 0) {
         BCLog::OutError("BCEngineMCMC::PrintAllMarginalized : No variables defined!");
@@ -2831,9 +2833,9 @@ unsigned BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned hdiv,
         BCLog::OutError("BCEngineMCMC::PrintAllMarginalized : Marginalized distributions not stored.");
         return 0;
     }
-
-    BCAux::DefaultToPDF(filename);
-    if (filename.empty())
+    std::string newFilename(filename);
+    BCAux::DefaultToPDF(newFilename);
+    if (newFilename.empty())
         return 0;
 
     // Find nonempty H1's
@@ -2870,19 +2872,19 @@ unsigned BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned hdiv,
             h2.pop_back();
     }
 
-    return BCAux::PrintPlots(h1, h2, filename, hdiv, vdiv);
+    return BCAux::PrintPlots(h1, h2, newFilename, hdiv, vdiv);
 }
 
 // ---------------------------------------------------------
-unsigned BCEngineMCMC::PrintParameterPlot(std::string filename, int npar, double interval_content, std::vector<double> quantiles, bool rescale_ranges) const
+unsigned BCEngineMCMC::PrintParameterPlot(const std::string& filename, int npar, double interval_content, std::vector<double> quantiles, bool rescale_ranges) const
 {
-
-    BCAux::DefaultToPDF(filename);
-    if (filename.empty())
+    std::string newFilename(filename);
+    BCAux::DefaultToPDF(newFilename);
+    if (newFilename.empty())
         return 0;
 
     TCanvas* c_par = new TCanvas("c_parplot_init");
-    c_par->Print(Form("%s[", filename.data()));
+    c_par->Print(Form("%s[", newFilename.data()));
     c_par->cd();
     c_par->SetTicky(1);
     c_par->SetFrameLineWidth(0);
@@ -2896,7 +2898,7 @@ unsigned BCEngineMCMC::PrintParameterPlot(std::string filename, int npar, double
     // parameters first
     for (unsigned i = 0; i < GetNParameters(); i += npar)
         if (DrawParameterPlot(i, std::min<int>(npar, GetNParameters() - i), interval_content, quantiles, rescale_ranges)) {
-            c_par->Print(filename.data());
+            c_par->Print(newFilename.data());
             c_par->Clear();
             ++pages_printed;
         }
@@ -2904,12 +2906,12 @@ unsigned BCEngineMCMC::PrintParameterPlot(std::string filename, int npar, double
     // then user-defined observables
     for (unsigned i = GetNParameters(); i < GetNVariables(); i += npar)
         if (DrawParameterPlot(i, std::min<int>(npar, GetNVariables() - i), interval_content, quantiles, rescale_ranges)) {
-            c_par->Print(filename.data());
+            c_par->Print(newFilename.data());
             c_par->Clear();
             ++pages_printed;
         }
 
-    c_par->Print(Form("%s]", filename.data()));
+    c_par->Print(Form("%s]", newFilename.data()));
     return pages_printed > 0;
 }
 
@@ -3144,7 +3146,7 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
 }
 
 // ---------------------------------------------------------
-bool BCEngineMCMC::PrintCorrelationMatrix(std::string filename) const
+bool BCEngineMCMC::PrintCorrelationMatrix(const std::string& filename) const
 {
     if (GetNVariables() == 0) {
         BCLog::OutError("BCEngineMCMC::PrintCorrelationMatrix : No variables defined!");
@@ -3271,7 +3273,7 @@ bool BCEngineMCMC::PrintCorrelationMatrix(std::string filename) const
 }
 
 // ---------------------------------------------------------
-bool BCEngineMCMC::PrintCorrelationPlot(std::string filename, bool include_observables) const
+bool BCEngineMCMC::PrintCorrelationPlot(const std::string& filename, bool include_observables) const
 {
     if (GetNVariables() == 0) {
         BCLog::OutError("BCEngineMCMC::PrintCorrelationPlot : No variables defined!");
@@ -3395,7 +3397,7 @@ bool BCEngineMCMC::PrintCorrelationPlot(std::string filename, bool include_obser
 }
 
 // ---------------------------------------------------------
-bool BCEngineMCMC::PrintParameterLatex(std::string filename) const
+bool BCEngineMCMC::PrintParameterLatex(const std::string& filename) const
 {
     // open file
     std::ofstream ofi(filename.data());

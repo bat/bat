@@ -48,12 +48,12 @@ public:
 
     /**
      * @return The name of the process. */
-    std::string GetName()
+    const std::string& GetName()
     { return fName; };
 
     /**
      * @return The safe name of the process. */
-    std::string GetSafeName()
+    const std::string& GetSafeName()
     { return fSafeName; };
 
     /**

@@ -153,7 +153,7 @@ void TestSuite::PrintResultsScreen()
 }
 
 //______________________________________________________________________________
-void TestSuite::PrintResultsHTML(std::string filename)
+void TestSuite::PrintResultsHTML(const std::string& filename)
 {
     // open file
     std::ofstream file_main;

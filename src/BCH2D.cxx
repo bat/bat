@@ -88,7 +88,7 @@ std::vector<double> BCH2D::DefaultIntervals(int nbands)
 }
 
 // ---------------------------------------------------------
-void BCH2D::DrawBands(std::string options)
+void BCH2D::DrawBands(const std::string& options)
 {
     if (fBandType == kNoBands) {
         GetHistogram()->Draw((options + "colz").data());

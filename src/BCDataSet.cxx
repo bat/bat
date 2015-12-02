@@ -84,7 +84,7 @@ double BCDataSet::GetUpperBound(unsigned index) const
 }
 
 // ---------------------------------------------------------
-bool BCDataSet::ReadDataFromFileTree(std::string filename, std::string treename, std::string branchnames, char delim)
+bool BCDataSet::ReadDataFromFileTree(const std::string& filename, const std::string& treename, const std::string& branchnames, char delim)
 {
     // open root file
     TFile* file = TFile::Open(filename.data(), "READ");
@@ -153,7 +153,7 @@ bool BCDataSet::ReadDataFromFileTree(std::string filename, std::string treename,
 }
 
 // ---------------------------------------------------------
-bool BCDataSet::ReadDataFromFileTxt(std::string filename, int nbranches)
+bool BCDataSet::ReadDataFromFileTxt(const std::string& filename, int nbranches)
 {
     // open text file.
     std::fstream file;

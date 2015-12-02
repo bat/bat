@@ -49,7 +49,7 @@ public:
 
     /** Set the description of the subtest.
      * @param description the description of the subtest. */
-    void SetDescription(std::string description)
+    void SetDescription(const std::string& description)
     { fDescription = description; };
 
     /** Set the test value range for the status.

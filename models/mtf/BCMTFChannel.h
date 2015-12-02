@@ -56,12 +56,12 @@ public:
 
     /**
      * @return The name of the channel. */
-    std::string GetName()
+    const std::string& GetName()
     { return fName; };
 
     /**
      * @return The name of the channel. */
-    std::string GetSafeName()
+    const std::string& GetSafeName()
     { return fSafeName; };
 
     /**
@@ -198,33 +198,33 @@ public:
     /**
      * Print the templates in this channel.
      * @param filename The name of the file. */
-    void PrintTemplates(std::string filename);
+    void PrintTemplates(const std::string& filename);
 
     /**
      * Print a particular template with systematics.
      * @param index The template index.
      * @param filename The name of the file. */
-    void PrintTemplate(int index, std::string filename);
+    void PrintTemplate(int index, const std::string& filename);
 
     /**
      * Print histogram for uncertainty band calculation.
      * @param filename The name of the file. */
-    void PrintHistUncertaintyBandExpectation(std::string filename);
+    void PrintHistUncertaintyBandExpectation(const std::string& filename);
 
     /**
      * Print histogram for uncertainty band calculation.
      * @param filename The name of the file. */
-    void PrintHistUncertaintyBandPoisson(std::string filename, const char* options = "COLZ");
+    void PrintHistUncertaintyBandPoisson(const std::string& filename, const std::string& options = "COLZ");
 
     /**
      * Print cumulative histogram for uncertainty band calculation.
      * @param filename The name of the file. */
-    void PrintHistCumulativeUncertaintyBandPoisson(std::string filename);
+    void PrintHistCumulativeUncertaintyBandPoisson(const std::string& filename);
 
     /**
      * Print uncertainty band.
      * @param filename The name of the file. */
-    void PrintUncertaintyBandPoisson(std::string filename, double minimum, double maximum, int color);
+    void PrintUncertaintyBandPoisson(const std::string& filename, double minimum, double maximum, int color);
 
     /** @} */
 

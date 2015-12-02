@@ -202,7 +202,7 @@ public:
 
     /**
      * Draw bands. */
-    virtual void DrawBands(std::string options = "same");
+    virtual void DrawBands(const std::string& options = "same");
 
     /**
      * Draw markers: global mode, local mode, mean, quantiles, median. */
@@ -221,7 +221,7 @@ public:
      * @param prefix String to be prepended to every line.
      * @param intervals Vector of intervals to print.
      * @param prec Precision of doubles to output. */
-    void PrintSummary(std::string prefix = "", unsigned prec = 6, std::vector<double> intervals = std::vector<double>(0));
+    void PrintSummary(const std::string& prefix = "", unsigned prec = 6, std::vector<double> intervals = std::vector<double>(0));
 
     /**
      * \struct BCH1DInterval

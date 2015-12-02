@@ -204,7 +204,7 @@ public:
      * @param option file-open options (TFile), must be "NEW", "CREATE", "RECREATE", or "UPDATE" (i.e. writeable).
      * @param flag_run Flag for writing run Markov chain to ROOT file (true) or not (false).
      * @param flag prerun Flag for writing prerun Markov chain to ROOT file (true) or not (false). */
-    void WriteMarkovChain(std::string filename, std::string option, bool flag_run = true, bool flag_prerun = true);
+    void WriteMarkovChain(const std::string& filename, const std::string& option, bool flag_run = true, bool flag_prerun = true);
 
     /**
      * Prints a summary of the model comparison to the log. */

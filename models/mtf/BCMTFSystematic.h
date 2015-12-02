@@ -48,12 +48,12 @@ public:
 
     /**
      * @return The name of the systematic uncertainty. */
-    std::string GetName()
+    const std::string& GetName()
     { return fName; };
 
     /**
      * @return The name of the systematic uncertainty. */
-    std::string GetSafeName()
+    const std::string& GetSafeName()
     { return fSafeName; };
 
     /**

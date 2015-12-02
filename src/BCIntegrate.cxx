@@ -105,7 +105,7 @@ BCIntegrate::BCIntegrate(const std::string& name)
 }
 
 // ---------------------------------------------------------
-BCIntegrate::BCIntegrate(std::string filename, const std::string& name, bool loadObservables)
+BCIntegrate::BCIntegrate(const std::string& filename, const std::string& name, bool loadObservables)
     : BCEngineMCMC(filename, name, loadObservables)
     ,	fMinuit(0)
     ,	fMinuitErrorFlag(0)
@@ -1193,7 +1193,7 @@ void BCIntegrate::WriteSAToFile(bool flag)
 }
 
 // --------------------------------------------------------
-void BCIntegrate::WriteSAToFile(std::string filename, std::string option, bool autoclose)
+void BCIntegrate::WriteSAToFile(const std::string& filename, const std::string& option, bool autoclose)
 {
     if (filename.empty()) {
         BCLog::OutError("BCIntegrate::WriteSAToFile: You must specify the filename when turning on simlated annealing output.");

@@ -37,7 +37,7 @@ BCModel::BCModel(const std::string& name)
 }
 
 // ---------------------------------------------------------
-BCModel::BCModel(std::string filename, const std::string& name, bool loadObservables)
+BCModel::BCModel(const std::string& filename, const std::string& name, bool loadObservables)
     : BCIntegrate(filename, name, loadObservables)
     , fDataSet(0)
     , fPriorModel(0)
@@ -322,7 +322,7 @@ BCH2D BCModel::GetPrior(unsigned index1, unsigned index2)
 }
 
 // ---------------------------------------------------------
-unsigned BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv, unsigned vdiv, bool call_likelihood)
+unsigned BCModel::PrintKnowledgeUpdatePlots(const std::string& filename, unsigned hdiv, unsigned vdiv, bool call_likelihood)
 {
     if (GetNVariables() == 0) {
         BCLog::OutError("BCModel::PrintKnowledgeUpdatePlots : No variables defined!");
@@ -333,8 +333,9 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv,
     if (!GetPriorModel(true, call_likelihood) || fPriorModel->GetNParameters() == 0 )
         return 0;
 
-    BCAux::DefaultToPDF(filename);
-    if (filename.empty())
+    std::string newFilename(filename);
+    BCAux::DefaultToPDF(newFilename);
+    if (newFilename.empty())
         return 0;
 
     // call prior evalution once to set fFactorizedPrior:
@@ -394,7 +395,7 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv,
     }
 
     const unsigned nplots = h1.size() + h2.size();
-    BCLog::OutSummary(Form("Printing knowledge update plots (%lu x 1D + %lu x 2D = %u) into file %s", h1.size(), h2.size(), nplots, filename.data()));
+    BCLog::OutSummary(Form("Printing knowledge update plots (%lu x 1D + %lu x 2D = %u) into file %s", h1.size(), h2.size(), nplots, newFilename.data()));
     if (nplots > 100)
         BCLog::OutDetail("This can take a while...");
 
@@ -413,13 +414,13 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv,
     unsigned n = 0;
 
     // open file
-    c.Print((filename + "[").data());
+    c.Print((newFilename + "[").data());
 
     // Draw 1D Knowledge Update Plots
     for (unsigned i = 0; i < h1.size(); ++i) {
         // if current page is full, switch to new page
         if (i != 0 && i % (hdiv * vdiv) == 0) {
-            c.Print(filename.c_str());
+            c.Print(newFilename.c_str());
             c.Clear("D");
         }
 
@@ -432,7 +433,7 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv,
             BCLog::OutDetail(Form(" --> %d plots done", n));
     }
     if (h1.size() > 0) {
-        c.Print(filename.c_str());
+        c.Print(newFilename.c_str());
         c.Clear("D");
     }
 
@@ -440,7 +441,7 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv,
     for (unsigned i = 0; i < h2.size(); ++i) {
         // if current page is full, switch to new page
         if (i != 0 && i % (hdiv * vdiv) == 0) {
-            c.Print(filename.c_str());
+            c.Print(newFilename.c_str());
             c.Clear("D");
         }
 
@@ -454,10 +455,10 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv,
             BCLog::OutDetail(Form(" --> %d plots done", n));
     }
     if (h2.size() > 0) {
-        c.Print(filename.c_str());
+        c.Print(newFilename.c_str());
         c.Clear("D");
     }
-    c.Print(std::string( filename + "]").c_str());
+    c.Print(std::string(newFilename + "]").c_str());
 
     if (nplots > 100 && nplots % 100 != 0)
         BCLog::OutDetail(Form(" --> %d plots done", nplots));

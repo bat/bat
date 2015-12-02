@@ -59,15 +59,15 @@ public:
     { fIncludeHtmlFooter = flag; };
 
     /** Prefix to be used for internal html links */
-    void SetLinkPrefix(std::string prefix)
+    void SetLinkPrefix(const std::string& prefix)
     { fLinkPrefix = prefix; };
 
     /** Prefix to be used for html links to external files */
-    void SetFileLinkPrefix(std::string prefix)
+    void SetFileLinkPrefix(const std::string& prefix)
     { fFileLinkPrefix = prefix; };
 
     /** Set file extension for the html files (.html by default) */
-    void SetHtmlFileExtension(std::string ext)
+    void SetHtmlFileExtension(const std::string& ext)
     { fHtmlFileExtension = ext; };
 
     /* @} */
@@ -110,11 +110,11 @@ public:
 
     /** Create the HTML output of the tests.
      * @param filename the name of the HTML file. */
-    void PrintResultsHTML(std::string filename = "results.html");
+    void PrintResultsHTML(const std::string& filename = "results.html");
 
     /** Create an ASCII output of the tests.
      * @param filename the name of the ASCII file. */
-    void PrintResultsASCII(std::string filename = "results.txt");
+    void PrintResultsASCII(const std::string& filename = "results.txt");
 
     /** Create an ASCII output of the tests.
      * @param filename the name of the ASCII file. */

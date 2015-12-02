@@ -250,7 +250,7 @@ void BCModelManager::WriteMarkovChainPreRun(bool flag)
 }
 
 // ---------------------------------------------------------
-void BCModelManager::WriteMarkovChain(std::string prefix, std::string option, bool flag_run, bool flag_prerun)
+void BCModelManager::WriteMarkovChain(const std::string& prefix, const std::string& option, bool flag_run, bool flag_prerun)
 {
     for (unsigned i = 0; i < GetNModels(); ++i)
         GetModel(i)->WriteMarkovChain(prefix + GetModel(i)->GetSafeName() + ".root", option, flag_run, flag_prerun);

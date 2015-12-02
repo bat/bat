@@ -79,7 +79,7 @@ public:
      * @param latexname Optional latexname used for plotting
      * @param unitstring Unit string to be printed for variable
      * @return Success of action. */
-    virtual bool Add(const std::string& name, double min, double max, std::string latexname = "", std::string unitstring = "")
+    virtual bool Add(const std::string& name, double min, double max, const std::string& latexname = "", const std::string& unitstring = "")
     {
         // check if variable with same name or same safe name exists
         for (unsigned int i = 0; i < fVars.size() ; ++i)

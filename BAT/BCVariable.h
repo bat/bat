@@ -51,7 +51,7 @@ public:
      * @param upperlimit The upper limit of the variable values.
      * @param latexname The latex name of the variable used in axis labeling.
      * @param unitstring Unit string to be printed for variable. */
-    BCVariable(const std::string& name, double lowerlimit, double upperlimit, std::string latexname = "", std::string unitstring = "");
+    BCVariable(const std::string& name, double lowerlimit, double upperlimit, const std::string& latexname = "", const std::string& unitstring = "");
 
     /**
      * Destructor */
@@ -145,12 +145,12 @@ public:
 
     /**
      * @param latex_name Latex-formatted name of Variable. */
-    virtual void SetLatexName(std::string latex_name)
+    virtual void SetLatexName(const std::string& latex_name)
     { fLatexName = latex_name; }
 
     /**
      * @param unit_string String to printed to mark units of variable when needed. */
-    virtual void SetUnitString(std::string unit_string)
+    virtual void SetUnitString(const std::string& unit_string)
     { fUnitString = unit_string; }
 
     /**
@@ -217,7 +217,7 @@ public:
     /**
      * Check if safe name is that of variable.
      * @param safename Safe name to check against variable name. */
-    virtual	bool IsSafeNamed(std::string safename) const
+    virtual	bool IsSafeNamed(const std::string& safename) const
     { return fSafeName.compare(safename) == 0; }
 
     /**

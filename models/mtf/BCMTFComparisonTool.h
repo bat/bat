@@ -51,12 +51,12 @@ public:
 
     /**
      * @return The name of the class. */
-    std::string GetName()
+    const std::string& GetName()
     { return fName; };
 
     /**
      * @return The name of the class. */
-    std::string GetSafeName()
+    const std::string& GetSafeName()
     { return fSafeName; };
 
     /**
@@ -100,12 +100,12 @@ public:
     /**
      * Print all histograms to a file.
      * @param filename The name of the file. */
-    void PrintHistograms(std::string filename);
+    void PrintHistograms(const std::string& filename);
 
     /**
      * Print an overview to a file.
      * @param filename The name of the file. */
-    void PrintOverview(std::string filename);
+    void PrintOverview(const std::string& filename);
 
     /** @} */
 

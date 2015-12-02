@@ -117,7 +117,7 @@ void DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posterior, boo
  * @param hdiv Number of columns of plots per page
  * @param vdiv Number of rows of plots per page
  * @return Number of plots printed */
-unsigned PrintPlots(std::vector<BCH1D>& h1, std::vector<BCH2D>& h2, std::string filename, unsigned hdiv = 1, unsigned vdiv = 1);
+unsigned PrintPlots(std::vector<BCH1D>& h1, std::vector<BCH2D>& h2, const std::string& filename, unsigned hdiv = 1, unsigned vdiv = 1);
 
 /**
  * A trash to keep heap-allocated objects of type T alive until the
