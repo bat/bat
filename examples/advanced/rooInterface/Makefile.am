@@ -1,6 +1,10 @@
 include $(top_srcdir)/examples/Makefile-common.am
 
-## Requires BAT build with RooStats enabled
+# move outside of ROOSTATS section to avoid
+# `examples/Makefile-common.am:21: warning: 'TEST_EXTENSIONS' cannot have conditional contents`
+TEST_EXTENSIONS += .root
+
+# Requires BAT build with RooStats enabled
 if ROOSTATS
 
 noinst_PROGRAMS = runRooInterface
@@ -17,7 +21,6 @@ CLEANFILES += *.txt
 $(input_workspaces): WS_%.root: PrepareWorkspace_%.C
 	$(ROOTEXEC) -l -x -q $<
 
-TEST_EXTENSIONS += .root
 ROOT_LOG_COMPILER = $(builddir)/runRooInterface
 
 TESTS = $(input_workspaces) runBATCalculator.C
