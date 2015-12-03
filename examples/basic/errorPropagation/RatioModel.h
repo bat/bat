@@ -11,7 +11,7 @@ class RatioModel : public BCModel
 public:
 
     // Constructor and destructor
-    RatioModel(std::string name);
+    RatioModel(const std::string& name);
     ~RatioModel();
 
     double LogLikelihood(const std::vector<double>& parameters);

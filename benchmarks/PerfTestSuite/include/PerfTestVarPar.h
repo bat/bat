@@ -37,7 +37,7 @@ public:
     /* @{ */
 
     /** The default constructor */
-    PerfTestVarPar(std::string name, PerfTestMCMC* test);
+    PerfTestVarPar(const std::string& name, PerfTestMCMC* test);
 
     /** The default destructor */
     ~PerfTestVarPar();
@@ -50,7 +50,7 @@ public:
      * @param par the parameter value
      * @param name the name of the varied parameter.
      * @return an error code. */
-    virtual int SetVarPar(double /*value*/, std::string /*name*/)
+    virtual int SetVarPar(double /*value*/, const std::string& /*name*/)
     { return 0; };
 
     virtual void SetProposal(bool multivariate, double dof)
@@ -66,7 +66,7 @@ public:
      * @param par a vector of parameter values.
      * @param name the name of the varied parameter.
      * @return an error code */
-    int AddVarPar(std::vector<double> values, std::string name);
+    int AddVarPar(std::vector<double> values, const std::string& name);
 
     /** Return the number of variation parameters. */
     int GetNVarPar()

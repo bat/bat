@@ -47,7 +47,7 @@ public:
     /**
      * Default constructor.
      * @param name The name of the model */
-    BCModel(std::string name = "model");
+    BCModel(const std::string& name = "model");
 
     /**
      * Copy constructor. */
@@ -59,7 +59,7 @@ public:
      * @param name Name of model (file should contain TTree's [name]_mcmc and [name]_parameters.\n
      * if empty string is given, properly matching TTrees are searched for in the file.
      * @param loadObservables Flag for whether to load observables for file (true; default) or to let user respecify observables.*/
-    BCModel(std::string filename, std::string name, bool loadObservables = true);
+    BCModel(const std::string& filename, const std::string& name, bool loadObservables = true);
 
     /**
      * Destructor. */
@@ -268,7 +268,7 @@ public:
      * @param vdiv number of vertical divisions on page
      * @param call_likelihood whether to call model likelihood function to prepare for calculating observables
      * @return number of plots printed. */
-    virtual unsigned PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv = 1, unsigned vdiv = 1, bool call_likelihood = false);
+    virtual unsigned PrintKnowledgeUpdatePlots(const std::string& filename, unsigned hdiv = 1, unsigned vdiv = 1, bool call_likelihood = false);
 
 
     /* /\** */
@@ -278,7 +278,7 @@ public:
     /*  * @param vdiv number of vertical divisions on page */
     /*  * @param call_likelihood whether to call model likelihood function to prepare for calculating observables */
     /*  * @return number of plots printed. *\/ */
-    /* virtual unsigned PrintPriors(std::string filename, unsigned hdiv = 1, unsigned vdiv = 1, bool call_likelihood = false); */
+    /* virtual unsigned PrintPriors(const std::string& filename, unsigned hdiv = 1, unsigned vdiv = 1, bool call_likelihood = false); */
 
     /** @} */
 

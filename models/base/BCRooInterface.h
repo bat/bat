@@ -25,7 +25,7 @@ class BCRooInterface : public BCModel
 {
 public:
 
-    BCRooInterface(std::string name = "", bool fillChain = false );
+    BCRooInterface(const std::string& name = "", bool fillChain = false );
 
     ~BCRooInterface();
 

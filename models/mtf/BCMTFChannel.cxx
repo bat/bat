@@ -22,7 +22,7 @@
 #include "BCMTFChannel.h"
 
 // ---------------------------------------------------------
-BCMTFChannel::BCMTFChannel(std::string name)
+BCMTFChannel::BCMTFChannel(const std::string& name)
     : fData(0)
     , fFlagChannelActive(true)
     , fHistUncertaintyBandExpectation(0)
@@ -53,19 +53,20 @@ BCMTFChannel::~BCMTFChannel()
 }
 
 // ---------------------------------------------------------
-void BCMTFChannel::PrintTemplates(std::string filename)
+void BCMTFChannel::PrintTemplates(const std::string& filename)
 {
+    std::string newFilename(filename);
     // check if file extension is pdf
-    if ( (filename.find_last_of(".") != std::string::npos) &&
-            (filename.substr(filename.find_last_of(".") + 1) == "pdf") ) {
+    if ( (newFilename.find_last_of(".") != std::string::npos) &&
+            (newFilename.substr(newFilename.find_last_of(".") + 1) == "pdf") ) {
         ; // it's a PDF file
 
-    } else if ( (filename.find_last_of(".") != std::string::npos) &&
-                (filename.substr(filename.find_last_of(".") + 1) == "ps") ) {
+    } else if ( (newFilename.find_last_of(".") != std::string::npos) &&
+                (newFilename.substr(newFilename.find_last_of(".") + 1) == "ps") ) {
         ; // it's a PS file
     } else {
         ; // make it a PDF file
-        filename += ".pdf";
+        newFilename += ".pdf";
     }
 
     // create new canvas
@@ -114,12 +115,12 @@ void BCMTFChannel::PrintTemplates(std::string filename)
 
         // print
         if (i == first_hist && (first_hist != last_hist))
-            c1->Print((filename + "(").data());
+            c1->Print((newFilename + "(").data());
         else if (i == last_hist && (first_hist != last_hist))
-            c1->Print((filename + ")").data());
+            c1->Print((newFilename + ")").data());
         else {
             if (temphist)
-                c1->Print(filename.data());
+                c1->Print(newFilename.data());
         }
 
         // free memory
@@ -131,7 +132,7 @@ void BCMTFChannel::PrintTemplates(std::string filename)
 }
 
 // ---------------------------------------------------------
-void BCMTFChannel::PrintTemplate(int index, std::string filename)
+void BCMTFChannel::PrintTemplate(int index, const std::string& filename)
 {
     // create new canvas
     TCanvas* c1 = new TCanvas();
@@ -199,7 +200,7 @@ void BCMTFChannel::PrintTemplate(int index, std::string filename)
 }
 
 // ---------------------------------------------------------
-void BCMTFChannel::PrintHistUncertaintyBandExpectation(std::string filename)
+void BCMTFChannel::PrintHistUncertaintyBandExpectation(const std::string& filename)
 {
     // create new canvas
     TCanvas* c1 = new TCanvas();
@@ -287,7 +288,7 @@ TH1D* BCMTFChannel::CalculateUncertaintyBandPoisson(double minimum, double maxim
 }
 
 // ---------------------------------------------------------
-void BCMTFChannel::PrintHistCumulativeUncertaintyBandPoisson(std::string filename)
+void BCMTFChannel::PrintHistCumulativeUncertaintyBandPoisson(const std::string& filename)
 {
     // create new canvas
     TCanvas* c1 = new TCanvas();
@@ -325,7 +326,7 @@ void BCMTFChannel::PrintHistCumulativeUncertaintyBandPoisson(std::string filenam
 }
 
 // ---------------------------------------------------------
-void BCMTFChannel::PrintHistUncertaintyBandPoisson(std::string filename, const char* options)
+void BCMTFChannel::PrintHistUncertaintyBandPoisson(const std::string& filename, const std::string& options)
 {
     // create new canvas
     TCanvas* c1 = new TCanvas();
@@ -335,7 +336,7 @@ void BCMTFChannel::PrintHistUncertaintyBandPoisson(std::string filename, const c
     this->CalculateHistUncertaintyBandPoisson();
 
     // draw histogram
-    fHistUncertaintyBandPoisson->Draw(options);
+    fHistUncertaintyBandPoisson->Draw(options.c_str());
     c1->Draw();
 
     // print
@@ -346,7 +347,7 @@ void BCMTFChannel::PrintHistUncertaintyBandPoisson(std::string filename, const c
 }
 
 // ---------------------------------------------------------
-void BCMTFChannel::PrintUncertaintyBandPoisson(std::string filename, double minimum, double maximum, int color)
+void BCMTFChannel::PrintUncertaintyBandPoisson(const std::string& filename, double minimum, double maximum, int color)
 {
     // create new canvas
     TCanvas* c1 = new TCanvas();

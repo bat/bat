@@ -18,7 +18,7 @@
 #include <fstream>
 
 //______________________________________________________________________________
-PerfTestVarPar::PerfTestVarPar(std::string name, PerfTestMCMC* test)
+PerfTestVarPar::PerfTestVarPar(const std::string& name, PerfTestMCMC* test)
     : PerfTest(name)
     , fTest(test)
     , fTargetContainer(std::vector<TGraphErrors * >(0))
@@ -51,7 +51,7 @@ PerfTestVarPar::~PerfTestVarPar()
 }
 
 //______________________________________________________________________________
-int PerfTestVarPar::AddVarPar(std::vector<double> values, std::string name)
+int PerfTestVarPar::AddVarPar(std::vector<double> values, const std::string& name)
 {
     // get number of values
     int nval = int(values.size());

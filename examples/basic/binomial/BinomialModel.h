@@ -8,7 +8,7 @@ class BinomialModel : public BCModel
 {
 public:
 
-    BinomialModel(std::string name, unsigned ntotal, unsigned nselected);
+    BinomialModel(const std::string& name, unsigned ntotal, unsigned nselected);
 
     ~BinomialModel();
 

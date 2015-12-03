@@ -15,7 +15,7 @@
 #include <fstream>
 
 //______________________________________________________________________________
-PerfTest::PerfTest(std::string name)
+PerfTest::PerfTest(const std::string& name)
     : fTestType(PerfTest::kUnknown)
     , fPrecision(PerfTest::kCoarse)
     , fSubtestContainer(std::vector<PerfSubTest * >(0))
@@ -147,7 +147,7 @@ PerfSubTest::Status PerfTest::GetStatus()
 }
 
 //______________________________________________________________________________
-PerfSubTest* PerfTest::GetSubtest(std::string name)
+PerfSubTest* PerfTest::GetSubtest(const std::string& name)
 {
     // get number of sub tests
     int n = GetNSubtests();

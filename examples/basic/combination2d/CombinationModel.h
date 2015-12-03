@@ -9,7 +9,7 @@ class CombinationModel : public BCModel
 {
 public:
 
-    CombinationModel(std::string name,
+    CombinationModel(const std::string& name,
                      double new_mass_mean, double new_mass_sigma,
                      double new_xs_mean, double new_xs_sigma,
                      double rho,

@@ -21,7 +21,7 @@
 #include "include/PerfTest2DFunction.h"
 
 //______________________________________________________________________________
-PerfTest2DFunction::PerfTest2DFunction(std::string name, TF2* func)
+PerfTest2DFunction::PerfTest2DFunction(const std::string& name, TF2* func)
     : PerfTestMCMC(name)
     , fFunction(func)
 {

@@ -31,7 +31,7 @@ public:
     /* @{ */
 
     /** The default constructor */
-    PerfTest2DFunction(std::string name = "unknown", TF2* func = 0);
+    PerfTest2DFunction(const std::string& name = "unknown", TF2* func = 0);
 
     /** The default destructor */
     ~PerfTest2DFunction();

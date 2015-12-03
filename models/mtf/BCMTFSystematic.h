@@ -36,7 +36,7 @@ public:
     /**
      * The default constructor.
      * @param name The name of the source of systematic uncertainty. */
-    BCMTFSystematic(std::string name);
+    BCMTFSystematic(const std::string& name);
 
     /**
      * The default destructor. */
@@ -48,12 +48,12 @@ public:
 
     /**
      * @return The name of the systematic uncertainty. */
-    std::string GetName()
+    const std::string& GetName()
     { return fName; };
 
     /**
      * @return The name of the systematic uncertainty. */
-    std::string GetSafeName()
+    const std::string& GetSafeName()
     { return fSafeName; };
 
     /**
@@ -72,7 +72,7 @@ public:
     { fFlagSystematicActive = flag; };
 
     /** Set name */
-    void SetName(std::string name)
+    void SetName(const std::string& name)
     { fName = name; fSafeName = BCAux::SafeName(fName); }
 
     /** @} */

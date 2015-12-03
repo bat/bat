@@ -41,7 +41,7 @@ public:
     /* @{ */
 
     /** The default constructor */
-    PerfTest(std::string name = "unknown");
+    PerfTest(const std::string& name = "unknown");
 
     /** The default destructor */
     virtual ~PerfTest();
@@ -65,7 +65,7 @@ public:
      * @param par the parameter value
      * @param name the name of the varied parameter.
      * @return an error code. */
-    virtual int SetVarPar(double /*value*/, std::string /*name*/)
+    virtual int SetVarPar(double /*value*/, const std::string& /*name*/)
     { return 0; };
 
     /** Turn on multivariate proposal with degrees of freedom */
@@ -77,7 +77,7 @@ public:
 
     /** Return the name of the test.
      * @return the name of the test. */
-    std::string GetName()
+    const std::string& GetName()
     { return fName; };
 
     /** Return the test type. */
@@ -127,7 +127,7 @@ public:
     /** Find a subtest by name
      * @param name the name of the subtest.
      * @return the subtest. */
-    PerfSubTest* GetSubtest(std::string name);
+    PerfSubTest* GetSubtest(const std::string& name);
 
     /** Return a canvas from the container.
      * @param index the canvas index.
@@ -178,7 +178,7 @@ public:
 
     /** Add a canvas description to the container.
      * @param hist a canvas. */
-    void AddCanvasDescription(std::string description)
+    void AddCanvasDescription(const std::string& description)
     { fCanvasDescriptionContainer.push_back(description); };
 
     /** Read test results from file.

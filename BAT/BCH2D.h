@@ -250,7 +250,7 @@ public:
 
     /**
      * Draw band, or if band type set to no bands, histogram. */
-    virtual void DrawBands(std::string options = "same");
+    virtual void DrawBands(const std::string& options = "same");
 
     /**
      * Draw Markers: global mode, local mode, etc. */

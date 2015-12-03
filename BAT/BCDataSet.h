@@ -192,7 +192,7 @@ public:
      * @param branchnames List of names of branches to be read from TTree
      * @param delim Character deliminating branch names (default: comma).
      * @return Success of action. */
-    bool ReadDataFromFile(std::string filename, std::string treename, std::string branchnames, char delim = ',')
+    bool ReadDataFromFile(const std::string& filename, const std::string& treename, const std::string& branchnames, char delim = ',')
     { return ReadDataFromFileTree(filename, treename, branchnames, delim); };
 
     /**
@@ -200,7 +200,7 @@ public:
      * @param filename Path to file containing data.
      * @param nvariables Number of variables (columns) in data file.
      * @return Success of action. */
-    bool ReadDataFromFile(std::string filename, int nvariables)
+    bool ReadDataFromFile(const std::string& filename, int nvariables)
     { return ReadDataFromFileTxt(filename, nvariables); };
 
     /**
@@ -212,7 +212,7 @@ public:
      * @param branchnames A list of the names of the branches
      * @param delim Character deliminating between branch names (default: comma)
      * @return Success of action. */
-    bool ReadDataFromFileTree(std::string filename, std::string treename, std::string branchnames, char delim = ',');
+    bool ReadDataFromFileTree(const std::string& filename, const std::string& treename, const std::string& branchnames, char delim = ',');
 
     /**
      * Reads data from a .txt file.  Opens a .txt file and creates
@@ -220,7 +220,7 @@ public:
      * @param filename The name of the .txt file.
      * @param nvariables The number of variables (columns) in file.
      * @return Success of action. */
-    bool ReadDataFromFileTxt(std::string filename, int nvariables);
+    bool ReadDataFromFileTxt(const std::string& filename, int nvariables);
 
     /**
      * Adds a data point to the data set.

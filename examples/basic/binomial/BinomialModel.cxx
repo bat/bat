@@ -6,7 +6,7 @@
 #include <cmath>
 
 // ---------------------------------------------------------
-BinomialModel::BinomialModel(std::string name, unsigned ntotal, unsigned nselected)
+BinomialModel::BinomialModel(const std::string& name, unsigned ntotal, unsigned nselected)
     : BCModel(name)
     , fNTotal(ntotal)
     , fNSelected(nselected)

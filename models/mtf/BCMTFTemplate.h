@@ -40,7 +40,7 @@ public:
      * The default constructor.
      * @param channelname The name of the channel.
      * @param process name The name of the process. */
-    BCMTFTemplate(std::string channelname, std::string processname);
+    BCMTFTemplate(const std::string& channelname, const std::string& processname);
 
     /**
      * The default destructor. */
@@ -53,12 +53,12 @@ public:
 
     /**
      * @return The name of the channel. */
-    std::string GetChannelName()
+    const std::string& GetChannelName()
     { return fChannelName; };
 
     /**
      * @return The name of the process. */
-    std::string GetProcessName()
+    const std::string& GetProcessName()
     { return fProcessName; };
 
     /**
@@ -90,7 +90,7 @@ public:
      * @param norm The target normalization.
      * @return A histogram with each bin fluctuated by the uncertainty on the bin content. \n
      */
-    TH1D FluctuateHistogram(std::string options = "GZ", double norm = 1);
+    TH1D FluctuateHistogram(const std::string& options = "GZ", double norm = 1);
 
     /**
      * @return The function container. */

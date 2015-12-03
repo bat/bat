@@ -33,7 +33,7 @@ BCVariable::BCVariable()
 }
 
 // ---------------------------------------------------------
-BCVariable::BCVariable(std::string name, double lowerlimit, double upperlimit, std::string latexname, std::string unitstring)
+BCVariable::BCVariable(const std::string& name, double lowerlimit, double upperlimit, const std::string& latexname, const std::string& unitstring)
     :	fPrefix("Variable")
     , fLowerLimit(-std::numeric_limits<double>::infinity())
     , fUpperLimit(+std::numeric_limits<double>::infinity())
@@ -49,7 +49,7 @@ BCVariable::BCVariable(std::string name, double lowerlimit, double upperlimit, s
 }
 
 // ---------------------------------------------------------
-void BCVariable::SetName(std::string name)
+void BCVariable::SetName(const std::string& name)
 {
     fName = name;
     fSafeName = BCAux::SafeName(name);
@@ -105,7 +105,7 @@ std::string BCVariable::OneLineSummary(bool print_prefix, int name_length) const
 }
 
 // ---------------------------------------------------------
-TH1* BCVariable::CreateH1(std::string name) const
+TH1* BCVariable::CreateH1(const std::string& name) const
 {
     return new TH1D(name.data(),
                     (";" + GetLatexNameWithUnits() +
@@ -114,7 +114,7 @@ TH1* BCVariable::CreateH1(std::string name) const
 }
 
 // ---------------------------------------------------------
-TH2* BCVariable::CreateH2(std::string name, const BCVariable& ordinate) const
+TH2* BCVariable::CreateH2(const std::string& name, const BCVariable& ordinate) const
 {
     return new TH2D(name.data(),
                     (";" + GetLatexNameWithUnits() +
@@ -125,7 +125,7 @@ TH2* BCVariable::CreateH2(std::string name, const BCVariable& ordinate) const
 }
 
 // ---------------------------------------------------------
-TH3* BCVariable::CreateH3(std::string name, const BCVariable& ordinate_y, const BCVariable& ordinate_z) const
+TH3* BCVariable::CreateH3(const std::string& name, const BCVariable& ordinate_y, const BCVariable& ordinate_z) const
 {
     return new TH3D(name.data(),
                     (";" + GetLatexNameWithUnits() +

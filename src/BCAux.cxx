@@ -136,14 +136,15 @@ void BCAux::DefaultToPDF(std::string& filename)
 }
 
 // ---------------------------------------------------------
-TH2* BCAux::Transpose(const TH2* const h, std::string name)
+TH2* BCAux::Transpose(const TH2* const h, const std::string& name)
 {
 
     if (h == NULL)
         return NULL;
 
-    if (name.empty())
-        name = std::string(h->GetName()) + "_tr";
+    std::string newName(name);
+    if (newName.empty())
+        newName = std::string(h->GetName()) + "_tr";
 
     int nbins_x = h->GetNbinsY();
     double xmin = h->GetYaxis()->GetXmin();
@@ -158,15 +159,15 @@ TH2* BCAux::Transpose(const TH2* const h, std::string name)
     std::string title = std::string(h->GetTitle()) + ";" + xtitle + ";" + ytitle + ";" + h->GetZaxis()->GetTitle();
 
     if (dynamic_cast<const TH2C*>(h) != NULL)
-        return new TH2C(name.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
+        return new TH2C(newName.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
     if (dynamic_cast<const TH2S*>(h) != NULL)
-        return new TH2S(name.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
+        return new TH2S(newName.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
     if (dynamic_cast<const TH2I*>(h) != NULL)
-        return new TH2I(name.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
+        return new TH2I(newName.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
     if (dynamic_cast<const TH2F*>(h) != NULL)
-        return new TH2F(name.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
+        return new TH2F(newName.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
     if (dynamic_cast<const TH2D*>(h) != NULL)
-        return new TH2D(name.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
+        return new TH2D(newName.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
     return NULL;
 }
 
@@ -197,10 +198,11 @@ void BCAux::MakeFinite(double& xmin, double& xmax)
 }
 
 // ---------------------------------------------------------
-std::string BCAux::SafeName(std::string name)
+std::string BCAux::SafeName(const std::string& name)
 {
-    name.erase(std::remove_if(name.begin(), name.end(), std::not1(std::ptr_fun(BCAux::AllowedCharacter))), name.end());
-    return name;
+    std::string res(name);
+    res.erase(std::remove_if(res.begin(), res.end(), std::not1(std::ptr_fun(BCAux::AllowedCharacter))), res.end());
+    return res;
 }
 
 // ---------------------------------------------------------
@@ -456,7 +458,7 @@ void BCAux::DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posteri
 }
 
 // ---------------------------------------------------------
-unsigned BCAux::PrintPlots(std::vector<BCH1D>& h1, std::vector<BCH2D>& h2, std::string filename, unsigned hdiv, unsigned vdiv)
+unsigned BCAux::PrintPlots(std::vector<BCH1D>& h1, std::vector<BCH2D>& h2, const std::string& filename, unsigned hdiv, unsigned vdiv)
 {
     const unsigned nplots = h1.size() + h2.size();
     if (nplots == 0) {

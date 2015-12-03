@@ -63,8 +63,9 @@ git diff --cached --name-status --diff-filter=ACMR |
 	    # finished, the subshell copy is discarded, and the original variable
 	    # RETURN of the parent hasn't changed properly.
 	    while read STATUS FILE; do
-            # regex matching
-	        if [[ "$FILE" =~ \.(C|cxx|h)$ ]]; then
+            # match file ending and don't match ignore pattern.
+            # egrep -v returns success code if $FILE is not one of the patterns in tools/astyle-ignore
+	        if [[ "$FILE" =~ \.(C|cxx|h)$ ]] && [[ $(echo "$FILE" | egrep -v -f tools/astyle-ignore) ]]; then
 		        formatted=`$ASTYLE $OPTIONS $FILE | sed -n '/^Unchanged/p'`
 		        if [ -z "$formatted" ]; then
 			        echo "[commit rejected] $FILE does not respect the agreed coding standards." >&2

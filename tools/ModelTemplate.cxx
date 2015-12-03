@@ -9,7 +9,7 @@
 #include <BAT/BCMath.h>
 
 // ---------------------------------------------------------
-((MODEL))::((MODEL))(std::string name)
+((MODEL))::((MODEL))(const std::string& name)
     : BCModel(name)
 {
     // Define parameters here in the constructor. For example:

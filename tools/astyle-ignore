@@ -1,0 +1,8 @@
+# use extended regular expressions with `egrep`.
+# No blank lines!!
+#
+# no root dictionaries
+rdict.cxx$
+rdict.h$
+# it's not valid C++ so astyle gets confused.
+ModelTemplate.h$

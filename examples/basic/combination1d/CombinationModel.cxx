@@ -5,7 +5,7 @@
 #include <BAT/BCPositiveDefinitePrior.h>
 
 // ---------------------------------------------------------
-CombinationModel::CombinationModel(std::string name,
+CombinationModel::CombinationModel(const std::string& name,
                                    double new_mean, double new_sigma,
                                    double old_mean, double old_sigma)
     : BCModel(name),

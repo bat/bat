@@ -202,7 +202,7 @@ public:
 
     /**
      * Draw bands. */
-    virtual void DrawBands(std::string options = "same");
+    virtual void DrawBands(const std::string& options = "same");
 
     /**
      * Draw markers: global mode, local mode, mean, quantiles, median. */
@@ -221,7 +221,7 @@ public:
      * @param prefix String to be prepended to every line.
      * @param intervals Vector of intervals to print.
      * @param prec Precision of doubles to output. */
-    void PrintSummary(std::string prefix = "", unsigned prec = 6, std::vector<double> intervals = std::vector<double>(0));
+    void PrintSummary(const std::string& prefix = "", unsigned prec = 6, std::vector<double> intervals = std::vector<double>(0));
 
     /**
      * \struct BCH1DInterval
@@ -270,7 +270,7 @@ public:
      * @param name Name for new histogram; empty string (default) appends "subhist" to histogram name.
      * @param preserve_range If true, preserves original histograms range, setting bins outside subhistogram range to zero.
      * @return new histogram which is nonzero only between min and max */
-    TH1* GetSubHistogram(double min, double max, std::string name = "", bool preserve_range = false);
+    TH1* GetSubHistogram(double min, double max, const std::string& name = "", bool preserve_range = false);
 
     /** @} */
 

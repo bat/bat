@@ -60,7 +60,7 @@ BCMTFAnalysisFacility::~BCMTFAnalysisFacility()
 }
 
 // ---------------------------------------------------------
-std::vector<TH1D> BCMTFAnalysisFacility::BuildEnsemble(const std::vector<double>& parameters, std::string options)
+std::vector<TH1D> BCMTFAnalysisFacility::BuildEnsemble(const std::vector<double>& parameters, const std::string& options)
 {
     // option flags
     bool flag_data = false;
@@ -107,7 +107,7 @@ std::vector<TH1D> BCMTFAnalysisFacility::BuildEnsemble(const std::vector<double>
 }
 
 // ---------------------------------------------------------
-TTree* BCMTFAnalysisFacility::BuildEnsembles(TTree* tree, int nensembles, std::string options)
+TTree* BCMTFAnalysisFacility::BuildEnsembles(TTree* tree, int nensembles, const std::string& options)
 {
     // get number of channels
     int nchannels = fMTF->GetNChannels();
@@ -212,7 +212,7 @@ TTree* BCMTFAnalysisFacility::BuildEnsembles(TTree* tree, int nensembles, std::s
 }
 
 // ---------------------------------------------------------
-TTree* BCMTFAnalysisFacility::BuildEnsembles(const std::vector<double>& parameters, int nensembles, std::string options)
+TTree* BCMTFAnalysisFacility::BuildEnsembles(const std::vector<double>& parameters, int nensembles, const std::string& options)
 {
     // get number of channels
     int nchannels = fMTF->GetNChannels();
@@ -308,7 +308,7 @@ TTree* BCMTFAnalysisFacility::BuildEnsembles(const std::vector<double>& paramete
 }
 
 // ---------------------------------------------------------
-TTree* BCMTFAnalysisFacility::PerformEnsembleTest(const std::vector<double>& parameters, int nensembles, std::string options)
+TTree* BCMTFAnalysisFacility::PerformEnsembleTest(const std::vector<double>& parameters, int nensembles, const std::string& options)
 {
     // create new tree
     TTree* tree = 0;
@@ -321,7 +321,7 @@ TTree* BCMTFAnalysisFacility::PerformEnsembleTest(const std::vector<double>& par
 }
 
 // ---------------------------------------------------------
-TTree* BCMTFAnalysisFacility::PerformEnsembleTest(TTree* tree, int nensembles, int start, std::string options)
+TTree* BCMTFAnalysisFacility::PerformEnsembleTest(TTree* tree, int nensembles, int start, const std::string& options)
 {
     BCLog::OutSummary("Running ensemble test.");
     if (fFlagMarginalize) {
@@ -700,7 +700,7 @@ std::vector<TH1D> BCMTFAnalysisFacility::MatrixToHistograms(const std::vector< s
 }
 
 // ---------------------------------------------------------
-int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(std::string dirname, const char* options)
+int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const std::string& dirname, const std::string& options)
 {
     BCLog::OutSummary("Running single channel analysis in directory \'" + dirname + "\'");
 
@@ -981,7 +981,7 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(std::string dirname, con
 }
 
 // ---------------------------------------------------------
-int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(std::string dirname, const char* options)
+int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const std::string& dirname, const std::string& options)
 {
     BCLog::OutSummary("Running single channel systematic analysis in directory \'" + dirname + "\'.");
 
@@ -998,7 +998,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(std::string dirname, 
 
     bool flag_mcmc = true;
 
-    if (std::string(options).find("mcmc") < std::string(options).size())
+    if (options.find("mcmc") < options.size())
         flag_mcmc = true;
 
     // get number of channels
@@ -1223,7 +1223,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(std::string dirname, 
 }
 
 // ---------------------------------------------------------
-int BCMTFAnalysisFacility::PerformCalibrationAnalysis(std::string dirname, const std::vector<double>& default_parameters, int index, const std::vector<double>& parametervalues, int nensembles)
+int BCMTFAnalysisFacility::PerformCalibrationAnalysis(const std::string& dirname, const std::vector<double>& default_parameters, int index, const std::vector<double>& parametervalues, int nensembles)
 {
     BCLog::OutSummary("Running calibration analysis in directory \'" + dirname + "\'.");
 

@@ -73,7 +73,7 @@ int TestSuite::GetNTests(PerfSubTest::Status status)
 }
 
 //______________________________________________________________________________
-PerfTest* TestSuite::GetTest(std::string name)
+PerfTest* TestSuite::GetTest(const std::string& name)
 {
     // get number of sub tests
     int n = GetNTests();
@@ -153,7 +153,7 @@ void TestSuite::PrintResultsScreen()
 }
 
 //______________________________________________________________________________
-void TestSuite::PrintResultsHTML(std::string filename)
+void TestSuite::PrintResultsHTML(const std::string& filename)
 {
     // open file
     std::ofstream file_main;

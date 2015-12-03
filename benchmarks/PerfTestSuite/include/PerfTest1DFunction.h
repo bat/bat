@@ -34,7 +34,7 @@ public:
     /* @{ */
 
     /** The default constructor */
-    PerfTest1DFunction(std::string name = "unknown", TF1* func = 0);
+    PerfTest1DFunction(const std::string& name = "unknown", TF1* func = 0);
 
     /** The default destructor */
     virtual ~PerfTest1DFunction();

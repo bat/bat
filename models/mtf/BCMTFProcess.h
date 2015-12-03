@@ -36,7 +36,7 @@ public:
     /**
      * The default constructor.
      * name The name of the process. */
-    BCMTFProcess(std::string name);
+    BCMTFProcess(const std::string& name);
 
     /**
      * The default destructor. */
@@ -48,12 +48,12 @@ public:
 
     /**
      * @return The name of the process. */
-    std::string GetName()
+    const std::string& GetName()
     { return fName; };
 
     /**
      * @return The safe name of the process. */
-    std::string GetSafeName()
+    const std::string& GetSafeName()
     { return fSafeName; };
 
     /**
@@ -79,7 +79,7 @@ public:
     /**
      * Set the name of the process.
      * @param name The name of the process. */
-    void SetName(std::string name)
+    void SetName(const std::string& name)
     { fName = name; fSafeName = BCAux::SafeName(name); };
 
     /**

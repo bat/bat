@@ -22,13 +22,13 @@ class ((MODEL)) : public BCModel
 public:
 
     // Constructor
-    ((MODEL))(std::string name);
+    ((MODEL))(const std::string& name);
 
     // Destructor
     ~((MODEL))();
 
     // Overload LogLikelihood to implement model
-    double LogLikelihood(const std::vector<double> & parameters);
+    double LogLikelihood(const std::vector<double>& parameters);
 
     // Overload LogAprioriProbability if not using built-in 1D priors
     // double LogAPrioriProbability(const std::vector<double> & parameters);

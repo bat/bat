@@ -6,7 +6,7 @@
 #include <cmath>
 
 // ---------------------------------------------------------
-RatioModel::RatioModel(std::string name)
+RatioModel::RatioModel(const std::string& name)
     : BCModel(name)
 {
     // define the parameters x and y

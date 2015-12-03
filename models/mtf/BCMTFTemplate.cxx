@@ -16,7 +16,7 @@
 #include "BCMTFTemplate.h"
 
 // ---------------------------------------------------------
-BCMTFTemplate::BCMTFTemplate(std::string channelname, std::string processname)
+BCMTFTemplate::BCMTFTemplate(const std::string& channelname, const std::string& processname)
     : fEfficiency(0)
     , fHistogram(0)
     , fNBins(0)
@@ -68,7 +68,7 @@ void BCMTFTemplate::SetFunctionContainer(std::vector<TF1*>* funccont, int nbins)
 }
 
 // ---------------------------------------------------------
-TH1D BCMTFTemplate::FluctuateHistogram(std::string options, double norm)
+TH1D BCMTFTemplate::FluctuateHistogram(const std::string& options, double norm)
 {
     // option flags
     bool flag_p = false;
