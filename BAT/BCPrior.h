@@ -7,7 +7,16 @@
  * \author Daniel Greenwald
  * \version 1.0
  * \date 01.2015
+ *
  * \defgroup Priors Classes for defining priors
+ *
+ * If the prior factorizes into a product of 1D priors, members of
+ * this group can be used to model the individual 1D
+ * distributions. For example, a standard Gaussian for the first parameter is set by
+ *
+ * ~~~{.cpp}
+ * model.GetParameter(0).SetPrior(new BCPriorGaussian(1, 0))
+ * ~~~
  */
 
 

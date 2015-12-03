@@ -39,11 +39,11 @@ AC_ARG_ENABLE(
 AM_CONDITIONAL([DEBUG], [test x$debug = xtrue])
 
 dnl
-dnl Check for parallelization mode
+dnl Check for parallel mode
 dnl
 AC_ARG_ENABLE(
-	[parallelization],
-	[AS_HELP_STRING([--enable-parallelization],[compile with OpenMP thread parallelization (default no)])],
+	[parallel],
+	[AS_HELP_STRING([--enable-parallel],[compile with OpenMP thread parallelization (default no)])],
 	[
 		case "${enableval}" in
 			yes) parallelization=1 ;
@@ -52,7 +52,7 @@ AC_ARG_ENABLE(
 				DEP_CFLAGS="$DEP_CFLAGS -fopenmp" ;
 				DEP_LIBS="$DEP_LIBS -fopenmp" ;;
 			no)  parallelization=0 ;;
-			*) AC_MSG_ERROR([bad value ${enableval} for --enable-parallelization]) ;;
+			*) AC_MSG_ERROR([bad value ${enableval} for --enable-parallel]) ;;
 		esac
 	],
 	[parallelization=0]
@@ -303,12 +303,13 @@ REQUIRE_ROOT_VERSION([5.27.04])
 dnl RooStats
 AC_ARG_ENABLE(
 	[roostats],
-	[AS_HELP_STRING([--disable-roostats],[compile with RooStats support (default yes if available)])],
+	[AS_HELP_STRING([--enable-roostats],[compile with RooStats support (default: no)])],
 	[
-		use_roostats=${enable_val}
+		use_roostats=${enableval};
 	],
-	[use_roostats=yes]
+	[use_roostats=no]
 )
+
 dnl ROOT
 m4_include(tools/build/root.m4)
 ROOT_PATH(
