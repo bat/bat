@@ -53,7 +53,7 @@ public:
     /**
      * Get fit function. */
     TF1& GetFitFunction()
-    { return fFitFunction.at(MCMCGetCurrentChain()); }
+    { return fFitFunction.at(GetCurrentChain()); }
 
     /**
      * @param level Desired probability mass
@@ -73,7 +73,7 @@ public:
     TGraph* GetFitFunctionGraph(const std::vector<double>& parameters);
 
     TGraph* GetFitFunctionGraph()
-    { return GetFitFunctionGraph(std::vector<double>(GetGlobalMode().begin(), GetGlobalMode().begin() + GetNParameters())); }
+    { return GetFitFunctionGraph(std::vector<double>(GetBestFitParameters().begin(), GetBestFitParameters().begin() + GetNParameters())); }
 
     TGraph* GetFitFunctionGraph(const std::vector<double>& parameters, double xmin, double xmax, int n = 1000);
 
@@ -164,14 +164,14 @@ public:
 
     /**
      * Overloaded from BCEngineMCMC */
-    virtual void MCMCIterationInterface();
+    virtual void MCMCUserIterationInterface();
 
     /**
      * Overloaded from BCIntegrate. */
     virtual void MarginalizePreprocess();
 
     /**
-     * Fill error band histogram for curreent iteration. This method is called from MCMCIterationInterface() */
+     * Fill error band histogram for current iteration. This method is called from MCMCUserIterationInterface() */
     void FillErrorBand();
 
     /**

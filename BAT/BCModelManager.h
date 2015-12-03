@@ -99,7 +99,7 @@ public:
 
     /**
      * Set the precision for the MCMC run. */
-    void MCMCSetPrecision(BCEngineMCMC::Precision precision);
+    void SetPrecision(BCEngineMCMC::Precision precision);
 
     /**
      * Sets the maximum number of iterations for the Monte Carlo

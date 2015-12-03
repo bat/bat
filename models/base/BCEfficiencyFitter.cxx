@@ -123,12 +123,12 @@ bool BCEfficiencyFitter::Fit()
     // to the global maximum from the MCMC
     BCIntegrate::BCOptimizationMethod method_temp = GetOptimizationMethod();
     SetOptimizationMethod(BCIntegrate::kOptMinuit);
-    FindMode(GetGlobalMode());
+    FindMode(GetBestFitParameters());
     SetOptimizationMethod(method_temp);
 
     // calculate the p-value using the fast MCMC algorithm
     double pvalue, pvalueCorrected;
-    if ( CalculatePValueFast(GetGlobalMode(), pvalue, pvalueCorrected) )
+    if ( CalculatePValueFast(GetBestFitParameters(), pvalue, pvalueCorrected) )
         fPValue = pvalue;
     else
         BCLog::OutError("BCEfficiencyFitter::Fit : Could not use the fast p-value evaluation.");

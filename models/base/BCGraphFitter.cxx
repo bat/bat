@@ -114,11 +114,11 @@ bool BCGraphFitter::Fit()
     // to the global maximum from the MCMC
     BCIntegrate::BCOptimizationMethod method_temp = GetOptimizationMethod();
     SetOptimizationMethod(BCIntegrate::kOptMinuit);
-    FindMode(GetGlobalMode());
+    FindMode(GetBestFitParameters());
     SetOptimizationMethod(method_temp);
 
     // p value with (approximate) correction for degrees of freedom
-    CalculatePValue(GetGlobalMode(), true);
+    CalculatePValue(GetBestFitParameters(), true);
 
     // print summary to screen
     PrintShortFitSummary();

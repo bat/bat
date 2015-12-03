@@ -93,11 +93,8 @@ void BCFitter::MCMCUserInitialize()
 }
 
 // ---------------------------------------------------------
-void BCFitter::MCMCIterationInterface()
+void BCFitter::MCMCUserIterationInterface()
 {
-    // call base interface
-    BCEngineMCMC::MCMCIterationInterface();
-
     // fill error band
     if (fFlagFillErrorBand)
         FillErrorBand();
@@ -151,9 +148,9 @@ void BCFitter::FillErrorBand()
             xvec.push_back(x);
 
             // loop over all chains
-            for (unsigned ichain = 0; ichain < MCMCGetNChains(); ++ichain) {
+            for (unsigned ichain = 0; ichain < GetNChains(); ++ichain) {
                 // calculate y
-                double y = FitFunction(xvec, MCMCGetx(ichain));
+                double y = FitFunction(xvec, Getx(ichain));
 
                 // fill histogram
                 fErrorBandXY.Fill(x, y);
@@ -176,9 +173,9 @@ void BCFitter::FillErrorBand()
             xvec.push_back(x);
 
             // loop over all chains
-            for (unsigned ichain = 0; ichain < MCMCGetNChains(); ++ichain) {
+            for (unsigned ichain = 0; ichain < GetNChains(); ++ichain) {
                 // calculate y
-                double y = FitFunction(xvec, MCMCGetx(ichain));
+                double y = FitFunction(xvec, Getx(ichain));
 
                 // fill histogram
                 fErrorBandXY.Fill(x, y);

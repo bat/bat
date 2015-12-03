@@ -102,7 +102,7 @@ void efficiencyFitterExample()
 
     // create a new efficiency fitter
     BCEfficiencyFitter hef(h_denom, h_numer, f1);
-    hef.MCMCSetRandomSeed(1346);
+    hef.SetRandomSeed(1346);
 
     // set options for evaluating the fit function
     hef.SetFlagIntegration(false);
@@ -111,7 +111,7 @@ void efficiencyFitterExample()
     hef.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
     // set options for MCMC
-    hef.MCMCSetPrecision(BCEngineMCMC::kQuick);
+    hef.SetPrecision(BCEngineMCMC::kQuick);
 
     // // perform fit
     hef.Fit();

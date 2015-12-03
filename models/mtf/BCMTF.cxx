@@ -559,7 +559,7 @@ void BCMTF::PrintFitSummary()
 
     BCLog::OutSummary(" Goodness-of-fit: ");
     for (int i = 0; i < GetNChannels(); ++i)
-        BCLog::OutSummary(Form(" %d : \"%s\" : chi2 = %f", i, fChannelContainer[i]->GetName().data(), CalculateChi2(i, GetGlobalMode())));
+        BCLog::OutSummary(Form(" %d : \"%s\" : chi2 = %f", i, fChannelContainer[i]->GetName().data(), CalculateChi2(i, GetBestFitParameters())));
     BCLog::OutSummary("");
 }
 

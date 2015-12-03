@@ -102,13 +102,13 @@ void singleChannel()
     m->GetParameter("signal").SetPriorConstant();
 
     // set precision
-    m->MCMCSetPrecision(BCEngineMCMC::kQuick);
+    m->SetPrecision(BCEngineMCMC::kQuick);
 
     // marginalize
     m->MarginalizeAll(BCIntegrate::kMargMetropolis);
 
     // find global mode
-    m->FindMode( m->GetGlobalMode() );
+    m->FindMode( m->GetBestFitParameters() );
 
     // print all marginalized distributions
     m->PrintAllMarginalized("marginalized.pdf");
@@ -119,7 +119,7 @@ void singleChannel()
     // print templates and stacks
     BCMTFChannel* channel = m->GetChannel(0);
     channel->PrintTemplates(channel->GetSafeName() + "_templates.pdf");
-    m->PrintStack(0, m->GetGlobalMode(), channel->GetSafeName() + "_stack.pdf");
+    m->PrintStack(0, m->GetBestFitParameters(), channel->GetSafeName() + "_stack.pdf");
 
     // ---- clean up ---- //
 

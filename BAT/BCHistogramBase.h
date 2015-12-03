@@ -115,18 +115,18 @@ public:
 
     /**
      * @return The global mode. */
-    std::vector<double>&  GetGlobalMode()
+    std::vector<double>&  GetBestFitParameters()
     { return fGlobalMode; }
 
     /**
      * @return The global mode. */
-    const std::vector<double>&  GetGlobalMode() const
+    const std::vector<double>&  GetBestFitParameters() const
     { return fGlobalMode; }
 
     /**
      * @return i'th component of global mode.
      * @param i index of coordinate to return. */
-    double GetGlobalMode(unsigned i) const
+    double GetBestFitParameters(unsigned i) const
     { return fGlobalMode.at(i); }
 
     /**
@@ -199,7 +199,7 @@ public:
 
     /**
      * @return Global mode marker style. */
-    int GetGlobalModeMarkerStyle() const
+    int GetBestFitParametersMarkerStyle() const
     { return fGlobalModeMarkerStyle; }
 
     /**

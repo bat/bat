@@ -71,7 +71,7 @@ int main()
 
     // set the required precision of the MCMC (kLow, kQuick, kMedium, kHigh)
     // the higher the precision the longer the MCMC run
-    m.MCMCSetPrecision(BCEngineMCMC::kQuick);
+    m.SetPrecision(BCEngineMCMC::kQuick);
 
     // add channels
     m.AddChannel("channel1");
@@ -117,7 +117,7 @@ int main()
     m.MarginalizeAll();
 
     // find global mode
-    m.FindMode(m.GetGlobalMode());
+    m.FindMode(m.GetBestFitParameters());
 
     // print all marginalized distributions
     m.PrintAllMarginalized("marginalized.pdf");
@@ -138,7 +138,7 @@ int main()
         channel->PrintTemplate(0, Form("background_%i.pdf", i));
         channel->PrintTemplate(1, Form("signal_%i.pdf", i));
 
-        m.PrintStack(i, m.GetGlobalMode(), channel->GetSafeName() + "_stack.pdf");
+        m.PrintStack(i, m.GetBestFitParameters(), channel->GetSafeName() + "_stack.pdf");
     }
 
     // ---- perform single systematic analysis ---- //

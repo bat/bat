@@ -92,7 +92,7 @@ void histogramFitterExample()
     hf.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
     // set precision
-    hf.MCMCSetPrecision(BCEngineMCMC::kQuick);
+    hf.SetPrecision(BCEngineMCMC::kQuick);
 
     // integrate function over bin (true) or use linear interpolation
     hf.SetFlagIntegration(false);
@@ -104,7 +104,7 @@ void histogramFitterExample()
     hf.Fit();
 
     // calculate p values
-    hf.CalculatePValueFast(hf.GetGlobalMode());
+    hf.CalculatePValueFast(hf.GetBestFitParameters());
     cout << "p value " << hf.GetPValue() << ", corrected for degrees of freedom " << hf.GetPValueNDoF() << endl;
 
     // print marginalized distributions

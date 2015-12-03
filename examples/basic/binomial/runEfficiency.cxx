@@ -19,7 +19,7 @@ int main()
     m.MarginalizeAll();
 
     // find mode starting from the best fit parameters
-    m.FindMode(m.GetGlobalMode());
+    m.FindMode(m.GetBestFitParameters());
 
     // draw all marginalized distributions into a pdf file
     m.PrintAllMarginalized("BinomialModel_plots.pdf");

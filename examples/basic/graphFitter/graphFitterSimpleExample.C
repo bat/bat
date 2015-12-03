@@ -99,7 +99,7 @@ void graphFitterSimpleExample()
     gf.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
     // set precision
-    gf.MCMCSetPrecision(BCEngineMCMC::kQuick);
+    gf.SetPrecision(BCEngineMCMC::kQuick);
 
     // perform the fit
     gf.Fit();

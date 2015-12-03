@@ -22,26 +22,26 @@ GaussModel* gauss_check(bool multivariate_proposal)
     static const unsigned dim = 5;
     GaussModel& m = *new GaussModel(name.c_str(), dim);
 
-    m.MCMCSetNChains(2);
-    m.MCMCSetNIterationsPreRunCheck(500);
-    m.MCMCSetPreRunCheckClear(40);
-    m.MCMCSetNIterationsPreRunMax(1000000);
-    m.MCMCSetNIterationsPreRunMin(1000);
-    m.MCMCSetNIterationsRun(100000);
-    m.MCMCSetMinimumEfficiency(0.15);
-    m.MCMCSetMaximumEfficiency(0.35);
+    m.SetNChains(2);
+    m.SetNIterationsPreRunCheck(500);
+    m.SetPreRunCheckClear(40);
+    m.SetNIterationsPreRunMax(1000000);
+    m.SetNIterationsPreRunMin(1000);
+    m.SetNIterationsRun(100000);
+    m.SetMinimumEfficiency(0.15);
+    m.SetMaximumEfficiency(0.35);
 
-    m.MCMCSetCorrectRValueForSamplingVariability(true);
-    m.MCMCSetMultivariateProposalFunction(multivariate_proposal);
+    m.SetCorrectRValueForSamplingVariability(true);
+    m.SetProposeMultivariate(multivariate_proposal);
 
-    m.MCMCSetRandomSeed(23062015);
+    m.SetRandomSeed(23062015);
 
     m.MarginalizeAll(BCIntegrate::kMargMetropolis);
 
     /* analyze statistics */
 
     // no accidental calls to likelihood
-    unsigned ncalls = m.MCMCGetNChains() * (m.MCMCGetNIterationsConvergenceGlobal() + m.MCMCGetNIterationsRun());
+    unsigned ncalls = m.GetNChains() * (m.GetNIterationsConvergenceGlobal() + m.GetNIterationsRun());
     ncalls *= multivariate_proposal ? 1 : dim;
     TEST_CHECK_EQUAL(m.Calls(), ncalls);
     //            m.PrintAllMarginalized(std::string(__FILE__) + "_gauss.pdf");
@@ -50,11 +50,11 @@ GaussModel* gauss_check(bool multivariate_proposal)
     const double var = m.sigma() * m.sigma();
 
     // check each chain
-    const std::vector<BCEngineMCMC::MCMCStatistics>& s = m.MCMCGetStatisticsVector();
+    const std::vector<BCEngineMCMC::Statistics>& s = m.GetStatisticsVector();
     for (unsigned j = 0; j < s.size(); ++j) {
         BCLog::OutSummary(Form("Checking chain %d -->", j));
 
-        TEST_CHECK_EQUAL(s[j].n_samples, m.MCMCGetNIterationsRun());
+        TEST_CHECK_EQUAL(s[j].n_samples, m.GetNIterationsRun());
         // mean etc. are per parameter
         TEST_CHECK_EQUAL(s[j].mean.size(), m.GetNParameters());
         TEST_CHECK_EQUAL(s[j].variance.size(), m.GetNParameters());
@@ -66,7 +66,7 @@ GaussModel* gauss_check(bool multivariate_proposal)
         for (unsigned i = 0; i < m.GetNParameters(); ++i) {
             /* compare to values set inside gauss model' likelihood */
             // error on the mean from independent samples
-            const double bestError = sqrt(var * m.MCMCGetNIterationsRun()) / m.MCMCGetNIterationsRun();
+            const double bestError = sqrt(var * m.GetNIterationsRun()) / m.GetNIterationsRun();
 
             // we don't know the effective sample size but should use it here
             // instead of an arbitrary factor
@@ -109,8 +109,8 @@ GaussModel* gauss_check(bool multivariate_proposal)
     }
 
     // check all-chains statistics object
-    const BCEngineMCMC::MCMCStatistics& S = m.MCMCGetStatistics();
-    TEST_CHECK_EQUAL(S.n_samples, m.MCMCGetNIterationsRun() * m.MCMCGetNChains());
+    const BCEngineMCMC::Statistics& S = m.GetStatistics();
+    TEST_CHECK_EQUAL(S.n_samples, m.GetNIterationsRun() * m.GetNChains());
     // mean etc. are per parameter
     TEST_CHECK_EQUAL(S.mean.size(), m.GetNParameters());
     TEST_CHECK_EQUAL(S.variance.size(), m.GetNParameters());
@@ -123,7 +123,7 @@ GaussModel* gauss_check(bool multivariate_proposal)
         /* compare to values set inside gauss model' likelihood */
 
         // error on the mean from independent samples
-        const double bestError = sqrt(var * m.MCMCGetNIterationsRun()) / m.MCMCGetNIterationsRun();
+        const double bestError = sqrt(var * m.GetNIterationsRun()) / m.GetNIterationsRun();
 
         // we don't know the effective sample size but should use it here
         // instead of an arbitrary factor

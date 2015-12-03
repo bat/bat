@@ -76,10 +76,10 @@ void BCModelManager::AddModel(BCModel* model, double probability)
 }
 
 // ---------------------------------------------------------
-void BCModelManager::MCMCSetPrecision(BCEngineMCMC::Precision precision)
+void BCModelManager::SetPrecision(BCEngineMCMC::Precision precision)
 {
     for (unsigned i = 0; i < GetNModels(); ++i)
-        GetModel(i)->MCMCSetPrecision(precision);
+        GetModel(i)->SetPrecision(precision);
 }
 
 // ---------------------------------------------------------
@@ -149,7 +149,7 @@ void BCModelManager::SetNbins(unsigned int n)
 void BCModelManager::SetNChains(unsigned int n)
 {
     for (unsigned i = 0; i < GetNModels(); ++i)
-        GetModel(i)->MCMCSetNChains(n);
+        GetModel(i)->SetNChains(n);
 }
 
 // ---------------------------------------------------------

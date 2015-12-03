@@ -293,19 +293,19 @@ void TestSuite::PrintResultsHTML(const std::string& filename)
 
         if (GetTest(i)->GetTestType() ==  PerfTest::kFunction1D || GetTest(i)->GetTestType() ==  PerfTest::kFunction2D) {
             const PerfTest1DFunction* m = (PerfTest1DFunction*) GetTest(i);
-            const bool converged = (m->MCMCGetNIterationsConvergenceGlobal() != -1);
+            const bool converged = (m->GetNIterationsConvergenceGlobal() != -1);
 
             file << "<table border=\"0\" width=\"30%\">" << std::endl;
             file << "<tr>";
             file << "  <th align=\"left\">Settings</th>" << std::endl;
             file << "</tr>" << std::endl;
-            file << " <tr> <td>multivariate</td> <td>" << std::boolalpha << m->MCMCGetMultivariateProposalFunction() << " </td></tr>"  << std::endl;
-            file << " <tr> <td>N chains</td> <td>" << m->MCMCGetNChains() << " </td></tr>"  << std::endl;
-            file << " <tr> <td>N lag</td> <td>" << m->MCMCGetNLag() << " </td></tr>"  << std::endl;
+            file << " <tr> <td>multivariate</td> <td>" << std::boolalpha << m->GetMultivariateProposalFunction() << " </td></tr>"  << std::endl;
+            file << " <tr> <td>N chains</td> <td>" << m->GetNChains() << " </td></tr>"  << std::endl;
+            file << " <tr> <td>N lag</td> <td>" << m->GetNLag() << " </td></tr>"  << std::endl;
             file << " <tr> <td>Convergence</td> <td>" << (converged ? "<font color=\"#4cc417\">true</font>" : "<font color=\"#FF8000\">false</font>") << " </td></tr>"  << std::endl;
-            file << " <tr> <td>prerun iterations </td> <td>" << (converged ? m->MCMCGetNIterationsConvergenceGlobal() : m->MCMCGetNIterationsPreRunMax()) << " </td></tr>"  << std::endl;
-            file << " <tr> <td>iterations (with lag)</td> <td>" << m->MCMCGetNIterationsRun() << " ("
-                 << m->MCMCGetNIterationsRun() / m->MCMCGetNLag() << ") </td></tr>"  << std::endl;
+            file << " <tr> <td>prerun iterations </td> <td>" << (converged ? m->GetNIterationsConvergenceGlobal() : m->GetNIterationsPreRunMax()) << " </td></tr>"  << std::endl;
+            file << " <tr> <td>iterations (with lag)</td> <td>" << m->GetNIterationsRun() << " ("
+                 << m->GetNIterationsRun() / m->GetNLag() << ") </td></tr>"  << std::endl;
             file << "</table>" << std::endl;
             file << "</br>" << std::endl;
         }

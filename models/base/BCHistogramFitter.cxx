@@ -49,7 +49,7 @@ BCHistogramFitter::BCHistogramFitter(const TH1& hist, const TF1& func, const std
     // set the indeces for fitting.
     SetFitFunctionIndices(0, 1);
 
-    MCMCSetNIterationsRun(2000);
+    SetNIterationsRun(2000);
     SetFillErrorBand(true);
     fFlagIntegration = true;
 
@@ -96,11 +96,11 @@ bool BCHistogramFitter::Fit()
     // to the global maximum from the MCMC
     BCIntegrate::BCOptimizationMethod method_temp = GetOptimizationMethod();
     SetOptimizationMethod(BCIntegrate::kOptMinuit);
-    FindMode(GetGlobalMode());
+    FindMode(GetBestFitParameters());
     SetOptimizationMethod(method_temp);
 
     // calculate the p-value using the fast MCMC algorithm
-    if (!CalculatePValueFast(GetGlobalMode()))
+    if (!CalculatePValueFast(GetBestFitParameters()))
         BCLOG_WARNING("Could not use the fast p-value evaluation.");
 
     // print summary to screen
@@ -113,7 +113,7 @@ bool BCHistogramFitter::Fit()
 // ---------------------------------------------------------
 void BCHistogramFitter::DrawFit(const char* options, bool flaglegend)
 {
-    if (GetGlobalMode().empty()) {
+    if (GetBestFitParameters().empty()) {
         BCLOG_ERROR("Fit not performed yet.");
         return;
     }

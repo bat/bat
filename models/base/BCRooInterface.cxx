@@ -267,7 +267,7 @@ void BCRooInterface::SetupRooStatsMarkovChain()
     _parametersForMarkovChainPrevious.writeToStream(std::cout, false);
 
     //initialize fPreviousStep, fCurrentStep, fVecWeights
-    int nchains = MCMCGetNChains();
+    int nchains = GetNChains();
     for (int countChains = 1; countChains <= nchains ; countChains++ ) {
         double tempweight = 1.0;
         fVecWeights.push_back(tempweight);
@@ -300,7 +300,7 @@ void BCRooInterface::MCMCIterationInterface()
     if (_fillChain) {
         //std::cout << "Hei-ho running with fillChain!" << std::endl;
         // get number of chains
-        int nchains = MCMCGetNChains();
+        int nchains = GetNChains();
 
         // loop over all chains and fill histogram
         for (int i = 0; i < nchains; ++i) {
@@ -342,7 +342,7 @@ void BCRooInterface::MCMCIterationInterface()
 
             if ( !(EqualsLastChainElement(i)) ) {
                 double weight = GetWeightForChain(i);
-                _roostatsMarkovChain->Add(_parametersForMarkovChainPrevious, -1.* MCMCGetLogProbx(j), weight);
+                _roostatsMarkovChain->Add(_parametersForMarkovChainPrevious, -1.* GetLogProbx(j), weight);
                 _parametersForMarkovChainPrevious = _parametersForMarkovChainCurrent;
             }
         }

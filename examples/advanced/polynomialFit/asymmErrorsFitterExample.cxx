@@ -86,7 +86,7 @@ int main()
     mgr.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
     // set precision
-    mgr.MCMCSetPrecision(BCEngineMCMC::kQuick);
+    mgr.SetPrecision(BCEngineMCMC::kQuick);
 
     // the manager will marginalize all models
     mgr.MarginalizeAll();
@@ -95,7 +95,7 @@ int main()
     for (unsigned i = 0; i < mgr.GetNModels(); ++i) {
         BCModel* m = mgr.GetModel(i);
         // find mode, starting from global mode found by marginalizing
-        m->FindMode(m->GetGlobalMode());
+        m->FindMode(m->GetBestFitParameters());
         // write distrubutions to .root file
         m->WriteMarginalizedDistributions(m->GetSafeName() + "_plots.root", "RECREATE");
         // write distributions to .pdf file

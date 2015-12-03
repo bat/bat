@@ -50,7 +50,7 @@ public:
         m.SetModality(modality);
         m.SetComplexity(complexity);
         m.PopulatePolynomialDegrees();
-        m.MCMCSetRandomSeed(1346);
+        m.SetRandomSeed(1346);
 
         return m;
     }
@@ -111,8 +111,8 @@ public:
         TEST_CHECK_NEARLY_EQUAL(m.FindMode(BCIntegrate::kOptSimAnn, std::vector<double>(1, 0.9)).front(), 1, 1e-3);
 
         // chain can find either mode
-        m.MCMCSetNIterationsPreRunMin(5000);
-        m.MCMCSetRandomSeed(1346);
+        m.SetNIterationsPreRunMin(5000);
+        m.SetRandomSeed(1346);
         const double& mode = m.FindMode(BCIntegrate::kOptMetropolis).front();
         const double target = mode > 0.5 ? 1.0 : 0.0;
         TEST_CHECK_NEARLY_EQUAL(mode, target, 1e-3);
@@ -125,7 +125,7 @@ public:
     {
         static const unsigned ndim = 4;
         GaussModel m("Fixed parameter example", ndim);
-        m.MCMCSetRandomSeed(613);
+        m.SetRandomSeed(613);
         m.GetParameter(3).Fix(0.5);
 
         // integrate over normalized Gaussian likelihood
@@ -231,11 +231,11 @@ public:
         m.GetParameter(0).SetLimits(-3, 3);
         m.GetParameter(0).SetNbins(60);
         m.MarginalizeAll(BCIntegrate::kMargGrid);
-        TEST_CHECK_RELATIVE_ERROR(0.05, std::abs(m.GetGlobalMode()[0]), 1e-14);
+        TEST_CHECK_RELATIVE_ERROR(0.05, std::abs(m.GetBestFitParameters()[0]), 1e-14);
 
         // mode finding should start from previous solution and converge to (0, 0)
         m.FindMode();
-        TEST_CHECK_NEARLY_EQUAL(0, m.GetGlobalMode()[0], 5e-5);
+        TEST_CHECK_NEARLY_EQUAL(0, m.GetBestFitParameters()[0], 5e-5);
     }
 
     virtual void run() const
