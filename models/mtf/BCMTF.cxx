@@ -89,15 +89,14 @@ int BCMTF::GetSystematicIndex(const std::string& name) const
 }
 
 // ---------------------------------------------------------
-int BCMTF::SetTemplate(const std::string& channelname, const std::string& processname, TH1D hist, double efficiency, double norm)
+void BCMTF::SetTemplate(const std::string& channelname, const std::string& processname, TH1D hist, double efficiency, double norm)
 {
     // get channel index
     int channelindex = GetChannelIndex(channelname);
 
     // check if channel exists
     if (channelindex < 0) {
-        BCLog::OutWarning("BCMultitemplateFitter::SetTemplate() : Channel does not exist.");
-        return -1;
+        throw std::runtime_error("BCMultitemplateFitter::SetTemplate() : Channel does not exist.");
     }
 
     // get process index
@@ -105,8 +104,7 @@ int BCMTF::SetTemplate(const std::string& channelname, const std::string& proces
 
     // check if process exists
     if (processindex < 0) {
-        BCLog::OutWarning("BCMultitemplateFitter::SetTemplate() : Process does not exist.");
-        return -1;
+        throw std::runtime_error("BCMultitemplateFitter::SetTemplate() : Process does not exist.");
     }
 
     // get channel
@@ -141,21 +139,17 @@ int BCMTF::SetTemplate(const std::string& channelname, const std::string& proces
 
     // set efficiency
     bctemplate->SetEfficiency(efficiency);
-
-    // no error
-    return 1;
 }
 
 // ---------------------------------------------------------
-int BCMTF::SetTemplate(const std::string& channelname, const std::string& processname, std::vector<TF1*>* funccont, int nbins, double efficiency)
+void BCMTF::SetTemplate(const std::string& channelname, const std::string& processname, std::vector<TF1*>* funccont, int nbins, double efficiency)
 {
     // get channel index
     int channelindex = GetChannelIndex(channelname);
 
     // check if channel exists
     if (channelindex < 0) {
-        BCLog::OutWarning("BCMultitemplateFitter::SetTemplate() : Channel does not exist.");
-        return -1;
+        throw std::runtime_error("BCMultitemplateFitter::SetTemplate() : Channel does not exist.");
     }
 
     // get process index
@@ -163,8 +157,7 @@ int BCMTF::SetTemplate(const std::string& channelname, const std::string& proces
 
     // check if process exists
     if (processindex < 0) {
-        BCLog::OutWarning("BCMultitemplateFitter::SetTemplate() : Process does not exist.");
-        return -1;
+        throw std::runtime_error("BCMultitemplateFitter::SetTemplate() : Process does not exist.");
     }
 
     // get channel
@@ -178,20 +171,16 @@ int BCMTF::SetTemplate(const std::string& channelname, const std::string& proces
 
     // set efficiency
     bctemplate->SetEfficiency(efficiency);
-
-    // no error
-    return 1;
 }
 
 // ---------------------------------------------------------
-int BCMTF::SetData(const std::string& channelname, TH1D hist, double minimum, double maximum)
+void BCMTF::SetData(const std::string& channelname, TH1D hist, double minimum, double maximum)
 {
     int channelindex = GetChannelIndex(channelname);
 
     // check if channel exists
     if (channelindex < 0) {
-        BCLog::OutWarning("BCMultitemplateFitter::SetTemplate() : Channel does not exist.");
-        return -1;
+        throw std::runtime_error("BCMultitemplateFitter::SetTemplate() : Channel does not exist.");
     }
 
     // get channel
@@ -251,20 +240,16 @@ int BCMTF::SetData(const std::string& channelname, TH1D hist, double minimum, do
 
     // set y-range for printing
     channel->SetRangeY(minimum, maximum);
-
-    // no error
-    return 1;
 }
 
 // ---------------------------------------------------------
-int BCMTF::AddChannel(const std::string& name)
+void BCMTF::AddChannel(const std::string& name)
 {
     // check if channel exists
     for (int i = 0; i < fNChannels; ++i) {
         // compare names
         if (GetChannelIndex(name) >= 0) {
-            BCLog::OutWarning("BCMultitemplateFitter::AddChannel() : Channel with this name exists already.");
-            return -1;
+            throw std::runtime_error("BCMultitemplateFitter::AddChannel() : Channel with this name exists already.");
         }
     }
 
@@ -299,20 +284,16 @@ int BCMTF::AddChannel(const std::string& name)
 
     // increase number of channels
     fNChannels++;
-
-    // no error
-    return 1;
 }
 
 // ---------------------------------------------------------
-int BCMTF::AddProcess(const std::string& name, double nmin, double nmax, int color, int fillstyle, int linestyle)
+void BCMTF::AddProcess(const std::string& name, double nmin, double nmax, int color, int fillstyle, int linestyle)
 {
     // check if process exists
     for (int i = 0; i < fNProcesses; ++i) {
         // compare names
         if (GetProcessIndex(name) >= 0) {
-            BCLog::OutWarning("BCMultitemplateFitter::AddProcess() : Process with this name exists already.");
-            return -1;
+            throw std::runtime_error("BCMultitemplateFitter::AddProcess() : Process with this name exists already.");
         }
     }
 
@@ -357,20 +338,16 @@ int BCMTF::AddProcess(const std::string& name, double nmin, double nmax, int col
 
     // add a functional form for the expectation
     fExpectationFunctionContainer.push_back(0);
-
-    // no error
-    return 1;
 }
 
 // ---------------------------------------------------------
-int BCMTF::AddSystematic(const std::string& name, double min, double max)
+void BCMTF::AddSystematic(const std::string& name, double min, double max)
 {
     // check if systematic exists
     for (int i = 0; i < fNSystematics; ++i) {
         // compare names
         if (GetSystematicIndex(name) >= 0) {
-            BCLog::OutWarning("BCMultitemplateFitter::AddSystematic() : Systematic with this name exists already.");
-            return -1;
+            throw std::runtime_error("BCMultitemplateFitter::AddSystematic() : Systematic with this name exists already.");
         }
     }
 
@@ -404,13 +381,10 @@ int BCMTF::AddSystematic(const std::string& name, double min, double max)
 
     // add a functional form for the expectation
     fExpectationFunctionContainer.push_back(0);
-
-    // no error
-    return 1;
 }
 
 // ---------------------------------------------------------
-int BCMTF::SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, double variation_up, double variation_down)
+void BCMTF::SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, double variation_up, double variation_down)
 {
 
     // get channel index
@@ -418,8 +392,7 @@ int BCMTF::SetSystematicVariation(const std::string& channelname, const std::str
 
     // check if channel exists
     if (channelindex < 0) {
-        BCLog::OutWarning("BCMultitemplateFitter::SetTemplate() : Channel does not exist.");
-        return -1;
+        throw std::runtime_error("BCMultitemplateFitter::SetTemplate() : Channel does not exist.");
     }
 
     // get process index
@@ -427,8 +400,7 @@ int BCMTF::SetSystematicVariation(const std::string& channelname, const std::str
 
     // check if process exists
     if (processindex < 0) {
-        BCLog::OutWarning("BCMultitemplateFitter::SetTemplate() : Process does not exist.");
-        return -1;
+        throw std::runtime_error("BCMultitemplateFitter::SetTemplate() : Process does not exist.");
     }
 
     // get systematic index
@@ -436,8 +408,7 @@ int BCMTF::SetSystematicVariation(const std::string& channelname, const std::str
 
     // check if systematic exists
     if (systematicindex < 0) {
-        BCLog::OutWarning("BCMultitemplateFitter::SetTemplate() : Systematic does not exist.");
-        return -1;
+        throw std::runtime_error("BCMultitemplateFitter::SetTemplate() : Systematic does not exist.");
     }
 
     // get channel
@@ -463,21 +434,17 @@ int BCMTF::SetSystematicVariation(const std::string& channelname, const std::str
 
     // set histogram
     variation->SetHistograms(processindex, new TH1D(hist_up), new TH1D(hist_down));
-
-    // no error
-    return 1;
 }
 
 // ---------------------------------------------------------
-int BCMTF::SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, TH1D hist_up, TH1D hist_down)
+void BCMTF::SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, TH1D hist_up, TH1D hist_down)
 {
     // get channel index
     int channelindex = GetChannelIndex(channelname);
 
     // check if channel exists
     if (channelindex < 0) {
-        BCLog::OutWarning("BCMultitemplateFitter::SetTemplate() : Channel does not exist.");
-        return -1;
+        throw std::runtime_error("BCMultitemplateFitter::SetTemplate() : Channel does not exist.");
     }
 
     // get process index
@@ -485,8 +452,7 @@ int BCMTF::SetSystematicVariation(const std::string& channelname, const std::str
 
     // check if process exists
     if (processindex < 0) {
-        BCLog::OutWarning("BCMultitemplateFitter::SetTemplate() : Process does not exist.");
-        return -1;
+        throw std::runtime_error("BCMultitemplateFitter::SetTemplate() : Process does not exist.");
     }
 
     // get systematic index
@@ -494,8 +460,7 @@ int BCMTF::SetSystematicVariation(const std::string& channelname, const std::str
 
     // check if systematic exists
     if (systematicindex < 0) {
-        BCLog::OutWarning("BCMultitemplateFitter::SetTemplate() : Systematic does not exist.");
-        return -1;
+        throw std::runtime_error("BCMultitemplateFitter::SetTemplate() : Systematic does not exist.");
     }
 
     // get channel
@@ -506,13 +471,10 @@ int BCMTF::SetSystematicVariation(const std::string& channelname, const std::str
 
     // set histogram
     variation->SetHistograms(processindex, new TH1D(hist_up), new TH1D(hist_down));
-
-    // no error
-    return 1;
 }
 
 // ---------------------------------------------------------
-int BCMTF::SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, TH1D hist, TH1D hist_up, TH1D hist_down)
+void BCMTF::SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, TH1D hist, TH1D hist_up, TH1D hist_down)
 {
     // get number of bins
     int nbins = hist.GetNbinsX();
@@ -680,7 +642,7 @@ double BCMTF::Probability(int channelindex, int processindex, int binindex, cons
 }
 
 // ---------------------------------------------------------
-int BCMTF::PrintStack(const std::string& channelname, const std::vector<double>& parameters, const std::string& filename, const char* options)
+void BCMTF::PrintStack(const std::string& channelname, const std::vector<double>& parameters, const std::string& filename, const char* options)
 {
     int index = GetChannelIndex(channelname);
 
@@ -688,7 +650,7 @@ int BCMTF::PrintStack(const std::string& channelname, const std::vector<double>&
 }
 
 // ---------------------------------------------------------
-int BCMTF::PrintStack(int channelindex, const std::vector<double>& parameters, const std::string& filename, const char* options)
+void BCMTF::PrintStack(int channelindex, const std::vector<double>& parameters, const std::string& filename, const char* options)
 {
     // todo:
     // - add difference/ratio/significance plot below
@@ -696,7 +658,7 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double>& parameters, c
 
     // check if parameters are filled
     if (parameters.empty())
-        return -1;
+        return;
 
     // check options
     bool flag_logx   = false; // plot x-axis in log-scale
@@ -955,9 +917,6 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double>& parameters, c
     delete graph_error_exp;
     delete hist_error_band;
     delete hist_sum;
-
-    // no error
-    return 1;
 }
 
 // ---------------------------------------------------------

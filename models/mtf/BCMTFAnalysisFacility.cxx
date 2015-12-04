@@ -30,17 +30,15 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <iostream>
+#include <stdexcept>
 
 namespace
 {
-// todo this should really throw an exception
-int HandleChdirError(int error_code, const std::string& caller, const std::string& dir)
+void cd(const std::string& dir)
 {
-    // horrible convention in BAT: 1 => no error
-    if (error_code == 0)
-        return 1;
-    BCLog::OutError((caller + ": could not change to " + dir).c_str());
-    return 0;
+    // shell conventions: 0=success
+    if (chdir(dir.data()))
+        throw std::runtime_error(std::string("Cannot change directory to ") + dir);
 }
 }
 
@@ -700,7 +698,7 @@ std::vector<TH1D> BCMTFAnalysisFacility::MatrixToHistograms(const std::vector< s
 }
 
 // ---------------------------------------------------------
-int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const std::string& dirname, const std::string& options)
+void BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const std::string& dirname, const std::string& options)
 {
     BCLog::OutSummary("Running single channel analysis in directory \'" + dirname + "\'");
 
@@ -708,10 +706,7 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const std::string& dirna
     // ---- create new directory ---- //
 
     mkdir(dirname.data(), 0777);
-    int ret = chdir(dirname.data());
-    if (ret) {
-        return ::HandleChdirError(ret, "BCMTFAnalysisFacility::PerformSingleChannelAnalyses", dirname);
-    }
+    cd(dirname);
 
     // ---- check options ---- //
 
@@ -972,27 +967,20 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const std::string& dirna
 
     // ---- change directory ---- //
 
-    ret = chdir("../");
+    cd("../");
 
     BCLog::OutSummary("Single channel analysis ran successfully");
-
-    // no error
-    return 1;
 }
 
 // ---------------------------------------------------------
-int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const std::string& dirname, const std::string& options)
+void BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const std::string& dirname, const std::string& options)
 {
     BCLog::OutSummary("Running single channel systematic analysis in directory \'" + dirname + "\'.");
 
     // ---- create new directory ---- //
 
     mkdir(dirname.data(), 0777);
-    int ret = chdir(dirname.data());
-    if (ret) {
-        return ::HandleChdirError(ret, "BCMTFAnalysisFacility::PerformSingleChannelAnalyses", dirname);
-    }
-
+    cd(dirname);
 
     // ---- check options ---- //
 
@@ -1214,26 +1202,20 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const std::string& di
 
     // ---- change directory ---- //
 
-    ret = chdir("../");
+    cd("../");
 
     BCLog::OutSummary("Single channel analysis ran successfully");
-
-    // no error
-    return 1;
 }
 
 // ---------------------------------------------------------
-int BCMTFAnalysisFacility::PerformCalibrationAnalysis(const std::string& dirname, const std::vector<double>& default_parameters, int index, const std::vector<double>& parametervalues, int nensembles)
+void BCMTFAnalysisFacility::PerformCalibrationAnalysis(const std::string& dirname, const std::vector<double>& default_parameters, int index, const std::vector<double>& parametervalues, int nensembles)
 {
     BCLog::OutSummary("Running calibration analysis in directory \'" + dirname + "\'.");
 
     // ---- create new directory ---- //
 
     mkdir(dirname.data(), 0777);
-    int ret = chdir(dirname.data());
-    if (ret) {
-        return ::HandleChdirError(ret, "BCMTFAnalysisFacility::PerformSingleChannelAnalyses", dirname);
-    }
+    cd(dirname);
 
     // ---- loop over parameter values and perform analysis  ---- //
 
@@ -1262,13 +1244,9 @@ int BCMTFAnalysisFacility::PerformCalibrationAnalysis(const std::string& dirname
     }
 
     // ---- change directory ---- //
-
-    ret = chdir("../");
+    cd("../");
 
     BCLog::OutSummary("Calibration analysis ran successfully");
-
-    // no error
-    return 1;
 }
 
 // ---------------------------------------------------------
