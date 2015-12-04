@@ -72,7 +72,7 @@ public:
     /**
      * Performs the fit. The graph and the function has to be set beforehand.
      * @return Success of action. */
-    bool Fit();
+    void Fit();
 
     /**
      * Draw the fit in the current pad. */

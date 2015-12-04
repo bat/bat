@@ -87,7 +87,7 @@ double BCHistogramFitter::LogLikelihood(const std::vector<double>& params)
 }
 
 // ---------------------------------------------------------
-bool BCHistogramFitter::Fit()
+void BCHistogramFitter::Fit()
 {
     // perform marginalization
     MarginalizeAll();
@@ -105,9 +105,6 @@ bool BCHistogramFitter::Fit()
 
     // print summary to screen
     PrintShortFitSummary();
-
-    // no error
-    return true;
 }
 
 // ---------------------------------------------------------

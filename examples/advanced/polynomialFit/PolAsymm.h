@@ -19,15 +19,14 @@ public:
     /** Create a polynomial model with name and the parameters. */
     PolAsymm(const std::string& name, const BCParameterSet& parameters);
 
-    ~PolAsymm()
+    virtual ~PolAsymm()
     { /* empty destructor */ }
 
     // necessary to overload pure virtual BCFitter function
-    bool Fit()
-    { return false; }
+    virtual void Fit() {}
 
     // necessary to overload pure virtual BCFitter function
-    void DrawFit(const char* options, bool flaglegend = false)
+    virtual void DrawFit(const char* options, bool flaglegend = false)
     {}
 
     // fit function returning expectation value for each data point

@@ -114,7 +114,7 @@ double BCEfficiencyFitter::LogLikelihood(const std::vector<double>& params)
 }
 
 // ---------------------------------------------------------
-bool BCEfficiencyFitter::Fit()
+void BCEfficiencyFitter::Fit()
 {
     // perform marginalization
     MarginalizeAll();
@@ -135,9 +135,6 @@ bool BCEfficiencyFitter::Fit()
 
     // print summary to screen
     PrintShortFitSummary();
-
-    // no error
-    return true;
 }
 
 // ---------------------------------------------------------

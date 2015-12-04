@@ -136,7 +136,7 @@ public:
     /**
      * Performs the fit.
      * @return Success of action. */
-    virtual bool Fit();
+    virtual void Fit();
 
     /**
      * Draw the fit in the current pad. */

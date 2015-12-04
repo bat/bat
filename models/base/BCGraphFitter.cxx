@@ -98,7 +98,7 @@ double BCGraphFitter::LogLikelihood(const std::vector<double>& params)
 }
 
 // ---------------------------------------------------------
-bool BCGraphFitter::Fit()
+void BCGraphFitter::Fit()
 {
     // check setup
     BCLog::OutDetail(Form("Fitting %d data points with function of %d parameters", GetNDataPoints(), GetNParameters()));
@@ -122,8 +122,6 @@ bool BCGraphFitter::Fit()
 
     // print summary to screen
     PrintShortFitSummary();
-
-    return 1;
 }
 
 // ---------------------------------------------------------
