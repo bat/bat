@@ -7,23 +7,27 @@ BAT on your computer.
 Platforms
 ----------
 
-BAT has been developed on Linux machines running different
-distributions and different versions of the kernel and gcc. As far as
-we know there is nothing distribution-dependent inside of BAT. A gcc
-version >4.2 should suffice to compile the C++ code.
-
-The installation and functionality of BAT has also been tested on Mac
-OS X with gcc and clang.
+BAT has been developed on Linux. The installation, unit tests, and
+examples are run and known to work on Linux and Mac OS X with both gcc
+and clang.
 
 Windows is not supported.
 
 Dependencies
 -------------
 
+### Required: compiler
+
+Compilation and tests work fine with gcc > 4.2 and clang >= 3.3.
+
+Under Debian or Ubuntu, you can install the essential requirements with
+
+    sudo apt-get install build-essential curl
+
 ### Required: ROOT
 
 ROOT is an object-oriented data-analysis framework. You can obtain it
-from http://root.cern.ch/. For BAT version 1.0, a ROOT version 5.27/04
+from http://root.cern.ch/. For BAT version 1.0, a ROOT version 5.34/14
 or later is needed to compile. ROOT 6 is supported as well.
 
 ROOT offers binary distributions for a number of Linux distributions
@@ -37,9 +41,9 @@ conveniently install the requirements with
 
 #### Note
 
-For the interface to RooFit/RooStats, a ROOT version 5.27/04 or later
-is necessary and ROOT must be compiled with support for MathMore, which
-in turn relies on the GNU scientific library (GSL).
+For the interface to RooFit/RooStats, ROOT must be compiled with
+support for RooFit and MathMore, the latter relies on the GNU
+scientific library (GSL).
 
 ### Optional: Cuba
 
