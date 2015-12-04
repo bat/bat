@@ -713,10 +713,10 @@ void BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const std::string& dirn
     bool flag_syst = true;
     bool flag_mcmc = true;
 
-    if (std::string(options).find("nosyst") < std::string(options).size())
+    if (options.find("nosyst") < options.size())
         flag_syst = false;
 
-    if (std::string(options).find("mcmc") < std::string(options).size())
+    if (options.find("mcmc") < options.size())
         flag_mcmc = true;
 
     // get number of channels

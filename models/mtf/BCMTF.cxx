@@ -642,19 +642,10 @@ double BCMTF::Probability(int channelindex, int processindex, int binindex, cons
 }
 
 // ---------------------------------------------------------
-void BCMTF::PrintStack(const std::string& channelname, const std::vector<double>& parameters, const std::string& filename, const char* options)
-{
-    int index = GetChannelIndex(channelname);
-
-    return PrintStack(index, parameters, filename, options);
-}
-
-// ---------------------------------------------------------
-void BCMTF::PrintStack(int channelindex, const std::vector<double>& parameters, const std::string& filename, const char* options)
+void BCMTF::PrintStack(int channelindex, const std::vector<double>& parameters, const std::string& filename, const std::string& options)
 {
     // todo:
     // - add difference/ratio/significance plot below
-    // - check for b0/1 if the mcmc was run
 
     // check if parameters are filled
     if (parameters.empty())
@@ -674,31 +665,31 @@ void BCMTF::PrintStack(int channelindex, const std::vector<double>& parameters, 
     bool flag_b0     = false; // draw an error band on the expectation
     bool flag_b1     = false; // draw an error band on the number of events
 
-    if (std::string(options).find("logx") < std::string(options).size())
+    if (options.find("logx") < options.size())
         flag_logx = true;
 
-    if (std::string(options).find("logy") < std::string(options).size())
+    if (options.find("logy") < options.size())
         flag_logy = true;
 
-    if (std::string(options).find("bw") < std::string(options).size())
+    if (options.find("bw") < options.size())
         flag_bw = true;
 
-    if (std::string(options).find("sum") < std::string(options).size())
+    if (options.find("sum") < options.size())
         flag_sum = true;
 
-    if (std::string(options).find("stack") < std::string(options).size())
+    if (options.find("stack") < options.size())
         flag_stack = true;
 
-    if (std::string(options).find("e0") < std::string(options).size())
+    if (options.find("e0") < options.size())
         flag_e0 = true;
 
-    if (std::string(options).find("e1") < std::string(options).size())
+    if (options.find("e1") < options.size())
         flag_e1 = true;
 
-    if (std::string(options).find("b0") < std::string(options).size())
+    if (options.find("b0") < options.size())
         flag_b0 = true;
 
-    if (std::string(options).find("b1") < std::string(options).size())
+    if (options.find("b1") < options.size())
         flag_b1 = true;
 
     if (!flag_e0)

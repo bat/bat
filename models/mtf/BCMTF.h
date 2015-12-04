@@ -150,14 +150,14 @@ public:
      * @param nbins The number of bins used for the histogram.
      * @param efficiency The efficiency of this process in this channel.
      *
-     * @see SetTemplate(const char * channelname, const char * processname, TH1D hist, double efficiency = 1.) */
+     * @see SetTemplate(const std::string& channelname, const std::string& processname, TH1D hist, double efficiency = 1.) */
     void SetTemplate(const std::string& channelname, const std::string& processname, std::vector<TF1*>* funccont, int nbins, double efficiency = 1.);
 
     /**
      * Set an expectation function.
      * @param parindex The index of the parameter
      * @param func The pointer to a TF1 function.
-     * @see SetTemplate(const char * channelname, const char * processname, std::vector<TF1 *> * funccont, int nbins, double efficiency = 1.) */
+     * @see SetTemplate(const std::string& channelname, const std::string& processname, std::vector<TF1 *> * funccont, int nbins, double efficiency = 1.) */
     void SetExpectationFunction(int parindex, TF1* func)
     { fExpectationFunctionContainer[parindex] = func; };
 
@@ -187,7 +187,7 @@ public:
      * @param hist_up The TH1D histogram defining the relative shift between the up-variation and the nominal template: (up-nom)/nom.
      * @param hist_down The TH1D histogram defining the relative shift between the down-variation and the nominal template: (nom-down)/nom.
      *
-     * @see SetSystematicVariation(const char * channelname, const char * processname,  const char * systematicname, double variation_up, double variation_down) */
+     * @see SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, double variation_up, double variation_down) */
     void SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, TH1D hist_up, TH1D hist_down);
 
     /**
@@ -203,7 +203,7 @@ public:
      * @param hist_up The TH1D histogram after up-scaling of the systematic uncertainty.
      * @param hist_down The TH1D histogram after down-scaling of the systematic uncertainty.
      *
-     * @see SetSystematicVariation(const char * channelname, const char * processname,  const char * systematicname, double variation_up, double variation_down) */
+     * @see SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, double variation_up, double variation_down) */
     void SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, TH1D hist, TH1D hist_up, TH1D hist_down);
 
     /**
@@ -356,7 +356,7 @@ public:
      * @param channelindex The channel index.
      * @param parameters A reference to the parameters used to scale the templates.
      * @param options The plotting options. */
-    void PrintStack(int channelindex, const std::vector<double>& parameters, const std::string& filename = "stack.pdf", const char* options = "e1b0stack");
+    void PrintStack(int channelindex, const std::vector<double>& parameters, const std::string& filename = "stack.pdf", const std::string& options = "e1b0stack");
 
     /**
      * Print the stack of templates together with the data in a
@@ -365,8 +365,11 @@ public:
      * @param parameters A reference to the parameters used to scale the templates.
      * @param options The plotting options.
      *
-     * @see PrintStack(int channelindex, const std::vector<double> & parameters, const char * filename = "stack.pdf", const char * options = "e1b0stack") */
-    void PrintStack(const std::string& channelname, const std::vector<double>& parameters, const std::string& filename = "stack.pdf", const char* options = "e1b0stack");
+     * @see PrintStack(int channelindex, const std::vector<double> & parameters, const std::string& filename = "stack.pdf", const std::string& options = "e1b0stack") */
+    void PrintStack(const std::string& channelname, const std::vector<double>& parameters, const std::string& filename = "stack.pdf", const std::string& options = "e1b0stack")
+    {
+        return PrintStack(GetChannelIndex(channelname), parameters, filename, options);
+    }
 
     /** @} */
 
