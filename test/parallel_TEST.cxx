@@ -173,7 +173,7 @@ public:
         // switch writing of Markov Chains on
         m.WriteMarkovChain(parallelization ? config.rootFileNameParallel.c_str() : config.rootFileNameSerial.c_str(), "RECREATE", true);
 
-        m.SetMultivariateProposalFunction(config.multivariate, config.dof);
+        m.SetProposeMultivariate(config.multivariate, config.dof);
 
         m.SetRandomSeed(seed);
 
@@ -288,7 +288,7 @@ public:
         TEST_CHECK_NEARLY_EQUAL(meanChi2 / npar, 1.0, 2 * std::sqrt(2.0 / npar));
 
         for (unsigned c = 0; c < models[0].GetNChains(); ++c) {
-            const BCEngineMCMC::MCMCStatistics& s = models[0].GetStatistics(c);
+            const BCEngineMCMC::Statistics& s = models[0].GetStatistics(c);
             TEST_CHECK_EQUAL(s.n_samples, config.num_iterations);
 
             // unit Gaussian
