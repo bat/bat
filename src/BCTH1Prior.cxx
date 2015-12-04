@@ -154,7 +154,7 @@ double BCTH1Prior::GetIntegral(double xmin, double xmax)
 }
 
 // ---------------------------------------------------------
-BCH1D BCTH1Prior::GetBCH1D(TH1* bins, const char* name)
+BCH1D BCTH1Prior::GetBCH1D(TH1* bins, const std::string& name)
 {
     // if not interpolating, use actual histogram binning
     if (!fInterpolate) {

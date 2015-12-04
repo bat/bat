@@ -273,9 +273,9 @@ public:
     /**
      * Get BCH1D object for prior.
      * @param bins pointer to TH1 object defining binning to use (and axis names)
-     * @param name name to give histogram created for BCH1D object
+     * @param name name to assigned to the histogram created for BCH1D object
      * @return BCH1D object for prior. */
-    virtual BCH1D GetBCH1D(TH1* bins, const char* name = "prior");
+    virtual BCH1D GetBCH1D(TH1* bins, const std::string& name = "prior");
 
     /**
      * Get BCH2D object for prior.
@@ -283,7 +283,7 @@ public:
      * @param bins pointer to TH2 object defining binning to use (and axis names)
      * @param name name to give histogram created for BCH2D object
      * @return BCH2D object for prior. */
-    virtual BCH2D GetBCH2D(BCPrior* ordinate, TH2* bins, const char* name = "prior");
+    virtual BCH2D GetBCH2D(BCPrior* ordinate, TH2* bins, const std::string& name = "prior");
 
     /** @} **/
 

@@ -138,7 +138,7 @@ void BCEfficiencyFitter::Fit()
 }
 
 // ---------------------------------------------------------
-void BCEfficiencyFitter::DrawFit(const char* options, bool flaglegend)
+void BCEfficiencyFitter::DrawFit(const std::string& options, bool flaglegend)
 {
     // create efficiency graph
     TGraphAsymmErrors* histRatio = new TGraphAsymmErrors();

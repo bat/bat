@@ -140,7 +140,7 @@ public:
 
     /**
      * Draw the fit in the current pad. */
-    virtual void DrawFit(const char* options = "", bool flaglegend = false);
+    virtual void DrawFit(const std::string& options = "", bool flaglegend = false);
 
     /**
      * Calculate the p-value using fast-MCMC. In every iteration, a new toy data set is created.

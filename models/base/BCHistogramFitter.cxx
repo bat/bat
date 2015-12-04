@@ -108,7 +108,7 @@ void BCHistogramFitter::Fit()
 }
 
 // ---------------------------------------------------------
-void BCHistogramFitter::DrawFit(const char* options, bool flaglegend)
+void BCHistogramFitter::DrawFit(const std::string& options, bool flaglegend)
 {
     if (GetBestFitParameters().empty()) {
         BCLOG_ERROR("Fit not performed yet.");

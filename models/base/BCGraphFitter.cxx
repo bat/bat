@@ -125,7 +125,7 @@ void BCGraphFitter::Fit()
 }
 
 // ---------------------------------------------------------
-void BCGraphFitter::DrawFit(const char* options, bool flaglegend)
+void BCGraphFitter::DrawFit(const std::string& options, bool flaglegend)
 {
     // check wheather options contain "same"
     TString opt = options;

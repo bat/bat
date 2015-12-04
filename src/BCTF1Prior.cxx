@@ -20,8 +20,8 @@ BCTF1Prior::BCTF1Prior(TF1& f)
 }
 
 // ---------------------------------------------------------
-BCTF1Prior::BCTF1Prior(const char* formula, double xmin, double xmax)
+BCTF1Prior::BCTF1Prior(const std::string& formula, double xmin, double xmax)
     : BCPrior()
 {
-    fPriorFunction = TF1("f1_prior", formula, xmin, xmax);
+    fPriorFunction = TF1("f1_prior", formula.c_str(), xmin, xmax);
 }

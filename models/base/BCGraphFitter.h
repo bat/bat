@@ -76,7 +76,7 @@ public:
 
     /**
      * Draw the fit in the current pad. */
-    void DrawFit(const char* options = "", bool flaglegend = false);
+    void DrawFit(const std::string& options = "", bool flaglegend = false);
 
     /**
      * Calculate chi^2, the sum of [(y-f(x))/sigma_y]^2 for all data points.

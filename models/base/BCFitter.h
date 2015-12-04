@@ -159,7 +159,7 @@ public:
 
     /**
      * Draw the fit in the current pad. */
-    virtual void DrawFit(const char* options, bool flaglegend = false) = 0;
+    virtual void DrawFit(const std::string& options, bool flaglegend = false) = 0;
 
     /**
      * Overloaded from BCEngineMCMC */
