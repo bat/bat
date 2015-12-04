@@ -46,6 +46,8 @@ BCFitter::BCFitter(const TF1& f, const std::string& name)
       fErrorBandNbinsX(100),
       fErrorBandNbinsY(500)
 {
+    if (f.GetNdim() != 1)
+        throw std::invalid_argument("BCFitter and descendants only support 1D problems");
 #ifdef BAT_FIX_TF1
     fFitFunction.front().SetNormalized(f.IsEvalNormalized());
 #endif
@@ -367,4 +369,20 @@ void BCFitter::SetErrorBandContinuous(bool flag)
 
     // copy data x-values
     fErrorBandX = fDataSet->GetDataComponents(fFitFunctionIndexX);
+}
+
+// ---------------------------------------------------------
+void BCFitter::CopyHist(const TH1& source, TH1D& dest)
+{
+    std::vector<double> bins(source.GetNbinsX() + 1);
+    source.GetXaxis()->GetLowEdge(&bins[0]);
+    // now add the overflow left edge
+    bins.back() = source.GetXaxis()->GetXmax();
+    dest = TH1D(source.GetName(),
+                Form("%s;%s;%s", source.GetTitle(), source.GetXaxis()->GetTitle(), source.GetYaxis()->GetTitle()),
+                source.GetNbinsX(), &bins[0]);
+    // copy contents (include underflow and overflow)
+    for (int i = 0; i <= source.GetNbinsX() + 1; ++i) {
+        dest.SetBinContent(i, source.GetBinContent(i));
+    }
 }

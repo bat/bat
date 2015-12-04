@@ -7,6 +7,7 @@
  */
 
 // ---------------------------------------------------------
+#include <config.h>
 
 #include "BCEfficiencyFitter.h"
 
@@ -50,9 +51,13 @@ BCEfficiencyFitter::BCEfficiencyFitter(const TH1& trials, const TH1& successes, 
     }
 
     // after checking, we can copy
-    trials.Copy(fTrials);
-    successes.Copy(fSuccesses);
-
+#if ROOTVERSION >= 5034019
+    fTrials = trials;
+    fSuccesses = successes;
+#else
+    BCFitter::CopyHist(trials, fTrials);
+    BCFitter::CopyHist(successes, fSuccesses);
+#endif
     // create data points and add them to the data set.
     for (int i = 0; i < fTrials.GetNbinsX(); ++i)
         fFitterDataSet.AddDataPoint(BCDataPoint(2));

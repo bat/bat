@@ -55,8 +55,8 @@ public:
     /* @{ */
 
     /**
-     * @return pointer to TGraphErrors */
-    const TGraphErrors& GetGraph()
+     * @return pointer to TGraph */
+    const TGraph& GetGraph()
     { return fGraph; };
 
     /* @} */
@@ -83,9 +83,6 @@ public:
      * @param pars Parameter set to evaluate function values with.
      * @return chi^2 evalued with pars. */
     virtual double CalculateChi2(const std::vector<double>& pars);
-
-
-    using BCFitter::GetPValue;
 
     /**
      * Calculate p value from chi^2 distribution,

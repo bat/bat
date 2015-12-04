@@ -189,6 +189,13 @@ private:
 
 protected:
     /**
+     * Copy over the most important properties of a 1D histogram.
+     * This function is to emulate the TH1::Copy() method for our purposes.
+     * It is not needed for root 5.34.19 and higher.
+     */
+    static void CopyHist(const TH1& source, TH1D& destination);
+
+    /**
      * Flag whether or not to fill the error band */
     bool fFlagFillErrorBand;
 
