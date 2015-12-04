@@ -35,8 +35,8 @@ LDFLAGS   = -g -O2 @LDFLAGS@
 # available in $PATH. If BAT is not installed in the standard system
 # directories, update $PATH accordingly.
 
-CXXFLAGS += `bat-config --cflags`
-LIBS := `bat-config --libs`
+CXXFLAGS += $(shell bat-config --cflags)
+LIBS := $(shell bat-config --libs)
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing
