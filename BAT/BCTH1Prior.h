@@ -136,7 +136,7 @@ public:
      * @param h pointer to TH1 object defining binning to use.
      * @param name name to give histogram created for BCH1D object
      * @return BCH1D object for prior. */
-    virtual BCH1D GetBCH1D(TH1* bins, const char* name = "prior");
+    virtual BCH1D GetBCH1D(TH1* bins, const std::string& name = "prior");
 
     /** @} **/
 

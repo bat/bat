@@ -154,13 +154,12 @@ public:
     /** \name Member functions (miscellaneous methods) */
     /* @{ */
     /**
-     * Performs the fit.
-     * @return Success of action. */
-    virtual bool Fit() = 0;
+     * Fit the function's parameters to the data */
+    virtual void Fit() = 0;
 
     /**
      * Draw the fit in the current pad. */
-    virtual void DrawFit(const char* options, bool flaglegend = false) = 0;
+    virtual void DrawFit(const std::string& options, bool flaglegend = false) = 0;
 
     /**
      * Overloaded from BCEngineMCMC */

@@ -72,11 +72,11 @@ public:
     /**
      * Performs the fit. The graph and the function has to be set beforehand.
      * @return Success of action. */
-    bool Fit();
+    void Fit();
 
     /**
      * Draw the fit in the current pad. */
-    void DrawFit(const char* options = "", bool flaglegend = false);
+    void DrawFit(const std::string& options = "", bool flaglegend = false);
 
     /**
      * Calculate chi^2, the sum of [(y-f(x))/sigma_y]^2 for all data points.

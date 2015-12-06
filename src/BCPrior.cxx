@@ -158,13 +158,13 @@ void BCPrior::FillHistogramByIntegral(TH1* h)
 }
 
 // ---------------------------------------------------------
-BCH1D BCPrior::GetBCH1D(TH1* bins, const char* name)
+BCH1D BCPrior::GetBCH1D(TH1* bins, const std::string& name)
 {
     BCH1D bch1;
     if (!IsValid())
         return bch1;
 
-    TH1* h = (TH1*) bins->Clone(name);
+    TH1* h = (TH1*) bins->Clone(name.c_str());
     h->Add(&GetFunction(), 1, "I");
 
     bch1 = h;
@@ -174,7 +174,7 @@ BCH1D BCPrior::GetBCH1D(TH1* bins, const char* name)
 }
 
 // ---------------------------------------------------------
-BCH2D BCPrior::GetBCH2D(BCPrior* ordinate, TH2* bins, const char* name)
+BCH2D BCPrior::GetBCH2D(BCPrior* ordinate, TH2* bins, const std::string& name)
 {
     BCH2D bch2;
 
@@ -189,7 +189,7 @@ BCH2D BCPrior::GetBCH2D(BCPrior* ordinate, TH2* bins, const char* name)
     if  (!bch_y.Valid())
         return bch2;
 
-    TH2* h = (TH2*) bins->Clone(name);
+    TH2* h = (TH2*) bins->Clone(name.c_str());
 
     // get x bins:
     std::vector<double> bin_edges_x(bch_x.GetHistogram()->GetNbinsX() + 1, 0);

@@ -74,11 +74,11 @@ public:
     /**
      * Performs the fit.
      * @return Success of action. */
-    bool Fit();
+    virtual void Fit();
 
     /**
      * Draw the fit in the current pad. */
-    void DrawFit(const char* options = "HIST", bool flaglegend = false);
+    void DrawFit(const std::string& options = "HIST", bool flaglegend = false);
 
     /**
      * Calculate the p-value using fast-MCMC and the likelihood as test statistic. The method is explained in the appendix of

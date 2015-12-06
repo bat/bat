@@ -87,7 +87,7 @@ double BCHistogramFitter::LogLikelihood(const std::vector<double>& params)
 }
 
 // ---------------------------------------------------------
-bool BCHistogramFitter::Fit()
+void BCHistogramFitter::Fit()
 {
     // perform marginalization
     MarginalizeAll();
@@ -105,13 +105,10 @@ bool BCHistogramFitter::Fit()
 
     // print summary to screen
     PrintShortFitSummary();
-
-    // no error
-    return true;
 }
 
 // ---------------------------------------------------------
-void BCHistogramFitter::DrawFit(const char* options, bool flaglegend)
+void BCHistogramFitter::DrawFit(const std::string& options, bool flaglegend)
 {
     if (GetBestFitParameters().empty()) {
         BCLOG_ERROR("Fit not performed yet.");

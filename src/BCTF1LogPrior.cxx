@@ -19,9 +19,9 @@ BCTF1LogPrior::BCTF1LogPrior(TF1& f)
 }
 
 // ---------------------------------------------------------
-BCTF1LogPrior::BCTF1LogPrior(const char* formula, double xmin, double xmax)
+BCTF1LogPrior::BCTF1LogPrior(const std::string& formula, double xmin, double xmax)
     : BCPrior(),
-      fLogPriorFunction("f1_logprior", formula, xmin, xmax)
+      fLogPriorFunction("f1_logprior", formula.c_str(), xmin, xmax)
 {
 }
 

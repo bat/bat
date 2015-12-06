@@ -13,7 +13,7 @@ class GaussModel : public BCModel
 public:
 
     // Constructors and destructor
-    GaussModel(const char* name, const unsigned& nParameters, unsigned long loopIterations = 0);
+    GaussModel(const std::string& name, const unsigned& nParameters, unsigned long loopIterations = 0);
     virtual ~GaussModel();
 
     // Methods to overload, see file GaussModel.cxx

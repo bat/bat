@@ -126,18 +126,16 @@ public:
      * @param channelname The name of the channel.
      * @param hist The TH1D histogram.
      * @param minimum The minimum number of expected events (used for calculation of uncertainty bands).
-     * @param maximum The maximum number of expected events (used for calculation of uncertainty bands).
-     * @return An error code. */
-    int SetData(const std::string& channelname, TH1D hist, double minimum = -1, double maximum = -1);
+     * @param maximum The maximum number of expected events (used for calculation of uncertainty bands). */
+    void SetData(const std::string& channelname, TH1D hist, double minimum = -1, double maximum = -1);
 
     /**
      * Set the template for a specific process in a particular channel.
      * @param channelname The name of the channel.
      * @param processname The name of the process.
      * @param hist The TH1D histogram.
-     * @param efficiency The efficiency of this process in this channel.
-     * @return An error code. */
-    int SetTemplate(const std::string& channelname, const std::string& processname, TH1D hist, double efficiency = 1., double norm = 1.);
+     * @param efficiency The efficiency of this process in this channel. */
+    void SetTemplate(const std::string& channelname, const std::string& processname, TH1D hist, double efficiency = 1., double norm = 1.);
 
     /**
      * Set the template for a specific process in a particular
@@ -151,15 +149,15 @@ public:
      * @param funccont A vector of pointers of TF1 functions.
      * @param nbins The number of bins used for the histogram.
      * @param efficiency The efficiency of this process in this channel.
-     * @return An error code.
-     * @see SetTemplate(const char * channelname, const char * processname, TH1D hist, double efficiency = 1.) */
-    int SetTemplate(const std::string& channelname, const std::string& processname, std::vector<TF1*>* funccont, int nbins, double efficiency = 1.);
+     *
+     * @see SetTemplate(const std::string& channelname, const std::string& processname, TH1D hist, double efficiency = 1.) */
+    void SetTemplate(const std::string& channelname, const std::string& processname, std::vector<TF1*>* funccont, int nbins, double efficiency = 1.);
 
     /**
      * Set an expectation function.
      * @param parindex The index of the parameter
      * @param func The pointer to a TF1 function.
-     * @see SetTemplate(const char * channelname, const char * processname, std::vector<TF1 *> * funccont, int nbins, double efficiency = 1.) */
+     * @see SetTemplate(const std::string& channelname, const std::string& processname, std::vector<TF1 *> * funccont, int nbins, double efficiency = 1.) */
     void SetExpectationFunction(int parindex, TF1* func)
     { fExpectationFunctionContainer[parindex] = func; };
 
@@ -175,9 +173,8 @@ public:
      * @param processname The name of the process.
      * @param systematicname The name of the source of systematic uncertainty.
      * @param variation_up The relative shift between the up-variation and the nominal template: (up-nom)/nom.
-     * @param variation_down The relative shift between the down-variation and the nominal template: (nom-down)/nom.
-     * @return An error code. */
-    int SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, double variation_up, double variation_down);
+     * @param variation_down The relative shift between the down-variation and the nominal template: (nom-down)/nom. */
+    void SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, double variation_up, double variation_down);
 
     /**
      * Set the impact of a source of systematic uncertainty for a
@@ -189,9 +186,9 @@ public:
      * @param systematicname The name of the source of systematic uncertainty.
      * @param hist_up The TH1D histogram defining the relative shift between the up-variation and the nominal template: (up-nom)/nom.
      * @param hist_down The TH1D histogram defining the relative shift between the down-variation and the nominal template: (nom-down)/nom.
-     * @return An error code.
-     * @see SetSystematicVariation(const char * channelname, const char * processname,  const char * systematicname, double variation_up, double variation_down) */
-    int SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, TH1D hist_up, TH1D hist_down);
+     *
+     * @see SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, double variation_up, double variation_down) */
+    void SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, TH1D hist_up, TH1D hist_down);
 
     /**
      * Set the impact of a source of systematic uncertainty for a
@@ -205,9 +202,9 @@ public:
      * @param hist The histogram with the nominal template
      * @param hist_up The TH1D histogram after up-scaling of the systematic uncertainty.
      * @param hist_down The TH1D histogram after down-scaling of the systematic uncertainty.
-     * @return An error code.
-     * @see SetSystematicVariation(const char * channelname, const char * processname,  const char * systematicname, double variation_up, double variation_down) */
-    int SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, TH1D hist, TH1D hist_up, TH1D hist_down);
+     *
+     * @see SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, double variation_up, double variation_down) */
+    void SetSystematicVariation(const std::string& channelname, const std::string& processname,  const std::string& systematicname, TH1D hist, TH1D hist_up, TH1D hist_down);
 
     /**
      * Set a flag for the efficiency: if true then the total
@@ -225,9 +222,8 @@ public:
 
     /**
      * Add a channel
-     * @param name The channel name.
-     * @return An error code. */
-    int AddChannel(const std::string& name);
+     * @param name The channel name. */
+    void AddChannel(const std::string& name);
 
     /**
      * Add a process and the associated BAT parameter.
@@ -236,17 +232,15 @@ public:
      * @param nmax The maximum number of expected events (upper limit on the BAT parameter values).
      * @param color The histogram color
      * @param fillstyle The histogram fill style
-     * @param linestyle The histogram line style
-     * @return An error code. */
-    int AddProcess(const std::string& name, double nmin = 0., double nmax = 1., int color = -1, int fillstyle = -1, int linestyle = -1);
+     * @param linestyle The histogram line style */
+    void AddProcess(const std::string& name, double nmin = 0., double nmax = 1., int color = -1, int fillstyle = -1, int linestyle = -1);
 
     /**
      * Add a source of systematic uncertainty and the associated BAT (nuisance) parameter.
      * @param name The systematic uncertainty name.
      * @param min The lower limit on the BAT parameter values, typically -5 sigma if Gaussian constraint is used.
-     * @param max The upper limit on the BAT parameter values, typically +5 sigma if Gaussian constraint is used.
-     * @return  */
-    int AddSystematic(const std::string& name, double min = -5., double max = 5.);
+     * @param max The upper limit on the BAT parameter values, typically +5 sigma if Gaussian constraint is used. */
+    void AddSystematic(const std::string& name, double min = -5., double max = 5.);
 
     /**
      * Return the expected number of events for a channel and bin.
@@ -361,9 +355,8 @@ public:
      * "b1" : draw bands showing the probability to observe a certain number of events given the expectation. The green (yellow, red) bands correspond to the central 68% (95%, 99.8%) probability \n
      * @param channelindex The channel index.
      * @param parameters A reference to the parameters used to scale the templates.
-     * @param options The plotting options.
-     * @return An error code. */
-    int PrintStack(int channelindex, const std::vector<double>& parameters, const std::string& filename = "stack.pdf", const char* options = "e1b0stack");
+     * @param options The plotting options. */
+    void PrintStack(int channelindex, const std::vector<double>& parameters, const std::string& filename = "stack.pdf", const std::string& options = "e1b0stack");
 
     /**
      * Print the stack of templates together with the data in a
@@ -371,9 +364,12 @@ public:
      * @param channelname The name of the channel.
      * @param parameters A reference to the parameters used to scale the templates.
      * @param options The plotting options.
-     * @return An error code.
-     * @see PrintStack(int channelindex, const std::vector<double> & parameters, const char * filename = "stack.pdf", const char * options = "e1b0stack") */
-    int PrintStack(const std::string& channelname, const std::vector<double>& parameters, const std::string& filename = "stack.pdf", const char* options = "e1b0stack");
+     *
+     * @see PrintStack(int channelindex, const std::vector<double> & parameters, const std::string& filename = "stack.pdf", const std::string& options = "e1b0stack") */
+    void PrintStack(const std::string& channelname, const std::vector<double>& parameters, const std::string& filename = "stack.pdf", const std::string& options = "e1b0stack")
+    {
+        return PrintStack(GetChannelIndex(channelname), parameters, filename, options);
+    }
 
     /** @} */
 

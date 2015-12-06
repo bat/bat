@@ -39,7 +39,7 @@ public:
     BCTF1Prior(TF1& f);
 
     /** Constructor with formula and limits. */
-    BCTF1Prior(const char* formula, double xmin, double xmax); //double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity());
+    BCTF1Prior(const std::string& formula, double xmin, double xmax);
 
     /** Destrcutor */
     virtual ~BCTF1Prior() {};
