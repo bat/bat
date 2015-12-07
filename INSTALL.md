@@ -26,16 +26,18 @@ Under Debian or Ubuntu, you can install the essential requirements with
 
 ### Required: ROOT
 
-ROOT is an object-oriented data-analysis framework. You can obtain it
-from http://root.cern.ch/. For BAT version 1.0, a ROOT version 5.34/14
-or later is needed to compile. ROOT 6 is supported as well.
+ROOT is an object-oriented data-analysis framework. At
+http://root.cern.ch/, you can obtain the source code as well as binary
+distributions for a number of Linux distributions and Mac OS X
+versions. We advise to download the latest production release of
+ROOT. BAT is compatible with ROOT 6 and we regularly run unit tests
+with ROOT 5.34/20 to ensure backward compatibility.
 
-ROOT offers binary distributions for a number of Linux distributions
-and Mac OS X versions. On Linux, an alternative is to check your
-package manager for the availability of ROOT packages. Usually these
-packages are rather old but often they are good enough to build
-BAT. For example in Debian Jessie or Ubuntu 14.04, you can
-conveniently install the requirements with
+On Linux, an alternative is to check your package manager for the
+availability of ROOT packages. Usually these packages are rather old
+but often they are good enough to build BAT. For example in Debian
+Jessie or Ubuntu 14.04, you can conveniently install the requirements
+with
 
     sudo apt-get install libroot-graf2d-postscript-dev libroot-graf3d-g3d-dev libroot-math-foam-dev libroot-math-minuit-dev libroot-math-physics-dev libroot-math-mathmore-dev libroot-roofit-dev root-system-bin
 
