@@ -323,12 +323,7 @@ public:
     unsigned GetMultivariateCovarianceUpdates() const
     { return fMultivariateCovarianceUpdates; }
 
-    /**
-     * @return minimum number of updates to multivariate-proposal-function covariance to perform. */
-    unsigned GetMultivariateCovarianceUpdatesMinimum() const
-    { return fMultivariateCovarianceUpdatesMinimum; }
-
-    /**
+    /*
      * @return weighting parameter for multivariate proposal function covariance update. */
     double GetMultivariateCovarianceUpdateLambda() const
     { return fMultivariateCovarianceUpdateLambda; }
@@ -797,11 +792,6 @@ public:
      * value forced into [0, 1] */
     void SetMultivariateCovarianceUpdateLambda(double l)
     { fMultivariateCovarianceUpdateLambda = std::max<double>(0, std::min<double>(1, l)); }
-
-    /**
-     * Set minimum number of updates to multivariate-proposal-function covariance to perform. */
-    void SetMultivariateCovarianceUpdatesMinimum(unsigned n)
-    { fMultivariateCovarianceUpdatesMinimum = n; }
 
     /**
      * Sets multivariate-proposal-function cholesky-decomposition nudge. */
@@ -1626,10 +1616,6 @@ protected:
     /**
      * weighting parameter for multivariate-proposal-function covariance update. */
     double fMultivariateCovarianceUpdateLambda;
-
-    /**
-     * Minimum number of multivariate-proposal-function covariance updates to perform. */
-    unsigned fMultivariateCovarianceUpdatesMinimum;
 
     /**
      * multivariate-proposal-function cholesky-decomposition nudge. */
