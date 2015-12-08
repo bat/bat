@@ -13,6 +13,14 @@ using namespace test;
 
 namespace
 {
+void check_efficiency(const GaussModel& m, double efficiency)
+{
+    if (efficiency < m.GetMinimumEfficiency())
+        TEST_CHECK_FAILED(stringify(efficiency) + " less than required " + stringify(m.GetMinimumEfficiency()));
+    if (efficiency > m.GetMaximumEfficiency())
+        TEST_CHECK_FAILED(stringify(efficiency) + " larger than required " + stringify(m.GetMaximumEfficiency()));
+}
+
 GaussModel* gauss_check(bool multivariate_proposal)
 {
     /* set up model */
@@ -28,8 +36,9 @@ GaussModel* gauss_check(bool multivariate_proposal)
     m.SetNIterationsPreRunMax(1000000);
     m.SetNIterationsPreRunMin(1000);
     m.SetNIterationsRun(100000);
-    m.SetMinimumEfficiency(0.15);
-    m.SetMaximumEfficiency(0.35);
+
+    m.SetMinimumEfficiency(0.10);
+    m.SetMaximumEfficiency(0.30);
 
     m.SetCorrectRValueForSamplingVariability(true);
     m.SetProposeMultivariate(multivariate_proposal);
@@ -44,7 +53,6 @@ GaussModel* gauss_check(bool multivariate_proposal)
     unsigned ncalls = m.GetNChains() * (m.GetNIterationsConvergenceGlobal() + m.GetNIterationsRun());
     ncalls *= multivariate_proposal ? 1 : dim;
     TEST_CHECK_EQUAL(m.Calls(), ncalls);
-    //            m.PrintAllMarginalized(std::string(__FILE__) + "_gauss.pdf");
 
     // target variance
     const double var = m.sigma() * m.sigma();
@@ -87,28 +95,18 @@ GaussModel* gauss_check(bool multivariate_proposal)
                 if (i != k)
                     TEST_CHECK_NEARLY_EQUAL(s[j].covariance[i][k], 0.0, 2);
 
-            // expect to be within 2.75--5 sigma for 1e5 samples
-            static const double xmin = 2.75 * m.sigma();
-            static const double xmax = 5 * m.sigma();
-            TEST_CHECK(s[j].maximum[i] > xmin);
-            TEST_CHECK(s[j].maximum[i] < xmax);
-            TEST_CHECK(s[j].minimum[i] < -xmin);
-            TEST_CHECK(s[j].minimum[i] > -xmax);
-
             // mcmc not a great mode finder => large uncertainty
             TEST_CHECK_NEARLY_EQUAL(s[j].mode[i], 0, 1);
 
-            // 23.8% is "optimal" acceptance rate for Gaussian target in high dimensions
-            // and Gaussian proposal
             if (!multivariate_proposal)
-                TEST_CHECK_NEARLY_EQUAL(s[j].efficiency[i], 0.238, 0.1);
+                check_efficiency(m, s[j].efficiency[i]);
         }
         if (multivariate_proposal)
-            TEST_CHECK_NEARLY_EQUAL(s[j].efficiency[0], 0.238, 0.1);
+            check_efficiency(m, s[j].efficiency.front());
         BCLog::OutSummary(Form("<-- Checked chain %d", j));
     }
 
-    // check all-chains statistics object
+    // check all-chains statistics
     const BCEngineMCMC::Statistics& S = m.GetStatistics();
     TEST_CHECK_EQUAL(S.n_samples, m.GetNIterationsRun() * m.GetNChains());
     // mean etc. are per parameter
@@ -127,7 +125,7 @@ GaussModel* gauss_check(bool multivariate_proposal)
 
         // we don't know the effective sample size but should use it here
         // instead of an arbitrary factor
-        static const double ess = 10;
+        static const double ess = 15;
         TEST_CHECK_NEARLY_EQUAL(S.mean[i], 0, ess * bestError);
 
         // variance estimate much worse than mean estimate
@@ -143,13 +141,12 @@ GaussModel* gauss_check(bool multivariate_proposal)
             TEST_CHECK_NEARLY_EQUAL(S.covariance[i][j], i == j ? var : 0.0, 0.85);
         }
 
-        // expect to be within 3.5-5 sigma for 2e5 samples
-        static const double xmin = 3.5 * m.sigma();
-        static const double xmax = 5 * m.sigma();
-        TEST_CHECK(S.maximum[i] > xmin);
-        TEST_CHECK(S.maximum[i] < xmax);
-        TEST_CHECK(S.minimum[i] < -xmin);
-        TEST_CHECK(S.minimum[i] > -xmax);
+        // don't expect to fall outside 6 sigma
+        static const double cut = 6;
+        TEST_CHECK(S.maximum[i] > 0);
+        TEST_CHECK(S.maximum[i] < cut);
+        TEST_CHECK(S.minimum[i] < 0);
+        TEST_CHECK(S.minimum[i] > -cut);
 
         // mcmc not a great mode finder => large uncertainty
         TEST_CHECK_NEARLY_EQUAL(S.mode[i], 0, 0.4);
@@ -157,10 +154,10 @@ GaussModel* gauss_check(bool multivariate_proposal)
         // 23.8% is "optimal" acceptance rate for Gaussian target in high dimensions
         // and Gaussian proposal
         if (!multivariate_proposal)
-            TEST_CHECK_NEARLY_EQUAL(S.efficiency[i], 0.238, 0.1);
+            check_efficiency(m, S.efficiency[i]);
     }
     if (multivariate_proposal)
-        TEST_CHECK_NEARLY_EQUAL(S.efficiency[0], 0.238, 0.1);
+        check_efficiency(m, S.efficiency.front());
 
     return &m;
 }

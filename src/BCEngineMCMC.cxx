@@ -84,7 +84,7 @@ BCEngineMCMC::BCEngineMCMC(const std::string& name)
       fMCMCEfficiencyMax(0.50),
       fInitialPositionScheme(BCEngineMCMC::kInitRandomUniform),
       fMCMCProposeMultivariate(false),
-      fMCMCProposalFunctionDof(0.0),
+      fMCMCProposalFunctionDof(1.0),
       fMCMCPhase(BCEngineMCMC::kUnsetPhase),
       fCorrectRValueForSamplingVariability(false),
       fMCMCRValueParametersCriterion(1.1),
@@ -121,7 +121,7 @@ BCEngineMCMC::BCEngineMCMC(const std::string& filename, const std::string& name,
       fMCMCEfficiencyMax(0.50),
       fInitialPositionScheme(BCEngineMCMC::kInitRandomUniform),
       fMCMCProposeMultivariate(false),
-      fMCMCProposalFunctionDof(0.0),
+      fMCMCProposalFunctionDof(1.0),
       fMCMCPhase(BCEngineMCMC::kUnsetPhase),
       fCorrectRValueForSamplingVariability(false),
       fMCMCRValueParametersCriterion(1.1),
@@ -1426,13 +1426,10 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
 // --------------------------------------------------------
 double BCEngineMCMC::ProposalFunction(unsigned ichain, unsigned iparameter)
 {
-    // no check of range for performance reasons
+    // multiply by 1 (dof <=0, Gauss) or a random variate that scales the Gaussian to a Student's t with dof degrees of freedom
+    const double scale = fMCMCThreadLocalStorage[ichain].scale(fMCMCProposalFunctionDof);
 
-    // use uniform distribution
-    //   return = fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter] * 2.0 * (0.5 - fRandom->Rndm());
-
-    // Breit-Wigner width adjustable width
-    return fMCMCThreadLocalStorage[ichain].rng->BreitWigner(0.0, fMCMCProposalFunctionScaleFactor[ichain][iparameter]);
+    return scale * fMCMCThreadLocalStorage[ichain].rng->Gaus(0, fMCMCProposalFunctionScaleFactor[ichain][iparameter]);
 }
 
 // --------------------------------------------------------
@@ -1448,8 +1445,7 @@ bool BCEngineMCMC::GetProposalPointMetropolis(unsigned chain, std::vector<double
     // multiply by Cholesky decomposition
     y *= fMultivariateProposalFunctionCholeskyDecomposition[chain];
 
-    // multiply by 1.0 (dof <=0) or chi2 random variable with specified (degrees of freedom >0)
-    // with chi2 scaling, get Student's t distribution
+    // multiply by 1 (dof <=0, Gauss) or a random variate that scales the Gaussian to a Student's t with dof degrees of freedom
     const double scale = fMCMCThreadLocalStorage[chain].scale(fMCMCProposalFunctionDof);
 
     // add values into x
@@ -3503,7 +3499,7 @@ unsigned BCEngineMCMC::UpdateFrequency(unsigned N) const
 }
 
 // ---------------------------------------------------------
-BCEngineMCMC::ThreadLocalStorage::ThreadLocalStorage(const unsigned& dim) :
+BCEngineMCMC::ThreadLocalStorage::ThreadLocalStorage(unsigned dim) :
     xLocal(dim, 0.0),
     rng(new TRandom3(0)),
     rngGSL(NULL),
@@ -3549,16 +3545,21 @@ BCEngineMCMC::ThreadLocalStorage::~ThreadLocalStorage()
 }
 
 // ---------------------------------------------------------
-double BCEngineMCMC::ThreadLocalStorage::scale(const double& dof)
+double BCEngineMCMC::ThreadLocalStorage::scale(double dof)
 {
+    // when Z is normally distributed with expected value 0 and std deviation sigma
+    // and  V is chi-squared distributed with dof degrees of freedom
+    // and  Z and V are independent
+    // then Z*sqrt(dof/V) is t-distributed with dof degrees of freedom and std deviation sigma
     if (dof <= 0)
         return 1;
 #if ROOTMATHMORE
-    return static_cast<GSLRng*>(rngGSL)->ChiSquare(dof);
+    const double chi2 = static_cast<GSLRng*>(rngGSL)->ChiSquare(dof);
 #else
     // much slower than direct sampling. It's only the fallback if GSL not available
-    return ROOT::Math::chisquared_quantile(rng->Rndm(), dof);
+    const double chi2 = ROOT::Math::chisquared_quantile(rng->Rndm(), dof);
 #endif
+    return sqrt(dof / chi2);
 }
 
 // ---------------------------------------------------------
@@ -3602,7 +3603,7 @@ void BCEngineMCMC::SyncThreadStorage()
 void BCEngineMCMC::UpdateChainIndex(int chain)
 {
 #if THREAD_PARALLELIZATION
-    // encapsula write access in critical section to avoid seg faults when a dangling reference is returned
+    // encapsulate write access in critical section to avoid seg faults when a dangling reference is returned
     #pragma omp critical(BCEngineMCMC_UpdateChainIndex)
     { fChainIndex[omp_get_thread_num()] = chain; }
 #else
