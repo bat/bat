@@ -6,6 +6,10 @@ TEST_EXTENSIONS += .root
 
 # Requires BAT build with RooStats enabled
 if ROOSTATS
+# examples are not thread safe
+if THREAD_PARALLELIZATION
+AM_TESTS_ENVIRONMENT += export OMP_NUM_THREADS=1;
+endif
 
 noinst_PROGRAMS = runRooInterface
 
@@ -24,5 +28,10 @@ $(input_workspaces): WS_%.root: PrepareWorkspace_%.C
 ROOT_LOG_COMPILER = $(builddir)/runRooInterface
 
 TESTS = $(input_workspaces) runBATCalculator.C
+
+# only works with root 5
+if WITH_CLING
+XFAIL_TESTS = runBATCalculator.C
+endif
 
 endif
