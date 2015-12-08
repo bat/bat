@@ -8,21 +8,30 @@ Platforms
 ----------
 
 BAT has been developed on Linux. The installation, unit tests, and
-examples are run and known to work on Linux and Mac OS X with both gcc
-and clang.
+examples are run and known to work on Linux and Mac OS X. On Linux, we
+test with gcc and on Mac OS X we use clang but both compilers should
+work on either platform.
 
 Windows is not supported.
 
 Dependencies
 -------------
 
-### Required: compiler
+It is understood that all commands shown below are to be entered into
+a terminal.
+
+### Required: Basic tools
 
 Compilation and tests work fine with gcc > 4.2 and clang >= 3.3.
 
 Under Debian or Ubuntu, you can install the essential requirements with
 
     sudo apt-get install build-essential curl
+
+In order to use the development version of BAT instead of an official
+release, some more packages are needed
+
+    sudo apt-get install autoconf automake git-core libtool
 
 ### Required: ROOT
 
@@ -82,9 +91,10 @@ Building
 
 ### Obtaining BAT
 
-You can download the latest release of BAT from http://mpp.mpg.de/bat/.
-Unpack the tarball usually named like BAT-x.x.tar.gz (here x.x is
-the version number) and switch to the directory
+You can download the latest release of BAT from
+http://mpp.mpg.de/bat/.  Open a terminal, unpack the tarball usually
+named like BAT-x.x.tar.gz (here x.x is the version number) and switch
+to the directory
 
     tar -xzf BAT-x.x.tar.gz
     cd BAT-x.x
