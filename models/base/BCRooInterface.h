@@ -71,7 +71,6 @@ private:
     RooAbsData* fData;        /// data to test
     RooAbsPdf* fModel;        /// likelihood model describing the observables
     RooAbsReal* fNll;         /// pointer to negative log-likelihood function
-    RooArgSet* fObservables;  /// list of observables measured for each event
     RooArgList* fParams;      /// list of parameters
     RooArgList* fParamsPOI;   /// list of parameters of interest
     RooAbsPdf* fPrior;        /// function describing the prior probability of the parameters
