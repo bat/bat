@@ -50,10 +50,12 @@ BCEfficiencyFitter::BCEfficiencyFitter(const TH1& trials, const TH1& successes, 
         }
     }
 
-    // after checking, we can copy
+    // After checking, we can copy.
+    // Unfortunately the Copy() method is not public in very old versions of ROOT.
+    // But the workaround is good enough for our purposes.
 #if ROOTVERSION >= 5034019
-    fTrials = trials;
-    fSuccesses = successes;
+    trials.Copy(fTrials);
+    successes.Copy(fSuccesses);
 #else
     BCFitter::CopyHist(trials, fTrials);
     BCFitter::CopyHist(successes, fSuccesses);
