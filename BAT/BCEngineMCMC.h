@@ -323,12 +323,7 @@ public:
     unsigned GetMultivariateCovarianceUpdates() const
     { return fMultivariateCovarianceUpdates; }
 
-    /**
-     * @return minimum number of updates to multivariate-proposal-function covariance to perform. */
-    unsigned GetMultivariateCovarianceUpdatesMinimum() const
-    { return fMultivariateCovarianceUpdatesMinimum; }
-
-    /**
+    /*
      * @return weighting parameter for multivariate proposal function covariance update. */
     double GetMultivariateCovarianceUpdateLambda() const
     { return fMultivariateCovarianceUpdateLambda; }
@@ -738,7 +733,6 @@ public:
      * Set the random number seed */
     void SetRandomSeed(unsigned seed);
 
-
     /**
      * Sets the initial positions for all chains.
      * @param x0s initial positions for all chains. */
@@ -756,18 +750,40 @@ public:
     { fInitialPositionScheme = scheme; }
 
     /**
-     * Set `flag` to turn on multivariate or factorized proposal for
-     * MCMC. The multivariate proposal is based on (Haario et al.,
-     * 2001). `dof` defaults to 0 representing a Gaussian distribution
-     * whose covariance is learned in the prerun. For `dof > 0`, a
-     * Student's t distribution with the corresponding degrees of
-     * freedom is used instead. The special case `dof = 1` is a
-     * multivariate Cauchy.
+     * Set `flag` to `true` to turn on the multivariate proposal for
+     * MCMC based on (Haario et al., 2001) where the covariance is
+     * learned from the prerun.
      *
-     * @note `dof` is ignored if `flag == false`. */
-    void SetProposeMultivariate(bool flag, double dof = 0)
+     * If `flag == false`, use a factorized proposal in which every
+     * parameter is varied individually, one after the other. This
+     * means for N parameters, N calls to the target density occur
+     * until every parameter has been (attempted to be) varied exactly
+     * once. In contrast, with the multivariate proposal all
+     * parameters are varied simultaneously and a move can occur for a
+     * single call to the target density.
+     *
+     * For both multivariate and factorized proposal, the acceptance
+     * rate of the Markov chain is tuned to lie within the limits
+     * given by SetMinimumEfficiency() and SetMaximumEfficiency().*/
+    void SetProposeMultivariate(bool flag)
     {
         fMCMCProposeMultivariate = flag;
+    }
+
+    /**
+     * Set the degree of freedom of the proposal function for MCMC.
+     *
+     * The default `dof == 1` represents a Cauchy distribution. For
+     * any positive value of `dof`, a Student's t distribution with
+     * the corresponding degrees of freedom is used. For `dof <= 0`,
+     * a Gaussian is used.
+     *
+     * A small positive degree of freedom leads to fat tails in the
+     * proposal. This makes it easier to make a large jump in a single
+     * iteration but also leads to a lower acceptance rate.
+     */
+    void SetProposalFunctionDof(double dof = 1)
+    {
         fMCMCProposalFunctionDof = dof;
     }
 
@@ -776,11 +792,6 @@ public:
      * value forced into [0, 1] */
     void SetMultivariateCovarianceUpdateLambda(double l)
     { fMultivariateCovarianceUpdateLambda = std::max<double>(0, std::min<double>(1, l)); }
-
-    /**
-     * Set minimum number of updates to multivariate-proposal-function covariance to perform. */
-    void SetMultivariateCovarianceUpdatesMinimum(unsigned n)
-    { fMultivariateCovarianceUpdatesMinimum = n; }
 
     /**
      * Sets multivariate-proposal-function cholesky-decomposition nudge. */
@@ -1412,7 +1423,7 @@ private:
          * Constructor
          * @param dim Dimension of a temporary parameter vector
          */
-        ThreadLocalStorage(const unsigned& dim);
+        ThreadLocalStorage(unsigned dim);
 
         /**
          * Copy constructor. */
@@ -1430,15 +1441,16 @@ private:
         virtual ~ThreadLocalStorage();
 
         /**
-         * @param dof If > 0, sample from the chi2 distribution with
-         * `dof` degrees of freedom. Use GSL if available via
-         * `MathMore`, else use inverse-transform method via
-         * `MathCore`. GSL is significantly faster.
+         * Scale a Gaussian random variate such that it becomes a student's t variate;
+         * i.e. return `sqrt(dof / chi2)`, where `chi2` is a variate from a chi2 distribution
+         * with `dof` degrees of freedom.
          *
-         * @return Random variate from
-         * the chi2 distribution if dof > 0, else 1.
-         */
-        double scale(const double& dof);
+         * If `dof <= 0`, simply return 1 to keep the Gaussian distribution.
+         *
+         * @note Internally, we sample from the chi2 distribution through GSL if available via
+         * `MathMore`, else we use the inverse-transform method via
+         * `MathCore`. GSL is significantly faster. */
+        double scale(double dof);
     };
 
     /**
@@ -1604,10 +1616,6 @@ protected:
     /**
      * weighting parameter for multivariate-proposal-function covariance update. */
     double fMultivariateCovarianceUpdateLambda;
-
-    /**
-     * Minimum number of multivariate-proposal-function covariance updates to perform. */
-    unsigned fMultivariateCovarianceUpdatesMinimum;
 
     /**
      * multivariate-proposal-function cholesky-decomposition nudge. */
