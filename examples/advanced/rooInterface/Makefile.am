@@ -27,11 +27,11 @@ $(input_workspaces): WS_%.root: PrepareWorkspace_%.C
 
 ROOT_LOG_COMPILER = $(builddir)/runRooInterface
 
-TESTS = $(input_workspaces) runBATCalculator.C
+TESTS = $(input_workspaces)
 
-# only works with root 5
-if WITH_CLING
-XFAIL_TESTS = runBATCalculator.C
+# import in macro only works with root 5
+if !WITH_CLING
+TESTS += runBATCalculator.C
 endif
 
 endif
