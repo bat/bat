@@ -3294,6 +3294,9 @@ bool BCEngineMCMC::PrintCorrelationPlot(const std::string& filename, bool includ
     text_na->SetTextSize(8e-1 / I.size());
     text_na->SetTextColor(kGray);
 
+    // store histograms for persistency for ROOT until drawing is saved
+    std::vector<BCHistogramBase*> bh;
+
     // drawing all histograms
     for (unsigned i = 0; i < I.size(); ++i) {
         xlow = i * padsize + margin;
@@ -3310,28 +3313,30 @@ bool BCEngineMCMC::PrintCorrelationPlot(const std::string& filename, bool includ
             pad[i][j]->Draw();
             pad[i][j]->cd();
 
-            // get the histogram
-            BCHistogramBase bh;
-
             if (i == j)
-                bh = GetMarginalized(I[i]);
-            else
-                bh = MarginalizedHistogramExists(I[i], I[j]) ? GetMarginalized(I[i], I[j]) : NULL;
+                bh.push_back(new BCH1D(GetMarginalized(I[i])));
+            else {
+                if (MarginalizedHistogramExists(I[i], I[j]))
+                    bh.push_back(new BCH2D(GetMarginalized(I[i], I[j])));
+                else
+                    bh.push_back(NULL);
+            }
+            // bh = MarginalizedHistogramExists(I[i], I[j]) ? GetMarginalized(I[i], I[j]) : NULL;
 
-            if (bh.Valid()) {
+            if (bh.back()) {
 
-                bh.GetHistogram()->GetXaxis()->SetLabelSize(0);
-                bh.GetHistogram()->GetYaxis()->SetLabelSize(0);
-                bh.GetHistogram()->GetXaxis()->SetTitleSize(0);
-                bh.GetHistogram()->GetYaxis()->SetTitleSize(0);
+                bh.back()->GetHistogram()->GetXaxis()->SetLabelSize(0);
+                bh.back()->GetHistogram()->GetYaxis()->SetLabelSize(0);
+                bh.back()->GetHistogram()->GetXaxis()->SetTitleSize(0);
+                bh.back()->GetHistogram()->GetYaxis()->SetTitleSize(0);
 
-                if (bh.GetHistogram()->GetDimension() == 1)
-                    bh.CopyOptions(fBCH1DdrawingOptions);
-                else if (bh.GetHistogram()->GetDimension() == 2)
-                    bh.CopyOptions(fBCH2DdrawingOptions);
-                bh.SetDrawLegend(false);
-                bh.SetStats(false);
-                bh.Draw();
+                if (bh.back()->GetHistogram()->GetDimension() == 1)
+                    bh.back()->CopyOptions(fBCH1DdrawingOptions);
+                else if (bh.back()->GetHistogram()->GetDimension() == 2)
+                    bh.back()->CopyOptions(fBCH2DdrawingOptions);
+                bh.back()->SetDrawLegend(false);
+                bh.back()->SetStats(false);
+                bh.back()->Draw();
 
             } else if (!(MarginalizedHistogramExists(I[j], I[i])) && I[i] >= I[j]) { // if the histogram is not available, draw "N/A"
                 // pad[i][j]->SetFillColor(kWhite);
@@ -3349,6 +3354,10 @@ bool BCEngineMCMC::PrintCorrelationPlot(const std::string& filename, bool includ
 
     // gPad->RedrawAxis();
     c->Print(filename.data());
+
+    // delete BCHistogramBase objects
+    for (unsigned i = 0; i < bh.size(); ++i)
+        delete bh[i];
 
     return true;
 }
