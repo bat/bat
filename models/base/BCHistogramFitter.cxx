@@ -8,6 +8,8 @@
 
 // ---------------------------------------------------------
 
+#include <config.h>
+
 #include "BCHistogramFitter.h"
 
 #include <BAT/BCDataPoint.h>
@@ -26,27 +28,36 @@
 #include <TString.h>
 
 // ---------------------------------------------------------
-BCHistogramFitter::BCHistogramFitter(const TH1& hist, const TF1& func, const std::string& name)
-    : BCFitter(func, name)
+BCHistogramFitter::BCHistogramFitter(const TH1& hist, const TF1& func, const std::string& name) :
+    BCFitter(func, name)
 {
+    if (hist.GetDimension() != 1)
+        throw std::invalid_argument("Only 1D histograms supported");
+
+    // Unfortunately the Copy() method is not public in very old versions of ROOT.
+    // But the workaround is good enough for our purposes.
+#if ROOTVERSION >= 5034019
     hist.Copy(fHistogram);
+#else
+    BCFitter::CopyHist(hist, fHistogram);
+#endif
 
     // create data points and add them to the data set.
     // the x value is the lower edge of the bin, and
     // the y value is the bin count
-    int nbins = fHistogram.GetNbinsX();
+    int nbins = hist.GetNbinsX();
     for (int i = 1; i <= nbins; ++i) {
         GetDataSet()->AddDataPoint(BCDataPoint(2));
-        GetDataSet()->Back()[0] = fHistogram.GetBinLowEdge(i);
-        GetDataSet()->Back()[1] = fHistogram.GetBinContent(i);
+        GetDataSet()->Back()[0] = hist.GetBinLowEdge(i);
+        GetDataSet()->Back()[1] = hist.GetBinContent(i);
     }
 
-    // set the data boundaries for x and y values.
-    GetDataSet()->SetBounds(0, fHistogram.GetXaxis()->GetXmin(), fHistogram.GetXaxis()->GetXmax());
-    GetDataSet()->SetBounds(1, std::max<double>(fHistogram.GetMinimum() - sqrt(fHistogram.GetMinimum()) / 2, 0),
-                            fHistogram.GetMaximum() + sqrt(fHistogram.GetMaximum()) / 2);
+    // set the data boundaries for x and y values
+    GetDataSet()->SetBounds(0, hist.GetXaxis()->GetXmin(), hist.GetXaxis()->GetXmax());
+    GetDataSet()->SetBounds(1, std::max<double>(hist.GetMinimum() - sqrt(hist.GetMinimum()) / 2, 0),
+                            hist.GetMaximum() + sqrt(hist.GetMaximum()) / 2);
 
-    // set the indeces for fitting.
+    // set the indices for fitting
     SetFitFunctionIndices(0, 1);
 
     SetNIterationsRun(2000);

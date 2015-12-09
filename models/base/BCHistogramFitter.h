@@ -37,7 +37,10 @@ public:
     /* @{ */
     /**
      * Constructor
-     * @param hist Histogram with observed number of counts. Any non-integer values will be converted to integer.
+     * @param hist Histogram with observed number of counts.
+                   Conceptually, each entry is an integer. But we don't restrict
+                   to the integer data type because one might have
+                   a number of entries larger than 2^32.
      * @param func fit function
      * @param name name of the model */
     BCHistogramFitter(const TH1& hist, const TF1& func, const std::string& name = "histogram_fitter_model");
@@ -114,7 +117,7 @@ protected:
 
     /**
      * The histogram with observed number of counts. */
-    TH1I fHistogram;
+    TH1D fHistogram;
 
     /**
      * fPValue accounting for degrees of freedom. */

@@ -1546,10 +1546,10 @@ bool BCEngineMCMC::GetNewPointMetropolis(unsigned chain)
                 fMCMCStatistics[chain].efficiency[0] *= 1.*fMCMCStatistics[chain].n_samples_efficiency / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
             }
         } else { // new log(likelihood) was not a finite number
-            BCLog::OutDebug("Log(likelihood) evaluated to nan or inf at");
+            BCLog::OutDebug("LogEval is nan or inf at ");
+            PrintParameters(fMCMCThreadLocalStorage[chain].xLocal, BCLog::OutDebug);
             // decrease efficiency
             fMCMCStatistics[chain].efficiency[0] *= 1.*fMCMCStatistics[chain].n_samples_efficiency / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
-            // TODO print parameter point
         }
     }
 

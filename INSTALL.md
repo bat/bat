@@ -7,37 +7,54 @@ BAT on your computer.
 Platforms
 ----------
 
-BAT has been developed on Linux machines running different
-distributions and different versions of the kernel and gcc. As far as
-we know there is nothing distribution-dependent inside of BAT. A gcc
-version >4.2 should suffice to compile the C++ code.
-
-The installation and functionality of BAT has also been tested on Mac
-OS X with gcc and clang.
+BAT has been developed on Linux. The installation, unit tests, and
+examples are run and known to work on Linux and Mac OS X. On Linux, we
+test with gcc and on Mac OS X we use clang but both compilers should
+work on either platform.
 
 Windows is not supported.
 
 Dependencies
 -------------
 
+It is understood that all commands shown below are to be entered into
+a terminal.
+
+### Required: Basic tools
+
+Compilation and tests work fine with gcc > 4.2 and clang >= 3.3.
+
+Under Debian or Ubuntu, you can install the essential requirements with
+
+    sudo apt-get install build-essential curl
+
+In order to use the development version of BAT instead of an official
+release, some more packages are needed
+
+    sudo apt-get install autoconf automake git-core libtool
+
 ### Required: ROOT
 
-ROOT is an object-oriented data-analysis framework. You can obtain it
-from http://root.cern.ch/. For BAT version 1.0, a ROOT version 5.27/04
-or later is needed to compile. ROOT 6 is supported as well.
+ROOT is an object-oriented data-analysis framework. At
+http://root.cern.ch/, you can obtain the source code as well as binary
+distributions for a number of Linux distributions and Mac OS X
+versions. We advise to download the latest production release of
+ROOT. BAT is compatible with ROOT 6 and we regularly run unit tests
+with ROOT 5.34/20 to ensure backward compatibility.
 
-Please check your Linux distribution for the availability of
-precompiled packages on your system. Many distributions offer the ROOT
-packages, albeit older versions. For example in Ubuntu 14.04, you can
-conveniently install the entire ROOT system through the package
-`root-system`. However, if you rely on the optional `roostats`
-interface, you may still have to compile ROOT yourself.
+On Linux, an alternative is to check your package manager for the
+availability of ROOT packages. Usually these packages are rather old
+but often they are good enough to build BAT. For example in Debian
+Jessie or Ubuntu 14.04, you can conveniently install the requirements
+with
+
+    sudo apt-get install libroot-graf2d-postscript-dev libroot-graf3d-g3d-dev libroot-math-foam-dev libroot-math-minuit-dev libroot-math-physics-dev libroot-math-mathmore-dev libroot-roofit-dev root-system-bin
 
 #### Note
 
-For the interface to RooFit/RooStats, a ROOT version 5.27/04 or later
-is necessary and ROOT must be compiled with support for MathMore, which
-in turn relies on the GNU scientific library (GSL).
+For the interface to RooFit/RooStats, ROOT must be compiled with
+support for RooFit and MathMore, the latter relies on the GNU
+scientific library (GSL).
 
 ### Optional: Cuba
 
@@ -74,9 +91,10 @@ Building
 
 ### Obtaining BAT
 
-You can download the latest release of BAT from http://mpp.mpg.de/bat/.
-Unpack the tarball usually named like BAT-x.x.tar.gz (here x.x is
-the version number) and switch to the directory
+You can download the latest release of BAT from
+http://mpp.mpg.de/bat/.  Open a terminal, unpack the tarball usually
+named like BAT-x.x.tar.gz (here x.x is the version number) and switch
+to the directory
 
     tar -xzf BAT-x.x.tar.gz
     cd BAT-x.x

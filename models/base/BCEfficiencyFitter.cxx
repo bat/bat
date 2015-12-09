@@ -7,6 +7,7 @@
  */
 
 // ---------------------------------------------------------
+#include <config.h>
 
 #include "BCEfficiencyFitter.h"
 
@@ -49,10 +50,16 @@ BCEfficiencyFitter::BCEfficiencyFitter(const TH1& trials, const TH1& successes, 
         }
     }
 
-    // after checking, we can copy
+    // After checking, we can copy.
+    // Unfortunately the Copy() method is not public in very old versions of ROOT.
+    // But the workaround is good enough for our purposes.
+#if ROOTVERSION >= 5034019
     trials.Copy(fTrials);
     successes.Copy(fSuccesses);
-
+#else
+    BCFitter::CopyHist(trials, fTrials);
+    BCFitter::CopyHist(successes, fSuccesses);
+#endif
     // create data points and add them to the data set.
     for (int i = 0; i < fTrials.GetNbinsX(); ++i)
         fFitterDataSet.AddDataPoint(BCDataPoint(2));
