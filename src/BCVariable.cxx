@@ -20,29 +20,29 @@
 #include <limits>
 
 // ---------------------------------------------------------
-BCVariable::BCVariable()
-    :	fPrefix("Variable")
-    , fLowerLimit(-std::numeric_limits<double>::infinity())
-    , fUpperLimit(+std::numeric_limits<double>::infinity())
-    , fPrecision(3)
-    , fFillH1(true)
-    , fFillH2(true)
-    , fNbins(100)
+BCVariable::BCVariable() :
+    fPrefix("Variable"),
+    fLowerLimit(-std::numeric_limits<double>::infinity()),
+    fUpperLimit(+std::numeric_limits<double>::infinity()),
+    fPrecision(4),
+    fFillH1(true),
+    fFillH2(true),
+    fNbins(100)
 {
     SetName("parameter");
 }
 
 // ---------------------------------------------------------
-BCVariable::BCVariable(const std::string& name, double lowerlimit, double upperlimit, const std::string& latexname, const std::string& unitstring)
-    :	fPrefix("Variable")
-    , fLowerLimit(-std::numeric_limits<double>::infinity())
-    , fUpperLimit(+std::numeric_limits<double>::infinity())
-    , fPrecision(3)
-    , fLatexName(latexname)
-    , fUnitString(unitstring)
-    , fFillH1(true)
-    , fFillH2(true)
-    , fNbins(100)
+BCVariable::BCVariable(const std::string& name, double lowerlimit, double upperlimit, const std::string& latexname, const std::string& unitstring) :
+    fPrefix("Variable"),
+    fLowerLimit(-std::numeric_limits<double>::infinity()),
+    fUpperLimit(+std::numeric_limits<double>::infinity()),
+    fPrecision(3),
+    fLatexName(latexname),
+    fUnitString(unitstring),
+    fFillH1(true),
+    fFillH2(true),
+    fNbins(100)
 {
     SetName(name);
     SetLimits(lowerlimit, upperlimit);
@@ -69,9 +69,10 @@ void BCVariable::SetLimits(double lowerlimit, double upperlimit)
 // ---------------------------------------------------------
 void BCVariable::CalculatePrecision(bool force)
 {
-    double new_precision = ceil(-log10(2.*fabs(fUpperLimit - fLowerLimit) / (fabs(fUpperLimit) + fabs(fLowerLimit))));
+    // need some extra digits to see where things become insignificant
+    unsigned new_precision = 4 + ceil(-log10(fabs(fUpperLimit - fLowerLimit) / std::max(fabs(fUpperLimit), fabs(fLowerLimit))));
     if (force or new_precision > GetPrecision())
-        SetPrecision(force);
+        SetPrecision(new_precision);
 }
 // ---------------------------------------------------------
 bool BCVariable::IsAtLimit(double value) const
