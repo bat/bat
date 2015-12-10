@@ -644,9 +644,6 @@ double BCMTF::Probability(int channelindex, int processindex, int binindex, cons
 // ---------------------------------------------------------
 void BCMTF::PrintStack(int channelindex, const std::vector<double>& parameters, const std::string& filename, const std::string& options)
 {
-    // todo:
-    // - add difference/ratio/significance plot below
-
     // check if parameters are filled
     if (parameters.empty())
         return;

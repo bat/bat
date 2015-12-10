@@ -70,8 +70,8 @@ void BCMTFComparisonTool::PrintHistograms(const std::string& filename)
     int nhistograms = (int) fHistogramContainer.size();
 
     // create canvas
-    TCanvas* c1 = new TCanvas();
-    c1->cd();
+    TCanvas c1;
+    c1.cd();
 
     // loop over all histograms
     for (int i = 0; i < nhistograms; ++i) {
@@ -92,10 +92,7 @@ void BCMTFComparisonTool::PrintHistograms(const std::string& filename)
     }
 
     // print canvas
-    c1->Print(filename.data());
-
-    // free memory
-    delete c1;
+    c1.Print(filename.data());
 }
 
 // ---------------------------------------------------------
@@ -106,6 +103,7 @@ void BCMTFComparisonTool::DrawOverview()
 
     // create graph
     TGraphAsymmErrors* graph_contributions = new TGraphAsymmErrors(ncontributions);
+    fTrash.Put(graph_contributions);
     graph_contributions->SetMarkerStyle(20);
     graph_contributions->SetMarkerSize(1);
 
@@ -141,12 +139,14 @@ void BCMTFComparisonTool::DrawOverview()
 
     // create histogram for axes
     TH2D* hist_axes = new TH2D("", Form(";%s;", GetSafeName().c_str()), 1, xmin - 0.25 * xwidth, xmax + 1.75 * xwidth, ncontributions, ymin, ymax);
+    fTrash.Put(hist_axes);
     hist_axes->SetStats(kFALSE);
     hist_axes->GetYaxis()->SetNdivisions(0);
     hist_axes->GetYaxis()->SetTitleOffset(1.0);
 
     // create latex
     TLatex* latex = new TLatex();
+    fTrash.Put(latex);
     latex->SetTextSize(0.04);
     if (ncontributions >= 10)
         latex->SetTextSize(0.02);
@@ -161,22 +161,20 @@ void BCMTFComparisonTool::DrawOverview()
         latex->DrawLatex(xmax + 0.25 * xwidth, double(ncontributions - i - 1), fNameContainer.at(i).c_str());
     }
     hist_axes->Draw("SAMEAXIS");
-
-    // todo: delete objects properly
 }
 
 // ---------------------------------------------------------
 void BCMTFComparisonTool::PrintOverview(const std::string& filename)
 {
     // create canvas
-    TCanvas* c1 = new TCanvas();
-    c1->cd();
+    TCanvas c1;
+    c1.cd();
 
     // draw the overview
     DrawOverview();
 
     // print to file
-    c1->Print(filename.data());
+    c1.Print(filename.data());
 }
 
 // ---------------------------------------------------------

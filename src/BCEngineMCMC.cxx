@@ -3276,16 +3276,16 @@ bool BCEngineMCMC::PrintCorrelationPlot(const std::string& filename, bool includ
     TLatex* ylabel = new TLatex();
     ylabel->SetTextFont(62);
     ylabel->SetTextSize(1e-1 / I.size());
-    ylabel->SetTextAlign(22);			// TODO: set to 32, if latex names too long
+    ylabel->SetTextAlign(22);			// set to 32, if latex names too long
     ylabel->SetNDC();
-    ylabel->SetTextAngle(90);			// TODO: set to 80, if latex names too long
+    ylabel->SetTextAngle(90);			// set to 80, if latex names too long
 
     TLatex* xlabel = new TLatex();
     xlabel->SetTextFont(62);
     xlabel->SetTextSize(1e-1 / I.size());
-    xlabel->SetTextAlign(22);			// TODO: set to 12, if latex names too long
+    xlabel->SetTextAlign(22);			// set to 12, if latex names too long
     xlabel->SetNDC();
-    xlabel->SetTextAngle(0);			// TODO: set to 350, if latex names too long
+    xlabel->SetTextAngle(0);			// set to 350, if latex names too long
 
     // Box + Text for empty squares:
     TText* text_na = new TText();

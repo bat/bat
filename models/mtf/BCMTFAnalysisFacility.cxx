@@ -702,9 +702,7 @@ void BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const std::string& dirn
 {
     BCLog::OutSummary("Running single channel analysis in directory \'" + dirname + "\'");
 
-    // todo check error return values from filesystem operations
     // ---- create new directory ---- //
-
     mkdir(dirname.data(), 0777);
     cd(dirname);
 

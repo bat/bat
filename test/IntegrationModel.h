@@ -5,7 +5,6 @@
 
 #include <vector>
 
-/// todo documentation, paper reference
 class IntegrationModel : public BCModel
 {
 public:
