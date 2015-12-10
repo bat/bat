@@ -3561,8 +3561,10 @@ void BCEngineMCMC::SyncThreadStorage()
 
     // update parameter size for each chain
     for (unsigned i = 0 ; i < fMCMCThreadLocalStorage.size(); ++i) {
+        // need full number of parameters, this is passed into user function
         fMCMCThreadLocalStorage[i].xLocal.assign(GetNParameters(), 0.0);
-        fMCMCThreadLocalStorage[i].yLocal.ResizeTo(GetNParameters());
+        // need only free parameters, these ones are transformed by Cholesky
+        fMCMCThreadLocalStorage[i].yLocal.ResizeTo(GetNFreeParameters());
 
         // each chains gets a different seed. fRandom always returns same seed after the fixing done above
         fMCMCThreadLocalStorage[i].rng->SetSeed(fRandom.GetSeed() + i);

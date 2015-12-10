@@ -37,10 +37,12 @@ TESTS = \
 
 # If parallelization is enabled, certain tests that use parallelization
 # internally should be run sequentially, not in parallel, to avoid
-# massive performance breakdown:
+# massive performance breakdown.
+# The order is determined because parallel and BCSummaryTool also run Markov chains
+# and we want BCEngineMCMC to test that feature first.
 if THREAD_PARALLELIZATION
-BCSummaryTool.log: BCEngineMCMC.log
-parallel.log: BCSummaryTool.log
+BCSummaryTool.log : BCEngineMCMC.log
+parallel.log : BCSummaryTool.log
 endif
 
 LDADD = \

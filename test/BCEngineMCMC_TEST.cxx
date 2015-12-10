@@ -9,6 +9,8 @@
 #include "test.h"
 #include "GaussModel.h"
 
+#include <limits>
+
 using namespace test;
 
 namespace
@@ -21,14 +23,28 @@ void check_efficiency(const GaussModel& m, double efficiency)
         TEST_CHECK_FAILED(stringify(efficiency) + " larger than required " + stringify(m.GetMaximumEfficiency()));
 }
 
-GaussModel* gauss_check(bool multivariate_proposal)
+GaussModel* gauss_check(bool multivariate_proposal, double fix = std::numeric_limits<double>::infinity())
 {
     /* set up model */
+    const bool fixLast = (fix != std::numeric_limits<double>::infinity());
     std::string name("BCEngineMCMC_TEST-model");
     if (multivariate_proposal)
-        name += "multivariate";
-    static const unsigned dim = 5;
-    GaussModel& m = *new GaussModel(name.c_str(), dim);
+        name += ", multivariate";
+    if (fixLast)
+        name += ", fix last";
+    static const unsigned ntotal = 5;
+    GaussModel& m = *new GaussModel(name.c_str(), ntotal);
+
+    // Fix the last parameter so comparison below is simpler to code
+    // keep track of free and total number of parameters
+    unsigned nfree = ntotal;
+    if (fixLast) {
+        m.GetParameter(ntotal - 1).Fix(fix);
+        --nfree;
+    }
+    TEST_CHECK_EQUAL(m.GetNParameters(), ntotal);
+    TEST_CHECK_EQUAL(m.GetNFreeParameters(), nfree);
+    TEST_CHECK_EQUAL(m.GetNFixedParameters(), ntotal - nfree);
 
     m.SetNChains(2);
     m.SetNIterationsPreRunCheck(500);
@@ -51,7 +67,7 @@ GaussModel* gauss_check(bool multivariate_proposal)
 
     // no accidental calls to likelihood
     unsigned ncalls = m.GetNChains() * (m.GetNIterationsConvergenceGlobal() + m.GetNIterationsRun());
-    ncalls *= multivariate_proposal ? 1 : dim;
+    ncalls *= multivariate_proposal ? 1 : nfree;
     TEST_CHECK_EQUAL(m.Calls(), ncalls);
 
     // target variance
@@ -71,7 +87,7 @@ GaussModel* gauss_check(bool multivariate_proposal)
         TEST_CHECK_EQUAL(s[j].maximum.size(), m.GetNParameters());
         TEST_CHECK_EQUAL(s[j].mode.size(), m.GetNParameters());
         TEST_CHECK_EQUAL(s[j].efficiency.size(), m.GetNParameters());
-        for (unsigned i = 0; i < m.GetNParameters(); ++i) {
+        for (unsigned i = 0; i < m.GetNFreeParameters(); ++i) {
             /* compare to values set inside gauss model' likelihood */
             // error on the mean from independent samples
             const double bestError = sqrt(var * m.GetNIterationsRun()) / m.GetNIterationsRun();
@@ -91,6 +107,8 @@ GaussModel* gauss_check(bool multivariate_proposal)
             TEST_CHECK_NEARLY_EQUAL(s[j].covariance[i][i], s[j].variance[i], 0.01);
 
             TEST_CHECK_EQUAL(s[j].covariance[i].size(), m.GetNParameters());
+
+            // compare to fixed parameter, too
             for (unsigned k = 0; k < m.GetNParameters(); ++k)
                 if (i != k)
                     TEST_CHECK_NEARLY_EQUAL(s[j].covariance[i][k], 0.0, 2);
@@ -101,6 +119,19 @@ GaussModel* gauss_check(bool multivariate_proposal)
             if (!multivariate_proposal)
                 check_efficiency(m, s[j].efficiency[i]);
         }
+
+        // check fixed parameter
+        if (fixLast) {
+            TEST_CHECK_EQUAL(s[j].mean.back(), fix);
+            TEST_CHECK_EQUAL(s[j].variance.back(), 0.0);
+            TEST_CHECK_EQUAL(s[j].minimum.back(), fix);
+            TEST_CHECK_EQUAL(s[j].maximum.back(), fix);
+            TEST_CHECK_EQUAL(s[j].mode.back(), fix);
+            TEST_CHECK_EQUAL(s[j].efficiency.back(), 0.0);
+
+            continue;
+        }
+
         if (multivariate_proposal)
             check_efficiency(m, s[j].efficiency.front());
         BCLog::OutSummary(Form("<-- Checked chain %d", j));
@@ -117,7 +148,7 @@ GaussModel* gauss_check(bool multivariate_proposal)
     TEST_CHECK_EQUAL(S.maximum.size(), m.GetNParameters());
     TEST_CHECK_EQUAL(S.mode.size(), m.GetNParameters());
     TEST_CHECK_EQUAL(S.efficiency.size(), m.GetNParameters());
-    for (unsigned i = 0; i < m.GetNParameters(); ++i) {
+    for (unsigned i = 0; i < m.GetNFreeParameters(); ++i) {
         /* compare to values set inside gauss model' likelihood */
 
         // error on the mean from independent samples
@@ -181,6 +212,10 @@ public:
                     );
         TEST_SECTION("multivariate",
                      GaussModel* m = ::gauss_check(true);
+                     delete m;
+                    );
+        TEST_SECTION("multivariate, fix one",
+                     GaussModel* m = ::gauss_check(true, 1.1);
                      delete m;
                     );
     }
