@@ -212,9 +212,16 @@ public:
 
     /**
      * @return number of iterations needed for all chains to
-     * converge simultaneously */
+     * converge simultaneously. A value of -1 indicates that the chains did not converge. */
     int GetNIterationsConvergenceGlobal() const
     { return fMCMCNIterationsConvergenceGlobal; }
+
+    /**
+     * @return the number of iterations the prerun actually took. If
+     * the prerun wasn't run, that's 0. Else it is bounded by
+     * GetNIterationsPreRunMin() and GetNIterationsPreRunMax().
+     */
+    unsigned GetNIterationsPreRun() const;
 
     /**
      * @return minimum number of pre-run iterations for a Markov chain */

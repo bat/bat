@@ -49,7 +49,7 @@ GaussModel* gauss_check(bool multivariate_proposal, double fix = std::numeric_li
     m.SetNChains(2);
     m.SetNIterationsPreRunCheck(500);
     m.SetPreRunCheckClear(40);
-    m.SetNIterationsPreRunMax(1000000);
+    m.SetNIterationsPreRunMax(20000);
     m.SetNIterationsPreRunMin(1000);
     m.SetNIterationsRun(100000);
 
@@ -62,6 +62,15 @@ GaussModel* gauss_check(bool multivariate_proposal, double fix = std::numeric_li
     m.SetRandomSeed(23062015);
 
     m.MarginalizeAll(BCIntegrate::kMargMetropolis);
+
+    /* convergence */
+
+    // the chains should converge before hitting the maximum prerun length for this simple problem
+    TEST_CHECK(m.GetNIterationsConvergenceGlobal() > 0);
+    TEST_CHECK(unsigned(m.GetNIterationsConvergenceGlobal()) >= m.GetNIterationsPreRunMin());
+    TEST_CHECK(unsigned(m.GetNIterationsConvergenceGlobal()) < m.GetNIterationsPreRunMax());
+    TEST_CHECK(m.GetNIterationsPreRun() >= m.GetNIterationsPreRunMin());
+    TEST_CHECK(m.GetNIterationsPreRun() <= m.GetNIterationsPreRunMax());
 
     /* analyze statistics */
 

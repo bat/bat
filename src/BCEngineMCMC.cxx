@@ -624,6 +624,17 @@ unsigned BCEngineMCMC::GetCurrentChain() const
 }
 
 // ---------------------------------------------------------
+unsigned BCEngineMCMC::GetNIterationsPreRun() const
+{
+    if (fMCMCPhase == kUnsetPhase)
+        return 0;
+    BCLOG_WARNING(Form("global %d min %d max %d", fMCMCNIterationsConvergenceGlobal, int(fMCMCNIterationsPreRunMin), int(fMCMCNIterationsPreRunMax)));
+    if (fMCMCNIterationsConvergenceGlobal > -1)
+        return fMCMCNIterationsConvergenceGlobal;
+    return fMCMCNIterationsPreRunMax;
+}
+
+// ---------------------------------------------------------
 const std::vector<double>& BCEngineMCMC::GetLocalModes(bool force_recalculation)
 {
     if (fLocalModes.empty() || force_recalculation) {
@@ -2244,6 +2255,9 @@ void BCEngineMCMC::ResetResults()
 // --------------------------------------------------------
 void BCEngineMCMC::MCMCInitialize()
 {
+    // reset phase
+    fMCMCPhase = BCEngineMCMC::kUnsetPhase;
+
     // reset convergence
     fMCMCNIterationsConvergenceGlobal = -1;
 
