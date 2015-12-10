@@ -89,53 +89,54 @@ public:
     /**
      * An enumerator for the mode finding algorithm */
     enum BCOptimizationMethod {
-        kOptEmpty,									///< No optimization method set.
-        kOptSimAnn,									///< Simulated annealing
-        kOptMetropolis,							///< Metropolis Hastings
-        kOptMinuit,									///< ROOT's Minuit
-        kOptDefault,								///< Default
-        NOptMethods									///< number of available optimization methods
+        kOptEmpty,                                ///< No optimization method set.
+        kOptSimAnn,                               ///< Simulated annealing
+        kOptMetropolis,                           ///< Metropolis Hastings
+        kOptMinuit,                               ///< ROOT's Minuit
+        kOptDefault,                              ///< Default
+        NOptMethods                               ///< number of available optimization methods
     };
 
     /**
      * An enumerator for integration algorithms */
     enum BCIntegrationMethod {
-        kIntEmpty,								///< No integration method set
-        kIntMonteCarlo,						///<
-        kIntCuba,									///< Use CUBA interface
-        kIntGrid,									///< Integration by gridding of parameter space
-        kIntDefault,							///< Default
-        NIntMethods								///< number of available optimization methods
+        kIntEmpty,                                ///< No integration method set
+        kIntMonteCarlo,                           ///< Sample mean method
+        kIntCuba,                                 ///< Use CUBA interface
+        kIntGrid,                                 ///< Integration by gridding of parameter space
+        kIntDefault,                              ///< Default
+        NIntMethods                               ///< number of available integration methods
     };
 
     /**
      * An enumerator for marginalization algorithms */
     enum BCMarginalizationMethod {
-        kMargEmpty,								///< No marginalization method set
-        kMargMetropolis,						///< Metropolis Hastings
-        kMargMonteCarlo,						///<
-        kMargGrid,									///< Marginalization by gridding of parameter space
-        kMargDefault,							///< Default
-        NMargMethods								///< number of available marginalization methods
+        kMargEmpty,                               ///< No marginalization method set
+        kMargMetropolis,                          ///< Metropolis Hastings
+        kMargMonteCarlo,                          ///< Sample mean Monte Carlo
+        kMargGrid,                                ///< Marginalization by gridding of parameter space
+        kMargDefault,                             ///< Default
+        NMargMethods                              ///< number of available marginalization methods
     };
 
     /**
      * An enumerator for the Simulated Annealing schedule */
     enum BCSASchedule {
-        kSACauchy,									///< Cauchy scheduler
-        kSABoltzmann,							///< Boltzman scheduler
-        kSACustom,									///< Custom scheduler
-        NSAMethods									///< number of available schedulers
+        kSACauchy,                                ///< Cauchy scheduler
+        kSABoltzmann,                             ///< Boltzman scheduler
+        kSACustom,                                ///< Custom scheduler
+        NSAMethods                                ///< number of available schedulers
     };
 
     /**
      * An enumerator for Cuba integration methods */
     enum BCCubaMethod {
-        kCubaVegas,								///< Vegas
-        kCubaSuave,								///< Suave
-        kCubaDivonne,							///< Divonne
-        kCubaCuhre,								///< Cuhre
-        NCubaMethods								///< number of available CUBA methods
+        kCubaVegas,                               ///< Vegas
+        kCubaSuave,                               ///< Suave
+        kCubaDivonne,                             ///< Divonne
+        kCubaCuhre,                               ///< Cuhre
+        kCubaDefault,                             ///< Default
+        NCubaMethods                              ///< number of available CUBA methods
     };
 
     /** @} */
@@ -568,15 +569,6 @@ public:
     static void IntegralUpdaterMC(const std::vector<double>& sums, const int& nIterations, double& integral, double& absprecision);
 
     /**
-     * Integrand for the Cuba library.
-     * @param ndim The number of dimensions to integrate over
-     * @param xx The point in parameter space to integrate over (scaled to 0 - 1 per dimension)
-     * @param ncomp The number of components of the integrand (usually 1)
-     * @param ff The function value
-     * @return An error code */
-    static int CubaIntegrand(const int* ndim, const double xx[], const int* ncomp, double ff[], void* userdata);
-
-    /**
      * Marginalize all probabilities wrt. single parameters and all combinations
      * of two parameters. The individual distributions can be retrieved using
      * the GetMarginalized method.
@@ -940,6 +932,15 @@ private:
      * @param Cuba integration method to use
      * @return The integral */
     double IntegrateCuba(BCCubaMethod cubatype);
+
+    /**
+     * Integrand for the Cuba library.
+     * @param ndim The number of dimensions to integrate over
+     * @param xx The point in parameter space to integrate over (scaled to 0 - 1 per dimension)
+     * @param ncomp The number of components of the integrand (usually 1)
+     * @param ff The function value
+     * @return An error code */
+    static int CubaIntegrand(const int* ndim, const double xx[], const int* ncomp, double ff[], void* userdata);
 
     /**
      * Integrate using the slice method

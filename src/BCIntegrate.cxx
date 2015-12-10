@@ -29,9 +29,9 @@
 #include <cuba.h>
 #endif
 
-#include <math.h>
-#include <limits>
 #include <algorithm>
+#include <limits>
+#include <math.h>
 
 namespace
 {
@@ -65,80 +65,80 @@ public:
 }
 
 // ---------------------------------------------------------
-BCIntegrate::BCIntegrate(const std::string& name)
-    : BCEngineMCMC(name)
-    ,	fMinuit(0)
-    ,	fMinuitErrorFlag(0)
-    ,	fFlagIgnorePrevOptimization(false)
-    ,	fSAT0(100)
-    ,	fSATmin(0.1)
-    ,	fSATree(0)
-    ,	fFlagWriteSAToFile(false)
-    ,	fSANIterations(0)
-    ,	fSATemperature(0)
-    ,	fSALogProb(0)
-    ,	fFlagMarginalized(false)
-    , fSAOutputFile(0)
-    , fSAOutputFilename("")
-    , fSAOutputFileOption("")
-    , fSAOutputFileAutoclose(false)
-    ,	fOptimizationMethodCurrent(BCIntegrate::kOptDefault)
-    ,	fOptimizationMethodUsed(BCIntegrate::kOptEmpty)
-    ,	fIntegrationMethodCurrent(BCIntegrate::kIntDefault)
-    ,	fIntegrationMethodUsed(BCIntegrate::kIntEmpty)
-    ,	fMarginalizationMethodCurrent(BCIntegrate::kMargDefault)
-    ,	fMarginalizationMethodUsed(BCIntegrate::kMargEmpty)
-    ,	fSASchedule(BCIntegrate::kSACauchy)
-    ,	fNIterationsMin(0)
-    ,	fNIterationsMax(1000000)
-    ,	fNIterationsPrecisionCheck(1000)
-    ,	fNIterations(0)
-    ,	fLogMaximum(-std::numeric_limits<double>::infinity())
-    ,	fIntegral(-1)
-    ,	fRelativePrecision(1e-2)
-    ,	fAbsolutePrecision(1e-6)
-    ,	fError(-999.)
-    ,	fCubaIntegrationMethod(BCIntegrate::kCubaDivonne)
+BCIntegrate::BCIntegrate(const std::string& name) :
+    BCEngineMCMC(name),
+    fMinuit(0),
+    fMinuitErrorFlag(0),
+    fFlagIgnorePrevOptimization(false),
+    fSAT0(100),
+    fSATmin(0.1),
+    fSATree(0),
+    fFlagWriteSAToFile(false),
+    fSANIterations(0),
+    fSATemperature(0),
+    fSALogProb(0),
+    fFlagMarginalized(false),
+    fSAOutputFile(0),
+    fSAOutputFilename(""),
+    fSAOutputFileOption(""),
+    fSAOutputFileAutoclose(false),
+    fOptimizationMethodCurrent(BCIntegrate::kOptDefault),
+    fOptimizationMethodUsed(BCIntegrate::kOptEmpty),
+    fIntegrationMethodCurrent(BCIntegrate::kIntDefault),
+    fIntegrationMethodUsed(BCIntegrate::kIntEmpty),
+    fMarginalizationMethodCurrent(BCIntegrate::kMargDefault),
+    fMarginalizationMethodUsed(BCIntegrate::kMargEmpty),
+    fSASchedule(BCIntegrate::kSACauchy),
+    fNIterationsMin(0),
+    fNIterationsMax(1000000),
+    fNIterationsPrecisionCheck(1000),
+    fNIterations(0),
+    fLogMaximum(-std::numeric_limits<double>::infinity()),
+    fIntegral(-1),
+    fRelativePrecision(1e-2),
+    fAbsolutePrecision(1e-6),
+    fError(-999.),
+    fCubaIntegrationMethod(BCIntegrate::kCubaDefault)
 {
     fMinuitArglist[0] = 20000;
     fMinuitArglist[1] = 0.01;
 }
 
 // ---------------------------------------------------------
-BCIntegrate::BCIntegrate(const std::string& filename, const std::string& name, bool loadObservables)
-    : BCEngineMCMC(filename, name, loadObservables)
-    ,	fMinuit(0)
-    ,	fMinuitErrorFlag(0)
-    ,	fFlagIgnorePrevOptimization(false)
-    ,	fSAT0(100)
-    ,	fSATmin(0.1)
-    ,	fSATree(0)
-    ,	fFlagWriteSAToFile(false)
-    ,	fSANIterations(0)
-    ,	fSATemperature(0)
-    ,	fSALogProb(0)
-    ,	fFlagMarginalized(false)
-    , fSAOutputFile(0)
-    , fSAOutputFilename("")
-    , fSAOutputFileOption("")
-    , fSAOutputFileAutoclose(false)
-    ,	fOptimizationMethodCurrent(BCIntegrate::kOptDefault)
-    ,	fOptimizationMethodUsed(BCIntegrate::kOptEmpty)
-    ,	fIntegrationMethodCurrent(BCIntegrate::kIntDefault)
-    ,	fIntegrationMethodUsed(BCIntegrate::kIntEmpty)
-    ,	fMarginalizationMethodCurrent(BCIntegrate::kMargDefault)
-    ,	fMarginalizationMethodUsed(BCIntegrate::kMargEmpty)
-    ,	fSASchedule(BCIntegrate::kSACauchy)
-    ,	fNIterationsMin(0)
-    ,	fNIterationsMax(1000000)
-    ,	fNIterationsPrecisionCheck(1000)
-    ,	fNIterations(0)
-    ,	fLogMaximum(-std::numeric_limits<double>::infinity())
-    ,	fIntegral(-1)
-    ,	fRelativePrecision(1e-2)
-    ,	fAbsolutePrecision(1e-6)
-    ,	fError(-999.)
-    ,	fCubaIntegrationMethod(BCIntegrate::kCubaDivonne)
+BCIntegrate::BCIntegrate(const std::string& filename, const std::string& name, bool loadObservables) :
+    BCEngineMCMC(filename, name, loadObservables),
+    fMinuit(0),
+    fMinuitErrorFlag(0),
+    fFlagIgnorePrevOptimization(false),
+    fSAT0(100),
+    fSATmin(0.1),
+    fSATree(0),
+    fFlagWriteSAToFile(false),
+    fSANIterations(0),
+    fSATemperature(0),
+    fSALogProb(0),
+    fFlagMarginalized(false),
+    fSAOutputFile(0),
+    fSAOutputFilename(""),
+    fSAOutputFileOption(""),
+    fSAOutputFileAutoclose(false),
+    fOptimizationMethodCurrent(BCIntegrate::kOptDefault),
+    fOptimizationMethodUsed(BCIntegrate::kOptEmpty),
+    fIntegrationMethodCurrent(BCIntegrate::kIntDefault),
+    fIntegrationMethodUsed(BCIntegrate::kIntEmpty),
+    fMarginalizationMethodCurrent(BCIntegrate::kMargDefault),
+    fMarginalizationMethodUsed(BCIntegrate::kMargEmpty),
+    fSASchedule(BCIntegrate::kSACauchy),
+    fNIterationsMin(0),
+    fNIterationsMax(1000000),
+    fNIterationsPrecisionCheck(1000),
+    fNIterations(0),
+    fLogMaximum(-std::numeric_limits<double>::infinity()),
+    fIntegral(-1),
+    fRelativePrecision(1e-2),
+    fAbsolutePrecision(1e-6),
+    fError(-999.),
+    fCubaIntegrationMethod(BCIntegrate::kCubaDefault)
 {
     fMinuitArglist[0] = 20000;
     fMinuitArglist[1] = 0.01;
@@ -287,7 +287,6 @@ double BCIntegrate::Integrate()
             return 0;
         }
 
-
         // Monte Carlo Integration
         case BCIntegrate::kIntMonteCarlo: {
             std::vector<double> sums (2, 0.0);
@@ -306,7 +305,7 @@ double BCIntegrate::Integrate()
         }
 
         // CUBA library
-        case BCIntegrate::kIntCuba: {
+        case BCIntegrate::kIntCuba:
             fIntegral = IntegrateCuba();
 
             // set used integration method
@@ -314,10 +313,9 @@ double BCIntegrate::Integrate()
 
             // return integral
             return fIntegral;
-        }
 
         // CUBA library
-        case BCIntegrate::kIntGrid: {
+        case BCIntegrate::kIntGrid:
             fIntegral = IntegrateSlice();
 
             // set used integration method
@@ -325,23 +323,17 @@ double BCIntegrate::Integrate()
 
             // return integral
             return fIntegral;
-        }
 
         // default
         case BCIntegrate::kIntDefault: {
-            if (GetNFreeParameters() <= 3) {
 #ifdef HAVE_CUBA_H
-                SetIntegrationMethod(BCIntegrate::kIntCuba);
+            SetIntegrationMethod(BCIntegrate::kIntCuba);
 #else
+            if (GetNFreeParameters() <= 3)
                 SetIntegrationMethod(BCIntegrate::kIntGrid);
-#endif
-            } else {
-#ifdef HAVE_CUBA_H
-                SetIntegrationMethod(BCIntegrate::kIntCuba);
-#else
+            else
                 SetIntegrationMethod(BCIntegrate::kIntMonteCarlo);
 #endif
-            }
             return Integrate();
         }
 
@@ -1642,6 +1634,7 @@ void BCIntegrate::SetCubaIntegrationMethod(BCIntegrate::BCCubaMethod type)
         case BCIntegrate::kCubaSuave:
         case BCIntegrate::kCubaDivonne:
         case BCIntegrate::kCubaCuhre:
+        case BCIntegrate::kCubaDefault:
             fCubaIntegrationMethod = type;
             return;
         default:
@@ -1655,59 +1648,9 @@ void BCIntegrate::SetCubaIntegrationMethod(BCIntegrate::BCCubaMethod type)
 }
 
 // ---------------------------------------------------------
-int BCIntegrate::CubaIntegrand(const int* ndim, const double xx[],
-                               const int* /*ncomp*/, double ff[], void* userdata)
-{
-    BCIntegrate* local_this = static_cast<BCIntegrate*>(userdata);
-
-    // scale variables
-    double jacobian = 1.0;
-
-    // create local parameter vector
-    // important for thread safety, though not super efficient
-    std::vector<double> scaled_parameters(local_this->fParameters.Size());
-
-    // stay in sync with the possible lower number of parameters
-    // that cuba sees due to fixing in BAT
-    unsigned cubaIndex = 0;
-    unsigned batIndex = 0;
-    for (batIndex = 0; batIndex < local_this->fParameters.Size(); ++batIndex) {
-        const BCParameter& p = local_this->GetParameter(batIndex);
-
-        // get the scaled parameter value
-        if (p.Fixed())
-            scaled_parameters[batIndex] = p.GetFixedValue();
-        else {
-            // convert from unit hypercube to actual parameter hyperrectangle
-            scaled_parameters[batIndex] = p.GetLowerLimit() + xx[cubaIndex] * p.GetRangeWidth();
-
-            // multiply range to jacobian
-            jacobian *= p.GetRangeWidth();
-
-            // one more parameter that cuba varies
-            ++cubaIndex;
-        }
-    }
-
-    if (cubaIndex != unsigned(*ndim))
-        BCLog::OutError(Form("BCIntegrate::CubaIntegrand: mismatch between variable parameters"
-                             "in BAT (%d) and Cuba(%d)", batIndex, cubaIndex));
-
-    // call function to integrate
-    ff[0] = local_this->Eval(scaled_parameters);
-
-    // multiply jacobian
-    ff[0] *= jacobian;
-
-    return 0;
-}
-
-// ---------------------------------------------------------
 double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype)
 {
 #if HAVE_CUBA_H
-    LogOutputAtStartOfIntegration(kIntCuba, cubatype);
-
     // integrand has only one component
     static const int ncomp = 1;
 
@@ -1737,6 +1680,24 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype)
 
     // Cuba needs int variable
     int nIntegrationVariables = GetParameters().GetNFreeParameters();
+
+    if (cubatype == BCIntegrate::kCubaDefault) {
+        switch (nIntegrationVariables) {
+            case 1:
+                cubatype = BCIntegrate::kCubaVegas;
+                break;
+            case 2:
+            case 3:
+                cubatype = BCIntegrate::kCubaCuhre;
+                break;
+            default:
+                cubatype = BCIntegrate::kCubaDivonne;
+                break;
+        }
+        if (nIntegrationVariables > 33)
+            cubatype = BCIntegrate::kCubaVegas;
+    }
+    LogOutputAtStartOfIntegration(kIntCuba, cubatype);
 
     switch (cubatype) {
 
@@ -1775,8 +1736,8 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype)
             break;
 
         case BCIntegrate::kCubaDivonne:
-            if (nIntegrationVariables < 2 or nIntegrationVariables > 33)
-                BCLog::OutError("BCIntegrate::IntegrateCuba(Divonne): Divonne only works in 1 < d < 34");
+            if (nIntegrationVariables < 2 || nIntegrationVariables > 33)
+                BCLOG_WARNING("Divonne only works in 2 <= d <= 33 dimensions");
             else {
                 // no extra info supported
                 static const int ngiven = 0;
@@ -1852,6 +1813,54 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype)
     BCLog::OutError("IntegrateCuba: Cuba not enabled during configure");
     return -1;
 #endif
+}
+
+// ---------------------------------------------------------
+int BCIntegrate::CubaIntegrand(const int* ndim, const double xx[],
+                               const int* /*ncomp*/, double ff[], void* userdata)
+{
+    BCIntegrate* local_this = static_cast<BCIntegrate*>(userdata);
+
+    // scale variables
+    double jacobian = 1.0;
+
+    // create local parameter vector
+    // important for thread safety, though not super efficient
+    std::vector<double> scaled_parameters(local_this->fParameters.Size());
+
+    // stay in sync with the possible lower number of parameters
+    // that cuba sees due to fixing in BAT
+    unsigned cubaIndex = 0;
+    unsigned batIndex = 0;
+    for (batIndex = 0; batIndex < local_this->fParameters.Size(); ++batIndex) {
+        const BCParameter& p = local_this->GetParameter(batIndex);
+
+        // get the scaled parameter value
+        if (p.Fixed())
+            scaled_parameters[batIndex] = p.GetFixedValue();
+        else {
+            // convert from unit hypercube to actual parameter hyperrectangle
+            scaled_parameters[batIndex] = p.GetLowerLimit() + xx[cubaIndex] * p.GetRangeWidth();
+
+            // multiply range to jacobian
+            jacobian *= p.GetRangeWidth();
+
+            // one more parameter that cuba varies
+            ++cubaIndex;
+        }
+    }
+
+    if (cubaIndex != unsigned(*ndim))
+        BCLog::OutError(Form("BCIntegrate::CubaIntegrand: mismatch between variable parameters"
+                             "in BAT (%d) and Cuba(%d)", batIndex, cubaIndex));
+
+    // call function to integrate
+    ff[0] = local_this->Eval(scaled_parameters);
+
+    // multiply jacobian
+    ff[0] *= jacobian;
+
+    return 0;
 }
 
 // ---------------------------------------------------------
@@ -1963,6 +1972,8 @@ std::string BCIntegrate::DumpCubaIntegrationMethod(BCIntegrate::BCCubaMethod typ
             return "Divonne";
         case BCIntegrate::kCubaCuhre:
             return "Cuhre";
+        case BCIntegrate::kCubaDefault:
+            return "Default";
         default:
             return "Undefined";
     }
