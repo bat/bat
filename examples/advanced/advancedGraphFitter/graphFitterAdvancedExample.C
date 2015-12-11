@@ -159,8 +159,10 @@ void graphFitterAdvancedExample()
 
     // perform the analysis on all models
     for (unsigned i = 0; i < nmodels; ++i) {
-        // set precision
-        models[i]->SetPrecision(BCEngineMCMC::kQuick);
+        // Set precision to medium or high because there are multiple
+        // modes for f3 and f4 and the chains need time to explore both.
+        // Only the multivariate proposal does a good job here.
+        models[i]->SetPrecision(BCEngineMCMC::kMedium);
 
         // run the fitting (MCMC + Minuit)
         models[i]->Fit();

@@ -25,16 +25,6 @@
 
 #include <stdexcept>
 
-// due to a bug in root, the normalization member is not copied in the
-// TF1 copy ctor and gets a random initialization that can be `true`
-// giving rise to a lot of useless integrals. Copy manually in root
-// versions affected by the bug.
-#ifndef ROOTVERSION
-#error "root version not defined"
-#elif ROOTVERSION >= 6005000 && ROOTVERSION < 6006000
-#define BAT_FIX_TF1
-#endif
-
 // ---------------------------------------------------------
 BCFitter::BCFitter(const TF1& f, const std::string& name)
     : BCModel(name),
@@ -48,9 +38,6 @@ BCFitter::BCFitter(const TF1& f, const std::string& name)
 {
     if (f.GetNdim() != 1)
         throw std::invalid_argument("BCFitter and descendants only support 1D problems");
-#ifdef BAT_FIX_TF1
-    fFitFunction.front().SetNormalized(f.IsEvalNormalized());
-#endif
 
     // set name if name empty
     if (name.empty())
@@ -85,13 +72,6 @@ void BCFitter::MCMCUserInitialize()
 {
     // add or remove copies
     fFitFunction.resize(fMCMCNChains, fFitFunction.front());
-#ifdef BAT_FIX_TF1
-    // due to a bug in root, the normalization member is not copied and gets a random initialization can be `true`
-    // giving rise to a lot of useless integrals.
-    // But we want to interpret the function as 'as is'. If the user want to normalize it, we should not change that.
-    for (unsigned i = 0; i < fFitFunction.size(); ++i)
-        fFitFunction[i].SetNormalized(fFitFunction.front().IsEvalNormalized());
-#endif
 }
 
 // ---------------------------------------------------------
@@ -109,7 +89,7 @@ void BCFitter::MarginalizePreprocess()
     double dx = 0.;
     double dy = 0.;
 
-    if (GetDataSet() and fFitFunctionIndexX >= 0 and fFitFunctionIndexY >= 0) {
+    if (GetDataSet() && fFitFunctionIndexX >= 0 && fFitFunctionIndexY >= 0) {
 
         dx = GetDataSet()->GetRangeWidth(fFitFunctionIndexX) / fErrorBandNbinsX;
         dy = GetDataSet()->GetRangeWidth(fFitFunctionIndexY) / fErrorBandNbinsY;

@@ -33,7 +33,7 @@ BCGraphFitter::BCGraphFitter(const TGraphErrors& graph, const TF1& func, const s
     : BCFitter(func, name),
       fGraph(graph)
 {
-    // todo why not just one point?
+    // why not just one point?
     if (fGraph.GetN() <= 1) {
         throw std::invalid_argument(std::string(__PRETTY_FUNCTION__) + ": TGraphErrors needs at least two points.");
     }

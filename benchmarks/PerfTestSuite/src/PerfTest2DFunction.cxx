@@ -102,7 +102,7 @@ int PerfTest2DFunction::PostTest()
     double chi2 = 0;
     for (int i = 1; i <= nbinsx; ++i) {
         for (int j = 1; j <= nbinsy; ++j) {
-            // TODO use if histograms are properly normalized as 2D PDF
+            // use if histograms are properly normalized as 2D PDF
             //            double n = norm_hist * binwidthx * binwidthy * hist_marg->GetBinContent(i, j);
             double n = hist_marg->GetBinContent(i, j);
             double e = hist_func->GetBinContent(i, j);

@@ -170,13 +170,13 @@ void PerfTestMCMC::PrecisionSettings(PerfTest::Precision precision)
 {
     unsigned lag = 1;
     if (precision == PerfTest::kCoarse) {
-        SetPrecision(BCEngineMCMC::kLow);
+        BCEngineMCMC::SetPrecision(BCEngineMCMC::kLow);
     } else if (precision == PerfTest::kMedium) {
-        SetPrecision(BCEngineMCMC::kMedium);
+        BCEngineMCMC::SetPrecision(BCEngineMCMC::kMedium);
         SetNIterationsRun(5000);
         lag = 50;
     } else if (precision == PerfTest::kDetail) {
-        SetPrecision(BCEngineMCMC::kMedium);
+        BCEngineMCMC::SetPrecision(BCEngineMCMC::kMedium);
         lag = 100;
     } else {
         SetNIterationsRun(10000);

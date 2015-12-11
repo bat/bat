@@ -173,7 +173,8 @@ public:
         // switch writing of Markov Chains on
         m.WriteMarkovChain(parallelization ? config.rootFileNameParallel.c_str() : config.rootFileNameSerial.c_str(), "RECREATE", true);
 
-        m.SetProposeMultivariate(config.multivariate, config.dof);
+        m.SetProposeMultivariate(config.multivariate);
+        m.SetProposalFunctionDof(config.dof);
 
         m.SetRandomSeed(seed);
 

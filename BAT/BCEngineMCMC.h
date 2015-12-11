@@ -212,9 +212,16 @@ public:
 
     /**
      * @return number of iterations needed for all chains to
-     * converge simultaneously */
+     * converge simultaneously. A value of -1 indicates that the chains did not converge. */
     int GetNIterationsConvergenceGlobal() const
     { return fMCMCNIterationsConvergenceGlobal; }
+
+    /**
+     * @return the number of iterations the prerun actually took. If
+     * the prerun wasn't run, that's 0. Else it is bounded by
+     * GetNIterationsPreRunMin() and GetNIterationsPreRunMax().
+     */
+    unsigned GetNIterationsPreRun() const;
 
     /**
      * @return minimum number of pre-run iterations for a Markov chain */
@@ -775,12 +782,12 @@ public:
      *
      * The default `dof == 1` represents a Cauchy distribution. For
      * any positive value of `dof`, a Student's t distribution with
-     * the corresponding degrees of freedom is used. For `dof <= 0`,
+     * the corresponding degree of freedom is used. For `dof <= 0`,
      * a Gaussian is used.
      *
      * A small positive degree of freedom leads to fat tails in the
      * proposal. This makes it easier to make a large jump in a single
-     * iteration but also leads to a lower acceptance rate.
+     * iteration but generally leads to a lower acceptance rate being optimal.
      */
     void SetProposalFunctionDof(double dof = 1)
     {

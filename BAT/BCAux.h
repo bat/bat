@@ -130,7 +130,11 @@ class BCTrash
 public:
     BCTrash() {}
     BCTrash(const BCTrash<T>&) {}
-    BCTrash<T>& operator=(const BCTrash<T>&) {}
+    BCTrash<T>& operator=(const BCTrash<T>&)
+    {
+        return *this;
+    }
+
     void swap(BCTrash<T>& other)
     {
         std::swap(fStorage, other.fStorage);

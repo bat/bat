@@ -624,6 +624,17 @@ unsigned BCEngineMCMC::GetCurrentChain() const
 }
 
 // ---------------------------------------------------------
+unsigned BCEngineMCMC::GetNIterationsPreRun() const
+{
+    if (fMCMCPhase == kUnsetPhase)
+        return 0;
+    BCLOG_WARNING(Form("global %d min %d max %d", fMCMCNIterationsConvergenceGlobal, int(fMCMCNIterationsPreRunMin), int(fMCMCNIterationsPreRunMax)));
+    if (fMCMCNIterationsConvergenceGlobal > -1)
+        return fMCMCNIterationsConvergenceGlobal;
+    return fMCMCNIterationsPreRunMax;
+}
+
+// ---------------------------------------------------------
 const std::vector<double>& BCEngineMCMC::GetLocalModes(bool force_recalculation)
 {
     if (fLocalModes.empty() || force_recalculation) {
@@ -2244,6 +2255,9 @@ void BCEngineMCMC::ResetResults()
 // --------------------------------------------------------
 void BCEngineMCMC::MCMCInitialize()
 {
+    // reset phase
+    fMCMCPhase = BCEngineMCMC::kUnsetPhase;
+
     // reset convergence
     fMCMCNIterationsConvergenceGlobal = -1;
 
@@ -3276,16 +3290,16 @@ bool BCEngineMCMC::PrintCorrelationPlot(const std::string& filename, bool includ
     TLatex* ylabel = new TLatex();
     ylabel->SetTextFont(62);
     ylabel->SetTextSize(1e-1 / I.size());
-    ylabel->SetTextAlign(22);			// TODO: set to 32, if latex names too long
+    ylabel->SetTextAlign(22);			// set to 32, if latex names too long
     ylabel->SetNDC();
-    ylabel->SetTextAngle(90);			// TODO: set to 80, if latex names too long
+    ylabel->SetTextAngle(90);			// set to 80, if latex names too long
 
     TLatex* xlabel = new TLatex();
     xlabel->SetTextFont(62);
     xlabel->SetTextSize(1e-1 / I.size());
-    xlabel->SetTextAlign(22);			// TODO: set to 12, if latex names too long
+    xlabel->SetTextAlign(22);			// set to 12, if latex names too long
     xlabel->SetNDC();
-    xlabel->SetTextAngle(0);			// TODO: set to 350, if latex names too long
+    xlabel->SetTextAngle(0);			// set to 350, if latex names too long
 
     // Box + Text for empty squares:
     TText* text_na = new TText();
@@ -3561,8 +3575,10 @@ void BCEngineMCMC::SyncThreadStorage()
 
     // update parameter size for each chain
     for (unsigned i = 0 ; i < fMCMCThreadLocalStorage.size(); ++i) {
+        // need full number of parameters, this is passed into user function
         fMCMCThreadLocalStorage[i].xLocal.assign(GetNParameters(), 0.0);
-        fMCMCThreadLocalStorage[i].yLocal.ResizeTo(GetNParameters());
+        // need only free parameters, these ones are transformed by Cholesky
+        fMCMCThreadLocalStorage[i].yLocal.ResizeTo(GetNFreeParameters());
 
         // each chains gets a different seed. fRandom always returns same seed after the fixing done above
         fMCMCThreadLocalStorage[i].rng->SetSeed(fRandom.GetSeed() + i);

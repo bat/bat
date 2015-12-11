@@ -135,6 +135,9 @@ private:
      * A container of uncertainties. */
     std::vector<double> fUncertaintyContainer;
 
+    /**
+     * Keep plot objects alive */
+    mutable BCAux::BCTrash<TObject> fTrash;
 };
 // ---------------------------------------------------------
 

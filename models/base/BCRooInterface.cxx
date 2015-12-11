@@ -155,7 +155,7 @@ BCRooInterface::BCRooInterface(const std::string& name, bool fillChain) :
     fFirstComparison(false),
     _roostatsMarkovChain(NULL)
 {
-    // todo this interface not ready for grid marginalization yet
+    // this interface not ready for grid marginalization yet
     SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 }
 
