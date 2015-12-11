@@ -23,7 +23,7 @@ input_workspaces = \
 
 CLEANFILES += *.txt
 $(input_workspaces): WS_%.root: PrepareWorkspace_%.C
-	$(ROOTEXEC) -l -x -q $<
+	$(C_LOG_COMPILER) $(AM_C_LOG_FLAGS) $<
 
 ROOT_LOG_COMPILER = $(builddir)/runRooInterface
 
