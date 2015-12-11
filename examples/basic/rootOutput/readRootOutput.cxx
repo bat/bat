@@ -29,14 +29,22 @@ int main()
     C->Divide(2, 2);
 
     C->cd(1);
-    m.GetMarginalized(0).Draw();
-    C->cd(2);
-    m.GetMarginalized(1).Draw();
-    C->cd(3);
-    m.GetMarginalized(2).Draw();
-    C->cd(4);
-    m.GetMarginalized(0, 1).Draw();
+    BCH1D h0 = m.GetMarginalized(0);
+    h0.Draw();
 
+    C->cd(2);
+    BCH1D h1 = m.GetMarginalized(1);
+    h1.Draw();
+
+    C->cd(3);
+    BCH1D h2 = m.GetMarginalized(2);
+    h2.Draw();
+
+    C->cd(4);
+    BCH2D h01 = m.GetMarginalized(0, 1);
+    h01.Draw();
+
+    C->Update();
     C->Print("GaussModel_loaded_plots.pdf");
 
     // close log file
