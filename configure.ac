@@ -1,4 +1,4 @@
-AC_INIT([BAT], 1.0.0-DEV, [], [BAT])
+AC_INIT([BAT], 1.1.0-DEV, [], [BAT])
 : ${CXXFLAGS=""}
 : ${CFLAGS=""}
 : ${FFLAGS=""}
