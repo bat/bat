@@ -1411,7 +1411,7 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
                 if (CholeskyDecomposer.Decompose())
                     fMultivariateProposalFunctionCholeskyDecomposition[c].Transpose(CholeskyDecomposer.GetU());
                 else {
-                    BCLog::OutError(Form("BCEngineMCMC::UpdateCholeskyDecompositions : chain %u Cholesky decomposition failed! No rememdies!", c));
+                    BCLog::OutError(Form("BCEngineMCMC::UpdateCholeskyDecompositions : chain %u Cholesky decomposition failed! No remedies!", c));
                     return false;
                 }
             }

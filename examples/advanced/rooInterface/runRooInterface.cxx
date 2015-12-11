@@ -20,7 +20,6 @@ int main(int argc, char** argv)
     // retrieve the command line arguments
     const char* rootFile = "bat_workspace.root";
     const char* wsName = "myWS";
-    const char* outputFile = "bat_plots.pdf";
     int nMCMC = 100000;
 
     // display a quick help if no arguments are specified
@@ -48,6 +47,13 @@ int main(int argc, char** argv)
     if (argc >= 2) rootFile = argv[1];
     if (argc >= 3) wsName = argv[2];
 
+    // replace `.root` by `.pdf` and `.txt`
+    std::string outputFile = rootFile;
+    outputFile.replace(outputFile.size() - 5, 5, ".pdf");
+
+    std::string logFile = rootFile;
+    logFile.replace(logFile.size() - 5, 5, ".txt");
+
     std::cout << "The inputs will be retrieved from " << rootFile << " (workspace " << wsName << ") and the posterior probability plot will be stored in " << outputFile << std::endl;
     std::cout << nMCMC << " MCMC iteration will be performed\n";
 
@@ -55,14 +61,16 @@ int main(int argc, char** argv)
     BCAux::SetStyle();
 
     // open log file with default level of logging
-    BCLog::OpenLog("bat_log.txt");
+    BCLog::OpenLog(logFile);
     BCLog::SetLogLevel(BCLog::detail);
 
     // create new RooFit-based model
     BCRooInterface _myRooInterface;
     _myRooInterface.Initialize(rootFile, wsName, "data", "model", "priorPOI", "priorNuisance", "parameters", "POI");
 
+    // set precision: a lot of samples but only two chains
     _myRooInterface.SetNIterationsRun(nMCMC);
+    _myRooInterface.SetNChains(2);
 
     // perform your analysis here
     _myRooInterface.MarginalizeAll();
@@ -82,7 +90,7 @@ int main(int argc, char** argv)
     std::cout << " Quantile 0.84  " << _myRooInterface.GetMarginalized(parIndex).GetQuantile(0.84) << std::endl;
     std::cout << " Quantile 0.90  " << _myRooInterface.GetMarginalized(parIndex).GetQuantile(0.90) << std::endl;
     std::cout << " Quantile 0.95  " << _myRooInterface.GetMarginalized(parIndex).GetQuantile(0.95) << std::endl;
-    std::cout << "\nCheck " << outputFile << " and results.txt for more information on the results\n";
+    std::cout << "\nCheck " << outputFile << " and " << logFile << " for more information on the results\n";
 
     // close log file
     BCLog::CloseLog();
@@ -90,4 +98,3 @@ int main(int argc, char** argv)
     return 0;
 
 }
-

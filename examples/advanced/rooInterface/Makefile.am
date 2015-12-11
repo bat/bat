@@ -1,7 +1,15 @@
 include $(top_srcdir)/examples/Makefile-common.am
 
-## Requires BAT build with RooStats enabled
+# move outside of ROOSTATS section to avoid
+# `examples/Makefile-common.am:21: warning: 'TEST_EXTENSIONS' cannot have conditional contents`
+TEST_EXTENSIONS += .root
+
+# Requires BAT build with RooStats enabled
 if ROOSTATS
+# examples are not thread safe
+if THREAD_PARALLELIZATION
+AM_TESTS_ENVIRONMENT += export OMP_NUM_THREADS=1;
+endif
 
 noinst_PROGRAMS = runRooInterface
 
@@ -13,13 +21,17 @@ input_workspaces = \
 	WS_Poisson.root \
 	WS_Poisson_withSystematics.root
 
+CLEANFILES += *.txt
 $(input_workspaces): WS_%.root: PrepareWorkspace_%.C
-	$(ROOTEXEC) -l -b -q $<
+	$(C_LOG_COMPILER) $(AM_C_LOG_FLAGS) $<
 
-TEST_EXTENSIONS += .root
 ROOT_LOG_COMPILER = $(builddir)/runRooInterface
 
-# Disabled:
-# TESTS = $(input_workspaces)
+TESTS = $(input_workspaces)
+
+# import in macro only works with root 5
+if !WITH_CLING
+TESTS += runBATCalculator.C
+endif
 
 endif

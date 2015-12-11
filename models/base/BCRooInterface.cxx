@@ -88,6 +88,8 @@ void BCRooInterface::Initialize( const char* rootFile,
 
     std::cout << "Opening " << rootFile << std::endl;
     TFile* file = TFile::Open(rootFile);
+    if (!file)
+        throw std::runtime_error(std::string("Could not open ") + rootFile);
     std::cout << "content :\n";
     file->ls();
 
@@ -144,7 +146,6 @@ BCRooInterface::BCRooInterface(const std::string& name, bool fillChain) :
     fData(NULL),
     fModel(NULL),
     fNll(NULL),
-    fObservables(NULL),
     fParams(NULL),
     fParamsPOI(NULL),
     fPrior(NULL),
@@ -155,7 +156,7 @@ BCRooInterface::BCRooInterface(const std::string& name, bool fillChain) :
     fFirstComparison(false),
     _roostatsMarkovChain(NULL)
 {
-    // this interface not ready for grid marginalization yet
+    // this interface not ready for grid marginalization
     SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 }
 
@@ -389,4 +390,3 @@ double BCRooInterface::GetWeightForChain(int chainNum)
     fVecWeights[chainNum] = 1.0 ;
     return retval;
 }
-

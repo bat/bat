@@ -328,7 +328,7 @@ ROOTLIBS="$ROOTLIBS -lMinuit"
 dnl mathmore is a requirement of roostats and allows us to use
 dnl features from the GSL. The check is done again inside HAS_ROOSTATS
 dnl but we can't get that result. So the output `checking whether ROOT
-dnl is compiled with MathMore support... ` can appear twice. Not big deal.
+dnl is compiled with MathMore support... ` can appear twice. No big deal.
 AC_MSG_CHECKING(whether ROOT is compiled with MathMore support)
 hasmathmore=`$ROOTCONF --has-mathmore`
 AC_MSG_RESULT($hasmathmore)

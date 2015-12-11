@@ -23,7 +23,7 @@ AM_TESTS_ENVIRONMENT = . $(top_builddir)/test-env.sh;
 
 TEST_EXTENSIONS += .C
 C_LOG_COMPILER = $(ROOTEXEC)
-AM_C_LOG_FLAGS = -l -b -q
+AM_C_LOG_FLAGS = -l -b -x -q
 
 # Useful to run binary examples in sequence (Automake test dependencies
 # require tests to have a file extension)
