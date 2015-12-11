@@ -48,7 +48,10 @@ public:
     virtual int SetVarPar(double value, const std::string& name);
 
     virtual void SetProposal(bool multivariate, double dof)
-    { SetMultivariateProposalFunction(multivariate, dof); }
+    {
+        SetProposeMultivariate(multivariate);
+        SetProposalFunctionDof(dof);
+    }
 
     /** Run before test.
      * @return an error code. */

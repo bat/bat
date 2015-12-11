@@ -299,7 +299,7 @@ void TestSuite::PrintResultsHTML(const std::string& filename)
             file << "<tr>";
             file << "  <th align=\"left\">Settings</th>" << std::endl;
             file << "</tr>" << std::endl;
-            file << " <tr> <td>multivariate</td> <td>" << std::boolalpha << m->GetMultivariateProposalFunction() << " </td></tr>"  << std::endl;
+            file << " <tr> <td>multivariate</td> <td>" << std::boolalpha << m->GetProposeMultivariate() << " </td></tr>"  << std::endl;
             file << " <tr> <td>N chains</td> <td>" << m->GetNChains() << " </td></tr>"  << std::endl;
             file << " <tr> <td>N lag</td> <td>" << m->GetNLag() << " </td></tr>"  << std::endl;
             file << " <tr> <td>Convergence</td> <td>" << (converged ? "<font color=\"#4cc417\">true</font>" : "<font color=\"#FF8000\">false</font>") << " </td></tr>"  << std::endl;
