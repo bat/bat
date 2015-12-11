@@ -198,14 +198,36 @@ void BCEfficiencyFitter::DrawFit(const std::string& options, bool flaglegend)
 
     // draw legend
     if (flaglegend) {
-        TLegend* legend = new TLegend(0.25, 0.75, 0.55, 0.9);
+        TLegend* legend = new TLegend();
         fObjectTrash.Put(legend);
-        legend->SetLineColor(0);
-        legend->SetFillColor(0);
+        legend->SetBorderSize(0);
+        legend->SetFillColor(kWhite);
+        legend->SetTextAlign(12);
+        legend->SetTextFont(62);
+        legend->SetTextSize(0.03);
+        legend->SetNColumns(3);
+        legend->SetColumnSeparation(5e-2);
+
         legend->AddEntry(histRatio, "Data", "PE");
         legend->AddEntry(graphFitFunction, "Best fit", "L");
         legend->AddEntry(errorBand, "Error band", "F");
+
+        double ymin = gPad->GetUymin();
+        double ymax = gPad->GetUymax();
+        if (gPad->GetLogy()) {
+            ymin = pow(10, ymin);
+            ymax = pow(10, ymax);
+        }
+        gPad->SetTopMargin(0.02);
+        legend->SetX1NDC(gPad->GetLeftMargin());// +5e-2 * (1 - gPad->GetRightMargin() - gPad->GetLeftMargin()));
+        legend->SetX2NDC(1 - gPad->GetRightMargin());
+        legend->SetY1NDC(1 - gPad->GetTopMargin() - legend->GetTextSize()*legend->GetNRows());
+        legend->SetY2NDC(1 - gPad->GetTopMargin());
+        double y1ndc = legend->GetY1NDC();
+
         legend->Draw();
+
+        gPad->SetTopMargin(1 - y1ndc + 0.01);
     }
     gPad->RedrawAxis();
 }
