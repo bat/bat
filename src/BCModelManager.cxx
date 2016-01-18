@@ -187,26 +187,26 @@ double BCModelManager::BayesFactor(unsigned imodel1, unsigned imodel2) const
     // check model 1
     const double norm1 = fModels[imodel1]->GetIntegral();
     if (norm1 < 0.) {
-        BCLog::OutError(Form("BCModelManager::BayesFactor : Model %s (index %d) not normalized. Cannot calculate Bayes factor.", fModels[imodel1]->GetName().data(), imodel1));
+        BCLOG_ERROR(Form(" Model %s (index %d) not normalized. Cannot calculate Bayes factor.", fModels[imodel1]->GetName().data(), imodel1));
         return -1.;
     }
 
     // check model 2
     const double norm2 = fModels[imodel2]->GetIntegral();
     if (norm2 < 0) {
-        BCLog::OutError(Form("BCModelManager::BayesFactor : Model %s (index %d) not normalized. Cannot calculate Bayes factor.", fModels[imodel2]->GetName().data(), imodel2));
+        BCLOG_ERROR(Form(" Model %s (index %d) not normalized. Cannot calculate Bayes factor.", fModels[imodel2]->GetName().data(), imodel2));
         return -1.;
     }
 
     // denominator cannot be zero
-    if (norm2 < std::numeric_limits<double>::epsilon() and norm1 >= std::numeric_limits<double>::epsilon()) {
-        BCLog::OutError(Form("BCModelManager::BayesFactor : Model %s (index %d) has ZERO probability. Bayes factor is infinite.", fModels[imodel2]->GetName().data(), imodel2));
+    if (norm2 < std::numeric_limits<double>::min() && norm1 >= std::numeric_limits<double>::min()) {
+        BCLOG_ERROR(Form(" Model %s (index %d) has ZERO probability. Bayes factor is infinite.", fModels[imodel2]->GetName().data(), imodel2));
         return -1.;
     }
 
     // denominator cannot be zero unless also numerator is zero
-    if (norm2 < std::numeric_limits<double>::epsilon() and norm1 < std::numeric_limits<double>::epsilon()) {
-        BCLog::OutWarning(Form("BCModelManager::BayesFactor : Models %s and %s have ZERO probability. Bayes factor is unknown. Returning 1.", fModels[imodel2]->GetName().data(), fModels[imodel1]->GetName().data()));
+    if (norm2 < std::numeric_limits<double>::min() && norm1 < std::numeric_limits<double>::min()) {
+        BCLOG_WARNING(Form("Models %s and %s have ZERO probability. Bayes factor is unknown. Returning 1.", fModels[imodel2]->GetName().data(), fModels[imodel1]->GetName().data()));
         return 1.;
     }
 
