@@ -17,7 +17,7 @@
 
 // ---------------------------------------------------------
 BCModelManager::BCModelManager()
-    : fDataSet(0)
+    : fDataSet(NULL)
 {
 }
 
@@ -66,7 +66,8 @@ void BCModelManager::SetDataSet(BCDataSet* dataset)
 void BCModelManager::AddModel(BCModel* model, double probability)
 {
     // set data set
-    model->SetDataSet(fDataSet);
+    if (fDataSet)
+        model->SetDataSet(fDataSet);
 
     // fill model into container
     fModels.push_back(model);
