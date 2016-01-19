@@ -1,9 +1,13 @@
 \documentclass[11pt, a4paper]{article}
 
-%\usepackage{geometry}
-%\usepackage{epsfig}
-%\usepackage{epstopdf}
-%\usepackage{graphics}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+% times new roman and matching math font
+\usepackage{libertine}
+\usepackage{newtxmath}
+
 \usepackage{booktabs}
 \usepackage[svgnames]{xcolor}
 \usepackage{graphicx}
@@ -31,8 +35,44 @@
 
 \newcommand{\code}[1]{\texttt{#1}}
 
+% comments
 \newcommand{\dan}[1]{{\color{red}{Dan: #1}}}
 \newcommand{\fred}[1]{{\color{blue}{Fred: #1}}}
+
+% references to ...
+\def \refeq#1{(\ref{eq:#1})}
+\def \refsec#1{Section~\ref{sec:#1}}
+\def \reffig#1{Figure~\ref{fig:#1}}
+\def \reftab#1{Table~\ref{tab:#1}}
+
+% syntax highlighting
+\usepackage{listings}
+\definecolor{mygray}{rgb}{0.4,0.4,0.4}
+\definecolor{mygreen}{rgb}{0,0.8,0.6}
+\definecolor{myorange}{rgb}{1.0,0.4,0}
+\lstset { %
+  backgroundcolor=\color{black!5}, % set backgroundcolor
+  basicstyle=\ttfamily,% basic font setting
+  % keywordstyle=\color{Magenta},
+}
+\lstnewenvironment{cxxcode}
+{\lstset{
+    language=c++,
+    gobble=0,
+    commentstyle=\itshape\color{purple!80},
+    breaklines=true
+    basicstyle=\sffamily\color{black},
+    frame=single,
+    % identifierstyle=\color{blue},
+    keywordstyle=\color{mygreen},
+    numberstyle=\tiny\color{mygray},
+    showspaces=false,
+    showstringspaces=false,
+    stringstyle=\color{myorange},
+    tabsize=4
+  }
+}
+{}
 
 %--------------------------------------------------------
 
@@ -84,24 +124,57 @@
 
 \section{Overview}
 
-what is this for, web page, reference guide, github, teaser
+\fred{what is this for, web page, reference guide, github, teaser}
 
-\section{Intro to Bayesian Statistics (for our purposes)}
-\fred
+The purpose of this document is to introduce the Bayesian Analysis
+Toolkit (BAT). For a quick tutorial covering the basic features, jump
+directly to \refsec{basics}.
 
-\section{Intro to Markov Chain Monte Carlo (for our purposes)}
-\fred
+\subsection*{Structure of this document}
 
-R value.
+We give a brief introduction of the Bayesian approach to statistics in
+\refsec{Bayes} and describe the core algorithm of \bat{}, Markov chain
+Monte Carlo, in \refsec{MCMC}. Further sections describe other parts
+of \bat{} and advanced features.
 
-\section{Basic BAT}
+\subsection*{Further help}
+
+Please visit our home page at \url{http://mpp.mpg.de/bat} for an
+overview of documentation and activities around \bat{}.
+
+This document is meant to is quickly enable to you to find your way
+around \bat{}. We describe the common workflow and explain how to
+solve some not-so-common tasks. To keep the size of this document
+manageable, we refer you to the
+\href{http://mpp.mpg.de/bat/docs/refman/latest/}{online reference
+  guide} in which all classes, methods etc. are documented.
+
+If you find a problem with the code, the preferred method is to create
+a new issue at \url{https://github.com/bat/bat/issues}. For general
+questions or comments, contact the developers at
+\href{mailto:bat@mpp.mpg.de}{bat@mpp.mpg.de}.
+
+\section{Basic BAT} \label{sec:basics}
 
 Goal of this section is that if you can read and test as you go along, and end up with functioning code.
+
+\subsection{Installation instructions}
+
+Detailed instructions for downloading and installing BAT are in the
+\verb|INSTALL.md| file that comes with the \bat\ source distribution. The
+latest version is available online at
+\url{https://github.com/bat/bat/blob/master/INSTALL.md}.
 
 \subsection{Non-code parts of BAT}
 \dan
 
 bat-project, bat-config
+\begin{cxxcode}
+int main() {
+  std::string s = "Hello";
+  return 0;
+}
+\end{cxxcode}
 
 \subsection{Absolutely necessary requirements of your model}
 \dan
@@ -120,7 +193,13 @@ Interpreting the basic output: marginals; parameters; knowledge update; correlat
 
 Options for the different output types.
 
+\section{Intro to Bayesian Statistics (for our purposes)} \label{sec:Bayes}
+\fred
 
+\section{Intro to Markov Chain Monte Carlo (for our purposes)} \label{sec:MCMC}
+\fred
+
+R value.
 \section{Non-MCMC parts of BAT}
 
 \subsubsection{Integration}
@@ -141,13 +220,14 @@ Options for the different output types.
 \section{Advanced BAT}
 
 \subsection{ModelManager for Model Comparison}
-\fred
+\fred{can work on same data set but not required}
+
 
 \subsection{Defining your own factorized prior}
 \dan
 
 \subsection{Sharing / Loading samples}
-\dan
+\dan{describe that files can be checked during prerun if \#136 is merged}
 
 \subsection{Performance / Threading / User's attention to thread-safety}
 
