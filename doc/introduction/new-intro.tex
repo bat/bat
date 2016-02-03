@@ -1,8 +1,21 @@
-\documentclass[11pt, a4paper]{article}
+\documentclass[
+11pt,
+a4paper,
+%BCOR=10mm, % boundary correction, lost in binding
+bibliography=totoc,
+captions=nooneline, % one line caption left aligned just like multiline captions
+english,
+numbers=noenddot,
+twoside]{scrbook}
+\addtokomafont{caption}{\small}
+\setkomafont{captionlabel}{\sffamily\bfseries}
+\setcapindent{0em} % save space with multiline captions; default is \setcaphanging
+\setlength{\textheight}{650pt} % keep inner/outer margins, but make text "taller", default 598pt.
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage[english]{babel}
 
 % times new roman and matching math font
 \usepackage{libertine}
@@ -15,16 +28,6 @@
 \usepackage{parskip}
 \usepackage{url}
 
-\setlength{\oddsidemargin}{0cm}
-\setlength{\evensidemargin}{0cm}
-\setlength{\topmargin}{-1cm}
-\setlength{\textheight}{23cm}
-\setlength{\textwidth}{16cm}
-
-%\setlength{\parindent}{0pt}
-
-\pagestyle{headings}
-
 \newcommand{\bat}{{\sc BAT}}
 \newcommand{\BAT}{\bat}
 \newcommand{\Root}{{\sc Root}}
@@ -35,9 +38,11 @@
 
 \newcommand{\code}[1]{\texttt{#1}}
 
-% comments
-\newcommand{\dan}[1]{{\color{red}{Dan: #1}}}
-\newcommand{\fred}[1]{{\color{blue}{Fred: #1}}}
+% todo notes
+\usepackage[colorinlistoftodos]{todonotes} % Use 'disable' to remove todos in final version
+
+\newcommand{\dan}[1]{{\todo[color=red]{Dan: #1}}}
+\newcommand{\fred}[1]{{\todo[color=orange]{Fred: #1}}}
 
 % references to ...
 \def \refeq#1{(\ref{eq:#1})}
@@ -74,8 +79,9 @@
 }
 {}
 
-%--------------------------------------------------------
-
+% --------------------------------------------------------
+% document
+% --------------------------------------------------------
 \begin{document}
 
 % --------------------------------------------------------
@@ -93,7 +99,7 @@
 \begin{center}
 
 
-{\Large An introduction to \bat}
+{\Large \bat{} Manual}
 \\
 
 \vspace{1cm}
@@ -120,15 +126,20 @@
 
 \enlargethispage{2cm}
 
-\tableofcontents
+\tableofcontents{}
 
-\section{Overview}
+% \listoftodos
+
+\mainmatter
+
+\section*{Overview}
 
 \fred{what is this for, web page, reference guide, github, teaser}
 
 The purpose of this document is to introduce the Bayesian Analysis
-Toolkit (BAT). For a quick tutorial covering the basic features, jump
-directly to \refsec{basics}.
+Toolkit (BAT). \fred{Say in two sentences what BAT is for.} For a
+quick tutorial covering the basic features, jump directly to
+\refsec{basics}.
 
 \subsection*{Structure of this document}
 
@@ -150,22 +161,28 @@ manageable, we refer you to the
   guide} in which all classes, methods etc. are documented.
 
 If you find a problem with the code, the preferred method is to create
-a new issue at \url{https://github.com/bat/bat/issues}. For general
-questions or comments, contact the developers at
+a new issue at \url{https://github.com/bat/bat/issues}. If you provide
+some code for us to reproduce the problem, we can help you much
+faster.
+
+For general questions or comments, contact the developers at
 \href{mailto:bat@mpp.mpg.de}{bat@mpp.mpg.de}.
 
-\section{Basic BAT} \label{sec:basics}
+\part{Basics}
+\chapter{Tutorial} \label{sec:basics}
 
-Goal of this section is that if you can read and test as you go along, and end up with functioning code.
+Goal of this section is that you can read and test as you go along, and end up with functioning code.
 
-\subsection{Installation instructions}
+\section{Installation instructions}
 
 Detailed instructions for downloading and installing BAT are in the
 \verb|INSTALL.md| file that comes with the \bat\ source distribution. The
 latest version is available online at
 \url{https://github.com/bat/bat/blob/master/INSTALL.md}.
 
-\subsection{Non-code parts of BAT}
+\fred{Add link to instructions in appendix as per \href{https://github.com/bat/bat/issues/145}{\#145}}
+
+\section{Non-code parts of BAT}
 \dan
 
 bat-project, bat-config
@@ -176,72 +193,93 @@ int main() {
 }
 \end{cxxcode}
 
-\subsection{Absolutely necessary requirements of your model}
+\section{Absolutely necessary requirements of your model}
 \dan
 
 Parameters, LogLikelihood, some form of setting a prior.
 
-\subsection{Running the analysis}
+\section{Running the analysis}
 \dan
 
 Functions to call. How to output. Basic tuning. How to interpret runtime log output \& trouble shooting (nonconvergence, poor efficiencies). How to interpret summary log output.
 
-\subsection{Plots}
+\section{Plots}
 \dan
 
 Interpreting the basic output: marginals; parameters; knowledge update; correlation matrix.
 
 Options for the different output types.
 
-\section{Intro to Bayesian Statistics (for our purposes)} \label{sec:Bayes}
-\fred
+\chapter{Intro to Bayesian Statistics} \label{sec:Bayes}
+\fred{Just introduce terminology and symbols. Refer to other book: Jaynes, Gelman. Which questions are of interest, which can be answered more easily with \bat, this includes goodness of fit with p values which is not exactly Bayesian}
 
-\section{Intro to Markov Chain Monte Carlo (for our purposes)} \label{sec:MCMC}
-\fred
-
-R value.
-\section{Non-MCMC parts of BAT}
-
-\subsubsection{Integration}
-\fred
-
-\subsubsection{Optimization}
-\fred
-
-\section{Accompanying Models}
-
-\subsection{Using BAT's native data structures}
-
-\subsection{base}
-
-\subsection{mtf}
+\chapter{Intro to Markov Chain Monte Carlo} \label{sec:MCMC}
+\fred{workhorse of BAT. mention Metropolis algorithm, role of proposal function, different choices in bat, why it has to be adapted in prerun. What else happens in prerun:R value and convergence checking. Mention that samples are correlated, chains can get stuck if model wrong/poor.}
 
 
-\section{Advanced BAT}
+\chapter{Non-MCMC parts of BAT}
 
-\subsection{ModelManager for Model Comparison}
+\section{Integration}
+\fred{Users are confused what integration is needed for: state clearly that cuba is only for evidence. But marginalization can be done by something else than MCMC. We have grid methods implemented}
+
+
+\section{Optimization}
+\fred{afterburner or stand-alone, minuit, simulated annealing. How to get results from Minuit run}
+
+\chapter{Accompanying Models}
+
+\section{Using BAT's native data structures}
+
+\section{base}
+\section{Efficiency Fitter}
+\section{Graph Fitter}
+\section{Histogram Fitter}
+
+\section{mtf}
+\fred{Kevin should give advice here. Need channels, processes, goodness of fit}
+
+\pagebreak
+\part{Advanced BAT}
+
+\chapter{Structure of the code}
+\fred{A few paragraphs, what inherits from what, parameter handling,
+  pointer to the reference guide where more info is available such
+  that one can click directly on classes etc.}
+
+\chapter{ModelManager for Model Comparison}
 \fred{can work on same data set but not required}
 
 
-\subsection{Defining your own factorized prior}
+\chapter{Defining your own factorized prior}
 \dan
 
-\subsection{Sharing / Loading samples}
+\chapter{Sharing / Loading samples}
 \dan{describe that files can be checked during prerun if \#136 is merged}
 
-\subsection{Performance / Threading / User's attention to thread-safety}
+\chapter{Performance / Threading / User's attention to thread-safety}
 
-tips.
+\fred{tips taken over from old manual and expanded. Some advice when it can provide speed up, clearly state that only the MCMC is with threads but synchronization is a bottle neck for fast posteriors}
 
-\section{Examples}
+\chapter{Output}
+\section{Logging}
+\section{Textual summary}
+\fred{summary output, latex tables}
+\section{Graphical summary}
+\fred{BCSummaryTool}
 
-\section{Validation}
+\chapter{Examples}
 
-Proof we've checked BAT works.
+\fred{how to run them, suggest to modify them}
 
-\section{Troubleshooting or FAQ}
+\chapter{Validation}
 
-\section{Further reading}
+\fred{make check, unit test, performance test suite, building on various platforms}
 
+\chapter{Troubleshooting or FAQ}
+
+\chapter{Tuning MCMC}
+
+\chapter{References}
+\fred{Recommend some books, mention a few other packages and give list of references}
 
 \end{document}

@@ -93,3 +93,6 @@ log.txt
 
 # local cuba directory
 /external/cuba-*
+/doc/introduction/new-intro.out
+/doc/introduction/new-intro.tdo
+/doc/introduction/new-intro.toc
