@@ -4,7 +4,6 @@ a4paper,
 %BCOR=10mm, % boundary correction, lost in binding
 bibliography=totoc,
 captions=nooneline, % one line caption left aligned just like multiline captions
-english,
 numbers=noenddot,
 twoside]{scrbook}
 \addtokomafont{caption}{\small}
@@ -21,16 +20,17 @@ twoside]{scrbook}
 \usepackage{libertine}
 \usepackage{newtxmath}
 
+\usepackage{bm,amssymb,amsfonts,amsmath}  % bold math symbols, AMStex
 \usepackage{booktabs}
 \usepackage[svgnames]{xcolor}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
 \usepackage{parskip}
-\usepackage{url}
+\usepackage[colorinlistoftodos]{todonotes} % Use 'disable' to remove todos in final version
 
 \newcommand{\bat}{{\sc BAT}}
-\newcommand{\BAT}{\bat}
-\newcommand{\Root}{{\sc Root}}
+\newcommand{\Root}{{\sc ROOT}}
 
 \input{versions}
 \newcommand{\version}{version~\versionno}
@@ -38,13 +38,12 @@ twoside]{scrbook}
 
 \newcommand{\code}[1]{\texttt{#1}}
 
-% todo notes
-\usepackage[colorinlistoftodos]{todonotes} % Use 'disable' to remove todos in final version
-
 \newcommand{\dan}[1]{{\todo[color=red]{Dan: #1}}}
 \newcommand{\fred}[1]{{\todo[color=orange]{Fred: #1}}}
+\newcommand{\inbat}[1]{{\todo[color=Salmon,inline]{#1}}}
 
 % references to ...
+\def \refchap#1{Chapter~\ref{cha:#1}}
 \def \refeq#1{(\ref{eq:#1})}
 \def \refsec#1{Section~\ref{sec:#1}}
 \def \reffig#1{Figure~\ref{fig:#1}}
@@ -55,29 +54,32 @@ twoside]{scrbook}
 \definecolor{mygray}{rgb}{0.4,0.4,0.4}
 \definecolor{mygreen}{rgb}{0,0.8,0.6}
 \definecolor{myorange}{rgb}{1.0,0.4,0}
-\lstset { %
+\lstset{
   backgroundcolor=\color{black!5}, % set backgroundcolor
-  basicstyle=\ttfamily,% basic font setting
-  % keywordstyle=\color{Magenta},
+  language=c++,
+  gobble=0,
+  commentstyle=\itshape\color{purple!80},
+  breaklines=true,
+  basicstyle=\ttfamily\color{black}\scriptsize,
+  frame=single,
+  % identifierstyle=\color{blue},
+  keywordstyle=\color{myorange},
+  numberstyle=\tiny\color{mygray},
+  showspaces=false,
+  showstringspaces=false,
+  stringstyle=\color{myorange},
+  tabsize=4,
 }
 \lstnewenvironment{cxxcode}
-{\lstset{
-    language=c++,
-    gobble=0,
-    commentstyle=\itshape\color{purple!80},
-    breaklines=true
-    basicstyle=\sffamily\color{black},
-    frame=single,
-    % identifierstyle=\color{blue},
-    keywordstyle=\color{mygreen},
-    numberstyle=\tiny\color{mygray},
-    showspaces=false,
-    showstringspaces=false,
-    stringstyle=\color{myorange},
-    tabsize=4
-  }
-}
 {}
+{}
+\newcommand{\cxxin}[1]{\lstinline{#1}}
+
+% math
+\newcommand{\cond}{\,|\,}
+\newcommand\rmdx[1]{\mbox{d}#1\,} % differential
+\newcommand{\scath}{\theta} % scalar parameter
+\newcommand{\vecth}{\bm{\theta}} % vector parameter
 
 % --------------------------------------------------------
 % document
@@ -210,11 +212,173 @@ Interpreting the basic output: marginals; parameters; knowledge update; correlat
 
 Options for the different output types.
 
-\chapter{Intro to Bayesian Statistics} \label{sec:Bayes}
-\fred{Just introduce terminology and symbols. Refer to other book: Jaynes, Gelman. Which questions are of interest, which can be answered more easily with \bat, this includes goodness of fit with p values which is not exactly Bayesian}
+\chapter{Bayesian Statistics} \label{sec:Bayes}
 
-\chapter{Intro to Markov Chain Monte Carlo} \label{sec:MCMC}
+\fred{Just introduce terminology and symbols. Refer to other book:
+  Jaynes, Gelman. Which questions are of interest, which can be
+  answered more easily with \bat, this includes goodness of fit with p
+  values which is not exactly Bayesian}
+
+In this chapter, we give a concise and necessarily incomplete overview
+of Bayesian statistics. Our intention is to cover the bare minimum and
+introduce those quantities that appear in \bat. There is vast
+literature on the subject; we refer the reader to the books
+\cite{jaynes_probability_2003, hartigan_bayes_1983, sivia_data_2006,
+  mackay_information_2003, dagostini_bayesian_2003,
+  kendall_kendalls_2004} for a comprehensive overview.
+
+\section{Basic terminology} \label{sec:basic-terminology}
+
+Bayesian statistics is a framework for quantitative inductive or
+plausible reasoning; i.e., the optimal processing of incomplete
+information. The basic idea is to associate a degree of belief to
+logical propositions; e.g., the mass of the Higgs boson is 125
+GeV. From fundamental axioms about reasoning, one can then show that
+the calculus of degree of belief is simply the ordinary calculus of
+probability theory; see~\cite{jaynes_probability_2003} for a thorough
+discussion. Deductive reasoning is included as the limiting case in
+which the degree of belief is either 0 or 1.
+
+From now on, we will use the symbol $P(A)$ to denote both the \emph{degree
+of belief} in proposition $A$ and the \emph{probability} of $A$. In our
+applications below, $A$ is often one value out of a continuum, so we
+use $P(A)$ also to denote the \emph{probability density} of $A$.  The
+\emph{conditional probability} of $A$ given $B$ is $P(A \cond B)$.
+
+The two central tasks of the natural sciences are to learn about
+nature from data and to make predictions for (future) experiments. A
+\emph{model} $M$ is a proxy for all discrete pieces of information relevant
+to calculating the degree of belief. The model can contain \emph{parameters}
+$\vecth$ that can take on values in a continuum, perhaps subject to
+constraints as for example $\scath_1 \geq 0$. Bayesian reasoning
+provides an update rule to adjust the degree of belief based on new
+information available in the form of \emph{observed data} $D$. This update
+rule is the celebrated \emph{Bayes' theorem}
+\begin{align}
+  \label{eq:bayes-thm}
+  \boxed{  P(\vecth \cond D, M) \propto P(D|\vecth, M) P(\vecth \cond M)
+  }
+\end{align}
+$P(\vecth \cond M)$ is the \emph{prior density}, $P(D|\vecth, M)$ is
+called the \emph{probability of the data} when treated as a function
+of $D$, and known as the \emph{likelihood} when considering the
+dependence on $\vecth$, for fixed $D$. The model-dependent
+normalization constant is known as the \emph{evidence} or
+\emph{marginal likelihood}:
+\begin{equation}
+  \label{eq:evidence}
+  Z = \int \rmdx{ \vecth} P(D|\vecth, M) P(\vecth \cond M).
+\end{equation}
+Finally, the left-hand side of \eqref{eq:bayes-thm}, $P(\vecth | D,
+M)$, is the \emph{posterior density}. Prior and posterior (``density''
+is usually omitted) represent the state of knowledge about the
+parameter $\vecth$ before and after seeing the data. Note that
+$\vecth$ appears on opposite sides of ``|'' in $P(D|\vecth,M)$ and
+$P(\vecth|D,M)$. That's why Bayes' theorem is also known as the
+theorem of \emph{inverse probability}.
+
+\subsection{Marginalization} \label{sec:marginalization}
+
+Suppose there are two parameters, $\vecth = (\scath_1, \scath_2)$, and
+$\scath_1$ is the \emph{parameter of interest} whereas $\scath_2$ is a
+\emph{nuisance parameter}. In Bayes' theorem, there is no fundamental
+distinction between parameters of interest and nuisance parameter,
+they are all just parameters. But often the goal of the analysis is to
+extract the posterior of $\scath_1$ while $\scath_2$ is only needed at
+an intermediate stage; for example in order to correctly model the
+measurement process of $D$. From the joint posterior $P(\scath_1,
+\scath_2 | D)$, we compute the \emph{marginalized} posterior and can
+remove the dependence on $\scath_2$ by integration
+\begin{align}
+  \label{eq:marginal}
+  P(\scath_1 | D) = \int \rmdx{\scath_2} P(\scath_1, \scath_2 | D).
+\end{align}
+
+\subsection{Model comparison} \label{sec:model-comparison}
+
+If there is only a single model under consideration, and no potential for
+confusion, the model label $M$ is implied and usually omitted from the
+equations. But suppose that there are two competing models, $M_1, M_2$, with
+parameters $\scath_{1,2}$, that quantitatively predict the outcome $D$ of an
+experiment. The task is to find the model with the higher degree of
+belief. Using Bayes' theorem, the \emph{posterior odds} of the models are easily
+found as
+\begin{equation}
+  \label{eq:post-odds}
+  \frac{P(M_1|D)}{P(M_2|D)}
+   = B_{12}  \cdot  \frac{P(M_1)}{P(M_2)},
+\end{equation}
+ where the \emph{Bayes factor} of $M_1$ versus $M_2$, $B_{12}$, is just the ratio
+of the evidences
+\begin{equation}
+  \label{eq:Bayes-factor}
+  B_{12}= \dfrac{P(D|M_1)}{P(D|M_2)} = \frac{Z_1}{Z_2}
+  = \frac{\int \rmdx{\vecth_1} P(D|\vecth_1, M_1) P(\vecth_1, M_1)}
+  {\int \rmdx{ \vecth_2} P(D|\vecth_2, M_2) P(\vecth_2, M_2)}
+\end{equation}
+The \emph{prior odds} $P(M_1)/P(M_2)$ represent the relative degree of belief
+in the models, independent of the data.
+% The data are accounted for in the Bayes factor.
+The Bayes factor quantifies the relative shift of degree of belief
+induced by the data. In general, $\dim \vecth_1 \ne \dim \vecth_2$,
+and without loss of generality let $\dim \vecth_1 < \dim
+\vecth_2$. The Bayes factor automatically penalizes $M_2$ for its
+larger complexity, as the prior mass is spread out over a
+higher-dimensional volume. However, this can be compensated if the
+likelihood $P(D|\vecth_2, M_2)$ is significantly higher in regions of
+reasonably high prior density; i.e. the Bayes factor implements
+Occam's razor the simplest model that describes the observations is
+preferred.
+
+\section{Goodness of fit} \label{sec:goodness-fit}
+In the Bayesian approach, there is, however, no straightforward answer to the
+following question: if there is only one model at hand, how to decide if that
+model is sufficient to explain the data, or if the search for a better model
+needs to continue?  The standard procedure to tackle this problem of evaluating
+the \emph{goodness of fit} is explained in \fred{expand}
+
+\section{Representation in BAT} \label{sec:representation-bat}
+
+In \bat, a model $M$ is represented as a C++ subclass of
+\code{BCModel}. The crucial parts are to define the likelihood $P(D
+\cond \vecth, M)$, the prior $P(\vecth \cond M)$, and the parameters
+$\vecth$. From these quantities, \bat{} can compute the posterior
+$P(\vecth \cond D, M)$. To avoid numerical overflow, \bat{} operates
+on the log scale whenever possible.  The key methods a user has to
+implement are
+\fred{Perhaps mention \bat{} in framed insets right where terms are introduced.}
+
+\begin{cxxcode}
+virtual double LogLikelihood(const std::vector<double>& params)
+virtual double LogAPrioriProbability(const std::vector<double>& params)
+\end{cxxcode}
+\fred{The whole section might go somewhere else where users find it more
+  easily. I fear it would get lost here} The parameter values are
+passed in simply as numbers to likelihood and prior, all parameters
+are assumed to be real and continuous. Discrete parameters are not
+supported. The support of $\vecth$ is a hyperrectangle whose bounds
+are given by the bounds of the individual parameters when added to the
+model with
+\begin{cxxcode}
+bool AddParameter(const std::string& name, double min, double max, const std::string& latexname = "", const std::string& unitstring = "")
+\end{cxxcode}
+The optional \cxxin{latexname} and \cxxin{unitstring} are used only
+for labeling plot axes; it's intended usage is to pretty up plots for
+a parameter \cxxin{theta} representing a time measured in
+seconds. Note that the plots are created with \Root, so the
+\cxxin{latexname} has to be in \Root{} syntax which is mostly \LaTeX{}
+syntax with ``\textbackslash" $\to$ ``\#''.
+\begin{cxxcode}
+AddParameter("theta", 0, 1, "#theta", "s")
+\end{cxxcode}
+
+
+\chapter{Markov Chain Monte Carlo} \label{sec:MCMC}
 \fred{workhorse of BAT. mention Metropolis algorithm, role of proposal function, different choices in bat, why it has to be adapted in prerun. What else happens in prerun:R value and convergence checking. Mention that samples are correlated, chains can get stuck if model wrong/poor.}
+
+\section{Foundations}
+
+\section{Implementation in BAT}
 
 
 \chapter{Non-MCMC parts of BAT}
@@ -279,7 +443,11 @@ Options for the different output types.
 
 \chapter{Tuning MCMC}
 
-\chapter{References}
-\fred{Recommend some books, mention a few other packages and give list of references}
+\bibliographystyle{plain}
+\bibliography{references.bib}
 
 \end{document}
+
+% Local Variables:
+% compile-command:"rubber --pdf -W refs -W misc new-intro"
+% End:
