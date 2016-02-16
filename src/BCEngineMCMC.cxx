@@ -530,7 +530,7 @@ void BCEngineMCMC::WriteMarginalizedDistributions(const std::string& filename, c
 // --------------------------------------------------------
 TH1* BCEngineMCMC::GetMarginalizedHistogram(unsigned index) const
 {
-    if ( index >= fH1Marginalized.size() ) {
+    if (index >= fH1Marginalized.size()) {
         BCLog::OutError(Form("BCEngineMCMC::GetMarginalizedHistogram. Index %u out of range.", index));
         return 0;
     }
@@ -539,7 +539,7 @@ TH1* BCEngineMCMC::GetMarginalizedHistogram(unsigned index) const
         return fH1Marginalized[index];
 
     // else output warning
-    if ( index < GetNVariables() ) // Marginalization of model parameter
+    if (index < GetNVariables()) // Marginalization of model parameter
         BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distribution not stored for %s %s", GetVariable(index).GetPrefix().data(), GetVariable(index).GetName().data()));
     return 0;
 }
@@ -552,11 +552,11 @@ TH2* BCEngineMCMC::GetMarginalizedHistogram(unsigned i, unsigned j) const
         return NULL;
     }
 
-    if ( i >= fH2Marginalized.size() ) {
+    if (i >= fH2Marginalized.size()) {
         BCLog::OutError(Form("BCEngineMCMC::GetMarginalizedHistogram. Index %u out of range.", i));
         return NULL;
     }
-    if ( j >= fH2Marginalized[i].size() ) {
+    if (j >= fH2Marginalized[i].size()) {
         BCLog::OutError(Form("BCEngineMCMC::GetMarginalizedHistogram. Index %u out of range.", j));
         return NULL;
     }
@@ -578,7 +578,7 @@ BCH1D BCEngineMCMC::GetMarginalized(unsigned index) const
 
     BCH1D bch(h);
 
-    if ( bch.Valid() && index < GetBestFitParameters().size())
+    if (bch.Valid() && index < GetBestFitParameters().size())
         // set global mode if available
         bch.SetGlobalMode(GetBestFitParameters()[index]);
 
@@ -969,7 +969,7 @@ bool BCEngineMCMC::LoadParametersFromTree(TTree* partree, bool loadObservables)
 
     // load parameters
     unsigned i = 0;
-    while ( partree->GetEntryNumberWithIndex(1, i) >= 0 ) {
+    while (partree->GetEntryNumberWithIndex(1, i) >= 0) {
         partree->GetEntryWithIndex(1, i);
         BCParameter Par(p_name, p_lowerlimit, p_upperlimit, p_latexname);
         if (p_fixed)
@@ -986,7 +986,7 @@ bool BCEngineMCMC::LoadParametersFromTree(TTree* partree, bool loadObservables)
         return true;
     fObservables = BCObservableSet();
     i = 0;
-    while ( partree->GetEntryNumberWithIndex(0, i) >= 0 ) {
+    while (partree->GetEntryNumberWithIndex(0, i) >= 0) {
         partree->GetEntryWithIndex(0, i);
         BCObservable Obs(p_name, p_lowerlimit, p_upperlimit, p_latexname);
         Obs.SetPrecision(p_precision);
@@ -1023,24 +1023,24 @@ bool BCEngineMCMC::ParameterTreeMatchesModel(TTree* partree, bool checkObservabl
 
     // check parameters
     for (unsigned i = 0; i < GetNParameters(); ++i) {
-        if ( partree->GetEntryNumberWithIndex(1, i) < 0 ) {
+        if (partree->GetEntryNumberWithIndex(1, i) < 0) {
             BCLog::OutError("BCEngineMCMC::ParameterTreeMatchesModel : Parameter tree contains too few entries.");
             return false;
         }
         partree->GetEntryWithIndex(1, i);
-        if ( !GetParameter(i).IsNamed(p_name) ) {
+        if (!GetParameter(i).IsNamed(p_name)) {
             BCLog::OutError(Form("BCEngineMCMC::ParameterTreeMatchesModel : Parameter[%d]'s names do not match.", i));
             return false;
         }
-        if ( GetParameter(i).GetLowerLimit() != p_lowerlimit )
+        if (GetParameter(i).GetLowerLimit() != p_lowerlimit)
             BCLog::OutWarning(Form("BCEngineMCMC::ParameterTreeMatchesModel : Lower limit of parameter \"%s\" does not match.", p_name));
-        if ( GetParameter(i).GetUpperLimit() != p_upperlimit )
+        if (GetParameter(i).GetUpperLimit() != p_upperlimit)
             BCLog::OutWarning(Form("BCEngineMCMC::ParameterTreeMatchesModel : Upper limit of parameter \"%s\" does not match.", p_name));
-        if ( has_fixed && GetParameter(i).Fixed() != p_fixed ) {
+        if (has_fixed && GetParameter(i).Fixed() != p_fixed) {
             BCLog::OutWarning(Form("BCEngineMCMC::ParameterTreeMatchesModel : Fixed status of parameter \"%s\" does not match. Fixing it.", p_name));
             GetParameter(i).Fix(p_fixedvalue);
         }
-        if ( has_fixed && GetParameter(i).Fixed() && has_fixed_value && GetParameter(i).GetFixedValue() != p_fixedvalue ) {
+        if (has_fixed && GetParameter(i).Fixed() && has_fixed_value && GetParameter(i).GetFixedValue() != p_fixedvalue) {
             BCLog::OutWarning(Form("BCEngineMCMC::ParameterTreeMatchesModel : Fixed value of parameter \"%s\" does not match. Updating it.", p_name));
             GetParameter(i).Fix(p_fixedvalue);
         }
@@ -1049,18 +1049,18 @@ bool BCEngineMCMC::ParameterTreeMatchesModel(TTree* partree, bool checkObservabl
         return true;
     // check observables
     for (unsigned i = 0; i < GetNObservables(); ++i) {
-        if ( partree->GetEntryNumberWithIndex(0, i) < 0 ) {
+        if (partree->GetEntryNumberWithIndex(0, i) < 0) {
             BCLog::OutError("BCEngineMCMC::ParameterTreeMatchesModel : Parameters tree contains too few entries.");
             return false;
         }
         partree->GetEntryWithIndex(0, i);
-        if ( !GetObservable(i).IsNamed(p_name) ) {
+        if (!GetObservable(i).IsNamed(p_name)) {
             BCLog::OutError(Form("BCEngineMCMC::ParameterTreeMatchesModel : Observable[%d]'s names do not match.", i));
             return false;
         }
-        if ( GetObservable(i).GetLowerLimit() != p_lowerlimit )
+        if (GetObservable(i).GetLowerLimit() != p_lowerlimit)
             BCLog::OutWarning(Form("BCEngineMCMC::ParameterTreeMatchesModel : Lower limit of observable \"%s\" does not match.", p_name));
-        if ( GetObservable(i).GetUpperLimit() != p_upperlimit )
+        if (GetObservable(i).GetUpperLimit() != p_upperlimit)
             BCLog::OutWarning(Form("BCEngineMCMC::ParameterTreeMatchesModel : Upper limit of observable \"%s\" does not match.", p_name));
     }
     return true;
@@ -1082,7 +1082,7 @@ bool BCEngineMCMC::LoadMCMC(const std::string& filename, const std::string& mcmc
     // set model name if empty
     if (fName.empty()) {
         // check mcmcTreeName and parameterTreeName for default BAT name scheme [modelname]_mcmc/parameters:
-        if ( mcmcTreeName.find_last_of("_") != std::string::npos && mcmcTreeName.substr(mcmcTreeName.find_last_of("_")) == "_mcmc"
+        if (mcmcTreeName.find_last_of("_") != std::string::npos && mcmcTreeName.substr(mcmcTreeName.find_last_of("_")) == "_mcmc"
                 && parameterTreeName.find_last_of("_") != std::string::npos && parameterTreeName.substr(parameterTreeName.find_last_of("_")) == "_parameters") {
             fName = mcmcTreeName.substr(0, mcmcTreeName.find_last_of("_"));
         }
@@ -1136,13 +1136,13 @@ bool BCEngineMCMC::LoadMCMC(const std::string& filename, const std::string& mcmc
 
     TTree* mcmcTree = NULL;
     inputfile->GetObject(newMCMCTreeName.data(), mcmcTree);
-    if ( !mcmcTree )
+    if (!mcmcTree)
         BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s", filename.data(), newMCMCTreeName.data()));
 
 
     TTree* parTree = NULL;
     inputfile->GetObject(newParameterTreeName.data(), parTree);
-    if ( !parTree )
+    if (!parTree)
         BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s", filename.data(), newMCMCTreeName.data()));
 
     gDirectory = dir;
@@ -1159,7 +1159,7 @@ bool BCEngineMCMC::LoadMCMC(TTree* mcmcTree, TTree* parTree, bool loadObservable
         return false;
 
     // load parameter tree
-    if ( !ValidParameterTree(parTree) ) {
+    if (!ValidParameterTree(parTree)) {
         BCLog::OutError("BCEngineMCMC::LoadMCMC : invalid parameter tree");
         return false;
     }
@@ -1167,16 +1167,16 @@ bool BCEngineMCMC::LoadMCMC(TTree* mcmcTree, TTree* parTree, bool loadObservable
     fParameterTree = parTree;
 
     // if parameters is empty
-    if ( GetNParameters() == 0 )
+    if (GetNParameters() == 0)
         LoadParametersFromTree(fParameterTree, fMCMCTreeReuseObservables);
     // else check parameter tree
-    else if ( !ParameterTreeMatchesModel(fParameterTree, fMCMCTreeReuseObservables) ) {
+    else if (!ParameterTreeMatchesModel(fParameterTree, fMCMCTreeReuseObservables)) {
         BCLog::OutError("BCEngineMCMC::LoadMCMC : Parameter tree does not match model.");
         return false;
     }
 
     // check mcmc tree
-    if ( !ValidMCMCTree(mcmcTree, fMCMCTreeReuseObservables) ) {
+    if (!ValidMCMCTree(mcmcTree, fMCMCTreeReuseObservables)) {
         BCLog::OutError("BCEngineMCMC::LoadMCMC : invalid MCMC tree");
         return false;
     }
@@ -1339,7 +1339,7 @@ void BCEngineMCMC::Remarginalize(bool autorange)
 
         if (fMCMCTree_Chain == fMCMCNChains - 1) {
             MCMCUserIterationInterface();
-            if ( !fH1Marginalized.empty() || !fH2Marginalized.empty() )
+            if (!fH1Marginalized.empty() || !fH2Marginalized.empty())
                 InChainFillHistograms();
         }
     }
@@ -1487,14 +1487,14 @@ bool BCEngineMCMC::GetNewPointMetropolis(unsigned chain, unsigned parameter)
     fMCMCNIterations[chain]++;
 
     // get proposal point
-    if ( GetProposalPointMetropolis(chain, parameter, fMCMCThreadLocalStorage[chain].xLocal) ) {
+    if (GetProposalPointMetropolis(chain, parameter, fMCMCThreadLocalStorage[chain].xLocal)) {
         // calculate probabilities of the old and new points
         double p0 = (std::isfinite(fMCMCprob[chain])) ? fMCMCprob[chain] : -std::numeric_limits<double>::max();
         double p1 = LogEval(fMCMCThreadLocalStorage[chain].xLocal);
 
         if (std::isfinite(p1)) {
             // if the new point is more probable, keep it; or else throw dice
-            if ( p1 >= p0 || log(fMCMCThreadLocalStorage[chain].rng->Rndm()) < (p1 - p0) ) {
+            if (p1 >= p0 || log(fMCMCThreadLocalStorage[chain].rng->Rndm()) < (p1 - p0)) {
                 // increase efficiency
                 fMCMCStatistics[chain].efficiency[parameter] += (1. - fMCMCStatistics[chain].efficiency[parameter]) / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
                 // copy the point
@@ -1531,14 +1531,14 @@ bool BCEngineMCMC::GetNewPointMetropolis(unsigned chain)
     fMCMCNIterations[chain]++;
 
     // get proposal point
-    if ( GetProposalPointMetropolis(chain, fMCMCThreadLocalStorage[chain].xLocal) ) {
+    if (GetProposalPointMetropolis(chain, fMCMCThreadLocalStorage[chain].xLocal)) {
         // calculate probabilities of the old and new points
         double p0 = (std::isfinite(fMCMCprob[chain])) ? fMCMCprob[chain] : -std::numeric_limits<double>::max();
         double p1 = LogEval(fMCMCThreadLocalStorage[chain].xLocal);
 
         if (std::isfinite(p1)) {
             // if the new point is more probable, keep it; or else throw dice
-            if ( p1 >= p0 || log(fMCMCThreadLocalStorage[chain].rng->Rndm()) < (p1 - p0) ) {
+            if (p1 >= p0 || log(fMCMCThreadLocalStorage[chain].rng->Rndm()) < (p1 - p0)) {
                 // increase efficiency
                 fMCMCStatistics[chain].efficiency[0] += (1. - fMCMCStatistics[chain].efficiency[0]) / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
 
@@ -1660,10 +1660,10 @@ void BCEngineMCMC::InChainFillTree()
 //---------------------------------------------------------
 void BCEngineMCMC::CloseOutputFile()
 {
-    if ( !fMCMCOutputFile )
+    if (!fMCMCOutputFile)
         return;
 
-    if (fMCMCOutputFile->IsOpen() && fMCMCOutputFile->IsWritable() ) {
+    if (fMCMCOutputFile->IsOpen() && fMCMCOutputFile->IsWritable()) {
         fMCMCOutputFile->Write(0, TObject::kWriteDelete);
         fMCMCOutputFile->Close();
     }
@@ -1828,7 +1828,7 @@ bool BCEngineMCMC::MetropolisPreRun()
                     if (GetParameter(p).Fixed())
                         continue;
 
-                    if ( fMCMCStatistics[c].efficiency[p] >= fMCMCEfficiencyMin && fMCMCStatistics[c].efficiency[p] <= fMCMCEfficiencyMax)
+                    if (fMCMCStatistics[c].efficiency[p] >= fMCMCEfficiencyMin && fMCMCStatistics[c].efficiency[p] <= fMCMCEfficiencyMax)
                         continue; // since parameter efficiency is in range for this chain
 
                     if (allEfficient) // print header if first bad efficiency
@@ -1840,7 +1840,7 @@ bool BCEngineMCMC::MetropolisPreRun()
                     if (fMCMCStatistics[c].efficiency[p] < fMCMCEfficiencyMin) { // efficiency too low... decrease scale factor
                         fMCMCProposalFunctionScaleFactor[c][p] /= (fMCMCStatistics[c].efficiency[p] < fMCMCEfficiencyMin / 2) ? 4 : 2;
 
-                        if (fMCMCProposalFunctionScaleFactor[c][p] > fMCMCScaleFactorLowerLimit ) { // still room to tune
+                        if (fMCMCProposalFunctionScaleFactor[c][p] > fMCMCScaleFactorLowerLimit) { // still room to tune
                             if (fMCMCStatistics[c].efficiency[p] == 0)
                                 BCLog::OutDetail(Form("         %-*s is below %.0f %% (zero) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, c, fMCMCProposalFunctionScaleFactor[c][p]));
                             else if (fMCMCStatistics[c].efficiency[p] < 1.e-2)
@@ -1861,7 +1861,7 @@ bool BCEngineMCMC::MetropolisPreRun()
                     } else { // if efficiency too high ... increase scale factor
                         fMCMCProposalFunctionScaleFactor[c][p] *= 2;
 
-                        if ( fMCMCProposalFunctionScaleFactor[c][p] < fMCMCScaleFactorUpperLimit ) { // still room to tune
+                        if (fMCMCProposalFunctionScaleFactor[c][p] < fMCMCScaleFactorUpperLimit) { // still room to tune
                             BCLog::OutDetail(Form("         %-*s is above %.0f %% (%.0f %%) in chain %i. Scale increased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCProposalFunctionScaleFactor[c][p]));
                             inefficientScalesAdjustable = true;
                         } else { // no more room to tune
@@ -1947,7 +1947,7 @@ bool BCEngineMCMC::MetropolisPreRun()
     gErrorIgnoreLevel = old_error_ignore_level;
 
     // output results of prerun concerning convergence and scale adjustment
-    if ( fMCMCNIterationsConvergenceGlobal > 0 ) {
+    if (fMCMCNIterationsConvergenceGlobal > 0) {
         if (allEfficient)
             BCLog::OutSummary(Form(" --> Set of %i Markov chains converged within %i iterations, and all scales are adjusted.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
         else if (!inefficientScalesAdjustable)
@@ -2125,12 +2125,12 @@ bool BCEngineMCMC::Metropolis()
 
     // start the run
     fMCMCCurrentIteration = 0;
-    while ( fMCMCCurrentIteration < (int)fMCMCNIterationsRun ) {
+    while (fMCMCCurrentIteration < (int)fMCMCNIterationsRun) {
 
         GetNewPointMetropolis();
         EvaluateObservables();
 
-        if ( fMCMCCurrentIteration % nwrite == 0 ) {
+        if (fMCMCCurrentIteration % nwrite == 0) {
             BCLog::OutDetail(Form(" --> iteration number %6i (%3.0f %%)", fMCMCCurrentIteration, (double)(fMCMCCurrentIteration) / (double)fMCMCNIterationsRun * 100.));
             if (fMCMCFlagWriteChainToFile && fMCMCTree)
                 fMCMCTree->AutoSave("SaveSelf");
@@ -2145,11 +2145,11 @@ bool BCEngineMCMC::Metropolis()
             fMCMCStatistics[c].Update(fMCMCprob[c], fMCMCx[c], fMCMCObservables[c]);
 
         // fill histograms
-        if ( !fH1Marginalized.empty() || !fH2Marginalized.empty() )
+        if (!fH1Marginalized.empty() || !fH2Marginalized.empty())
             InChainFillHistograms();
 
         // write chain to file
-        if ( fMCMCFlagWriteChainToFile )
+        if (fMCMCFlagWriteChainToFile)
             InChainFillTree();
 
     } // end run
@@ -2742,9 +2742,9 @@ void BCEngineMCMC::PrintMarginalizationSummary() const
 
 
 // ---------------------------------------------------------
-void BCEngineMCMC::PrintParameters(const std::vector<double>& P, void (*output)(const std::string&) ) const
+void BCEngineMCMC::PrintParameters(const std::vector<double>& P, void (*output)(const std::string&)) const
 {
-    if ( P.size() != GetNParameters() && P.size() != GetNVariables() )
+    if (P.size() != GetNParameters() && P.size() != GetNVariables())
         return;
 
     for (unsigned i = 0; i < P.size(); ++i)
