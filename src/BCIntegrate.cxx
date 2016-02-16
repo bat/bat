@@ -247,7 +247,7 @@ void swap(BCIntegrate& A, BCIntegrate& B)
 // ---------------------------------------------------------
 const std::vector<double>& BCIntegrate::GetBestFitParameters() const
 {
-    if (fBestFitParameters.empty() and !BCEngineMCMC::GetBestFitParameters().empty())
+    if (fBestFitParameters.empty() && !BCEngineMCMC::GetBestFitParameters().empty())
         return BCEngineMCMC::GetBestFitParameters();
     return fBestFitParameters;
 }
@@ -378,7 +378,7 @@ void BCIntegrate::SetBestFitParameters(const std::vector<double>& x, const doubl
 void BCIntegrate::SetBestFitParameters(const std::vector<double>& x)
 {
     fBestFitParameters = x;
-    if (fBestFitParameters.size() == GetNParameters() and GetNObservables() > 0) {
+    if (fBestFitParameters.size() == GetNParameters() && GetNObservables() > 0) {
         Eval(fBestFitParameters); // in case user uses likelihood to set values needed for observable calculation
         CalculateObservables(fBestFitParameters);
         for (unsigned i = 0; i < GetNObservables(); ++i)
@@ -1049,10 +1049,10 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
     }
 
     // calculate function at new mode
-    double fcnatmode_temp = Eval(mode_temp);
+    double fcnatmode_temp = LogEval(mode_temp);
 
     // replace previous mode
-    if (fFlagIgnorePrevOptimization or fcnatmode_temp > fLogMaximum) {
+    if (fFlagIgnorePrevOptimization || fcnatmode_temp > fLogMaximum) {
         SetBestFitParameters(mode_temp);
         fBestFitParameterErrors = errors_temp;
         fBestFitParameterErrors.resize(GetBestFitParameters().size(), std::numeric_limits<double>::infinity());
