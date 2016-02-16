@@ -43,25 +43,12 @@
 #include <TSeqCollection.h>
 #include <TStyle.h>
 #include <TTree.h>
-#if ROOTMATHMORE
-#include <Math/GSLRndmEngines.h>
-#include <Math/Random.h>
-#else
-#include <Math/QuantFuncMathCore.h>
-#endif
 
 #include <cmath>
 
 #if THREAD_PARALLELIZATION
 #include <omp.h>
 #endif
-
-namespace
-{
-#if ROOTMATHMORE
-typedef ROOT::Math::Random<ROOT::Math::GSLRngRanLuxD1> GSLRng;
-#endif
-}
 
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC(const std::string& name)
@@ -3499,22 +3486,16 @@ unsigned BCEngineMCMC::UpdateFrequency(unsigned N) const
 BCEngineMCMC::ThreadLocalStorage::ThreadLocalStorage(unsigned dim) :
     xLocal(dim, 0.0),
     rng(new TRandom3(0)),
-    rngGSL(NULL),
     yLocal(dim)
 {
-    // rngGSL initialized only if needed in SyncThreadStorage
 }
 
 // ---------------------------------------------------------
 BCEngineMCMC::ThreadLocalStorage::ThreadLocalStorage(const ThreadLocalStorage& other)    :
     xLocal(other.xLocal),
     rng(new TRandom3(*other.rng)),
-    rngGSL(NULL),
     yLocal(other.yLocal)
 {
-#if ROOTMATHMORE
-    rngGSL = other.rngGSL ? new GSLRng(*static_cast<GSLRng*>(other.rngGSL)) : NULL;
-#endif
 }
 
 // ---------------------------------------------------------
@@ -3528,16 +3509,12 @@ void BCEngineMCMC::ThreadLocalStorage::swap(BCEngineMCMC::ThreadLocalStorage& A,
 {
     std::swap(A.xLocal, B.xLocal);
     std::swap(A.rng, B.rng);
-    std::swap(A.rngGSL, B.rngGSL);
     std::swap(A.yLocal, B.yLocal);
 }
 
 // ---------------------------------------------------------
 BCEngineMCMC::ThreadLocalStorage::~ThreadLocalStorage()
 {
-#if ROOTMATHMORE
-    delete static_cast<GSLRng*>(rngGSL);
-#endif
     delete rng;
 }
 
@@ -3550,31 +3527,27 @@ double BCEngineMCMC::ThreadLocalStorage::scale(double dof)
     // then Z*sqrt(dof/V) is t-distributed with dof degrees of freedom and std deviation sigma
     if (dof <= 0)
         return 1;
-#if ROOTMATHMORE
-    const double chi2 = static_cast<GSLRng*>(rngGSL)->ChiSquare(dof);
-#else
-    // much slower than direct sampling. It's only the fallback if GSL not available
-    const double chi2 = ROOT::Math::chisquared_quantile(rng->Rndm(), dof);
-#endif
+    const double chi2 = BCMath::Random::Chi2(rng, dof);
     return sqrt(dof / chi2);
 }
 
 // ---------------------------------------------------------
 void BCEngineMCMC::SyncThreadStorage()
 {
-    if ( fMCMCNChains > fMCMCThreadLocalStorage.size() )
+    if (fMCMCNChains > fMCMCThreadLocalStorage.size())
         fRandom.Rndm();					// fix return value of GetSeed()
 
     // add storage until equal to number of chains
+    fMCMCThreadLocalStorage.reserve(fMCMCNChains);
     while (fMCMCThreadLocalStorage.size() < fMCMCNChains)
         fMCMCThreadLocalStorage.push_back(ThreadLocalStorage(GetNParameters()));
 
-    // remove storage until equal to number of chain
+    // remove storage until equal to number of chains
     while (fMCMCThreadLocalStorage.size() > fMCMCNChains)
         fMCMCThreadLocalStorage.pop_back();
 
     // update parameter size for each chain
-    for (unsigned i = 0 ; i < fMCMCThreadLocalStorage.size(); ++i) {
+    for (unsigned i = 0; i < fMCMCThreadLocalStorage.size(); ++i) {
         // need full number of parameters, this is passed into user function
         fMCMCThreadLocalStorage[i].xLocal.assign(GetNParameters(), 0.0);
         // need only free parameters, these ones are transformed by Cholesky
@@ -3583,18 +3556,6 @@ void BCEngineMCMC::SyncThreadStorage()
         // each chains gets a different seed. fRandom always returns same seed after the fixing done above
         fMCMCThreadLocalStorage[i].rng->SetSeed(fRandom.GetSeed() + i);
         fMCMCThreadLocalStorage[i].rng->Rndm();
-#if ROOTMATHMORE
-        if (fMCMCProposalFunctionDof > 0) {
-            // GSL and ROOT MersenneTwister are coded identically. To avoid getting the same numbers,
-            // we have to use a different GSLRng. Here we can't know if it is different, so let's use a different seed.
-            const unsigned seed = fRandom.GetSeed() + fMCMCNChains + i;
-            if (GSLRng* rngGSL = static_cast<GSLRng*>(fMCMCThreadLocalStorage[i].rngGSL))
-                rngGSL->SetSeed(seed);
-            else {
-                fMCMCThreadLocalStorage[i].rngGSL = new GSLRng(seed);
-            }
-        }
-#endif
     }
 }
 
