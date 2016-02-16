@@ -1279,7 +1279,7 @@ public:
      * @param n Number of samples in each batch.
      * @param correctForSamplingVariability Flag to control correcting R value for initial sampling variability.
      * @return R value for set of batches of samples. */
-    static double RValue(std::vector<double> means, std::vector<double> variances, unsigned n, bool correctForSamplingVariability = true);
+    static double RValue(const std::vector<double>& means, const std::vector<double>& variances, unsigned n, bool correctForSamplingVariability = true);
 
     /**
      * Resets all containers used in MCMC and initializes starting points. */

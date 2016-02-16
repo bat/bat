@@ -2009,7 +2009,7 @@ bool BCEngineMCMC::MetropolisPreRun()
 }
 
 // --------------------------------------------------------
-double BCEngineMCMC::RValue(std::vector<double> means, std::vector<double> variances, unsigned n, bool correctForSamplingVariability)
+double BCEngineMCMC::RValue(const std::vector<double>& means, const std::vector<double>& variances, unsigned n, bool correctForSamplingVariability)
 {
     // calculate R values according to Brooks & Gelman,
     // "General Methods for Monitoring Convergence of Iterative Simulations, 1998
@@ -2043,15 +2043,15 @@ double BCEngineMCMC::RValue(std::vector<double> means, std::vector<double> varia
     double full_variance = m * (n - 1.) / (m * n - 1) * mean_of_variances + n * (m - 1.) / (m * n - 1) * variance_of_means;
 
     if (mean_of_variances == 0) {
-        BCLog::OutDebug("BCEngineMCMC::RValue : mean of variances is zero!");
+        BCLOG_DEBUG("mean of variances is zero!");
         if (full_variance == 0) {
-            BCLog::OutDebug("BCEngineMCMC::RValue : variance of all samples is also zero!");
+            BCLOG_DEBUG("variance of all samples is also zero!");
             return 1;
         } else
             return std::numeric_limits<double>::infinity();
     }
 
-    double rvalue = sqrt( full_variance / mean_of_variances ); // variance(all samples) / mean(chain variances)
+    double rvalue = sqrt(full_variance / mean_of_variances); // variance(all samples) / mean(chain variances)
 
     if (!correctForSamplingVariability)
         return rvalue;
