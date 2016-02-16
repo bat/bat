@@ -647,11 +647,15 @@ const std::vector<double>& BCEngineMCMC::GetLocalModes(bool force_recalculation)
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::SetInitialPositions(const std::vector<double>& x0s)
+void BCEngineMCMC::SetInitialPositions(const std::vector<double>& x0)
 {
+    if (x0.size() != GetNParameters()) {
+        BCLOG_ERROR(Form("#initial positions does not match #parameters: %u vs %u", unsigned(x0.size()), GetNParameters()));
+        return;
+    }
     fMCMCInitialPosition.clear();
-    for (std::vector<double>::const_iterator it = x0s.begin(); it + GetNParameters() <= x0s.end(); it += GetNParameters())
-        fMCMCInitialPosition.push_back(std::vector<double>(it, it + GetNParameters()));
+    for (unsigned i = 0; i < GetNChains(); ++i)
+        fMCMCInitialPosition.push_back(x0);
     SetInitialPositionScheme(BCEngineMCMC::kInitUserDefined);
 }
 
@@ -2372,12 +2376,17 @@ void BCEngineMCMC::MCMCInitialize()
             // also checks that initial position vectors are correct size
             for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
                 GetParameters().ApplyFixedValues(fMCMCx[ichain]);
-                if (!GetParameters().IsWithinLimits(fMCMCx[ichain]))
+                if (!GetParameters().IsWithinLimits(fMCMCx[ichain])) {
+                    BCLog::OutDebug(Form("Initial point of chain %d", ichain));
+                    PrintParameters(fMCMCx[ichain], BCLog::OutDebug);
                     throw std::runtime_error("BCEngineMCMC::MCMCInitialize : User-defined initial point is out of bounds.");
-                else {
+                } else {
                     fMCMCprob[ichain] = LogEval(fMCMCx[ichain]);
-                    if (!std::isfinite(fMCMCprob[ichain]))
+                    if (!std::isfinite(fMCMCprob[ichain])) {
+                        BCLog::OutDebug(Form("Initial point of chain %d", ichain));
+                        PrintParameters(fMCMCx[ichain], BCLog::OutDebug);
                         throw std::runtime_error("BCEngineMCMC::MCMCInitialize : User-defined initial point yields invalid probability.");
+                    }
                 }
             }
 
