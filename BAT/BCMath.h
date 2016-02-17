@@ -181,14 +181,32 @@ double FastPValue(const std::vector<unsigned>& observed, const std::vector<doubl
 
 /** \name Random number generation */
 /** @{ */
-namespace random
+namespace Random
 {
 /**
  * Chi2 random variate.
+ *
+ * Uses Gamma() internally.
+ *
  * @param rng Random number generator.
  * @param dof Degree of freedom.
  */
 double Chi2(TRandom* rng, double dof);
+
+/**
+ * Gamma random variate.
+ *
+ * Code taken over from the GSL. The original source:
+ *
+ * Marsaglia and Tsang, "A Simple Method for
+ * generating gamma variables", ACM Transactions on Mathematical
+ * Software, Vol 26, No 3 (2000), p363-372.
+ *
+ * @param rng Random number generator.
+ * @param a Shape parameter.
+ * @param b Scale parameter.
+ */
+double Gamma(TRandom* rng, double a, double b);
 }
 /** @} */
 }

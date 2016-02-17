@@ -1279,7 +1279,7 @@ public:
      * @param n Number of samples in each batch.
      * @param correctForSamplingVariability Flag to control correcting R value for initial sampling variability.
      * @return R value for set of batches of samples. */
-    static double RValue(std::vector<double> means, std::vector<double> variances, unsigned n, bool correctForSamplingVariability = true);
+    static double RValue(const std::vector<double>& means, const std::vector<double>& variances, unsigned n, bool correctForSamplingVariability = true);
 
     /**
      * Resets all containers used in MCMC and initializes starting points. */
@@ -1416,13 +1416,6 @@ private:
         TRandom3* rng;
 
         /**
-         * GSL random number generator. It is only assigned if GSL is
-         * available via ROOT's MathMore library. This information is
-         * only available in config.h but we must never include
-         * config.h in a public header. Hence we hide the type in a `void*` */
-        void* rngGSL;
-
-        /**
          * Temp vector for matrix multiplication in multivariate proposal */
         TVectorD yLocal;
 
@@ -1453,10 +1446,7 @@ private:
          * with `dof` degrees of freedom.
          *
          * If `dof <= 0`, simply return 1 to keep the Gaussian distribution.
-         *
-         * @note Internally, we sample from the chi2 distribution through GSL if available via
-         * `MathMore`, else we use the inverse-transform method via
-         * `MathCore`. GSL is significantly faster. */
+         */
         double scale(double dof);
     };
 
