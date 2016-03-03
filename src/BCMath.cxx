@@ -382,7 +382,41 @@ double BCMath::FastPValue(const std::vector<unsigned>& observed, const std::vect
     return double(counter_pvalue) / nIterations;
 }
 
-double BCMath::random::Chi2(TRandom* rng, double dof)
+double BCMath::Random::Chi2(TRandom* rng, double dof)
 {
-    return ROOT::Math::chisquared_quantile(rng->Rndm(), dof);
+    return 2.0 * Gamma(rng, dof / 2.0, 1.0);
+}
+
+double BCMath::Random::Gamma(TRandom* rng, double a, double b)
+{
+    /* assume a > 0 */
+
+    if (a < 1) {
+        // u in ]0,1[
+        double u = rng->Uniform(1);
+        return Gamma(rng, 1.0 + a, b) * std::pow(u, 1.0 / a);
+    }
+
+    double x, v, u;
+    double d = a - 1.0 / 3.0;
+    double c = (1.0 / 3.0) / sqrt (d);
+
+    while (1) {
+        do {
+            // unit Gauss
+            x = rng->Gaus();
+            v = 1.0 + c * x;
+        } while (v <= 0);
+
+        v = v * v * v;
+        u = rng->Uniform(1);
+
+        if (u < 1 - 0.0331 * x * x * x * x)
+            break;
+
+        if (log (u) < 0.5 * x * x + d * (1 - v + log (v)))
+            break;
+    }
+
+    return b * d * v;
 }

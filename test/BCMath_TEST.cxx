@@ -8,6 +8,7 @@
 
 #include <test.h>
 #include <BAT/BCMath.h>
+#include <BAT/BCEngineMCMC.h>
 #include <cmath>
 
 using namespace test;
@@ -69,45 +70,41 @@ public:
     }
 } bcPValueTest;
 
-#if 0
-class RValueTest :
+class GammaTest :
     public TestCase
 {
 public:
-    RValueTest() :
-        TestCase("rvalue_test")
+    GammaTest() :
+        TestCase("Gamma test")
     {
     }
 
     virtual void run() const
     {
-        static const double eps = 1e-14;
-        static const bool strict = true;
-        static const bool relaxed = false;
-
-        // R-value calculation checked against implementation in EOS
+        // check mean and variance
         {
-            std::vector<double> chain_means(3);
-            chain_means[0] = 4.2;
-            chain_means[1] = 4.25;
-            chain_means[2] = 4.22;
-            std::vector<double> chain_variances(3);
-            chain_variances[0] = 0.1;
-            chain_variances[1] = 0.15;
-            chain_variances[2] = 0.19;
+            TRandom3 rng;
+            rng.SetSeed(235);
 
-            unsigned points = 500;
+            static const unsigned N = 10000;
+            static const double a = 1.5;
+            static const double b = 1.0 / 25.0;
 
-            // strict always larger than relaxed
-            TEST_CHECK_RELATIVE_ERROR(Rvalue(chain_means, chain_variances, points, relaxed), 1.0011584199407115, eps);
-            TEST_CHECK_RELATIVE_ERROR(Rvalue(chain_means, chain_variances, points, strict), 1.0176292831481546, eps);
-
-            // for more points visited, R-value increases
-            points *= 3;
-
-            TEST_CHECK_RELATIVE_ERROR(Rvalue(chain_means, chain_variances, points, relaxed), 1.0018240939164496, eps);
-            TEST_CHECK_RELATIVE_ERROR(Rvalue(chain_means, chain_variances, points, strict), 1.0183054631320092, eps);
+            // abuse stats object for one parameter, no observables, dummy probability
+            BCEngineMCMC::Statistics s(1, 0);
+            std::vector<double> x(1);
+            std::vector<double> obs;
+            for (unsigned i = 0; i < N; ++i) {
+                x.front() = BCMath::Random::Gamma(&rng, a, b);
+                s.Update(0.0, x, obs);
+            }
+            // 1st moment: O(1/sqrt(N)), 2nd moment: order of magnitude larger
+            TEST_CHECK_RELATIVE_ERROR(s.mean.front(), a * b, 1.0 / std::sqrt(N));
+            TEST_CHECK_RELATIVE_ERROR(s.variance.front(), a * b * b, 10.0 / std::sqrt(N));
         }
     }
-} rvalue_test;
-#endif
+} gammaTest;
+
+// Local Variables:
+// compile-command: "make check TESTS= && (./BCMath.TEST || cat test-suite.log)"
+// End:

@@ -121,9 +121,9 @@ void BCFitter::FillErrorBand()
     // loop over all possible x values ...
     if (fErrorBandContinuous) {
         double x = 0;
-        for (unsigned ix = 0; ix < fErrorBandNbinsX; ix++) {
+        for (unsigned ix = 1; ix <= fErrorBandNbinsX; ++ix) {
             // calculate x
-            x = fErrorBandXY.GetXaxis()->GetBinCenter(ix + 1);
+            x = fErrorBandXY.GetXaxis()->GetBinCenter(ix);
 
             // calculate y
             std::vector<double> xvec;
