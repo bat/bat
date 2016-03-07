@@ -1,5 +1,5 @@
 \documentclass[
-11pt,
+12pt,
 a4paper,
 %BCOR=10mm, % boundary correction, lost in binding
 bibliography=totoc,
@@ -21,10 +21,19 @@ twoside]{scrbook}
 \usepackage{newtxmath}
 
 \usepackage{bm,amssymb,amsfonts,amsmath}  % bold math symbols, AMStex
+
 \usepackage{booktabs}
 \usepackage[svgnames]{xcolor}
 \usepackage{graphicx}
+% trailing slash is crucial!
+\graphicspath{
+  {./}
+  {./figures/}
+}
+
 \usepackage{hyperref}
+\synctex=1 % cross correlate PDF viewer and editor
+
 \usepackage[numbers,sort&compress]{natbib}
 \usepackage{parskip}
 \usepackage[colorinlistoftodos]{todonotes} % Use 'disable' to remove todos in final version
@@ -40,7 +49,8 @@ twoside]{scrbook}
 
 \newcommand{\dan}[1]{{\todo[color=red]{Dan: #1}}}
 \newcommand{\fred}[1]{{\todo[color=orange]{Fred: #1}}}
-\newcommand{\inbat}[1]{{\todo[color=Salmon,inline]{#1}}}
+\newcommand{\inbat}[1]{{\todo[color=Salmon!40,inline]{#1}}}
+\newcommand{\batnote}[1]{{\todo[color=Salmon!40,noline]{#1}}}
 
 % references to ...
 \def \refchap#1{Chapter~\ref{cha:#1}}
@@ -247,7 +257,7 @@ use $P(A)$ also to denote the \emph{probability density} of $A$.  The
 
 The two central tasks of the natural sciences are to learn about
 nature from data and to make predictions for (future) experiments. A
-\emph{model} $M$ is a proxy for all discrete pieces of information relevant
+re\emph{model} $M$ is a proxy for all discrete pieces of information relevant
 to calculating the degree of belief. The model can contain \emph{parameters}
 $\vecth$ that can take on values in a continuum, perhaps subject to
 constraints as for example $\scath_1 \geq 0$. Bayesian reasoning
@@ -297,7 +307,7 @@ remove the dependence on $\scath_2$ by integration
 \subsection{Model comparison} \label{sec:model-comparison}
 
 If there is only a single model under consideration, and no potential for
-confusion, the model label $M$ is implied and usually omitted from the
+cconfusion, the model label $M$ is implied and usually omitted from the
 equations. But suppose that there are two competing models, $M_1, M_2$, with
 parameters $\scath_{1,2}$, that quantitatively predict the outcome $D$ of an
 experiment. The task is to find the model with the higher degree of
@@ -363,23 +373,150 @@ model with
 bool AddParameter(const std::string& name, double min, double max, const std::string& latexname = "", const std::string& unitstring = "")
 \end{cxxcode}
 The optional \cxxin{latexname} and \cxxin{unitstring} are used only
-for labeling plot axes; it's intended usage is to pretty up plots for
-a parameter \cxxin{theta} representing a time measured in
-seconds. Note that the plots are created with \Root, so the
-\cxxin{latexname} has to be in \Root{} syntax which is mostly \LaTeX{}
-syntax with ``\textbackslash" $\to$ ``\#''.
+for labeling plot axes; it's intended usage is to pretty up plots. For
+example, a parameter \cxxin{theta} representing a time measured in
+seconds is defined as
 \begin{cxxcode}
-AddParameter("theta", 0, 1, "#theta", "s")
+AddParameter("theta", 0, 1, "#theta", "s");
 \end{cxxcode}
+and whenever \cxxin{theta} appears on the x axis of a plot, it will
+appears as ``$\theta$ [s]''. Note that the plots are created with \Root,
+so the \cxxin{latexname} has to be in \Root{} syntax which is mostly
+ \LaTeX{} syntax with ``\textbackslash" $\to$ ``\#''.
 
+\chapter{Markov chain Monte Carlo} \label{sec:MCMC}
 
-\chapter{Markov Chain Monte Carlo} \label{sec:MCMC}
 \fred{workhorse of BAT. mention Metropolis algorithm, role of proposal function, different choices in bat, why it has to be adapted in prerun. What else happens in prerun:R value and convergence checking. Mention that samples are correlated, chains can get stuck if model wrong/poor.}
 
-\section{Foundations}
+\section{Motivation}\label{sec:mcmc-motivation}
+
+The reason that \bat{} exists is that nearly any Bayesian analysis
+these days is too complicated to be handled analytically. To address
+typical questions like
+\begin{enumerate}
+  \item What is known about a single parameter taking into account
+  the uncertainty on all other parameters?
+  \item How are parameters correlated?
+\end{enumerate}
+one needs to be able to compute and visualize 1D and 2D \emph{marginal distributions}; cf. \refsec{marginalization}. These are defined as integrals over the posterior; for  example in 2D
+\begin{align}
+  \label{eq:mcmc-marginal}
+  P(\theta_1, \theta_2 \cond D) = \int \prod_{i \ne 1,2} \rmdx{\theta_i} P(\vecth \cond D).
+\end{align}
+When the number of parameters grows, the only feasible algorithms to
+perform the integration are Monte Carlo methods; i.e., methods based
+on random numbers.
+
+The key ingredient in \bat{} is an implementation of the Metropolis
+algorithm to create a Markov chain; i.e. a sequence of (correlated)
+samples from the posterior. We use the shorthand MCMC for Markov chain
+Monte Carlo.
+
+\section{Foundations}\label{sec:mcmc-foundations}
+
+Efficient MCMC algorithms are the topic of past and current
+research. This section is a concise overview of the general idea and
+the algorithms available in \bat. For a broader overview, we refer the
+reader to the abundant literature; e.g., \fred{Robert+Casella, MCMC
+  handbook}.
+
+In \bat{}, there are several variants of the random-walk Metropolis Hastings algorithm available. The basic idea is captured in the 2D example shown in \reffig{random-walk-idealized}. Given an initial point $x_0$, the Metropolis algorithm produces a sample in each iteration $t=1 \dots$ as follows:
+
+\begin{enumerate}
+  \item Propose a new point $y$
+  \item Generate a number u from the uniform distribution on [0,1]
+  \item Set $x_{t} = y$ if $ u < \frac{P(y \cond D)}{P(x_{t-1} \cond D)}$
+  \item Else stay, $x_t = x_{t-1}$
+\end{enumerate}
+
+\begin{figure}[ht]
+  \centering
+  % \includegraphics[width=0.8\textwidth]{random-walk}
+  \Large
+  \def\svgwidth{1\columnwidth}
+  \input{figures/random-walk.pdf_tex}
+  \caption{2D random walk. The chain begins in the lower left
+    corner. Rejected moves are indicated by the dashed arrow, accepted
+    moves are indicated by the solid arrow. The circled number is the
+    number of iterations the chain stays at a given point $\vecth = (\theta_1, \theta_2)$.}
+  \label{fig:random-walk-idealized}
+\end{figure}
+
+\section{Convergence}\label{sec:convergence}
+\fred{mixing, burn in, R value, multimodal problems}
 
 \section{Implementation in BAT}
 
+Implementing the Metropolis algorithm, one has to decide on how to
+propose a new point based on the current point. For a random walk,
+this is given by the \emph{proposal distribution} $q(y \cond x)$. The
+main difference between MCMC algorithms is typically given by
+different choices of $q$. The Metropolis algorithm doesn't specify
+ which $q$ to choose, so we can tune it according to our needs.
+
+In \bat{}, the proposal is \emph{symmetric} around the current point
+\begin{align}
+  q(y \cond x) = q(x \cond y).
+\end{align}
+
+There are two stages
+
+
+\fred{Overall scheme: prerun and main run, adaptation in the prerun}
+
+We offer two variants termed \emph{factorized} and \emph{multivariate}.
+
+\subsection{Factorized proposal}\label{sec:factorized}
+
+\inbat{Factorized was the default and only choice prior to v1.0 and continues to be available.}
+
+\fred{how to activate it}
+
+The factorized proposal in $d$ dimensions is a product of 1D
+proposals. We sequentially vary one parameter at a time and complete
+one iteration of the chain once a new point has been proposed in every
+direction. This means the chain attempts to perform a sequence of
+axis-aligned moves in one iteration.
+
+\fred{Easiest to understand would be pseudocode}
+
+Each 1D proposal is a Cauchy or Breit-Wigner function centered on the
+current point. The scale parameter is adapted in the prerun to achieve
+an acceptance rate in a given range that can be adjusted by the
+user. Note that there is a separate scale parameter in every dimension.
+
+This means the posterior is called $d$ times in every iteration. Since
+the acceptance rate\fred{to define before} is typically different from
+zero or one, the factorized proposal typically generates a new point
+in every iteration that differs from the previous point in some but
+not all dimensions.
+
+\subsection{Multivariate proposal}\label{sec:multivariate}
+
+\batnote{New in v1.0} Changing all $d$ parameters at once within one
+iteration is an all-or-nothing approach. If the proposed move is
+accepted, all parameters have changed for the price of a single
+evaluation of the posterior. If the move is rejected, the new point is
+identical to the old point and the chain does not explore the
+parameter space.
+
+We implement the adaptive algorithm by~\cite{Haario:2001}. In brief,
+the proposal is a multivariate Gaussian or Student's t distribution
+whose covariance is learned from the covariance of samples in the
+prerun. An overall scale factor is tuned to force the acceptance rate
+into a certain range.
+
+\fred{Pseudocode}
+
+\subsection{Comparison}\label{sec:proposal-comparison}
+
+Comparing the factorized propoasal to the multivariate proposal, we
+generally recommend the multivariate for most purposes. B
+
+Use the factorized proposal if you can speed up the computation of the
+posterior if you know that some parameters did not change. This can be
+useful if the computation is expensive from some but not all
+parameters.
 
 \chapter{Non-MCMC parts of BAT}
 
@@ -420,6 +557,9 @@ AddParameter("theta", 0, 1, "#theta", "s")
 \chapter{Sharing / Loading samples}
 \dan{describe that files can be checked during prerun if \#136 is merged}
 
+\chapter{Uncertainty propagation} \label{cha:uncert-prop}
+\fred{How to compute BCObservables, example in ratio model. Plotting of BCObservables, example: 1 parameter changing, evaluate function at 20 points}
+
 \chapter{Performance / Threading / User's attention to thread-safety}
 
 \fred{tips taken over from old manual and expanded. Some advice when it can provide speed up, clearly state that only the MCMC is with threads but synchronization is a bottle neck for fast posteriors}
@@ -443,11 +583,15 @@ AddParameter("theta", 0, 1, "#theta", "s")
 
 \chapter{Tuning MCMC}
 
+\fred{
+ scales dimish to zero, chains stuck: error in the model, parameter ranges inappropriate
+}
+
 \bibliographystyle{plain}
 \bibliography{references.bib}
 
 \end{document}
 
 % Local Variables:
-% compile-command:"rubber --pdf -W refs -W misc new-intro"
+% compile-command:"rubber --pdf -W refs -W misc manual"
 % End:
