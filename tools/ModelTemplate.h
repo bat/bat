@@ -28,10 +28,13 @@ public:
     ~((MODEL))();
 
     // Overload LogLikelihood to implement model
-    double LogLikelihood(const std::vector<double>& parameters);
+    double LogLikelihood(const std::vector<double>& pars);
 
     // Overload LogAprioriProbability if not using built-in 1D priors
-    // double LogAPrioriProbability(const std::vector<double> & parameters);
+    // double LogAPrioriProbability(const std::vector<double> & pars);
+
+    // Overload CalculateObservables if using observables
+    // void CalculateObservables(const std::vector<double> & pars);
 
 };
 // ---------------------------------------------------------

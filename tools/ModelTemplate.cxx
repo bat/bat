@@ -6,16 +6,20 @@
 
 #include "((MODEL)).h"
 
-#include <BAT/BCMath.h>
+// #include <BAT/BCMath.h>
 
 // ---------------------------------------------------------
 ((MODEL))::((MODEL))(const std::string& name)
     : BCModel(name)
 {
-    // Define parameters here in the constructor. For example:
-    // AddParameter("mu",-2,1,"#mu");
-    // And set priors, if using built-in priors. For example:
-    // GetParamater("mu").SetPrior(new BCPriorGaus(-1, 0.25));
+    // Define parameters here in the constructor.
+    // Also define their priors, if using built-in priors.
+    // For example:
+    // AddParameter("mu", -2, 1, "#mu", "[GeV]");
+    // GetParameter("mu").SetPrior(new BCPriorGaus(-1, 0.25));
+
+    // Define observables here, too. For example:
+    // AddObservable("mu_squared", 1, 4, "#mu^{2}", "[GeV^{2}]");
 }
 
 // ---------------------------------------------------------
@@ -25,17 +29,25 @@
 }
 
 // ---------------------------------------------------------
-double ((MODEL))::LogLikelihood(const std::vector<double>& parameters)
+double ((MODEL))::LogLikelihood(const std::vector<double>& pars)
 {
-    // This returns the log of the conditional probability p(data|pars)
+    // return the log of the conditional probability p(data|pars).
     // This is where you define your model.
-    // BCMath contains many functions you will find helpful
+    // BCMath contains many functions you will find helpful.
 
-    return -1;
+    return 0;
 }
 
 // ---------------------------------------------------------
-// double ((MODEL))::LogAPrioriProbability(const std::vector<double> & parameters) {
-// This returns the log of the prior probability for the parameters
-// If you use built-in 1D priors, don't uncomment this function.
+// double ((MODEL))::LogAPrioriProbability(const std::vector<double>& pars)
+// {
+//     // return the log of the prior probability p(pars)
+//     // If you use built-in priors, leave this function commented out.
+// }
+
+// ---------------------------------------------------------
+// double ((MODEL))::CalculateObservables(const std::vector<double>& pars)
+// {
+//     // Calculate and store obvserables. For example:
+//     GetObservable(0) = pow(pars[0], 2);
 // }
