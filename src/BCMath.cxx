@@ -55,8 +55,13 @@ double BCMath::LogPoisson(double x, double lambda)
     if (x < 0)
         return -std::numeric_limits<double>::infinity();
 
-    if (lambda <= 0) {
-        BCLog::OutWarning("BCMath::LogPoisson : expectation value (lambda) cannot be negative!");
+    if (lambda == 0) {
+        BCLog::OutWarning("BCMath::LogPoisson : expectation value (lambda) cannot be zero.");
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    if (lambda < 0) {
+        BCLog::OutWarning("BCMath::LogPoisson : expectation value (lambda) cannot be negative.");
         return std::numeric_limits<double>::quiet_NaN();
     }
 
