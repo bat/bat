@@ -1,0 +1,68 @@
+%% Creator: Inkscape inkscape 0.48.5, www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'random-walk.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{1604.57141113bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.99259263)%
+    \put(0,0){\includegraphics[width=\unitlength]{random-walk.pdf}}%
+    \put(0.31205468,0.27915738){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.04651006\unitlength}\raggedright 3\end{minipage}}}%
+    \put(0.33997491,0.57531123){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.04651006\unitlength}\raggedright 3\end{minipage}}}%
+    \put(0.44966152,0.48457049){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.04651006\unitlength}\raggedright 1\end{minipage}}}%
+    \put(0.54937662,0.53442804){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.04651006\unitlength}\raggedright 1\end{minipage}}}%
+    \put(0.49652762,0.40380126){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.04651006\unitlength}\raggedright 1\end{minipage}}}%
+    \put(0.44168431,0.31505482){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.04651006\unitlength}\raggedright 1\end{minipage}}}%
+    \put(0.66903474,0.41377277){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.04651006\unitlength}\raggedright 1\end{minipage}}}%
+    \put(0.59125697,0.31505482){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.04651006\unitlength}\raggedright 2\end{minipage}}}%
+    \put(0.67102905,0.53442804){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.04651006\unitlength}\raggedright 2\end{minipage}}}%
+    \put(0.48157035,0.61420012){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.04651006\unitlength}\raggedright 2\end{minipage}}}%
+    \put(0.70448035,0.94026314){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.1751244\unitlength}\raggedright $P(\theta_1|D)$\end{minipage}}}%
+    \put(0.91176914,0.35614809){\color[rgb]{0,0,0}\rotatebox{-90}{\makebox(0,0)[lt]{\begin{minipage}{0.03555156\unitlength}\raggedright $P(\theta_2|D)$\end{minipage}}}}%
+    \put(0.46516413,0.07274176){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.11455503\unitlength}\raggedright $\theta_1$\end{minipage}}}%
+    \put(0.08749342,0.59268711){\color[rgb]{0,0,0}\rotatebox{90}{\makebox(0,0)[lt]{\begin{minipage}{0.03686828\unitlength}\raggedright $\theta_2$\end{minipage}}}}%
+  \end{picture}%
+\endgroup%
