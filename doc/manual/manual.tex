@@ -50,7 +50,7 @@ twoside]{scrbook}
 \newcommand{\dan}[1]{{\todo[color=red]{Dan: #1}}}
 \newcommand{\fred}[1]{{\todo[color=orange]{Fred: #1}}}
 \newcommand{\inbat}[1]{{\todo[color=Salmon!40,inline]{#1}}}
-\newcommand{\batnote}[1]{{\todo[color=Salmon!40,noline]{#1}}}
+\renewcommand{\abstract}[1]{{\todo[color=Grey!40,inline]{#1}}}
 
 % references to ...
 \def \refchap#1{Chapter~\ref{cha:#1}}
@@ -472,8 +472,10 @@ We offer two variants termed \emph{factorized} and \emph{multivariate}.
 
 \fred{how to activate it}
 
-The factorized proposal in $d$ dimensions is a product of 1D
-proposals. We sequentially vary one parameter at a time and complete
+\abstract{The factorized proposal in $d$ dimensions is a product of 1D
+  proposals.}
+
+We sequentially vary one parameter at a time and complete
 one iteration of the chain once a new point has been proposed in every
 direction. This means the chain attempts to perform a sequence of
 axis-aligned moves in one iteration.
