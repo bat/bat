@@ -11,6 +11,8 @@
 #include "BCParameterSet.h"
 #include "BCLog.h"
 
+#include <Math/Util.h>
+
 // ---------------------------------------------------------
 BCParameterSet::BCParameterSet()
     : BCVariableSet<BCParameter>()
@@ -53,7 +55,10 @@ void BCParameterSet::SetPriorConstantAll()
 double BCParameterSet::GetLogPrior(const std::vector<double>& parameters) const
 {
     if (parameters.size() < fVars.size()) {
-        BCLog::OutError("BCParameterSet::GetLogPrior : incorrect size of parameter set provided.");
+        std::string msg("incorrect size of parameter set provided. Expected ");
+        msg += ROOT::Math::Util::ToString(fVars.size()) + ", got ";
+        msg += ROOT::Math::Util::ToString(parameters.size());
+        BCLOG_ERROR(msg);
         return -std::numeric_limits<double>::infinity();
     }
     double logprob = 0;
