@@ -58,14 +58,15 @@ public:
     // 2) count stored distributions
     // 3) marginal mean and variance should be right
     // 4) fixed parameters require less likelihood calls
-    void fixing() const
+    void fixing(bool multivariate) const
     {
-        GaussModel m("Fix", 4);
+        GaussModel m("fix first", 4);
         m.SetPrecision(BCEngineMCMC::kMedium);
         m.SetNIterationsRun(30000);
         m.SetNIterationsPreRunMax(6000);
         m.SetNIterationsPreRunMin(6000);
         m.SetRandomSeed(235);
+        m.SetProposeMultivariate(multivariate);
 
         static const double eps = 5e-2;
 
@@ -74,30 +75,32 @@ public:
         m.GetParameter(fixed).Fix(0.);
         count_marginals(m, fixed);
 
-        // gaussian around zero with width two
-        TEST_CHECK_NEARLY_EQUAL(0, m.GetMarginalizedHistogram(2)->GetMean(), eps);
-        TEST_CHECK_RELATIVE_ERROR(2, m.GetMarginalizedHistogram(2)->GetRMS(), eps);
+        // gaussian with mean and sigma
+        TEST_CHECK_NEARLY_EQUAL(m.GetMarginalizedHistogram(2)->GetMean(), m.mean(), eps);
+        TEST_CHECK_RELATIVE_ERROR(m.GetMarginalizedHistogram(2)->GetRMS(), m.sigma(), eps);
 
         // make sure that fixed parameters really are skipped
         const unsigned long nCalls = m.Calls();
 
         /* so run again without fixing */
+        m.SetName("all free");
         m.GetParameter(0).Unfix();
+        TEST_CHECK_EQUAL(m.GetNFreeParameters(), 4);
         m.MarginalizeAll();
 
-        // should be extra 33% calls
-        const unsigned long unfixedCalls = m.Calls() - nCalls;
-
-        TEST_CHECK_RELATIVE_ERROR(double(nCalls) / unfixedCalls, 0.75, 1e-2);
-
+        if (!multivariate) {
+            // should be extra 33% calls unless multivariate
+            TEST_CHECK_RELATIVE_ERROR(double(nCalls) / (m.Calls() - nCalls), 0.75, 1e-2);
+        }
         /* then fix last parameter */
+        m.SetName("fix last");
         fixed = 3;
         m.GetParameter(fixed).Fix(0.23);
         count_marginals(m, fixed);
 
         // gaussian around zero with width two
-        TEST_CHECK_NEARLY_EQUAL(0, m.GetMarginalizedHistogram(0u)->GetMean(), eps);
-        TEST_CHECK_RELATIVE_ERROR(2, m.GetMarginalizedHistogram(0u)->GetRMS(), eps);
+        TEST_CHECK_NEARLY_EQUAL(m.GetMarginalizedHistogram(0u)->GetMean(), m.mean(), eps);
+        TEST_CHECK_RELATIVE_ERROR(m.GetMarginalizedHistogram(0u)->GetRMS(), m.sigma(), eps);
     }
 
     void deltaPrior() const
@@ -127,11 +130,15 @@ public:
 
     virtual void run() const
     {
-#if 0
         storing();
-        fixing();
+        fixing(true);
+        fixing(false);
         deltaPrior();
-#endif
         copy();
     }
 } bcmodel_test;
+
+
+// Local Variables:
+// compile-command: "make -C ../ && make BCModel.TEST && ./BCModel.TEST"
+// End:
