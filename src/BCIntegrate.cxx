@@ -655,7 +655,6 @@ bool BCIntegrate::CheckMarginalizationIndices(TH1* hist, const std::vector<unsig
 // ---------------------------------------------------------
 int BCIntegrate::MarginalizeAll()
 {
-
     // check if parameters are defined
     if (GetNParameters() < 1) {
         BCLog::OutError("BCIntegrate::MarginalizeAll : No parameters defined. Aborting.");
