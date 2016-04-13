@@ -29,8 +29,11 @@ int main()
     //////////////////////////////
     // perform your analysis here
 
-    // Normalize the posterior by integrating it over the full par. space
+    // Normalize the posterior by integrating it over the full parameter space
     // m.Normalize();
+
+    // Write Markov Chain to a ROOT file as a TTree
+    // m.WriteMarkovChain(m.GetSafeName() + "_mcmc.root", "RECREATE");
 
     // run MCMC, marginalizing posterior
     m.MarginalizeAll(BCIntegrate::kMargMetropolis);

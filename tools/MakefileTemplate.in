@@ -14,13 +14,13 @@
 #
 ###################################################################
 
-# List of all class (models) sources used in the program
-# Add classes to the end. Backslash indicates continuation
+# List of all class (model) sources used in the program,
+# separated by spaces. A backslash indicates continuation
 # on the next line
 CXXSRCS = ((MODEL)).cxx
 
-# List of all program sources used in the program
-# Add classes to the end. Backslash indicates continuation
+# List of all program sources used in the program,
+# separated by spaces. A backslash indicates continuation
 # on the next line
 PRGSRCS = run((PROJECT)).cxx
 
