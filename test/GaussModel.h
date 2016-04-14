@@ -34,6 +34,8 @@ public:
         return 1;
     }
 
+    double evidence() const;
+
     void MCMCCurrentPointInterface(const std::vector<double>& /*p*/, int /*c*/, bool /*accepted*/);
 
 private:

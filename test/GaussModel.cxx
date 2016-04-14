@@ -63,3 +63,16 @@ double GaussModel::LogLikelihood(const std::vector<double>& parameters)
 
     return logprob;
 }
+
+double GaussModel::evidence() const
+{
+    // integrate over normalized Gaussian likelihood
+    // evidence = 1 / parameter volume * \prod_i N(mu | fixed_i)
+    double evidence = 1;
+    for (unsigned i = 0 ; i < GetNParameters() ; ++i)
+        if (GetParameter(i).Fixed())
+            evidence *= exp(BCMath::LogGaus(GetParameter(i).GetFixedValue(), mean(), sigma(), true));
+        else
+            evidence /= GetParameter(i).GetRangeWidth();
+    return evidence;
+}

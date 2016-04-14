@@ -23,7 +23,7 @@ class BCIntegrateTest :
 public:
 
     struct Precision {
-        double monteCarlo, vegas, suave, divonne, cuhre, cubaDefault;
+        double monteCarlo, grid, vegas, suave, divonne, cuhre, cubaDefault;
 
         // Turn off checks by default
         Precision(double value = -1)
@@ -33,7 +33,7 @@ public:
 
         void Set(double value)
         {
-            monteCarlo = vegas = suave = divonne = cuhre = cubaDefault = value;
+            monteCarlo = grid = vegas = suave = divonne = cuhre = cubaDefault = value;
         }
 
     };
@@ -87,6 +87,10 @@ public:
 
         if (p.monteCarlo > 0)
             IntegrateBat(m, BCIntegrate::kIntMonteCarlo, p.monteCarlo);
+        if (p.grid > 0)
+            IntegrateBat(m, BCIntegrate::kIntGrid, p.grid);
+
+        // don't use Laplace: most test functions don't resemble a Gaussian
 #if HAVE_CUBA_H
         if (p.vegas > 0)
             IntegrateCuba(m, BCIntegrate::kCubaVegas, p.vegas);
@@ -212,14 +216,7 @@ public:
             }
         }
 
-        // integrate over normalized Gaussian likelihood
-        // evidence = 1 / parameter volume * N(mu | \theta_3)
-        double evidence = 1;
-        for (unsigned i = 0 ; i < m.GetNParameters() ; ++i)
-            if (m.GetParameter(i).Fixed())
-                evidence *= exp(BCMath::LogGaus(m.GetParameter(i).GetFixedValue(), m.mean(), m.sigma(), true));
-            else
-                evidence /= m.GetParameter(i).GetRangeWidth();
+        const double evidence = m.evidence();
 
         // Ask for higher precision than what we compare to. The error
         // is of a stochastic nature, and if we could interpret it as
@@ -227,6 +224,8 @@ public:
         // is outside the quoted interval.
         static const double eps = 5e-2;
         m.SetAbsolutePrecision(1e-12);
+
+        TEST_CHECK_RELATIVE_ERROR(m.Integrate(BCIntegrate::kIntLaplace), evidence, eps);
 
         // sample mean needs huge number of evaluations
         m.SetNIterationsMax(3e6);
@@ -280,10 +279,11 @@ public:
         {
             Precision p;
             p.monteCarlo = 1e-2;
+            p.grid = 1e-2;
             p.vegas = 2e-2;
             p.suave = 1e-2;
-            p.divonne = 2; // fails in 1D
-            p.cuhre = 2; // fails in 1D
+            p.divonne = -1; // fails in 1D
+            p.cuhre = -1; // fails in 1D
             IntegrateAllMethods(1, 1, 1, p);
         }
 
@@ -295,6 +295,7 @@ public:
 
         {
             Precision p(5e-3);
+            p.grid = -1; // not available in 5D
             p.suave = -1;
             IntegrateAllMethods(5, 1, 1, p);
         }
@@ -302,7 +303,15 @@ public:
         // tough case: low precision required
         {
             Precision p(0.1);
+            p.grid = -1; // not available in 5D
             IntegrateAllMethods(5, 8, 4, p);
+        }
+
+        // run Laplace without running minuit before
+        {
+            GaussModel m("Gauss Laplace", 3);
+
+            TEST_CHECK_RELATIVE_ERROR(m.Integrate(BCIntegrate::kIntLaplace), m.evidence(), 5e-8);
         }
     }
 

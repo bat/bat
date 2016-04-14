@@ -10,12 +10,13 @@
 #include <config.h>
 
 #include "BCIntegrate.h"
+#include "BCH1D.h"
+#include "BCH2D.h"
 #include "BCLog.h"
 #include "BCMath.h"
 #include "BCParameter.h"
-#include "BCH2D.h"
-#include "BCH1D.h"
 
+#include <TDecompChol.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TH3.h>
@@ -113,7 +114,6 @@ void Wrapper::Init(const std::vector<double>& start, int printlevel)
         if (!success) {
             BCLOG_ERROR(std::string("Can't add parameter ") + ToString(i) + std::string(" to minuit"));
         }
-        BCLog::OutDebug(p.GetName());
         if (p.Fixed() && !(min.SetVariableValue(i, p.GetFixedValue()) && min.FixVariable(i)))  {
             BCLOG_ERROR(std::string("Cannot fix parameter ") + ToString(i) + " in minuit");
         }
@@ -332,13 +332,11 @@ double BCIntegrate::Integrate()
 
     switch (fIntegrationMethodCurrent) {
 
-        // Empty
         case BCIntegrate::kIntEmpty: {
             BCLog::OutWarning("BCIntegrate::Integrate : No integration method chosen.");
             return 0;
         }
 
-        // Monte Carlo Integration
         case BCIntegrate::kIntMonteCarlo: {
             std::vector<double> sums (2, 0.0);
             sums.push_back(GetParameters().Volume());
@@ -355,7 +353,6 @@ double BCIntegrate::Integrate()
             return fIntegral;
         }
 
-        // CUBA library
         case BCIntegrate::kIntCuba:
             fIntegral = IntegrateCuba();
 
@@ -365,7 +362,6 @@ double BCIntegrate::Integrate()
             // return integral
             return fIntegral;
 
-        // CUBA library
         case BCIntegrate::kIntGrid:
             fIntegral = IntegrateSlice();
 
@@ -375,7 +371,11 @@ double BCIntegrate::Integrate()
             // return integral
             return fIntegral;
 
-        // default
+        case BCIntegrate::kIntLaplace:
+            fIntegral = IntegrateLaplace();
+            fIntegrationMethodUsed = BCIntegrate::kIntLaplace;
+            return fIntegral;
+
         case BCIntegrate::kIntDefault: {
 #ifdef HAVE_CUBA_H
             SetIntegrationMethod(BCIntegrate::kIntCuba);
@@ -1865,8 +1865,8 @@ double BCIntegrate::IntegrateSlice()
     double log_max_val = -std::numeric_limits<double>::infinity();
 
     // get slice, without normalizing
-    TH1* h = GetSlice(indices, nIterations, log_max_val, fixpoint, 0, false);
-    integral = h->Integral("width") * exp(log_max_val);
+    if (TH1* h = GetSlice(indices, nIterations, log_max_val, fixpoint, 0, false))
+        integral = h->Integral("width") * exp(log_max_val);
 
     // print to log
     LogOutputAtEndOfIntegration(integral, absprecision, relprecision, nIterations);
@@ -1874,6 +1874,94 @@ double BCIntegrate::IntegrateSlice()
     return integral;
 }
 
+// ---------------------------------------------------------
+double BCIntegrate::IntegrateLaplace()
+{
+    TMinuitMinimizer& min = fMinimizer.min;
+    const unsigned nprevious_calls = min.NCalls();
+    if (min.CovMatrixStatus() == 0) {
+        BCLog::OutWarning("Laplace requires a successful run of minuit. Rerun with default starting point");
+        FindMode(BCIntegrate::kOptMinuit);
+    }
+
+    int status = min.CovMatrixStatus();
+    switch (status) {
+        case 1:
+            BCLog::OutWarning("Covariance only approximated");
+            break;
+        case 2:
+            BCLog::OutWarning("Covariance made positive definite");
+            break;
+        case 3:
+            BCLog::OutDetail("Covariance accurate");
+            break;
+        case 0:
+        default:
+            BCLog::OutError("Cannot perform Laplace approximation without minuit's covariance. Return -1");
+            return -1;
+    }
+    if (status < 3) {
+        BCLog::OutDetail("Rerunning Hesse");
+        min.Hesse();
+    }
+
+    // get point at which minuit evaluates the covariance
+    std::vector<double> newpar(min.X(), min.X() + GetNParameters());
+
+    /* Compute log of determinant of symmetric matrix from Cholesky decomp.
+     * stay on log scale to avoid overflows. */
+
+    // any fixed parameter reduces the rank of the covariance
+    // ignore those zero rows/columns to compute the determinant
+    unsigned nfree = GetNFreeParameters();
+
+    TMatrixDSym cov(nfree);
+    unsigned I = -1;
+    for (unsigned i = 0; i < GetNParameters(); ++i) {
+        if (GetParameter(i).Fixed())
+            continue;
+        ++I;
+        cov(I, I) = min.CovMatrix(i, i);
+
+        // reset counter for off diagonal elements
+        unsigned J = I;
+        for (unsigned j = i + 1; j < GetNParameters(); ++j) {
+            if (GetParameter(j).Fixed())
+                continue;
+            ++J;
+            cov(I, J) = min.CovMatrix(i, j);
+            cov(J, I) = cov(I, J);
+
+        }
+    }
+
+    TDecompChol CholeskyDecomposer;
+    CholeskyDecomposer.SetMatrix(cov);
+
+    if (!CholeskyDecomposer.Decompose()) {
+        BCLog::OutError("Cholesky decomposition of covariance failed. Return -1");
+        return -1;
+    }
+
+    // upper triagonal matrix is the result of decomposition
+    const TMatrixD& U = CholeskyDecomposer.GetU();
+
+    // determinant is just the product of diagonal elements
+    double logDet = 0;
+    for (unsigned I = 0; I < nfree; ++I)
+        logDet += std::log(U(I, I));
+
+    // Laplace approx. = function value over normalization constant of Gaussian
+    double logIntegral = LogEval(newpar) + 0.5 * nfree * std::log(2 * M_PI) + logDet;
+    double result = std::exp(logIntegral);
+    fError = -1;
+
+    BCLog::OutSummary(Form("Laplace approximation on the log scale = %g", logIntegral));
+
+    LogOutputAtEndOfIntegration(result, fError, fError, min.NCalls() + 1 - nprevious_calls);
+
+    return result;
+}
 
 // ---------------------------------------------------------
 std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod type) const
@@ -1887,6 +1975,8 @@ std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod 
             return "Cuba";
         case BCIntegrate::kIntGrid:
             return "Grid";
+        case BCIntegrate::kIntLaplace:
+            return "Laplace";
         default:
             return "Undefined";
     }

@@ -141,6 +141,7 @@ public:
         kIntMonteCarlo,                           ///< Sample mean method
         kIntCuba,                                 ///< Use CUBA interface
         kIntGrid,                                 ///< Integration by gridding of parameter space
+        kIntLaplace,                              ///< Laplace approximation
         kIntDefault,                              ///< Default
         NIntMethods                               ///< number of available integration methods
     };
@@ -966,6 +967,15 @@ private:
      * Integrate using the slice method
      * @return the integral; */
     double IntegrateSlice();
+
+    /**
+     * Integrate using the Laplace approximation.
+     *
+     * Take the result of a previous successful minuit run to estimate
+     * the covariance matrix. Else it runs minuit (again).
+     *
+     * @return the integral; */
+    double IntegrateLaplace();
 
     /**
      * Current mode finding method */
