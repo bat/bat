@@ -554,8 +554,91 @@ parameters.
 \fred{can work on same data set but not required}
 
 
-\chapter{Defining your own factorized prior}
-\dan
+\chapter{Defining a factorized prior}
+
+If a model does not overload \code{BCModel::LogAPrioriProbability},
+then its prior is the product of the individual priors for each of its
+parameters. We call these the factorized priors. To set a parameter's
+prior call
+\begin{cxxcode}
+BCParameter::SetPrior(BCPrior* const prior);
+\end{cxxcode}
+You can call factorized priors within your overloaded
+\code{LogAPrioriProbability} by querying the log of the prior of a
+particular parameter with
+\begin{cxxcode}
+BCParameter::GetLogPrior(double x) const;
+\end{cxxcode}
+
+The prior you set for a parameter need only inherit from
+\code{BCPrior}. BAT has several built in prior classes, such as
+\code{BCConstantPrior} and \code{BCGaussianPrior}.  You can implement
+new factorized priors by inheriting from the \code{BCPrior} class. To
+illustrate how to do this, we will work through the construction of
+the Gaussian prior:
+\begin{cxxcode}
+class BCGaussianPrior : public BCPrior
+\end{cxxcode}
+\code{BCPrior} is a pure-virtual class with three methods that must be overloaded:
+\begin{cxxcode}
+double GetLogPrior(double x);
+BCPrior* clone() const;
+bool IsValid() const;
+\end{cxxcode}
+The first one contains the meat of our new prior:
+\begin{cxxcode}
+double GetLogPrior(double x)
+{
+  return -0.5 * (x - fMean) * (x - fMean) / fSigma / fSigma - log(fSigma) - 0.5 * log(2 * M_PI);
+}
+\end{cxxcode}
+This is, naturally, the log of a Guassian prior. The second one should
+simply return a copy of the prior:
+\begin{cxxcode}
+BCPrior* clone() const
+{
+  return new BCGaussianPrior(*this);
+}
+\end{cxxcode}
+The last function is required for checking that everything that is
+needed by the prior is properly set. You'll notice that our example
+calls on two member variables in its \code{GetLogPrior}: \code{fMean}
+and \code{fSigma}. So we must check whether they have been properly set:
+\begin{cxxcode}
+bool IsValid() const
+{
+  return std::isfinite(fMean) and std::isfinite(fSigma) and fSigma > 0;
+}
+\end{cxxcode}
+This checks that the mean and standard deviation are both finite and
+that the standard deviation is positive semi-definite, as it need be.
+
+Naturally to be of use, we also create a constructor that allows us to
+set the mean and standard deviation at creation; and getters and
+setters that allow us to access them. (See the source code of
+\code{BCGaussianPrior} for their implementation.}
+
+This is all that is required to create a new prior. \code{BCPrior} has
+several methods for getting properties of the prior: the mode; the
+integral over a range; the $n$'th raw, central, and standardized
+moments; the mean; the variance; the standard deviation; the skewness;
+and the kurtosis. These functions make their own internal calculations
+and need not be overloaded. If you wish to speed them up, or provide
+exact results, you may overload them. But take care that you overload
+them to give back proper results! For example, the mode of the
+Gaussian distribution is not simply \code{fMean}, since this presumes
+the range over which we query contains \code{fMean}. The more proper
+implementation is
+\begin{cxxcode}
+double GetMode(double xmin, double xmax)
+{
+  if (fMean < xmin)
+    return xmin;
+  if (fMean > xmax)
+    return xmax;
+  return fMean;
+}
+\end{cxxcode}
 
 \chapter{Sharing / Loading samples}
 \dan{describe that files can be checked during prerun if \#136 is merged}
