@@ -723,9 +723,6 @@ public:
      * Helper function needed for generating Cauchy distributions. */
     double SAHelperSinusToNIntegral(int dim, double theta) const;
 
-
-    static void FCNLikelihood(int& npar, double* grad, double& fval, double* par, int flag);
-
     /**
      * Reset all information on the best fit parameters. */
     virtual void ResetResults();
