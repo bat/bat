@@ -1952,13 +1952,13 @@ double BCIntegrate::IntegrateLaplace()
         logDet += std::log(U(I, I));
 
     // Laplace approx. = function value over normalization constant of Gaussian
-    double logIntegral = LogEval(newpar) + 0.5 * nfree * std::log(2 * M_PI) + logDet;
+    double logIntegral = -min.MinValue() + 0.5 * nfree * std::log(2 * M_PI) + logDet;
     double result = std::exp(logIntegral);
     fError = -1;
 
     BCLog::OutSummary(Form("Laplace approximation on the log scale = %g", logIntegral));
 
-    LogOutputAtEndOfIntegration(result, fError, fError, min.NCalls() + 1 - nprevious_calls);
+    LogOutputAtEndOfIntegration(result, fError, fError, min.NCalls() - nprevious_calls);
 
     return result;
 }
