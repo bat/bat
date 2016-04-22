@@ -25,13 +25,16 @@
 
 #include "BCEngineMCMC.h"
 
+#include <TMinuitMinimizer.h>
+
 #include <string>
 
-// ROOT classes
+// forward declarations
+class BCIntegrate;
+
 class TFile;
 class TH1;
 class TH2;
-class TMinuit;
 class TTree;
 
 /**
@@ -76,6 +79,40 @@ struct Cuhre : public General {
     Cuhre();
 };
 }
+
+namespace BCMinimizer
+{
+
+class Adapter : public ROOT::Math::IMultiGenFunction
+{
+public:
+    Adapter(BCIntegrate& m);
+    virtual unsigned int NDim() const;
+    virtual ROOT::Math::IMultiGenFunction* Clone() const;
+
+    BCIntegrate* m;
+    mutable std::vector<double> par;
+private:
+    virtual double DoEval (const double* x) const;
+};
+
+/**
+ * Wrapper to approximate RAII for TMinuitMinimizer which is not
+ * copyable unfortunately.
+ */
+class Wrapper
+{
+public:
+    Wrapper(BCIntegrate& m);
+    void Init();
+    void Init(const std::vector<double>& start, int printlevel);
+    void Reset(BCIntegrate& m);
+
+    TMinuitMinimizer min;
+    Adapter adapt;
+};
+}
+
 // ---------------------------------------------------------
 
 class BCIntegrate : public BCEngineMCMC
@@ -104,6 +141,7 @@ public:
         kIntMonteCarlo,                           ///< Sample mean method
         kIntCuba,                                 ///< Use CUBA interface
         kIntGrid,                                 ///< Integration by gridding of parameter space
+        kIntLaplace,                              ///< Laplace approximation
         kIntDefault,                              ///< Default
         NIntMethods                               ///< number of available integration methods
     };
@@ -167,10 +205,6 @@ public:
     BCIntegrate(const std::string& name = "model");
 
     /**
-     * Copy constructor */
-    BCIntegrate(const BCIntegrate& bcintegrate);
-
-    /**
      * Read in MCMC constructor.
      * @param filename Path of file holding model.
      * @param name Name of model (file should contain TTree's [name]_mcmc and [name]_parameters.\n
@@ -179,15 +213,20 @@ public:
     BCIntegrate(const std::string& filename, const std::string& name, bool loadObservables = true);
 
     /**
+     * Copy constructor */
+    BCIntegrate(const BCIntegrate& other);
+
+    // No assignment operator for abstract class
+
+    /**
      * Destructor */
-    virtual ~BCIntegrate();
+    virtual ~BCIntegrate() {};
 
     /** @} */
 
     /** \name swap*/
     /** @{ */
 
-    /** swap */
     friend void swap(BCIntegrate& A, BCIntegrate& B);
 
     /** @} */
@@ -353,13 +392,11 @@ public:
     { return fError; }
 
     /**
-     * @return Minuit used for mode finding */
-    TMinuit* GetMinuit();
-
-    /**
-     * @return Error flag from Minuit run */
-    int GetMinuitErrorFlag() const
-    { return fMinuitErrorFlag; }
+     * @return Minuit minimizer used for mode finding. The object is in a
+     * valid but unusable state if no mode finding has been
+     * performed. */
+    TMinuitMinimizer& GetMinuit()
+    { return fMinimizer.min; }
 
     /**
      * Returns the Simulated Annealing starting temperature. */
@@ -390,12 +427,6 @@ public:
 
     /** \name Member functions (set) */
     /** @{ */
-
-    /**
-     * @arglist pointer to list of doubles to be passed as arguments to Minuit */
-    void SetMinuitArgList(double* arglist)
-    { fMinuitArglist[0] = arglist[0];	fMinuitArglist[1] = arglist[1]; }
-
     /**
      * @flag Flag whether or not to ignore result of previous mode finding */
     void SetFlagIgnorePrevOptimization(bool flag)
@@ -692,9 +723,6 @@ public:
      * Helper function needed for generating Cauchy distributions. */
     double SAHelperSinusToNIntegral(int dim, double theta) const;
 
-
-    static void FCNLikelihood(int& npar, double* grad, double& fval, double* par, int flag);
-
     /**
      * Reset all information on the best fit parameters. */
     virtual void ResetResults();
@@ -806,18 +834,6 @@ protected:
     virtual void PrintMarginalizationSummary() const;
 
     /**
-     * Minuit */
-    TMinuit* fMinuit;
-
-    /**
-     * Argument list for Minuit. */
-    double fMinuitArglist[2];
-
-    /**
-     * Error flag from Minuit. */
-    int fMinuitErrorFlag;
-
-    /**
      * Flag for ignoring older results of optimization */
     bool fFlagIgnorePrevOptimization;
 
@@ -869,24 +885,26 @@ protected:
      * flag indicating if the model was marginalized */
     bool fFlagMarginalized;
 
-    /*
-     * Output file for for writing SA Tree. */
+    /**
+     * Output file for writing SA Tree. */
     TFile* fSAOutputFile;
 
-    /*
-     * Output filename for for writing SA Tree. */
+    /**
+     * Output filename for writing SA Tree. */
     std::string fSAOutputFilename;
 
-    /*
+    /**
      * Output file open option for for writing SA Tree. */
     std::string fSAOutputFileOption;
 
-    /*
+    /**
      * flag for autoclosing SA output file. */
     bool fSAOutputFileAutoclose;
 
-
 private:
+
+    ///> Wrapper to run minuit
+    BCMinimizer::Wrapper fMinimizer;
 
     /**
      * Does the mode finding using Minuit. If starting point is not specified,
@@ -946,6 +964,15 @@ private:
      * Integrate using the slice method
      * @return the integral; */
     double IntegrateSlice();
+
+    /**
+     * Integrate using the Laplace approximation.
+     *
+     * Take the result of a previous successful minuit run to estimate
+     * the covariance matrix. Else it runs minuit (again).
+     *
+     * @return the integral; */
+    double IntegrateLaplace();
 
     /**
      * Current mode finding method */
@@ -1023,11 +1050,8 @@ private:
 
     BCCubaOptions::Vegas fCubaVegasOptions;			///< CUBA Vegas options
     BCCubaOptions::Suave fCubaSuaveOptions;			///< CUBA Suave options
-    BCCubaOptions::Divonne fCubaDivonneOptions; ///< CUBA Divonne options
+    BCCubaOptions::Divonne fCubaDivonneOptions;		///< CUBA Divonne options
     BCCubaOptions::Cuhre fCubaCuhreOptions;			///< CUBA Cuhre options
-
 };
-
-// ---------------------------------------------------------
 
 #endif

@@ -10,17 +10,17 @@
 #include <config.h>
 
 #include "BCIntegrate.h"
+#include "BCH1D.h"
+#include "BCH2D.h"
 #include "BCLog.h"
 #include "BCMath.h"
 #include "BCParameter.h"
-#include "BCH2D.h"
-#include "BCH1D.h"
 
+#include <TDecompChol.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TH3.h>
 #include <TFile.h>
-#include <TMinuit.h>
 #include <TRandom3.h>
 #include <TString.h>
 #include <TTree.h>
@@ -33,42 +33,103 @@
 #include <limits>
 #include <math.h>
 
+using ROOT::Math::Util::ToString;
+
 namespace
 {
-/**
- * Hold an instance of BCIntegrate to emulate a global variable for use with Minuit
- */
-class BCIntegrateHolder
+int PrintLevel()
 {
-private:
-    BCIntegrate* global_this;
+    int printlevel = -1;
+    if (BCLog::GetLogLevelScreen() <= BCLog::detail)
+        printlevel = 0;
+    if (BCLog::GetLogLevelScreen() <= BCLog::debug)
+        printlevel = 1;
 
-public:
+    return printlevel;
+}
+}
 
-    BCIntegrateHolder() :
-        global_this(NULL)
-    {
+namespace BCMinimizer
+{
+Adapter::Adapter(BCIntegrate& model) :
+    m(&model),
+    par(m->GetNParameters())
+{}
+
+unsigned int Adapter::NDim() const
+{
+    return m->GetNParameters();
+}
+
+ROOT::Math::IMultiGenFunction* Adapter::Clone() const
+{
+    return new Adapter(*m);
+}
+
+double Adapter::DoEval (const double* x) const
+{
+    par.resize(m->GetNParameters());
+    std::copy(x, x + par.size(), par.begin());
+    return -m->LogEval(par);
+}
+
+Wrapper::Wrapper(BCIntegrate& m) :
+    min(ROOT::Minuit::kMigrad),
+    adapt(m)
+{
+    Init();
+}
+
+void Wrapper::Init()
+{
+    Init(std::vector<double>(), PrintLevel());
+}
+
+void Wrapper::Init(const std::vector<double>& start, int printlevel)
+{
+    // use a separate minimizer so multiple instances of BCIntegrate can coexist
+    TMinuitMinimizer::UseStaticMinuit(false);
+
+    min.Clear();
+
+    // set target and dimensionality
+    min.SetFunction(adapt);
+
+    min.SetPrintLevel(printlevel);
+    min.SetErrorDef(0.5);
+
+    std::vector<double> newstart;
+    if (start.empty())
+        // if empty, set to center, with fixed values fixed
+        newstart = adapt.m->GetParameters().GetRangeCenters();
+    else
+        newstart = start;
+
+    for (unsigned i = 0; i < adapt.m->GetNParameters(); ++i) {
+        const BCParameter& p = adapt.m->GetParameter(i);
+        const bool success = min.SetLimitedVariable(i, p.GetName(),
+                             newstart.at(i),
+                             p.GetRangeWidth() / 100.,
+                             p.GetLowerLimit(), p.GetUpperLimit());
+        if (!success) {
+            BCLOG_ERROR(std::string("Can't add parameter ") + ToString(i) + std::string(" to minuit"));
+        }
+        if (p.Fixed() && !(min.SetVariableValue(i, p.GetFixedValue()) && min.FixVariable(i)))  {
+            BCLOG_ERROR(std::string("Cannot fix parameter ") + ToString(i) + " in minuit");
+        }
     }
+}
 
-    /**
-     * Set and/or retrieve the static BCIntegrate object
-     */
-    static BCIntegrate* instance(BCIntegrate* obj = NULL)
-    {
-        static BCIntegrateHolder result;
-        if (obj)
-            result.global_this = obj;
-
-        return result.global_this;
-    }
-};
+void Wrapper::Reset(BCIntegrate& m)
+{
+    adapt = Adapter(m);
+    Init();
+}
 }
 
 // ---------------------------------------------------------
 BCIntegrate::BCIntegrate(const std::string& name) :
     BCEngineMCMC(name),
-    fMinuit(0),
-    fMinuitErrorFlag(0),
     fFlagIgnorePrevOptimization(false),
     fSAT0(100),
     fSATmin(0.1),
@@ -82,6 +143,7 @@ BCIntegrate::BCIntegrate(const std::string& name) :
     fSAOutputFilename(""),
     fSAOutputFileOption(""),
     fSAOutputFileAutoclose(false),
+    fMinimizer(*this),
     fOptimizationMethodCurrent(BCIntegrate::kOptDefault),
     fOptimizationMethodUsed(BCIntegrate::kOptEmpty),
     fIntegrationMethodCurrent(BCIntegrate::kIntDefault),
@@ -99,16 +161,11 @@ BCIntegrate::BCIntegrate(const std::string& name) :
     fAbsolutePrecision(1e-6),
     fError(-999.),
     fCubaIntegrationMethod(BCIntegrate::kCubaDefault)
-{
-    fMinuitArglist[0] = 20000;
-    fMinuitArglist[1] = 0.01;
-}
+{}
 
 // ---------------------------------------------------------
 BCIntegrate::BCIntegrate(const std::string& filename, const std::string& name, bool loadObservables) :
     BCEngineMCMC(filename, name, loadObservables),
-    fMinuit(0),
-    fMinuitErrorFlag(0),
     fFlagIgnorePrevOptimization(false),
     fSAT0(100),
     fSATmin(0.1),
@@ -122,6 +179,7 @@ BCIntegrate::BCIntegrate(const std::string& filename, const std::string& name, b
     fSAOutputFilename(""),
     fSAOutputFileOption(""),
     fSAOutputFileAutoclose(false),
+    fMinimizer(*this),
     fOptimizationMethodCurrent(BCIntegrate::kOptDefault),
     fOptimizationMethodUsed(BCIntegrate::kOptEmpty),
     fIntegrationMethodCurrent(BCIntegrate::kIntDefault),
@@ -139,16 +197,11 @@ BCIntegrate::BCIntegrate(const std::string& filename, const std::string& name, b
     fAbsolutePrecision(1e-6),
     fError(-999.),
     fCubaIntegrationMethod(BCIntegrate::kCubaDefault)
-{
-    fMinuitArglist[0] = 20000;
-    fMinuitArglist[1] = 0.01;
-}
+{}
 
 // ---------------------------------------------------------
 BCIntegrate::BCIntegrate(const BCIntegrate& other)
     : BCEngineMCMC(other),
-      fMinuit(new TMinuit()),
-      fMinuitErrorFlag(other.fMinuitErrorFlag),
       fFlagIgnorePrevOptimization(other.fFlagIgnorePrevOptimization),
       fSAT0(other.fSAT0),
       fSATmin(other.fSATmin),
@@ -163,6 +216,8 @@ BCIntegrate::BCIntegrate(const BCIntegrate& other)
       fSAOutputFilename(other.fSAOutputFilename),
       fSAOutputFileOption(other.fSAOutputFileOption),
       fSAOutputFileAutoclose(other.fSAOutputFileAutoclose),
+      // TMinuitMinimizer is not copyable
+      fMinimizer(*this),
       fOptimizationMethodCurrent(other.fOptimizationMethodCurrent),
       fOptimizationMethodUsed(other.fOptimizationMethodUsed),
       fIntegrationMethodCurrent(other.fIntegrationMethodCurrent),
@@ -186,63 +241,59 @@ BCIntegrate::BCIntegrate(const BCIntegrate& other)
       fCubaSuaveOptions(other.fCubaSuaveOptions),
       fCubaDivonneOptions(other.fCubaDivonneOptions),
       fCubaCuhreOptions(other.fCubaCuhreOptions)
-{
-    fMinuitArglist[0] = other.fMinuitArglist[0];
-    fMinuitArglist[1] = other.fMinuitArglist[1];
-}
-
-// ---------------------------------------------------------
-BCIntegrate::~BCIntegrate()
-{
-    delete fMinuit;
-}
+{}
 
 // ---------------------------------------------------------
 void swap(BCIntegrate& A, BCIntegrate& B)
 {
+    using std::swap;
+    // this can only occur in a free standing function
+    // and not as a member of BCIntegrate because BCEngineMCMC is abstract
     swap(static_cast<BCEngineMCMC&>(A), static_cast<BCEngineMCMC&>(B));
-    std::swap(A.fMinuit, B.fMinuit);
-    std::swap(A.fMinuitArglist, B.fMinuitArglist);
-    std::swap(A.fMinuitErrorFlag, B.fMinuitErrorFlag);
-    std::swap(A.fFlagIgnorePrevOptimization, B.fFlagIgnorePrevOptimization);
-    std::swap(A.fSAT0, B.fSAT0);
-    std::swap(A.fSATmin, B.fSATmin);
-    std::swap(A.fSATree, B.fSATree);
-    std::swap(A.fFlagWriteSAToFile, B.fFlagWriteSAToFile);
-    std::swap(A.fSANIterations, B.fSANIterations);
-    std::swap(A.fSATemperature, B.fSATemperature);
-    std::swap(A.fSALogProb, B.fSALogProb);
-    std::swap(A.fSAx, B.fSAx);
-    std::swap(A.fFlagMarginalized, B.fFlagMarginalized);
-    std::swap(A.fSAOutputFile, A.fSAOutputFile);
-    std::swap(A.fSAOutputFilename, B.fSAOutputFilename);
-    std::swap(A.fSAOutputFileOption, B.fSAOutputFileOption);
-    std::swap(A.fSAOutputFileAutoclose, B.fSAOutputFileAutoclose);
-    std::swap(A.fOptimizationMethodCurrent, B.fOptimizationMethodCurrent);
-    std::swap(A.fOptimizationMethodUsed, B.fOptimizationMethodUsed);
-    std::swap(A.fIntegrationMethodCurrent, B.fIntegrationMethodCurrent);
-    std::swap(A.fIntegrationMethodUsed, B.fIntegrationMethodUsed);
-    std::swap(A.fMarginalizationMethodCurrent, B.fMarginalizationMethodCurrent);
-    std::swap(A.fMarginalizationMethodUsed, B.fMarginalizationMethodUsed);
-    std::swap(A.fSASchedule, B.fSASchedule);
-    std::swap(A.fNIterationsMin, B.fNIterationsMin);
-    std::swap(A.fNIterationsMax, B.fNIterationsMax);
-    std::swap(A.fNIterationsPrecisionCheck, B.fNIterationsPrecisionCheck);
-    std::swap(A.fNIterations, B.fNIterations);
-    std::swap(A.fBestFitParameters, B.fBestFitParameters);
-    std::swap(A.fBestFitParameterErrors, B.fBestFitParameterErrors);
-    std::swap(A.fLogMaximum, B.fLogMaximum);
-    std::swap(A.fIntegral, B.fIntegral);
-    std::swap(A.fRelativePrecision, B.fRelativePrecision);
-    std::swap(A.fAbsolutePrecision, B.fAbsolutePrecision);
-    std::swap(A.fError, B.fError);
-    std::swap(A.fCubaIntegrationMethod, B.fCubaIntegrationMethod);
-    std::swap(A.fCubaVegasOptions, B.fCubaVegasOptions);
-    std::swap(A.fCubaSuaveOptions, B.fCubaSuaveOptions);
-    std::swap(A.fCubaDivonneOptions, B.fCubaDivonneOptions);
-    std::swap(A.fCubaCuhreOptions, B.fCubaCuhreOptions);
-}
+    swap(A.fFlagIgnorePrevOptimization, B.fFlagIgnorePrevOptimization);
+    swap(A.fSAT0, B.fSAT0);
+    swap(A.fSATmin, B.fSATmin);
+    swap(A.fSATree, B.fSATree);
+    swap(A.fFlagWriteSAToFile, B.fFlagWriteSAToFile);
+    swap(A.fSANIterations, B.fSANIterations);
+    swap(A.fSATemperature, B.fSATemperature);
+    swap(A.fSALogProb, B.fSALogProb);
+    swap(A.fSAx, B.fSAx);
+    swap(A.fFlagMarginalized, B.fFlagMarginalized);
+    swap(A.fSAOutputFile, B.fSAOutputFile);
+    swap(A.fSAOutputFilename, B.fSAOutputFilename);
+    swap(A.fSAOutputFileOption, B.fSAOutputFileOption);
+    swap(A.fSAOutputFileAutoclose, B.fSAOutputFileAutoclose);
 
+    // TMinuitMinimizer is neither copyable nor assignable
+    // both lose state
+    A.fMinimizer.Reset(B);
+    B.fMinimizer.Reset(A);
+
+    swap(A.fOptimizationMethodCurrent, B.fOptimizationMethodCurrent);
+    swap(A.fOptimizationMethodUsed, B.fOptimizationMethodUsed);
+    swap(A.fIntegrationMethodCurrent, B.fIntegrationMethodCurrent);
+    swap(A.fIntegrationMethodUsed, B.fIntegrationMethodUsed);
+    swap(A.fMarginalizationMethodCurrent, B.fMarginalizationMethodCurrent);
+    swap(A.fMarginalizationMethodUsed, B.fMarginalizationMethodUsed);
+    swap(A.fSASchedule, B.fSASchedule);
+    swap(A.fNIterationsMin, B.fNIterationsMin);
+    swap(A.fNIterationsMax, B.fNIterationsMax);
+    swap(A.fNIterationsPrecisionCheck, B.fNIterationsPrecisionCheck);
+    swap(A.fNIterations, B.fNIterations);
+    swap(A.fBestFitParameters, B.fBestFitParameters);
+    swap(A.fBestFitParameterErrors, B.fBestFitParameterErrors);
+    swap(A.fLogMaximum, B.fLogMaximum);
+    swap(A.fIntegral, B.fIntegral);
+    swap(A.fRelativePrecision, B.fRelativePrecision);
+    swap(A.fAbsolutePrecision, B.fAbsolutePrecision);
+    swap(A.fError, B.fError);
+    swap(A.fCubaIntegrationMethod, B.fCubaIntegrationMethod);
+    swap(A.fCubaVegasOptions, B.fCubaVegasOptions);
+    swap(A.fCubaSuaveOptions, B.fCubaSuaveOptions);
+    swap(A.fCubaDivonneOptions, B.fCubaDivonneOptions);
+    swap(A.fCubaCuhreOptions, B.fCubaCuhreOptions);
+}
 
 // ---------------------------------------------------------
 const std::vector<double>& BCIntegrate::GetBestFitParameters() const
@@ -281,13 +332,11 @@ double BCIntegrate::Integrate()
 
     switch (fIntegrationMethodCurrent) {
 
-        // Empty
         case BCIntegrate::kIntEmpty: {
             BCLog::OutWarning("BCIntegrate::Integrate : No integration method chosen.");
             return 0;
         }
 
-        // Monte Carlo Integration
         case BCIntegrate::kIntMonteCarlo: {
             std::vector<double> sums (2, 0.0);
             sums.push_back(GetParameters().Volume());
@@ -304,7 +353,6 @@ double BCIntegrate::Integrate()
             return fIntegral;
         }
 
-        // CUBA library
         case BCIntegrate::kIntCuba:
             fIntegral = IntegrateCuba();
 
@@ -314,7 +362,6 @@ double BCIntegrate::Integrate()
             // return integral
             return fIntegral;
 
-        // CUBA library
         case BCIntegrate::kIntGrid:
             fIntegral = IntegrateSlice();
 
@@ -324,7 +371,11 @@ double BCIntegrate::Integrate()
             // return integral
             return fIntegral;
 
-        // default
+        case BCIntegrate::kIntLaplace:
+            fIntegral = IntegrateLaplace();
+            fIntegrationMethodUsed = BCIntegrate::kIntLaplace;
+            return fIntegral;
+
         case BCIntegrate::kIntDefault: {
 #ifdef HAVE_CUBA_H
             SetIntegrationMethod(BCIntegrate::kIntCuba);
@@ -604,7 +655,6 @@ bool BCIntegrate::CheckMarginalizationIndices(TH1* hist, const std::vector<unsig
 // ---------------------------------------------------------
 int BCIntegrate::MarginalizeAll()
 {
-
     // check if parameters are defined
     if (GetNParameters() < 1) {
         BCLog::OutError("BCIntegrate::MarginalizeAll : No parameters defined. Aborting.");
@@ -1033,13 +1083,7 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
         case BCIntegrate::kOptDefault:
             SetOptimizationMethod(BCIntegrate::kOptMinuit);
         case BCIntegrate::kOptMinuit: {
-            int printlevel = -1;
-            if (BCLog::GetLogLevelScreen() <= BCLog::detail)
-                printlevel = 0;
-            if (BCLog::GetLogLevelScreen() <= BCLog::debug)
-                printlevel = 1;
-
-            BCIntegrate::FindModeMinuit(mode_temp, errors_temp, start, printlevel);
+            BCIntegrate::FindModeMinuit(mode_temp, errors_temp, start, ::PrintLevel());
             break;
         }
 
@@ -1084,94 +1128,41 @@ std::vector<double> BCIntegrate::FindMode(BCIntegrate::BCOptimizationMethod optm
 }
 
 // ---------------------------------------------------------
-TMinuit* BCIntegrate::GetMinuit()
-{
-    if (!fMinuit)
-        fMinuit = new TMinuit();
-
-    return fMinuit;
-}
-
-// ---------------------------------------------------------
 std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double>& mode, std::vector<double>& errors, std::vector<double> start, int printlevel)
 {
+
     if (fParameters.Size() < 1) {
-        BCLog::OutError("BCIntegrate::FindModeMinuit : No parameters defined. Aborting.");
+        BCLOG_ERROR("No parameters defined. Aborting.");
         return std::vector<double>();
     }
 
     // check start values
-    if (!start.empty() and start.size() != fParameters.Size()) {
-        BCLog::OutWarning("BCIntegrate::FindModeMinuit : Start point not valid (mismatch of dimensions), set to center.");
-        start.clear();
-    }
-
-
-    // check if point is allowed
-    if (!start.empty() and !GetParameters().IsWithinLimits(start)) {
-        BCLog::OutWarning("BCIntegrate::FindModeMinuit : Start point not valid (parameter not inside valid range), set to center.");
+    if (!start.empty() && start.size() != fParameters.Size()) {
+        BCLOG_WARNING("Start point not valid (mismatch of dimensions), set to center.");
         start.clear();
     }
 
     // check fixed values and issue warning before forcing to fixed
-    if (!start.empty() and !GetParameters().IsAtFixedValues(start)) {
-        BCLog::OutWarning("BCIntegrate::FindModeMinuit : Start point fixed values not properly set. Forcing to fixed values.");
+    if (!start.empty() && !GetParameters().IsAtFixedValues(start)) {
+        BCLOG_WARNING("Start point's fixed values not properly set. Forcing to fixed values.");
         GetParameters().ApplyFixedValues(start);
     }
 
-    if (start.empty())
-        // if empty, set to center, with fixed values fixed
-        start = GetParameters().GetRangeCenters();
-
-    // set global this
-    ::BCIntegrateHolder::instance(this);
-
-    // define minuit
-    delete fMinuit;
-    fMinuit = new TMinuit(fParameters.Size());
-
-    // set print level
-    fMinuit->SetPrintLevel(printlevel);
-
-    // set function
-    fMinuit->SetFCN(&BCIntegrate::FCNLikelihood);
-
-    // set UP for likelihood
-    fMinuit->SetErrorDef(0.5);
-
-    // set parameters
-    int flag;
-    for (unsigned i = 0; i < fParameters.Size(); i++)
-        fMinuit->mnparm(i, GetParameter(i).GetName().data(), start[i],
-                        GetParameter(i).GetRangeWidth() / 100.,
-                        GetParameter(i).GetLowerLimit(),
-                        GetParameter(i).GetUpperLimit(),
-                        flag);
-
-    for (unsigned i = 0; i < fParameters.Size(); i++)
-        if (GetParameter(i).Fixed())
-            fMinuit->FixParameter(i);
-
-    // do mcmc minimization
-    //   fMinuit->mnseek();
-
-    // do minimization
-    fMinuit->mnexcm("MIGRAD", fMinuitArglist, 2, flag);
-
-    // improve search for local minimum
-    //   fMinuit->mnimpr();
-
-    // copy flag and result
-    fMinuitErrorFlag = flag;
-    //   std::vector<double> localMode(fParameters.Size(), 0);
-    //   std::vector<double> errors(fParameters.Size(), 0);
-    for (unsigned i = 0; i < fParameters.Size(); i++) {
-        fMinuit->GetParameter(i, mode[i], errors[i]);
+    // check if point is allowed
+    if (!start.empty() && !GetParameters().IsWithinLimits(start)) {
+        BCLOG_WARNING("Start point not valid, set unfixed parameters to range center.");
+        start.clear();
     }
 
-    // delete minuit
-    delete fMinuit;
-    fMinuit = 0;
+    // define minuit with starting values
+    fMinimizer.Init(start, printlevel);
+
+    // do the actual work of minimization
+    fMinimizer.min.Minimize();
+
+    // copy over most important results, the minimizer itself can't be copied
+    std::copy(fMinimizer.min.X(), fMinimizer.min.X() + fParameters.Size(), mode.begin());
+    std::copy(fMinimizer.min.Errors(), fMinimizer.min.Errors() + fParameters.Size(), errors.begin());
 
     return mode;
 }
@@ -1188,7 +1179,7 @@ void BCIntegrate::WriteSAToFile(bool flag)
 void BCIntegrate::WriteSAToFile(const std::string& filename, const std::string& option, bool autoclose)
 {
     if (filename.empty()) {
-        BCLog::OutError("BCIntegrate::WriteSAToFile: You must specify the filename when turning on simlated annealing output.");
+        BCLog::OutError("BCIntegrate::WriteSAToFile: You must specify the filename when turning on simulated annealing output.");
         return WriteSAToFile(false);
     }
     fSAOutputFilename = filename;
@@ -1578,27 +1569,6 @@ double BCIntegrate::SAHelperSinusToNIntegral(int dim, double theta) const
 }
 
 // ---------------------------------------------------------
-void BCIntegrate::FCNLikelihood(int& /*npar*/, double* /*grad*/, double& fval, double* par, int /*flag*/)
-{
-    // copy parameters
-    static std::vector<double> parameters;
-
-    // calculate number of active + fixed parameters
-    // remember: npar is just the number of _active_ parameters while
-    // par is a vector of _all_ parameters
-    int nparameters = ::BCIntegrateHolder::instance()->GetNParameters();
-
-    // adjust size if needed
-    parameters.resize(nparameters, 0.0);
-
-    // copy values
-    std::copy(par, par + nparameters, parameters.begin());
-
-    // evaluate, for efficiency don't check if npar matches
-    fval = - ::BCIntegrateHolder::instance()->LogEval(parameters);
-}
-
-// ---------------------------------------------------------
 std::vector<double> BCIntegrate::FindModeMCMC(std::vector<double>& mode, std::vector<double>& errors)
 {
     // call PreRun
@@ -1895,8 +1865,8 @@ double BCIntegrate::IntegrateSlice()
     double log_max_val = -std::numeric_limits<double>::infinity();
 
     // get slice, without normalizing
-    TH1* h = GetSlice(indices, nIterations, log_max_val, fixpoint, 0, false);
-    integral = h->Integral("width") * exp(log_max_val);
+    if (TH1* h = GetSlice(indices, nIterations, log_max_val, fixpoint, 0, false))
+        integral = h->Integral("width") * exp(log_max_val);
 
     // print to log
     LogOutputAtEndOfIntegration(integral, absprecision, relprecision, nIterations);
@@ -1904,6 +1874,94 @@ double BCIntegrate::IntegrateSlice()
     return integral;
 }
 
+// ---------------------------------------------------------
+double BCIntegrate::IntegrateLaplace()
+{
+    TMinuitMinimizer& min = fMinimizer.min;
+    const unsigned nprevious_calls = min.NCalls();
+    if (min.CovMatrixStatus() == 0) {
+        BCLog::OutWarning("Laplace requires a successful run of minuit. Rerun with default starting point");
+        FindMode(BCIntegrate::kOptMinuit);
+    }
+
+    int status = min.CovMatrixStatus();
+    switch (status) {
+        case 1:
+            BCLog::OutWarning("Covariance only approximated");
+            break;
+        case 2:
+            BCLog::OutWarning("Covariance made positive definite");
+            break;
+        case 3:
+            BCLog::OutDetail("Covariance accurate");
+            break;
+        case 0:
+        default:
+            BCLog::OutError("Cannot perform Laplace approximation without minuit's covariance. Return -1");
+            return -1;
+    }
+    if (status < 3) {
+        BCLog::OutDetail("Rerunning Hesse");
+        min.Hesse();
+    }
+
+    // get point at which minuit evaluates the covariance
+    std::vector<double> newpar(min.X(), min.X() + GetNParameters());
+
+    /* Compute log of determinant of symmetric matrix from Cholesky decomp.
+     * stay on log scale to avoid overflows. */
+
+    // any fixed parameter reduces the rank of the covariance
+    // ignore those zero rows/columns to compute the determinant
+    unsigned nfree = GetNFreeParameters();
+
+    TMatrixDSym cov(nfree);
+    unsigned I = -1;
+    for (unsigned i = 0; i < GetNParameters(); ++i) {
+        if (GetParameter(i).Fixed())
+            continue;
+        ++I;
+        cov(I, I) = min.CovMatrix(i, i);
+
+        // reset counter for off diagonal elements
+        unsigned J = I;
+        for (unsigned j = i + 1; j < GetNParameters(); ++j) {
+            if (GetParameter(j).Fixed())
+                continue;
+            ++J;
+            cov(I, J) = min.CovMatrix(i, j);
+            cov(J, I) = cov(I, J);
+
+        }
+    }
+
+    TDecompChol CholeskyDecomposer;
+    CholeskyDecomposer.SetMatrix(cov);
+
+    if (!CholeskyDecomposer.Decompose()) {
+        BCLog::OutError("Cholesky decomposition of covariance failed. Return -1");
+        return -1;
+    }
+
+    // upper triagonal matrix is the result of decomposition
+    const TMatrixD& U = CholeskyDecomposer.GetU();
+
+    // determinant is just the product of diagonal elements
+    double logDet = 0;
+    for (unsigned I = 0; I < nfree; ++I)
+        logDet += std::log(U(I, I));
+
+    // Laplace approx. = function value over normalization constant of Gaussian
+    double logIntegral = -min.MinValue() + 0.5 * nfree * std::log(2 * M_PI) + logDet;
+    double result = std::exp(logIntegral);
+    fError = -1;
+
+    BCLog::OutSummary(Form("Laplace approximation on the log scale = %g", logIntegral));
+
+    LogOutputAtEndOfIntegration(result, fError, fError, min.NCalls() - nprevious_calls);
+
+    return result;
+}
 
 // ---------------------------------------------------------
 std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod type) const
@@ -1917,6 +1975,8 @@ std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod 
             return "Cuba";
         case BCIntegrate::kIntGrid:
             return "Grid";
+        case BCIntegrate::kIntLaplace:
+            return "Laplace";
         default:
             return "Undefined";
     }

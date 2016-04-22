@@ -23,7 +23,7 @@ class BCIntegrateTest :
 public:
 
     struct Precision {
-        double monteCarlo, vegas, suave, divonne, cuhre, cubaDefault;
+        double monteCarlo, grid, vegas, suave, divonne, cuhre, cubaDefault;
 
         // Turn off checks by default
         Precision(double value = -1)
@@ -33,7 +33,7 @@ public:
 
         void Set(double value)
         {
-            monteCarlo = vegas = suave = divonne = cuhre = cubaDefault = value;
+            monteCarlo = grid = vegas = suave = divonne = cuhre = cubaDefault = value;
         }
 
     };
@@ -87,6 +87,10 @@ public:
 
         if (p.monteCarlo > 0)
             IntegrateBat(m, BCIntegrate::kIntMonteCarlo, p.monteCarlo);
+        if (p.grid > 0)
+            IntegrateBat(m, BCIntegrate::kIntGrid, p.grid);
+
+        // don't use Laplace: most test functions don't resemble a Gaussian
 #if HAVE_CUBA_H
         if (p.vegas > 0)
             IntegrateCuba(m, BCIntegrate::kCubaVegas, p.vegas);
@@ -111,8 +115,31 @@ public:
         // is returned.
         m.SetFlagIgnorePrevOptimization(true);
         TEST_CHECK_NEARLY_EQUAL(m.FindMode(std::vector<double>(1, 0.1)).front(), 0, 1e-3);
-        TEST_CHECK_NEARLY_EQUAL(m.FindMode(BCIntegrate::kOptMinuit, std::vector<double>(1, 0.1)).front(), 0, 1e-10);
-        TEST_CHECK_NEARLY_EQUAL(m.FindMode(BCIntegrate::kOptMinuit, std::vector<double>(1, 0.9)).front(), 1, 1e-10);
+
+        // minuit
+        {
+            static const double error = 1.19878e-01;
+
+            // run optimization
+            std::vector<double> mode = m.FindMode(BCIntegrate::kOptMinuit, std::vector<double>(1, 0.1));
+            TMinuitMinimizer& minuit = m.GetMinuit();
+            TEST_CHECK(minuit.Hesse());
+
+            TEST_CHECK_NEARLY_EQUAL(mode.front(), 0, 1e-10);
+            TEST_CHECK_NEARLY_EQUAL(m.GetBestFitParameterErrors().front(), error, 1e-5);
+            TEST_CHECK_NEARLY_EQUAL(minuit.Errors()[0], error, 1e-5);
+
+            /* mode at the left boundary, so covariance matrix is meaningless */
+            double errhi, errlo;
+            minuit.GetMinosError(0, errlo, errhi);
+
+            /* but error and errhi only agree to 10%. I don't understand how `error` is computed */
+            TEST_CHECK_RELATIVE_ERROR(errhi, error, 0.1);
+
+            TEST_CHECK_NEARLY_EQUAL(m.FindMode(BCIntegrate::kOptMinuit, std::vector<double>(1, 0.85)).front(), 1, 1e-10);
+            TEST_CHECK_NEARLY_EQUAL(m.GetBestFitParameterErrors().front(), error, 1e-5);
+        }
+
         TEST_CHECK_NEARLY_EQUAL(m.FindMode(BCIntegrate::kOptSimAnn, std::vector<double>(1, 0.1)).front(), 1, 1e-3);
         // for different seeds, find either 0 or 1. Doesn't depend (much?) on starting point
         m.SetRandomSeed(6414);
@@ -129,21 +156,67 @@ public:
         m.PrintShortFitSummary();
     }
 
-    void FixedParameters() const
+    void FixedParameters(const unsigned ndim) const
     {
-        static const unsigned ndim = 4;
         GaussModel m("Fixed parameter example", ndim);
         m.SetRandomSeed(613);
-        m.GetParameter(3).Fix(0.5);
+        if (ndim >= 4)
+            m.GetParameter(3).Fix(0.5);
 
-        // integrate over normalized Gaussian likelihood
-        // evidence = 1 / parameter volume * N(mu | \theta_3)
-        double evidence = 1;
-        for (unsigned i = 0 ; i < m.GetNParameters() ; ++i)
-            if (m.GetParameter(i).Fixed())
-                evidence *= exp(BCMath::LogGaus(m.GetParameter(i).GetFixedValue(), m.mean(), m.sigma(), true));
-            else
-                evidence /= m.GetParameter(i).GetRangeWidth();
+        /* optimization */
+
+        // perturb starting point
+        std::vector<double> mode(ndim, -0.3);
+        for (unsigned i = 0; i < ndim; ++i)
+            mode.at(i) = mode.front() + i * 0.5351;
+
+        mode = m.FindMode(BCIntegrate::kOptMinuit, mode);
+        TMinuitMinimizer& minuit = m.GetMinuit();
+        minuit.Hesse();
+
+        std::vector<double> cov(ndim * ndim);
+        minuit.GetCovMatrix(&cov[0]);
+
+        std::vector<double> hessian(cov);
+        minuit.GetHessianMatrix(&hessian[0]);
+
+        double errlo, errhi;
+
+        for (unsigned i = 0 ; i < ndim ; ++i) {
+            const BCParameter& p = m.GetParameter(i);
+
+            /* fixed parameter induces row/col. with zeros. */
+            if (p.Fixed()) {
+                TEST_CHECK_EQUAL(mode.at(i), p.GetFixedValue());
+                TEST_CHECK_EQUAL(m.GetBestFitParameterErrors().at(i), 0.0);
+                for (unsigned j = 0; j < ndim; ++j)
+                    if (i != j) {
+                        TEST_CHECK_EQUAL(cov.at(i * ndim + j), 0.0);
+                        TEST_CHECK_EQUAL(cov.at(j * ndim + i), 0.0);
+                    }
+            }
+            /* Expect result proportional to unit matrix for both
+             * covariance and hessian, no correlation */
+            else {
+                TEST_CHECK_NEARLY_EQUAL(mode.at(i), m.mean(), 5e-4);
+
+                const double eps = 2e-2;
+                TEST_CHECK_RELATIVE_ERROR(m.GetBestFitParameterErrors().at(i), m.sigma(), eps);
+                TEST_CHECK(minuit.GetMinosError(i, errlo, errhi));
+                TEST_CHECK_RELATIVE_ERROR(-errlo, m.sigma(), eps);
+                TEST_CHECK_RELATIVE_ERROR(errhi, m.sigma(), eps);
+                TEST_CHECK_RELATIVE_ERROR(cov.at(i * ndim + i), m.sigma() * m.sigma(), eps);
+                TEST_CHECK_RELATIVE_ERROR(hessian.at(i * ndim + i), 1.0 / (m.sigma() * m.sigma()), eps);
+
+                for (unsigned j = 0; j < ndim; ++j) {
+                    /* get NaN if comparing to fixed parameter */
+                    if (i != j && !m.GetParameter(j).Fixed())
+                        TEST_CHECK_NEARLY_EQUAL(minuit.Correlation(i, j), 0.0, 1e-3);
+                }
+            }
+        }
+
+        const double evidence = m.evidence();
 
         // Ask for higher precision than what we compare to. The error
         // is of a stochastic nature, and if we could interpret it as
@@ -151,6 +224,8 @@ public:
         // is outside the quoted interval.
         static const double eps = 5e-2;
         m.SetAbsolutePrecision(1e-12);
+
+        TEST_CHECK_RELATIVE_ERROR(m.Integrate(BCIntegrate::kIntLaplace), evidence, eps);
 
         // sample mean needs huge number of evaluations
         m.SetNIterationsMax(3e6);
@@ -179,12 +254,15 @@ public:
         m.SetCubaOptions(o);
         TEST_CHECK_RELATIVE_ERROR(m.Integrate(), evidence, eps);
 #endif
-        m.SetCubaIntegrationMethod(BCIntegrate::kCubaDivonne);
-        TEST_CHECK_RELATIVE_ERROR(m.Integrate(), evidence, eps);
+        if (ndim > 1) {
+            m.SetCubaIntegrationMethod(BCIntegrate::kCubaDivonne);
+            TEST_CHECK_RELATIVE_ERROR(m.Integrate(), evidence, eps);
 
-        m.SetCubaIntegrationMethod(BCIntegrate::kCubaCuhre);
-        TEST_CHECK_RELATIVE_ERROR(m.Integrate(), evidence, eps);
+            m.SetCubaIntegrationMethod(BCIntegrate::kCubaCuhre);
+            TEST_CHECK_RELATIVE_ERROR(m.Integrate(), evidence, eps);
+        }
 #endif
+
     }
 
     void Integration() const
@@ -201,10 +279,11 @@ public:
         {
             Precision p;
             p.monteCarlo = 1e-2;
+            p.grid = 1e-2;
             p.vegas = 2e-2;
             p.suave = 1e-2;
-            p.divonne = 2; // fails in 1D
-            p.cuhre = 2; // fails in 1D
+            p.divonne = -1; // fails in 1D
+            p.cuhre = -1; // fails in 1D
             IntegrateAllMethods(1, 1, 1, p);
         }
 
@@ -216,6 +295,7 @@ public:
 
         {
             Precision p(5e-3);
+            p.grid = -1; // not available in 5D
             p.suave = -1;
             IntegrateAllMethods(5, 1, 1, p);
         }
@@ -223,7 +303,15 @@ public:
         // tough case: low precision required
         {
             Precision p(0.1);
+            p.grid = -1; // not available in 5D
             IntegrateAllMethods(5, 8, 4, p);
+        }
+
+        // run Laplace without running minuit before
+        {
+            GaussModel m("Gauss Laplace", 3);
+
+            TEST_CHECK_RELATIVE_ERROR(m.Integrate(BCIntegrate::kIntLaplace), m.evidence(), 5e-8);
         }
     }
 
@@ -247,7 +335,12 @@ public:
     {
         Integration();
         Optimization();
-        FixedParameters();
+        FixedParameters(2);
+        FixedParameters(4);
         Slice();
     }
 } bcIntegrateTest;
+
+// Local Variables:
+// compile-command: "make -C ../ && make BCIntegrate.TEST && ./BCIntegrate.TEST"
+// End:

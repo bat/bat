@@ -1701,7 +1701,11 @@ bool BCEngineMCMC::MetropolisPreRun()
                 CD0[I][I] = sqrt(fMCMCProposalFunctionScaleFactor[0][0] * S0[I][I]);
                 ++I;
             }
+
+        // if chains run a second time on a model, the assign does not update the contents. wtf?
+        fMultivariateProposalFunctionCovariance.clear();
         fMultivariateProposalFunctionCovariance.assign(fMCMCNChains, S0);
+        fMultivariateProposalFunctionCholeskyDecomposition.clear();
         fMultivariateProposalFunctionCholeskyDecomposition.assign(fMCMCNChains, CD0);
     }
 
