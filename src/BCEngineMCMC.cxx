@@ -1676,7 +1676,7 @@ bool BCEngineMCMC::MetropolisPreRun()
     // initialize Markov chain
     MCMCInitialize();
 
-    if (fMCMCFlagWritePreRunToFile)
+    if (!fMCMCOutputFile && fMCMCFlagWritePreRunToFile)
         InitializeMarkovChainTree();
 
     // perform run
@@ -2101,11 +2101,11 @@ bool BCEngineMCMC::Metropolis()
     if (fMCMCFlagPreRun) {
         if (!MetropolisPreRun())
             return false;
-        if (!fMCMCFlagWritePreRunToFile && fMCMCFlagWriteChainToFile)
+        if (!fMCMCOutputFile && !fMCMCFlagWritePreRunToFile && fMCMCFlagWriteChainToFile)
             InitializeMarkovChainTree();
     } else {
         BCLog::OutWarning("BCEngineMCMC::MCMCMetropolis. Not running prerun. This can cause trouble if the data have changed.");
-        if (fMCMCFlagWriteChainToFile)
+        if (!fMCMCOutputFile && fMCMCFlagWriteChainToFile)
             InitializeMarkovChainTree();
     }
 
