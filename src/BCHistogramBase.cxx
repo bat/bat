@@ -196,6 +196,7 @@ void BCHistogramBase::SetHistogram(const TH1* const hist)
 
     fHistogram = (TH1*) (hist->Clone(Form("%s_bch", hist->GetName())));
     fHistogram->SetStats(false);
+    fHistogram->SetDirectory(0);
     fDimension = fHistogram->GetDimension();
 
     // normalize; TO DO: replace with division of each bin by width/area for arbitrary binning
