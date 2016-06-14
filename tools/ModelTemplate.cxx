@@ -46,7 +46,7 @@ double ((MODEL))::LogLikelihood(const std::vector<double>& pars)
 // }
 
 // ---------------------------------------------------------
-// double ((MODEL))::CalculateObservables(const std::vector<double>& pars)
+// void ((MODEL))::CalculateObservables(const std::vector<double>& pars)
 // {
 //     // Calculate and store obvserables. For example:
 //     GetObservable(0) = pow(pars[0], 2);
