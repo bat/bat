@@ -92,7 +92,7 @@ double BCConstantPrior::GetRandomValue(double xmin, double xmax, TRandom* const 
 {
     if (!R)
         return std::numeric_limits<double>::quiet_NaN();
-    return xmin + R->Rndm() * xmax;
+    return xmin + R->Rndm() * (xmax - xmin);
 }
 
 
