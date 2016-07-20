@@ -2290,28 +2290,46 @@ void BCEngineMCMC::MCMCInitialize()
     CreateHistograms(false);
 
     // set scale factors
-    if (fMCMCProposeMultivariate)
+    if (fMCMCProposeMultivariate) {
         // if multivariate
-        // initialize proposal function scale factors to 2.38^2 / number of dimensions
-        fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, std::vector<double>(1, 2.38 * 2.38 / GetNFreeParameters()));
-    // else
-    else if (fMCMCInitialScaleFactors.size() == GetNParameters())
-        // if provided by user
-        fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, fMCMCInitialScaleFactors);
+
+        // if only one scale factor is set, use for all chains
+        if (fMCMCInitialScaleFactors.size() == 1) {
+            fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, fMCMCInitialScaleFactors);
+        }
+        // if one scale factor set per chain:
+        else if (fMCMCInitialScaleFactors.size() == fMCMCNChains) {
+            fMCMCInitialScaleFactors.reserve(fMCMCNChains);
+            for (unsigned i = 0; i < fMCMCNChains; ++i)
+                fMCMCProposalFunctionScaleFactor.push_back(std::vector<double>(1, fMCMCInitialScaleFactors[i]));
+        }
+        // else initialize proposal function scale factors to 2.38^2 / number of dimensions
+        else {
+            fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, std::vector<double>(1, 2.38 * 2.38 / GetNFreeParameters()));
+        }
+    }
+    // else not factorized proposal
     else {
-        // calculated from priors
-        std::vector<double> temp;
-        for (unsigned i = 0; i < GetNParameters(); ++i)
-            if (GetParameter(i).Fixed() || GetParameter(i).GetRangeWidth() == 0)
-                temp.push_back(1);
-            else {
-                double var = GetParameter(i).GetPriorVariance();
-                if (var > 0 && std::isfinite(var))
-                    temp.push_back(sqrt(var) / GetParameter(i).GetRangeWidth());
-                else
-                    temp.push_back(1. / sqrt(12));
-            }
-        fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, temp);
+
+        // if provided by user
+        if (fMCMCInitialScaleFactors.size() == GetNParameters()) {
+            fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, fMCMCInitialScaleFactors);
+        }
+        // else calculate from priors
+        else {
+            std::vector<double> temp;
+            for (unsigned i = 0; i < GetNParameters(); ++i)
+                if (GetParameter(i).Fixed() || GetParameter(i).GetRangeWidth() == 0)
+                    temp.push_back(1);
+                else {
+                    double var = GetParameter(i).GetPriorVariance();
+                    if (var > 0 && std::isfinite(var))
+                        temp.push_back(sqrt(var) / GetParameter(i).GetRangeWidth());
+                    else
+                        temp.push_back(1. / sqrt(12));
+                }
+            fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, temp);
+        }
     }
 
     // set that a main run has not been made
