@@ -25,6 +25,7 @@ twoside]{scrbook}
 \usepackage{booktabs}
 \usepackage[svgnames]{xcolor}
 \usepackage{graphicx}
+\usepackage{xspace}
 % trailing slash is crucial!
 \graphicspath{
   {./}
@@ -38,8 +39,8 @@ twoside]{scrbook}
 \usepackage{parskip}
 \usepackage[colorinlistoftodos]{todonotes} % Use 'disable' to remove todos in final version
 
-\newcommand{\bat}{{\sc BAT}}
-\newcommand{\Root}{{\sc ROOT}}
+\newcommand{\BAT}{{\scshape BAT}\xspace}
+\newcommand{\ROOT}{{\scshape ROOT}\xspace}
 
 \input{versions}
 \newcommand{\version}{version~\versionno}
@@ -51,7 +52,7 @@ twoside]{scrbook}
 \newcommand{\fred}[1]{{\todo[color=orange]{Fred: #1}}}
 \newcommand{\inbat}[1]{{\todo[color=Salmon!40,inline]{#1}}}
 \newcommand{\abstract}[1]{{\todo[color=Grey!40,inline]{#1}}}
-\newcommand{\batnote}[1]{{\todo[color=Grey!40]{#1}}}
+\newcommand{\BATnote}[1]{{\todo[color=Grey!40]{#1}}}
 
 % references to ...
 \def \refchap#1{Chapter~\ref{cha:#1}}
@@ -112,12 +113,12 @@ twoside]{scrbook}
 \begin{center}
 
 
-{\Large \bat{} Manual}
+{\Large \BAT Manual}
 \\
 
 \vspace{1cm}
 
-{\large \bat\ \version}
+{\large \BAT \version}
 
 \end{center}
 
@@ -157,17 +158,17 @@ quick tutorial covering the basic features, jump directly to
 \subsection*{Structure of this document}
 
 We give a brief introduction of the Bayesian approach to statistics in
-\refsec{Bayes} and describe the core algorithm of \bat{}, Markov chain
+\refsec{Bayes} and describe the core algorithm of \BAT, Markov chain
 Monte Carlo, in \refsec{MCMC}. Further sections describe other parts
-of \bat{} and advanced features.
+of \BAT and advanced features.
 
 \subsection*{Further help}
 
 Please visit our home page at \url{http://mpp.mpg.de/bat} for an
-overview of documentation and activities around \bat{}.
+overview of documentation and activities around \BAT.
 
 This document is meant to is quickly enable to you to find your way
-around \bat{}. We describe the common workflow and explain how to
+around \BAT. We describe the common workflow and explain how to
 solve some not-so-common tasks. To keep the size of this document
 manageable, we refer you to the
 \href{http://mpp.mpg.de/bat/docs/refman/latest/}{online reference
@@ -189,7 +190,7 @@ Goal of this section is that you can read and test as you go along, and end up w
 \section{Installation instructions}
 
 Detailed instructions for downloading and installing BAT are in the
-\verb|INSTALL.md| file that comes with the \bat\ source distribution. The
+\verb|INSTALL.md| file that comes with the \BAT source distribution. The
 latest version is available online at
 \url{https://github.com/bat/bat/blob/master/INSTALL.md}.
 
@@ -227,12 +228,12 @@ Options for the different output types.
 
 \fred{Just introduce terminology and symbols. Refer to other book:
   Jaynes, Gelman. Which questions are of interest, which can be
-  answered more easily with \bat, this includes goodness of fit with p
+  answered more easily with \BAT, this includes goodness of fit with p
   values which is not exactly Bayesian}
 
 In this chapter, we give a concise and necessarily incomplete overview
 of Bayesian statistics. Our intention is to cover the bare minimum and
-introduce those quantities that appear in \bat. There is vast
+introduce those quantities that appear in \BAT. There is vast
 literature on the subject; we refer the reader to the books
 \cite{jaynes_probability_2003, hartigan_bayes_1983, sivia_data_2006,
   mackay_information_2003, dagostini_bayesian_2003,
@@ -350,14 +351,14 @@ the \emph{goodness of fit} is explained in \fred{expand}
 
 \section{Representation in BAT} \label{sec:representation-bat}
 
-In \bat, a model $M$ is represented as a C++ subclass of
+In \BAT, a model $M$ is represented as a C++ subclass of
 \code{BCModel}. The crucial parts are to define the likelihood $P(D
 \cond \vecth, M)$, the prior $P(\vecth \cond M)$, and the parameters
-$\vecth$. From these quantities, \bat{} can compute the posterior
-$P(\vecth \cond D, M)$. To avoid numerical overflow, \bat{} operates
+$\vecth$. From these quantities, \BAT can compute the posterior
+$P(\vecth \cond D, M)$. To avoid numerical overflow, \BAT operates
 on the log scale whenever possible.  The key methods a user has to
 implement are
-\fred{Perhaps mention \bat{} in framed insets right where terms are introduced.}
+\fred{Perhaps mention \BAT in framed insets right where terms are introduced.}
 
 \begin{cxxcode}
 virtual double LogLikelihood(const std::vector<double>& params)
@@ -381,8 +382,8 @@ seconds is defined as
 AddParameter("theta", 0, 1, "#theta", "s");
 \end{cxxcode}
 and whenever \cxxin{theta} appears on the x axis of a plot, it will
-appears as ``$\theta$ [s]''. Note that the plots are created with \Root,
-so the \cxxin{latexname} has to be in \Root{} syntax which is mostly
+appears as ``$\theta$ [s]''. Note that the plots are created with \ROOT,
+so the \cxxin{latexname} has to be in \ROOT syntax which is mostly
  \LaTeX{} syntax with ``\textbackslash" $\to$ ``\#''.
 
 \chapter{Markov chain Monte Carlo} \label{sec:MCMC}
@@ -391,7 +392,7 @@ so the \cxxin{latexname} has to be in \Root{} syntax which is mostly
 
 \section{Motivation}\label{sec:mcmc-motivation}
 
-The reason that \bat{} exists is that nearly any Bayesian analysis
+The reason that \BAT exists is that nearly any Bayesian analysis
 these days is too complicated to be handled analytically. To address
 typical questions like
 \begin{enumerate}
@@ -408,7 +409,7 @@ When the number of parameters grows, the only feasible algorithms to
 perform the integration are Monte Carlo methods; i.e., methods based
 on random numbers.
 
-The key ingredient in \bat{} is an implementation of the Metropolis
+The key ingredient in \BAT is an implementation of the Metropolis
 algorithm to create a Markov chain; i.e. a sequence of (correlated)
 samples from the posterior. We use the shorthand MCMC for Markov chain
 Monte Carlo.
@@ -417,11 +418,11 @@ Monte Carlo.
 
 Efficient MCMC algorithms are the topic of past and current
 research. This section is a concise overview of the general idea and
-the algorithms available in \bat. For a broader overview, we refer the
+the algorithms available in \BAT. For a broader overview, we refer the
 reader to the abundant literature; e.g., \fred{Robert+Casella, MCMC
   handbook}.
 
-In \bat{}, there are several variants of the random-walk Metropolis Hastings algorithm available. The basic idea is captured in the 2D example shown in \reffig{random-walk-idealized}. Given an initial point $x_0$, the Metropolis algorithm produces a sample in each iteration $t=1 \dots$ as follows:
+In \BAT, there are several variants of the random-walk Metropolis Hastings algorithm available. The basic idea is captured in the 2D example shown in \reffig{random-walk-idealized}. Given an initial point $x_0$, the Metropolis algorithm produces a sample in each iteration $t=1 \dots$ as follows:
 
 \begin{enumerate}
   \item Propose a new point $y$
@@ -455,7 +456,7 @@ main difference between MCMC algorithms is typically given by
 different choices of $q$. The Metropolis algorithm doesn't specify
  which $q$ to choose, so we can tune it according to our needs.
 
-In \bat{}, the proposal is \emph{symmetric} around the current point
+In \BAT, the proposal is \emph{symmetric} around the current point
 \begin{align}
   q(y \cond x) = q(x \cond y).
 \end{align}
@@ -496,7 +497,7 @@ not all dimensions.
 
 \subsection{Multivariate proposal}\label{sec:multivariate}
 
-\batnote{New in v1.0} Changing all $d$ parameters at once within one
+\BATnote{New in v1.0} Changing all $d$ parameters at once within one
 iteration is an all-or-nothing approach. If the proposed move is
 accepted, all parameters have changed for the price of a single
 evaluation of the posterior. If the move is rejected, the new point is
@@ -616,7 +617,7 @@ that the standard deviation is positive semi-definite, as it need be.
 Naturally to be of use, we also create a constructor that allows us to
 set the mean and standard deviation at creation; and getters and
 setters that allow us to access them. (See the source code of
-\code{BCGaussianPrior} for their implementation.}
+\code{BCGaussianPrior} for their implementation.)
 
 This is all that is required to create a new prior. \code{BCPrior} has
 several methods for getting properties of the prior: the mode; the
