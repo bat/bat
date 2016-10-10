@@ -71,7 +71,7 @@ BCModel::~BCModel()
 // ---------------------------------------------------------
 void swap(BCModel& A, BCModel& B)
 {
-    swap(static_cast<BCModel&>(A), static_cast<BCModel&>(B));
+    swap(static_cast<BCIntegrate&>(A), static_cast<BCIntegrate&>(B));
     std::swap(A.fDataSet, B.fDataSet);
     std::swap(A.fPriorModel, B.fPriorModel);
     std::swap(A.fBCH1DPriorDrawingOptions, B.fBCH1DPriorDrawingOptions);
