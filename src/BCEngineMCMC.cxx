@@ -69,6 +69,7 @@ BCEngineMCMC::BCEngineMCMC(const std::string& name)
       fMCMCEfficiencyMin(0.15),
       fMCMCEfficiencyMax(0.35),
       fInitialPositionScheme(BCEngineMCMC::kInitRandomUniform),
+      fInitialPositionAttemptLimit(100),
       fMCMCProposeMultivariate(true),
       fMCMCProposalFunctionDof(1.0),
       fMCMCPhase(BCEngineMCMC::kUnsetPhase),
@@ -105,6 +106,7 @@ BCEngineMCMC::BCEngineMCMC(const std::string& filename, const std::string& name,
       fMCMCEfficiencyMin(0.15),
       fMCMCEfficiencyMax(0.35),
       fInitialPositionScheme(BCEngineMCMC::kInitRandomUniform),
+      fInitialPositionAttemptLimit(100),
       fMCMCProposeMultivariate(true),
       fMCMCProposalFunctionDof(1.0),
       fMCMCPhase(BCEngineMCMC::kUnsetPhase),
@@ -162,6 +164,7 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
       fMCMCEfficiencyMin(other.fMCMCEfficiencyMin),
       fMCMCEfficiencyMax(other.fMCMCEfficiencyMax),
       fInitialPositionScheme(other.fInitialPositionScheme),
+      fInitialPositionAttemptLimit(other.fInitialPositionAttemptLimit),
       fMCMCProposeMultivariate(other.fMCMCProposeMultivariate),
       fMCMCProposalFunctionDof(other.fMCMCProposalFunctionDof),
       fMCMCPhase(other.fMCMCPhase),
@@ -260,6 +263,7 @@ void swap(BCEngineMCMC& A, BCEngineMCMC& B)
     std::swap(A.fMCMCEfficiencyMin, B.fMCMCEfficiencyMin);
     std::swap(A.fMCMCEfficiencyMax, B.fMCMCEfficiencyMax);
     std::swap(A.fInitialPositionScheme, B.fInitialPositionScheme);
+    std::swap(A.fInitialPositionAttemptLimit, B.fInitialPositionAttemptLimit);
     std::swap(A.fMCMCProposeMultivariate, B.fMCMCProposeMultivariate);
     std::swap(A.fMCMCProposalFunctionDof, B.fMCMCProposalFunctionDof);
     std::swap(A.fMCMCPhase, B.fMCMCPhase);
@@ -2340,9 +2344,6 @@ void BCEngineMCMC::MCMCInitialize()
 
     /* set initial position */
 
-    // this can be extended to user-settable member
-    unsigned max_tries = 10;
-
     // initialize markov chain positions
     switch (fInitialPositionScheme) {
 
@@ -2374,12 +2375,12 @@ void BCEngineMCMC::MCMCInitialize()
         case kInitRandomUniform : {
             fMCMCx.assign(fMCMCNChains, std::vector<double>());
             for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
-                for (unsigned n = 0; n < max_tries && !std::isfinite(fMCMCprob[ichain]); ++n) {
+                for (unsigned n = 0; n < fInitialPositionAttemptLimit && !std::isfinite(fMCMCprob[ichain]); ++n) {
                     fMCMCx[ichain] = GetParameters().GetUniformRandomValues(fMCMCThreadLocalStorage[ichain].rng);
                     fMCMCprob[ichain] = LogEval(fMCMCx[ichain]);
                 }
                 if (!std::isfinite(fMCMCprob[ichain]))
-                    throw std::runtime_error(Form("BCEngineMCMC::MCMCInitialize : Could not generate uniformly distributed initial point with valid probability in %u tries.", max_tries));
+                    throw std::runtime_error(Form("BCEngineMCMC::MCMCInitialize : Could not generate uniformly distributed initial point with valid probability in %u tries.", fInitialPositionAttemptLimit));
             }
 
             break;
@@ -2422,7 +2423,7 @@ void BCEngineMCMC::MCMCInitialize()
 
             fMCMCx.assign(fMCMCNChains, std::vector<double>());
             for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
-                for (unsigned n = 0; n < max_tries && !std::isfinite(fMCMCprob[ichain]); ++n) {
+                for (unsigned n = 0; n < fInitialPositionAttemptLimit && !std::isfinite(fMCMCprob[ichain]); ++n) {
                     fMCMCx[ichain] = GetParameters().GetRandomValuesAccordingToPriors(fMCMCThreadLocalStorage[ichain].rng);
                     // check new point
                     if (!GetParameters().IsWithinLimits(fMCMCx[ichain]))
@@ -2431,7 +2432,7 @@ void BCEngineMCMC::MCMCInitialize()
                     fMCMCprob[ichain] = LogEval(fMCMCx[ichain]);
                 }
                 if (!std::isfinite(fMCMCprob[ichain]))
-                    throw std::runtime_error(Form("BCEngineMCMC::MCMCInitialize : Could not generate initial point from prior with valid probability in %u tries.", max_tries));
+                    throw std::runtime_error(Form("BCEngineMCMC::MCMCInitialize : Could not generate initial point from prior with valid probability in %u tries.", fInitialPositionAttemptLimit));
             }
 
             break;
