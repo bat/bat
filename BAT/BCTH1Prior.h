@@ -22,10 +22,8 @@
 // ---------------------------------------------------------
 
 #include "BCPrior.h"
-
-#include <limits>
-
 #include <TH1.h>
+#include <limits>
 
 // ---------------------------------------------------------
 
@@ -35,17 +33,23 @@ public:
     /** \name Constructor & Destructor */
     /** @{ **/
 
-    /** Constructor */
+    /** Constructor
+     *
+     * @param h Copied internally.
+     * @param interpolate All operations involving the density at a point x either interpolate linearly between two bins (true) or take the histogram's value of the bin into which x falls (false). */
     BCTH1Prior(TH1& h, bool interpolate = false);
 
-    /** Constructor */
+    /** Constructor
+     *
+     * @param h Copied internally.
+     * @param interpolate All operations involving the density at a point x either interpolate linearly between two bins (true) or take the histogram's value of the bin into which x falls (false). */
     BCTH1Prior(TH1* h, bool interpolate = false);
 
     /** Copy constructor */
     BCTH1Prior(const BCTH1Prior& other);
 
     /** Destructor */
-    virtual ~BCTH1Prior() {};
+    virtual ~BCTH1Prior();
 
     /** @} **/
 
@@ -77,7 +81,7 @@ public:
      * @param normalize Whether to normalize prior with stored integral
      * @return prior */
     virtual double GetPrior(double x, bool normalize = false)
-    { return ((fInterpolate) ? fPriorHistogram.Interpolate(x) : fPriorHistogram.GetBinContent(fPriorHistogram.FindFixBin(x))) * ((normalize) ? exp(-fLogIntegral) : 1); }
+    { return ((fInterpolate) ? fPriorHistogram->Interpolate(x) : fPriorHistogram->GetBinContent(fPriorHistogram->FindFixBin(x))) * ((normalize) ? exp(-fLogIntegral) : 1); }
 
     /**
      * Get log of prior
@@ -129,7 +133,7 @@ public:
      * @param xmax upper limit of range to evaluate over
      * @return standard deviation of prior distribution */
     virtual double GetStandardDeviation(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
-    { (void)xmin; (void)xmax; return fPriorHistogram.GetRMS(); }
+    { (void)xmin; (void)xmax; return fPriorHistogram->GetRMS(); }
 
     /**
      * Get BCH1D object for prior.
@@ -153,7 +157,7 @@ public:
      * @param R Pointer to the random generator to be used, if needed.
      * @return random value. */
     virtual double GetRandomValue(double /*xmin*/, double /*xmax*/, TRandom* const /*R*/ = NULL)
-    { return fPriorHistogram.GetRandom(); }
+    { return fPriorHistogram->GetRandom(); }
 
     /** @} **/
 
@@ -161,10 +165,10 @@ public:
     /** @{ **/
 
     virtual TH1& GetHistogram()
-    { return fPriorHistogram; }
+    { return *fPriorHistogram; }
 
     virtual const TH1& GetHistogram() const
-    { return fPriorHistogram; }
+    { return *fPriorHistogram; }
 
     virtual bool GetInterpolate()
     { return fInterpolate; }
@@ -181,7 +185,10 @@ public:
 
 protected:
 
-    TH1& fPriorHistogram;  //< TH1 holding prior
+    // We don't accept nullptr and used a reference up to bat 1.0-rc1
+    // but unfortunately, TH1& operator=(const TH1&) is declared private
+    // at least up root 5.34/30 so we cannot change it in the swap function, hence we need to use a pointer
+    TH1* fPriorHistogram;  //< TH1 holding prior
 
     bool fInterpolate; //< whether to interpolate values of hist for prior function
 };
