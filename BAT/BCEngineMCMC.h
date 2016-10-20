@@ -313,6 +313,11 @@ public:
     { return fInitialPositionScheme; }
 
     /**
+     * @return maximum number of allowed attempts to set the initial position */
+    unsigned GetInitialPositionAttemptLimit() const
+    { return fInitialPositionAttemptLimit; }
+
+    /**
      * @return whether to use a multivariate proposal function. */
     bool GetProposeMultivariate() const
     { return fMCMCProposeMultivariate; }
@@ -755,6 +760,11 @@ public:
      * Sets flag which defines initial position.  */
     void SetInitialPositionScheme(BCEngineMCMC::InitialPositionScheme scheme)
     { fInitialPositionScheme = scheme; }
+
+    /**
+     * Sets maximum number of attempts to find a valid initial position. */
+    void SetInitialPositionAttemptLimit(unsigned n)
+    { fInitialPositionAttemptLimit = n; }
 
     /**
      * Set `flag` to `true` to turn on the multivariate proposal for
@@ -1649,6 +1659,10 @@ protected:
      * Variable which defines the initial position.
      * See enum MCMCInitialPosition for possible values. */
     BCEngineMCMC::InitialPositionScheme fInitialPositionScheme;
+
+    /**
+     * Maximum number of attempts to make to set the initial position. */
+    unsigned fInitialPositionAttemptLimit;
 
     /**
      * Flag for using multivariate proposal function. */
