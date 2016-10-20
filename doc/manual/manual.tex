@@ -33,7 +33,6 @@ twoside]{scrbook}
 }
 
 \usepackage{hyperref}
-\synctex=1 % cross correlate PDF viewer and editor
 
 \usepackage[numbers,sort&compress]{natbib}
 \usepackage{parskip}
@@ -41,6 +40,10 @@ twoside]{scrbook}
 
 \newcommand{\BAT}{{\scshape BAT}\xspace}
 \newcommand{\ROOT}{{\scshape ROOT}\xspace}
+
+\newcommand{\BATurl}{http://mpp.mpg.de/bat}
+\newcommand{\BATgithub}{https://github.com/bat/bat}
+\newcommand{\ROOTurl}{https://root.cern.ch/}
 
 \input{versions}
 \newcommand{\version}{version~\versionno}
@@ -52,7 +55,7 @@ twoside]{scrbook}
 \newcommand{\fred}[1]{{\todo[color=orange]{Fred: #1}}}
 \newcommand{\inbat}[1]{{\todo[color=Salmon!40,inline]{#1}}}
 \newcommand{\abstract}[1]{{\todo[color=Grey!40,inline]{#1}}}
-\newcommand{\BATnote}[1]{{\todo[color=Grey!40]{#1}}}
+\newcommand{\BATnewin}[1]{{\todo[color=Grey!40,noline]{New in v#1}}}
 
 % references to ...
 \def \refchap#1{Chapter~\ref{cha:#1}}
@@ -148,38 +151,48 @@ twoside]{scrbook}
 
 \section*{Overview}
 
-\fred{what is this for, web page, reference guide, github, teaser}
-
 The purpose of this document is to introduce the Bayesian Analysis
-Toolkit (BAT). \fred{Say in two sentences what BAT is for.} For a
-quick tutorial covering the basic features, jump directly to
+Toolkit (\BAT), a C++ package providing tools to
+\begin{itemize}
+  \item compare model predictions with data,
+  \item draw conclusions on the validity of a model as a representation of the data,
+  \item and to extract the values of the free parameters of a model.
+\end{itemize}
+For a quick tutorial covering the basic features, jump directly to
 \refsec{basics}.
+
+\BAT was originally developed at the \href{http://mpp.mpg.de}{Max
+  Planck institute for physics} in Munich, Germany, in the context of
+particle physics. \BAT uses \href{\ROOTurl}{\ROOT} for data handling and graphical
+output.
 
 \subsection*{Structure of this document}
 
 We give a brief introduction of the Bayesian approach to statistics in
 \refsec{Bayes} and describe the core algorithm of \BAT, Markov chain
-Monte Carlo, in \refsec{MCMC}. Further sections describe other parts
-of \BAT and advanced features.
+Monte Carlo, in \refsec{MCMC}. Further sections describe other tools
+of \BAT, specific statistical models, and advanced features.
 
 \subsection*{Further help}
 
-Please visit our home page at \url{http://mpp.mpg.de/bat} for an
-overview of documentation and activities around \BAT.
+Please visit our home page at \url{\BATurl} for an overview of papers,
+research, and other activities related to \BAT. The code development
+takes place on \href{\BATgithub}{github}.
 
 This document is meant to is quickly enable to you to find your way
-around \BAT. We describe the common workflow and explain how to
-solve some not-so-common tasks. To keep the size of this document
-manageable, we refer you to the
-\href{http://mpp.mpg.de/bat/docs/refman/latest/}{online reference
-  guide} in which all classes, methods etc. are documented.
+around \BAT. We describe the common workflow and explain how to solve
+some not-so-common tasks. To keep the size of this document
+manageable, we refer to the \href{\BATurl/docs/refman/latest/}{online
+  reference guide} in which all classes, methods etc. are documented.
 
-If you find a problem with the code, the preferred method is to create
-a new issue at \url{https://github.com/bat/bat/issues}. If you provide
-some code for us to reproduce the problem, we can help you much
-faster.
+If you run into a problem with \BAT, the preferred method is to create
+a new issue on \href{\BATgithub/issues}{github}. This allows other
+users to easily find your issue online and benefit from the
+solution. If you provide some code for us to reproduce the problem, we
+can help you much faster.
 
-For general questions or comments, contact the developers at
+For general questions or comments that do not belong into the public
+in the form of issues, you can contact the developers at
 \href{mailto:bat@mpp.mpg.de}{bat@mpp.mpg.de}.
 
 \part{Basics}
@@ -497,7 +510,7 @@ not all dimensions.
 
 \subsection{Multivariate proposal}\label{sec:multivariate}
 
-\BATnote{New in v1.0} Changing all $d$ parameters at once within one
+\BATnewin{1.0} Changing all $d$ parameters at once within one
 iteration is an all-or-nothing approach. If the proposed move is
 accepted, all parameters have changed for the price of a single
 evaluation of the posterior. If the move is rejected, the new point is
@@ -716,5 +729,5 @@ using \code{BCEmptyModel}.
 \end{document}
 
 % Local Variables:
-% compile-command:"rubber --pdf -W refs -W misc manual"
+% compile-command:"rubber --pdf --synctex -W refs -W misc manual"
 % End:
