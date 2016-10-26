@@ -94,11 +94,8 @@ twoside]{scrbook}
 {}
 \newcommand{\cxxin}[1]{\lstinline{#1}}
 
-% math
-\newcommand{\cond}{\,|\,}
-\newcommand\rmdx[1]{\mbox{d}#1\,} % differential
-\newcommand{\scath}{\theta} % scalar parameter
-\newcommand{\vecth}{\bm{\theta}} % vector parameter
+% define math commands
+\usepackage{bat}
 
 % --------------------------------------------------------
 % document
@@ -473,39 +470,44 @@ In \BAT, there are several variants of the random-walk Metropolis Hastings algor
 \section{Implementation in BAT}
 
 Implementing the Metropolis algorithm, one has to decide on how to
-propose a new point based on the current point. For a random walk,
-this is given by the \emph{proposal distribution} $q(y \cond x)$. The
-main difference between MCMC algorithms is typically given by
-different choices of $q$. The Metropolis algorithm doesn't specify
- which $q$ to choose, so we can tune it according to our needs.
+propose a new point based on the current point, that is one needs the
+\emph{proposal distribution} $q(y \cond x, \xi)$ with adjustable parameters
+$\xi$. The main difference between MCMC algorithms is typically given
+by different choices of $q$. The Metropolis algorithm doesn't specify
+which $q$ to choose, so we can and have to select a function $q$ and
+tune $\xi$ according to our needs.
 
 In \BAT, the proposal is \emph{symmetric} around the current point
 \begin{align}
-  q(y \cond x) = q(x \cond y).
+  q(y \cond x, \xi) = q(x \cond y, \xi).
 \end{align}
 
-There are two stages
+The Markov property implies that the proposal may only on the current
+point $x$ and not on previous points. If the value of $\xi$ is set
+based on a past sequence of iterations of the chain, we need two
+stages of sampling in \BAT, the \emph{prerun} and the \emph{main
+  run}. In the prerun, the chain is run and periodically $\xi$ is
+updated based on the past iterations. In contrast, $\xi$ is kept fixed
+in the main run to have a proper Markov chain. \fred{A flow diagram
+  might help}
 
-
-\fred{Overall scheme: prerun and main run, adaptation in the prerun}
-
-We offer two variants termed \emph{factorized} and \emph{multivariate}.
+\BAT offers two kinds of proposal function termed \emph{factorized} and \emph{multivariate}.
 
 \subsection{Factorized proposal}\label{sec:factorized}
 
 \inbat{Factorized was the default and only choice prior to v1.0 and continues to be available.}
-
+Factor
 \fred{how to activate it}
 
 \abstract{The factorized proposal in $d$ dimensions is a product of 1D
   proposals.}
 
 We sequentially vary one parameter at a time and complete
-one iteration of the chain once a new point has been proposed in every
+one iteration of the chain once a new point has been proposed in \emph{every}
 direction. This means the chain attempts to perform a sequence of
 axis-aligned moves in one iteration.
 
-\fred{Easiest to understand would be pseudocode}
+\fred{Easiest to understand would be pseudocode} SetN
 
 Each 1D proposal is a Cauchy or Breit-Wigner function centered on the
 current point. The scale parameter is adapted in the prerun to achieve
@@ -534,6 +536,13 @@ prerun. An overall scale factor is tuned to force the acceptance rate
 into a certain range.
 
 \fred{Pseudocode}
+
+\subsection{Prerun}
+\fred{Explain main options to adjust length of prerun, updates etc.,
+  discuss proposal-specific options below} The prerun terminates after
+a maximum number of iterations or if multiple chains mix according to
+the R value. Optionally the minimum/maximum number of iterations can
+be set with \code{SetNIterationsPreRun[Min|Max]}.
 
 \subsection{Comparison}\label{sec:proposal-comparison}
 
