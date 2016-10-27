@@ -174,6 +174,6 @@ seconds is defined as
     AddParameter("theta", 0, 1, "#theta", "s");
 
 and whenever `theta` appears on the axis of a plot, it will appear as
-\f$\theta\f$ [s]. Note that the plots are created with \ROOT, so the
-`latexname` has to be in \ROOT syntax which is basically \f$LaTeX\f$
+\f$\theta\f$ [s]. Note that the plots are created with ROOT, so the
+`latexname` has to be in ROOT syntax which is basically \f$LaTeX\f$
 syntax but the backslash `\` is replaced by the hash `#`.

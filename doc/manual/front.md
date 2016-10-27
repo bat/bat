@@ -1,5 +1,10 @@
-<!-- First header is ignored by doxygen -->
+<!-- First header is ignored by doxygen for the main page -->
 <!-- ### Overview -->
+
+### For the impatient
+
+For a quick tutorial covering the basic features, jump directly to the
+[basic tutorial](@ref basics).
 
 The purpose of this document is to introduce the Bayesian Analysis
 Toolkit (BAT), a C++ package providing tools to
@@ -8,20 +13,18 @@ Toolkit (BAT), a C++ package providing tools to
 * draw conclusions on the validity of a model as a representation of the data,
 * and to extract the values of the free parameters of a model.
 
-For a quick tutorial covering the basic features, jump directly to
-[basic tutorial](@ref basics).
-
 BAT was originally developed at
   the [Max Planck institute for physics](http://mpp.mpg.de) in Munich,
-  Germany, in the context of particle physics. BAT uses
-  [ROOT] for data handling and graphical output.
+  Germany, in the context of particle physics. BAT uses [ROOT] for
+  data handling and graphical output.
 
 ### Structure of this document
 
-We give a brief introduction of the Bayesian approach to statistics in
-\refsec{Bayes} and describe the core algorithm of BAT, Markov chain
-Monte Carlo, in \refsec{MCMC}. Further sections describe other tools
-of BAT, specific statistical models, and advanced features.
+After the [basic tutorial](@ref basics), we give a brief introduction
+to @ref cha-Bayes and describe the core algorithm of BAT in @ref
+cha-MCMC. Further chapters describe other tools of BAT, specific
+statistical models, and advanced features.  @htmlonly Use the
+navigation bar on the left to jump to the chapters @endhtmlonly
 
 ### Further help
 
