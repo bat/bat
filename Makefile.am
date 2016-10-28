@@ -59,6 +59,7 @@ dist-hook: prep-docs
 	rm -f $(distdir)/models/libBATmodels.rootmap
 	rm -rf `find $(distdir)/examples -name Makefile`
 
+# TODO remove or move to doc/Makefile.am
 prep-docs: BAT-intro.pdf BAT-quickstart.pdf
 
 BAT-intro.pdf:

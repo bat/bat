@@ -1,25 +1,37 @@
 Build
 -----
+
+### high level
+
+go to `doc/`:
+
+    make ref-guide # output in ref-guide/html
+    make manual # output in ref-guide/html and latex/refman.pdf
+
+Point to a local copy of mathjax
+
+    export MATHJAX_RELPATH=/usr/share/javascript/mathjax/
+    make manual
+
+### details
 create the reference guide first to create a tag file that is referenced from the manual
 
 To make latex recognize `\newcommand`, put a symbolic link to `bat.sty` into `latex` subdirectory, then call `make pdf` there.
 
 To define the same commands also for mathjax, follow http://stackoverflow.com/questions/40270302
 
-For deployment, change
+For faster development, point mathjax to a local copy. Override options in `Doxyfile` like this
 
-    MATHJAX_RELPATH        = http://cdn.mathjax.org/mathjax/latest
-
-from a local version
+    (cat Doxyfile; echo "MATHJAX_RELPATH = /usr/share/javascript/mathjax") | doxygen -
 
 adding a chapter
 ----------------
 
-Create file 'chapter3.md', add in the proper location in `doxyfile`
+Create file 'chapter3.md', add in the proper location in `$input` in `Makefile.am`
 
-     INPUT = front.md basics.md bayes.md chapter3.md
+     input = front.md basics.md bayes.md chapter3.md
 
-Copy over the labeling of sections from `bayes.md`, it doesn't match the doxygen docs on markdown. Add `[TOC]`!
+Copy over the labeling of sections from `bayes.md`, it doesn't match the doxygen docs on markdown. Add `[TOC]` for a table of contents!
 
 debugging doxygen
 -----------------
@@ -55,3 +67,15 @@ output specific code
     @latexonly
     some text only visible in the latex output
     @endlatexonly
+
+source code examples
+--------------------
+
+Syntax highlighting (and linking in html) with
+
+    @code{.cpp}
+    double GetLogPrior(double x)
+    {
+        return -0.5 * (x - fMean) * (x - fMean) / fSigma / fSigma - log(fSigma) - 0.5 * log(2 * M_PI);
+    }
+    @endcode
