@@ -1,3 +1,9 @@
+SUBDIRS = ref-guide manual
+
+EXTRA_DIST = \
+	COPYING CREDITS LICENSE releasenotes.md \
+	customdoxygen.css  newcommands.js
+
 .PHONY: ref-guide
 ref-guide:
 	make -C ref-guide/ doxy

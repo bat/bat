@@ -7,6 +7,7 @@
 MATHJAX_RELPATH ?= "http://cdn.mathjax.org/mathjax/latest"
 
 define doxyconf
+	PROJECT_NUMBER = @VERSION@
 	HTML_EXTRA_STYLESHEET = $(top_srcdir)/doc/customdoxygen.css
 	MATHJAX_RELPATH = $(MATHJAX_RELPATH)
 	MATHJAX_CODEFILE = $(top_srcdir)/doc/newcommands.js
@@ -16,8 +17,8 @@ export doxyconf
 
 .PHONY: doxy
 doxy:
-	(cat Doxyfile; \
-	echo "INPUT = " $(input); \
+	(cat $(srcdir)/Doxyfile; \
+	echo "INPUT = " $(doxyinput); \
 	echo "$$doxyconf"; \
 	echo "$$extradoxyconf"; \
 	) | doxygen -

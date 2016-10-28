@@ -38,7 +38,7 @@ PROJECT_NAME           = "BAT manual"
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = 1.1.0-DEV
+# PROJECT_NUMBER         = 1.1.0-DEV
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a
@@ -672,7 +672,7 @@ LAYOUT_FILE            =
 # search path. Do not use file names with spaces, bibtex cannot handle them. See
 # also \cite for info how to create references.
 
-CITE_BIB_FILES         = references.bib
+# CITE_BIB_FILES         = references.bib
 
 #---------------------------------------------------------------------------
 # Configuration options related to warning and progress messages
@@ -831,7 +831,7 @@ EXAMPLE_RECURSIVE      = NO
 # that contain images that are to be included in the documentation (see the
 # \image command).
 
-IMAGE_PATH             = figures/
+# IMAGE_PATH             = figures/
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
 # invoke to filter for each input file. Doxygen will invoke the filter program
