@@ -35,7 +35,7 @@ takes place [github][BATgithub].
 This document is meant to is quickly enable to you to find your way
 around BAT. We describe the common workflow and explain how to solve
 some not-so-common tasks. To keep the size of this document
-manageable, we refer to the [online reference guide][BATref] in which
+manageable, we refer to the [html reference guide](../../ref-guide/html/index.html) in which
 all classes, methods etc. are documented.
 
 If you run into a problem with BAT, the preferred method is to create
