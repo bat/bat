@@ -20,11 +20,12 @@ EXTRA_DIST = \
 pdf: doxy
 	cp -f $(srcdir)/$(stylefile) $(builddir)/latex/
 	make -C latex $@
+	mv latex/refman.pdf @BAT_MANUAL_PDF@
 
 .PHONY: print
 print:
-	$(info $(doxyconf))
-	$(info $(extradoxyconf))
-	@echo
 	@echo "$$doxyconf"
 	@echo "$$extradoxyconf"
+
+clean-local:
+	-rm -rf doxygen_sqlite3.db html/ latex/ @BAT_MANUAL_PDF@
