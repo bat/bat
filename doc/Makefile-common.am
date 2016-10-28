@@ -1,0 +1,23 @@
+# can't change doxygen options via command line
+# but we want to specify input files relative to the source directory
+# to be compatible with out-of-source build through the variable
+# $input
+
+# override with a local mathjax installation through environment variable
+MATHJAX_RELPATH ?= "http://cdn.mathjax.org/mathjax/latest"
+
+define doxyconf
+	HTML_EXTRA_STYLESHEET = $(top_srcdir)/doc/customdoxygen.css
+	MATHJAX_RELPATH = $(MATHJAX_RELPATH)
+	MATHJAX_CODEFILE = $(top_srcdir)/doc/newcommands.js
+endef
+# follow http://stackoverflow.com/a/649462/987623 to get multi-line string to work
+export doxyconf
+
+.PHONY: doxy
+doxy:
+	(cat Doxyfile; \
+	echo "INPUT = " $(input); \
+	echo "$$doxyconf"; \
+	echo "$$extradoxyconf"; \
+	) | doxygen -

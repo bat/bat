@@ -122,7 +122,7 @@ approach, there is, however, no straightforward answer to the
 following question: if there is only one model at hand, how to decide
 if that model is sufficient to explain the data, or if the search for
 a better model needs to continue?  The standard procedure to tackle
-this problem of evaluating the *goodness of fit} is to define a
+this problem of evaluating the *goodness of fit* is to define a
 test statistic \f$T=T(D)\f$ and to evaluate the following tail-area
 probability, that is the \f$p\f$ value
 \f{align}{
@@ -136,9 +136,6 @@ also the references therein.
 
 @section sec-representation-bat Representation in BAT
 
-**Fred: the whole section might go somewhere else where users find it more
-  easily. I fear it would get lost here**
-
 In BAT, a model \f$M\f$ is represented as a C++ subclass of @ref
 BCModel. The crucial parts are to define the likelihood \f$P(D \cond
 \vecth, M)\f$ @ref BCModel::LogLikelihood, the prior \f$P(\vecth \cond
@@ -148,12 +145,14 @@ posterior \f$P(\vecth \cond D, M)\f$ BCModel::LogProbabilityNN. To
 avoid numerical overflow, BAT operates on the log scale whenever
 possible.  The key methods of @ref BCModel that a user has to
 implement are
-
+@code{.cpp}
     virtual double LogLikelihood(const std::vector<double>& params)
     virtual double LogAPrioriProbability(const std::vector<double>& params)
+@endcode
 
-<!-- BCEngine link works but BCModel method not found. Why? -->
-<!-- @see BCEngineMCMC::SetNIterationsPreRunMax -->
+@todo BCEngine link works but BCModel method not found. Why?
+    @ref BCEngineMCMC::SetNIterationsPreRunMax
+
 @see BCModel::LogAPrioriProbability BCModel::LogLikelihood BCModel::LogProbabilityNN
 
 The parameter values are passed in simply as numbers to likelihood and
@@ -161,18 +160,18 @@ prior, all parameters are assumed to be real and continuous. Discrete
 parameters are not supported. The support of \f$\vecth\f$ is a
 hyperrectangle whose bounds are given by the bounds of the individual
 parameters when added to the model with BCModel::AddParameter
-
+@code{.cpp}
     bool BCModel::AddParameter(const std::string& name, double min, double max,
                                const std::string& latexname = "",
                                const std::string& unitstring = "")
-
+@endcode
 The optional `latexname` and `unitstring` are used only
 for labeling plot axes; it's intended usage is to pretty up plots. For
 example, a parameter `theta` representing a time measured in
 seconds is defined as
-
-    AddParameter("theta", 0, 1, "#theta", "s");
-
+@code{.cpp}
+    AddParameter("theta", 0, 1, "#theta", "[s]");
+@endcode
 and whenever `theta` appears on the axis of a plot, it will appear as
 \f$\theta\f$ [s]. Note that the plots are created with ROOT, so the
 `latexname` has to be in ROOT syntax which is basically \f$LaTeX\f$
