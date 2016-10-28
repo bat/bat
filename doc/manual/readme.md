@@ -6,7 +6,16 @@ Build
 go to `doc/`:
 
     make ref-guide # output in ref-guide/html
-    make manual # output in ref-guide/html and latex/refman.pdf
+    make manual # output in ref-guide/html and BAT-manual.pdf
+
+in `doc/ref-guide`
+
+    make doxy
+
+in `doc/manual`
+
+    make doxy # html
+    make pdf  # pdflatex
 
 Point to a local copy of mathjax
 
@@ -14,20 +23,17 @@ Point to a local copy of mathjax
     make manual
 
 ### details
+
 create the reference guide first to create a tag file that is referenced from the manual
 
-To make latex recognize `\newcommand`, put a symbolic link to `bat.sty` into `latex` subdirectory, then call `make pdf` there.
+To make latex recognize `\newcommand`, add it to `doc/bat.sty`, it is copied by the makefile to th latex subdirectory
 
-To define the same commands also for mathjax, follow http://stackoverflow.com/questions/40270302
-
-For faster development, point mathjax to a local copy. Override options in `Doxyfile` like this
-
-    (cat Doxyfile; echo "MATHJAX_RELPATH = /usr/share/javascript/mathjax") | doxygen -
+To define the same commands also for mathjax, follow http://stackoverflow.com/questions/40270302 and add something to `doc/newcommands.js`
 
 adding a chapter
 ----------------
 
-Create file 'chapter3.md', add in the proper location in `$input` in `Makefile.am`
+Create file 'chapter3.md', add in the proper location in `$doxyinput` in `Makefile.am`
 
      input = front.md basics.md bayes.md chapter3.md
 
