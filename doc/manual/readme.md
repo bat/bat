@@ -30,14 +30,36 @@ To make latex recognize `\newcommand`, add it to `doc/bat.sty`, it is copied by 
 
 To define the same commands also for mathjax, follow http://stackoverflow.com/questions/40270302 and add something to `doc/newcommands.js`
 
-adding a chapter
-----------------
+adding content
+--------------
 
-Create file 'chapter3.md', add in the proper location in `$doxyinput` in `Makefile.am`
+### chapter
+
+Create file `chapter3.md`, add in the proper location in `$doxyinput` in `Makefile.am`
 
      input = front.md basics.md bayes.md chapter3.md
 
 Copy over the labeling of sections from `bayes.md`, it doesn't match the doxygen docs on markdown. Add `[TOC]` for a table of contents!
+
+``` markdown
+Markov chain Monte Carlo {#cha-MCMC}
+============
+
+[TOC]
+
+```
+
+### section
+
+Unfortunately markdown syntax with a label to appear in the TOC doesn't work despite what the manual says, so we have to use doxygen syntax
+
+    @section sec-mcmc-motiv Motivation
+
+### subsection
+
+Here markdown ok again
+
+    ## Factorized proposal {#sec-factorized}
 
 debugging doxygen
 -----------------

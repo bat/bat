@@ -5,7 +5,7 @@ Markov chain Monte Carlo {#cha-MCMC}
 
 @todo workhorse of BAT. mention Metropolis algorithm, role of proposal function, different choices in bat, why it has to be adapted in prerun. What else happens in prerun:R value and convergence checking. Mention that samples are correlated, chains can get stuck if model wrong/poor.
 
-@section sec-mcmc-motivation Motivation
+@section sec-mcmc-motiv Motivation
 
 The reason that BAT exists is that nearly any Bayesian analysis
 these days is too complicated to be handled analytically. To address
@@ -72,18 +72,62 @@ In BAT, the proposal is *symmetric* around the current point
   q(y \cond x, \xi) = q(x \cond y, \xi).
 \f}
 
-The Markov property implies that the proposal may only on the current
-point \f$x\f$ and not on previous points. If the value of \f$\xi\f$ is set
-based on a past sequence of iterations of the chain, we need two
-stages of sampling in BAT, the *prerun* and the \emph{main
-  run}. In the prerun, the chain is run and periodically \f$\xi\f$ is
-updated based on the past iterations. In contrast, \f$\xi\f$ is kept fixed
-in the main run to have a proper Markov chain. @todo A flow diagram
-  might help
+The Markov property implies that the proposal may only depend on the
+current point \f$x\f$ and not on previous points. If the value of
+\f$\xi\f$ is set based on a past sequence of iterations of the chain,
+we need two stages of sampling in BAT, the *prerun* and the *main
+run*. In the prerun, the chain is run and periodically \f$\xi\f$ is
+updated based on the past iterations. In contrast, \f$\xi\f$ is kept
+fixed in the main run to have a proper Markov chain.
+
+## Prerun {#sec-mcmc-prerun}
+
+During the prerun, the proposal is updated. BAT considers three criteria to decide when to end the prerun:
+
+### Efficiency {#sec-mcmc-eff}
+
+The *efficiency*, or acceptance rate, is the ratio  of the accepted over the total number proposal moves. A small efficiency means the chain rarely moves but may then make a large move. A large efficiency means the chain explores well locally but may take a long time to explore the entire region of high probability. Optimality results exists only for very special cases: Roberts and Rosenthal showed that for a Gaussian target with \f$d\f$ independent components and a Gaussian proposal, the optimal target efficiency is 23.4 % for \f$d \geq 5\f$ is  but should be larger for small \f$d\f$; e.g., 44 % is best in one dimension @cite rosenthal2011optimal . Based on our experience, we consider a suitable range of the efficiency to be in \f$[0.15, 0.35]\f$.
+
+@see BCEngineMCMC::SetMinimumEfficiency, BCEngineMCMC::SetMaximumEfficiency
+
+### R value {#sec-mcmc-Rvalue}
+
+The *R value* @cite Gelman:1992 by Gelman and Rubin quantifies the
+estimated scale reduction of the uncertainty of an expectation value
+estimated with the samples if the chain were run infinitely
+long. Informally, it compares the mean and variance of the expectation
+value for a single chain with the corresponding results of multiple
+chains. If the chains mix despite different initial values, then we
+assume that they are independent of the initial value, the burn-in is
+over, and the samples produce reliable estimates of quantities of
+interest. For a single chain, the \f$R\f$ value cannot be computed.
+
+In BAT, we monitor the expectation value of each parameter and declare
+convergence if all R values are below a threshold. Note that the R
+values are estimated from batches of samples, and they usually
+decrease with more iterations but they may also increase, which
+usually is a clear indication that the chains do not mix, perhaps due
+to multiple modes that trap the chains.
+
+@see BCEngineMCMC::SetRValueParametersCriterion Set that maximum R value for all parameters. **Default: 1.1**
+
+@see BCEngineMCMC::SetCorrectRValueForSamplingVariability The strict definition of \f$R\f$ corrects the sampling variability due finite batch size. **Default: false**
+
+@see BCEngineMCMC::GetRValueParameters  \f$R\f$ values are computed during the prerun and they can be retrieved but not set.
+
+### Prerun length {#sec-mcmc-prerun-length}
+
+@see BCEngineMCMC::SetNIterationsPreRunCheck sets the number of iterations between checks
+
+
+If desired, the statistics can be cleared to remove the effect of a bad initial point with BCEngineMCMC::SetPreRunCheckClear.
+
+
+@todo A flow diagram might help
 
 BAT offers two kinds of proposal function termed *factorized* and *multivariate*.
 
-@subsection sec-factorized Factorized proposal
+## Factorized proposal {#sec-factorized}
 
 @since Factorized was the default and only choice prior to v1.0 and continues to be available
 
@@ -113,7 +157,7 @@ zero or one, the factorized proposal typically generates a new point
 in every iteration that differs from the previous point in some but
 not all dimensions.
 
-@subsection sec-multivariate Multivariate proposal
+## Multivariate proposal {#sec-multivariate}
 
 @since 1.0
 
@@ -131,7 +175,7 @@ acceptance rate into a certain range.
 
 @todo Pseudocode
 
-@subsection sec-mcmc-prerun Prerun
+## Prerun {#sec-mcmc-prerun}
 
 @todo Explain main options to adjust length of prerun, updates etc.,
 discuss proposal-specific options below
@@ -142,7 +186,7 @@ minimum/maximum number of iterations can be set with
 BCEngineMCMC::SetNIterationsPreRunMin and
 BCEngineMCMC::SetNIterationsPreRunMax.
 
-@subsection sec-mcmc-proposal-comparison Comparison
+## Comparison {#sec-mcmc-proposal-comparison}
 
 Comparing the factorized proposal to the multivariate proposal, we
 generally recommend the multivariate for most purposes.
