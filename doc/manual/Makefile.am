@@ -1,4 +1,6 @@
+# every file is a chapter of the manual; the order of files is respected
 input = front.md basics.md bayes.md mcmc.md factorized.md share.md
+
 doxyinput = $(addprefix $(srcdir)/, $(input))
 stylefile = bat.sty
 
