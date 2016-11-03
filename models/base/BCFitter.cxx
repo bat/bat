@@ -34,7 +34,11 @@ BCFitter::BCFitter(const TF1& f, const std::string& name)
       fFitFunctionIndexY(-1),
       fErrorBandContinuous(true),
       fErrorBandNbinsX(100),
-      fErrorBandNbinsY(500)
+      fErrorBandNbinsY(500),
+      fErrorBandExtensionLowEdgeX(0),
+      fErrorBandExtensionUpEdgeX(0),
+      fErrorBandExtensionLowEdgeY(0),
+      fErrorBandExtensionUpEdgeY(0)
 {
     if (f.GetNdim() != 1)
         throw std::invalid_argument("BCFitter and descendants only support 1D problems");
@@ -91,16 +95,29 @@ void BCFitter::MarginalizePreprocess()
 
     if (GetDataSet() && fFitFunctionIndexX >= 0 && fFitFunctionIndexY >= 0) {
 
-        dx = GetDataSet()->GetRangeWidth(fFitFunctionIndexX) / fErrorBandNbinsX;
-        dy = GetDataSet()->GetRangeWidth(fFitFunctionIndexY) / fErrorBandNbinsY;
+        dx = (GetDataSet()->GetRangeWidth(fFitFunctionIndexX)
+                +fErrorBandExtensionLowEdgeX
+                +fErrorBandExtensionUpEdgeX) 
+                / fErrorBandNbinsX;
+                
+                
+        dy = (GetDataSet()->GetRangeWidth(fFitFunctionIndexY)
+        +fErrorBandExtensionLowEdgeY
+        +fErrorBandExtensionUpEdgeY)  / fErrorBandNbinsY;
 
+        double xRangeLow=GetDataSet()->GetLowerBound(fFitFunctionIndexX)-fErrorBandExtensionLowEdgeX - dx / 2;
+        double xRangeHigh=GetDataSet()->GetUpperBound(fFitFunctionIndexX)+fErrorBandExtensionUpEdgeX + dx / 2;
+        
+        double yRangeLow=GetDataSet()->GetLowerBound(fFitFunctionIndexY)-fErrorBandExtensionLowEdgeY - dy / 2;
+        double yRangeHigh=GetDataSet()->GetUpperBound(fFitFunctionIndexY)+fErrorBandExtensionUpEdgeY + dy / 2;
+        
         fErrorBandXY = TH2D(TString::Format("errorbandxy_%s", GetSafeName().data()), "",
                             fErrorBandNbinsX,
-                            GetDataSet()->GetLowerBound(fFitFunctionIndexX) - dx / 2,
-                            GetDataSet()->GetUpperBound(fFitFunctionIndexX) + dx / 2,
+                            xRangeLow,
+                            xRangeHigh,
                             fErrorBandNbinsY,
-                            GetDataSet()->GetLowerBound(fFitFunctionIndexY) - dy / 2,
-                            GetDataSet()->GetUpperBound(fFitFunctionIndexY) + dy / 2);
+                            yRangeLow,
+                            yRangeHigh);
         fErrorBandXY.SetStats(kFALSE);
 
         // why are we doing this?
@@ -281,6 +298,16 @@ TH2* BCFitter::GetGraphicalErrorBandXY(double level, int nsmooth, bool overcover
 
     return hist_tempxy;
 }
+
+// ---------------------------------------------------------
+
+TH2 * BCFitter::GetErrorBandXYCopy() const
+{
+    TH2* hist=dynamic_cast<TH2*>( fErrorBandXY.Clone());
+    hist->SetDirectory(0);
+    return hist;
+};
+
 
 // ---------------------------------------------------------
 TGraph* BCFitter::GetFitFunctionGraph(const std::vector<double>& parameters)

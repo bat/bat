@@ -61,7 +61,10 @@ public:
      * @param overcoverage Flag for whether to overcover desired probability mass.
      * @return A 2D histogram of the smallest interval in Y for each bin in X containing the desired probability mass. */
     TH2* GetGraphicalErrorBandXY(double level = .68, int nsmooth = 0, bool overcoverage = true) const;
-
+    
+    //* @return A copy of the internal errorband histogram
+    TH2* GetErrorBandXYCopy()const;
+        
     /**
      * Returns a vector of y-values at a certain probability level.
      * @param level The level of probability
@@ -92,7 +95,22 @@ public:
     /**
      * Sets the error band flag to continuous function */
     void SetErrorBandContinuous(bool flag);
-
+    
+    /**
+     *Extends the lower x Edge of th errorband by -extension */
+    void SetErrorBandExtensionLowEdgeX(double extension){fErrorBandExtensionLowEdgeX=extension;}
+    
+    /**
+     *Extends the lower x Edge of th errorband by +extension */
+    void SetErrorBandExtensionUpEdgeX(double extension){fErrorBandExtensionUpEdgeX=extension;}
+    
+    /**
+     *Extends the lower y Edge of th errorband by -extension */
+    void SetErrorBandExtensionLowEdgeY(double extension){fErrorBandExtensionLowEdgeY=extension;}
+    
+    /**
+     *Extends the lower y Edge of th errorband by +extension */
+    void SetErrorBandExtensionUpEdgeY(double extension){fErrorBandExtensionUpEdgeY=extension;}
     /**
      * Turn on or off the filling of the error band during the MCMC run.
      * @param flag set to true for turning on the filling */
@@ -235,6 +253,21 @@ protected:
 
     /** Storage for plot objects with proper clean-up */
     mutable BCAux::BCTrash<TObject> fObjectTrash;
+    
+    /**
+     * extends the lower edge of x range by the given value  */
+    double fErrorBandExtensionLowEdgeX;
+    /**
+     * extends the upper edge of x range by the given value  */
+    double fErrorBandExtensionUpEdgeX;
+    
+    /**
+     * extends the upper edge of y range by the given value  */
+    double fErrorBandExtensionLowEdgeY;
+    
+    /**
+     * extends the upper edge of y range by the given value  */
+    double fErrorBandExtensionUpEdgeY;
 
     /** Don't allow user to accidentally set the data set,
      * as it is used internally. */
