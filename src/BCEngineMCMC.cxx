@@ -69,6 +69,7 @@ BCEngineMCMC::BCEngineMCMC(const std::string& name)
       fMCMCEfficiencyMin(0.15),
       fMCMCEfficiencyMax(0.35),
       fInitialPositionScheme(BCEngineMCMC::kInitRandomUniform),
+      fInitialPositionAttemptLimit(100),
       fMCMCProposeMultivariate(true),
       fMCMCProposalFunctionDof(1.0),
       fMCMCPhase(BCEngineMCMC::kUnsetPhase),
@@ -105,6 +106,7 @@ BCEngineMCMC::BCEngineMCMC(const std::string& filename, const std::string& name,
       fMCMCEfficiencyMin(0.15),
       fMCMCEfficiencyMax(0.35),
       fInitialPositionScheme(BCEngineMCMC::kInitRandomUniform),
+      fInitialPositionAttemptLimit(100),
       fMCMCProposeMultivariate(true),
       fMCMCProposalFunctionDof(1.0),
       fMCMCPhase(BCEngineMCMC::kUnsetPhase),
@@ -162,6 +164,7 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
       fMCMCEfficiencyMin(other.fMCMCEfficiencyMin),
       fMCMCEfficiencyMax(other.fMCMCEfficiencyMax),
       fInitialPositionScheme(other.fInitialPositionScheme),
+      fInitialPositionAttemptLimit(other.fInitialPositionAttemptLimit),
       fMCMCProposeMultivariate(other.fMCMCProposeMultivariate),
       fMCMCProposalFunctionDof(other.fMCMCProposalFunctionDof),
       fMCMCPhase(other.fMCMCPhase),
@@ -260,6 +263,7 @@ void swap(BCEngineMCMC& A, BCEngineMCMC& B)
     std::swap(A.fMCMCEfficiencyMin, B.fMCMCEfficiencyMin);
     std::swap(A.fMCMCEfficiencyMax, B.fMCMCEfficiencyMax);
     std::swap(A.fInitialPositionScheme, B.fInitialPositionScheme);
+    std::swap(A.fInitialPositionAttemptLimit, B.fInitialPositionAttemptLimit);
     std::swap(A.fMCMCProposeMultivariate, B.fMCMCProposeMultivariate);
     std::swap(A.fMCMCProposalFunctionDof, B.fMCMCProposalFunctionDof);
     std::swap(A.fMCMCPhase, B.fMCMCPhase);
@@ -2290,28 +2294,46 @@ void BCEngineMCMC::MCMCInitialize()
     CreateHistograms(false);
 
     // set scale factors
-    if (fMCMCProposeMultivariate)
+    if (fMCMCProposeMultivariate) {
         // if multivariate
-        // initialize proposal function scale factors to 2.38^2 / number of dimensions
-        fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, std::vector<double>(1, 2.38 * 2.38 / GetNFreeParameters()));
-    // else
-    else if (fMCMCInitialScaleFactors.size() == GetNParameters())
-        // if provided by user
-        fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, fMCMCInitialScaleFactors);
+
+        // if only one scale factor is set, use for all chains
+        if (fMCMCInitialScaleFactors.size() == 1) {
+            fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, fMCMCInitialScaleFactors);
+        }
+        // if one scale factor set per chain:
+        else if (fMCMCInitialScaleFactors.size() == fMCMCNChains) {
+            fMCMCInitialScaleFactors.reserve(fMCMCNChains);
+            for (unsigned i = 0; i < fMCMCNChains; ++i)
+                fMCMCProposalFunctionScaleFactor.push_back(std::vector<double>(1, fMCMCInitialScaleFactors[i]));
+        }
+        // else initialize proposal function scale factors to 2.38^2 / number of dimensions
+        else {
+            fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, std::vector<double>(1, 2.38 * 2.38 / GetNFreeParameters()));
+        }
+    }
+    // else not factorized proposal
     else {
-        // calculated from priors
-        std::vector<double> temp;
-        for (unsigned i = 0; i < GetNParameters(); ++i)
-            if (GetParameter(i).Fixed() || GetParameter(i).GetRangeWidth() == 0)
-                temp.push_back(1);
-            else {
-                double var = GetParameter(i).GetPriorVariance();
-                if (var > 0 && std::isfinite(var))
-                    temp.push_back(sqrt(var) / GetParameter(i).GetRangeWidth());
-                else
-                    temp.push_back(1. / sqrt(12));
-            }
-        fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, temp);
+
+        // if provided by user
+        if (fMCMCInitialScaleFactors.size() == GetNParameters()) {
+            fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, fMCMCInitialScaleFactors);
+        }
+        // else calculate from priors
+        else {
+            std::vector<double> temp;
+            for (unsigned i = 0; i < GetNParameters(); ++i)
+                if (GetParameter(i).Fixed() || GetParameter(i).GetRangeWidth() == 0)
+                    temp.push_back(1);
+                else {
+                    double var = GetParameter(i).GetPriorVariance();
+                    if (var > 0 && std::isfinite(var))
+                        temp.push_back(sqrt(var) / GetParameter(i).GetRangeWidth());
+                    else
+                        temp.push_back(1. / sqrt(12));
+                }
+            fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, temp);
+        }
     }
 
     // set that a main run has not been made
@@ -2321,9 +2343,6 @@ void BCEngineMCMC::MCMCInitialize()
     MCMCUserInitialize();
 
     /* set initial position */
-
-    // this can be extended to user-settable member
-    unsigned max_tries = 10;
 
     // initialize markov chain positions
     switch (fInitialPositionScheme) {
@@ -2356,12 +2375,12 @@ void BCEngineMCMC::MCMCInitialize()
         case kInitRandomUniform : {
             fMCMCx.assign(fMCMCNChains, std::vector<double>());
             for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
-                for (unsigned n = 0; n < max_tries && !std::isfinite(fMCMCprob[ichain]); ++n) {
+                for (unsigned n = 0; n < fInitialPositionAttemptLimit && !std::isfinite(fMCMCprob[ichain]); ++n) {
                     fMCMCx[ichain] = GetParameters().GetUniformRandomValues(fMCMCThreadLocalStorage[ichain].rng);
                     fMCMCprob[ichain] = LogEval(fMCMCx[ichain]);
                 }
                 if (!std::isfinite(fMCMCprob[ichain]))
-                    throw std::runtime_error(Form("BCEngineMCMC::MCMCInitialize : Could not generate uniformly distributed initial point with valid probability in %u tries.", max_tries));
+                    throw std::runtime_error(Form("BCEngineMCMC::MCMCInitialize : Could not generate uniformly distributed initial point with valid probability in %u tries.", fInitialPositionAttemptLimit));
             }
 
             break;
@@ -2404,7 +2423,7 @@ void BCEngineMCMC::MCMCInitialize()
 
             fMCMCx.assign(fMCMCNChains, std::vector<double>());
             for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
-                for (unsigned n = 0; n < max_tries && !std::isfinite(fMCMCprob[ichain]); ++n) {
+                for (unsigned n = 0; n < fInitialPositionAttemptLimit && !std::isfinite(fMCMCprob[ichain]); ++n) {
                     fMCMCx[ichain] = GetParameters().GetRandomValuesAccordingToPriors(fMCMCThreadLocalStorage[ichain].rng);
                     // check new point
                     if (!GetParameters().IsWithinLimits(fMCMCx[ichain]))
@@ -2413,7 +2432,7 @@ void BCEngineMCMC::MCMCInitialize()
                     fMCMCprob[ichain] = LogEval(fMCMCx[ichain]);
                 }
                 if (!std::isfinite(fMCMCprob[ichain]))
-                    throw std::runtime_error(Form("BCEngineMCMC::MCMCInitialize : Could not generate initial point from prior with valid probability in %u tries.", max_tries));
+                    throw std::runtime_error(Form("BCEngineMCMC::MCMCInitialize : Could not generate initial point from prior with valid probability in %u tries.", fInitialPositionAttemptLimit));
             }
 
             break;

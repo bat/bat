@@ -222,9 +222,33 @@ public:
         TEST_CHECK_NEARLY_EQUAL( prior->GetIntegral(-5, 5), 1, 1.e-4 );
         TEST_CHECK_NEARLY_EQUAL( prior->GetMean(-5, 5), 0, 0.1);
         TEST_CHECK_NEARLY_EQUAL( prior->GetVariance(-5, 5), 1, 0.1);
+
         delete prior;
         std::cout << "PASS" << std::endl;
 
+        std::cout << "Testing BCTH1Prior copying ... " << std::flush;
+        {
+            BCTH1Prior orig(h1_prior, true);
+            BCTH1Prior copy(orig);
+            BCTH1Prior ass = orig;
+
+            TH1* const orig_h1 = &orig.GetHistogram();
+            TH1* const ass_h1 = &ass.GetHistogram();
+
+            // every instance should have an independent copy of the histogram
+            TEST_CHECK(&h1_prior != orig_h1);
+            TEST_CHECK(orig_h1 != &copy.GetHistogram());
+            TEST_CHECK(orig_h1 != ass_h1);
+            TEST_CHECK(&copy.GetHistogram() != ass_h1);
+
+            // but after a swap, the address should not change
+            // std::swap preserves one address but not the other, why?
+            // Of course we want to call our own implementation, then it's fine
+            swap(orig, ass);
+            TEST_CHECK(orig_h1 == &ass.GetHistogram());
+            TEST_CHECK(ass_h1  == &orig.GetHistogram());
+        }
+        std::cout << "PASS" << std::endl;
     }
 
 } bcprior_Test;

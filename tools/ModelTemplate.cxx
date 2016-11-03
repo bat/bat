@@ -16,7 +16,7 @@
     // Also define their priors, if using built-in priors.
     // For example:
     // AddParameter("mu", -2, 1, "#mu", "[GeV]");
-    // GetParameter("mu").SetPrior(new BCPriorGaus(-1, 0.25));
+    // GetParameters.Back().SetPrior(new BCGaussianPrior(-1, 0.25));
 
     // Define observables here, too. For example:
     // AddObservable("mu_squared", 1, 4, "#mu^{2}", "[GeV^{2}]");
@@ -46,7 +46,7 @@ double ((MODEL))::LogLikelihood(const std::vector<double>& pars)
 // }
 
 // ---------------------------------------------------------
-// double ((MODEL))::CalculateObservables(const std::vector<double>& pars)
+// void ((MODEL))::CalculateObservables(const std::vector<double>& pars)
 // {
 //     // Calculate and store obvserables. For example:
 //     GetObservable(0) = pow(pars[0], 2);
