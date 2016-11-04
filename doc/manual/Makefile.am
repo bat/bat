@@ -6,9 +6,13 @@ doxyinput += $(top_srcdir)/INSTALL.md
 stylefile = bat.sty
 
 define extradoxyconf
+	PROJECT_NAME = "BAT manual"
+	USE_MDFILE_AS_MAINPAGE = front.md
 	TAGFILES = $(top_builddir)/doc/ref-guide/bat-ref.tag=$(top_builddir)/ref-guide/html
+	GENERATE_LATEX = YES
 	IMAGE_PATH = $(srcdir)/figures
 	CITE_BIB_FILES = $(srcdir)/references.bib
+	EXTRA_PACKAGES = bat
 endef
 export extradoxyconf
 
@@ -24,11 +28,6 @@ pdf: doxy
 	cp -f $(srcdir)/$(stylefile) $(builddir)/latex/
 	make -C latex $@
 	mv latex/refman.pdf @BAT_MANUAL_PDF@
-
-.PHONY: print
-print:
-	@echo "$$doxyconf"
-	@echo "$$extradoxyconf"
 
 clean-local:
 	-rm -rf doxygen_sqlite3.db html/ latex/ @BAT_MANUAL_PDF@

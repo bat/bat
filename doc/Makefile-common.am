@@ -17,8 +17,14 @@ export doxyconf
 
 .PHONY: doxy
 doxy:
-	(cat $(srcdir)/Doxyfile; \
+	(cat $(top_srcdir)/doc/Doxyfile; \
 	echo "INPUT = " $(doxyinput); \
 	echo "$$doxyconf"; \
 	echo "$$extradoxyconf"; \
 	) | doxygen -
+
+.PHONY: print
+print:
+	@echo $(doxyinput)
+	@echo "$$doxyconf"
+	@echo "$$extradoxyconf"

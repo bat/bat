@@ -54,13 +54,17 @@ test-env.sh
 tools/MakefileTemplate
 
 # Documentation
+doc/Makefile.in
+doc/manual/Makefile.in
 doc/introduction/introduction.*
 doc/introduction/versions.tex
 !doc/introduction/Makefile
 !doc/quickstart/Makefile
+
 *.el
 *.aux
-doc/ref-guide/
+doc/ref-guide/*
+!doc/ref-guide/Makefile.am
 
 # Editors
 .autotools
