@@ -86,7 +86,7 @@ During the prerun, the proposal is updated. BAT considers three criteria to deci
 
 ### Efficiency {#sec-mcmc-eff}
 
-The *efficiency*, or acceptance rate, is the ratio  of the accepted over the total number proposal moves. A small efficiency means the chain rarely moves but may then make a large move. A large efficiency means the chain explores well locally but may take a long time to explore the entire region of high probability. Optimality results exists only for very special cases: Roberts and Rosenthal showed that for a Gaussian target with \f$d\f$ independent components and a Gaussian proposal, the optimal target efficiency is 23.4 % for \f$d \geq 5\f$ is  but should be larger for small \f$d\f$; e.g., 44 % is best in one dimension @cite rosenthal2011optimal . Based on our experience, we consider a suitable range of the efficiency to be in \f$[0.15, 0.35]\f$.
+The *efficiency*, or acceptance rate, is the ratio  of the accepted over the total number proposal moves. A small efficiency means the chain rarely moves but may then make a large move. A large efficiency means the chain explores well locally but may take a long time to explore the entire region of high probability. Optimality results exists only for very special cases: Roberts and Rosenthal showed that for a Gaussian target with \f$d\f$ independent components and a Gaussian proposal, the optimal target efficiency is 23.4 % for \f$d \geq 5\f$ is  but should be larger for small \f$d\f$; e.g., 44 % is best in one dimension @cite rosenthal2011optimal . Based on our experience, we use a default range for the efficiency as \f$[0.15, 0.35]\f$.
 
 @see BCEngineMCMC::SetMinimumEfficiency, BCEngineMCMC::SetMaximumEfficiency
 
@@ -117,21 +117,25 @@ to multiple modes that trap the chains.
 
 ### Prerun length {#sec-mcmc-prerun-length}
 
+Defining convergence automatically based on the efficiency or the \f$R\f$ value is convenient may be too conservative if the user knows a good initial value, a good proposal, etc. For more control the minimum and maximum length of the prerun can be set, too.
+
+@see BCEngineMCMC::SetNIterationsPreRunMin, BCEngineMCMC::SetNIterationsPreRunMax
+
 @see BCEngineMCMC::SetNIterationsPreRunCheck sets the number of iterations between checks
 
-
-If desired, the statistics can be cleared to remove the effect of a bad initial point with BCEngineMCMC::SetPreRunCheckClear.
-
+If desired, the statistics can be cleared to remove the effect of a bad initial point with BCEngineMCMC::SetPreRunCheckClear after some set of iterations
 
 @todo A flow diagram might help
 
+For the user's convenience, multiple settings related to precision of the Markov chain can be set at once using BCEngineMCMC::SetPrecision. The default setting is BCEngineMCMC::kMedium.
+
+## Proposal functions {#sec-mcmc-proposal}
+
 BAT offers two kinds of proposal function termed *factorized* and *multivariate*.
 
-## Factorized proposal {#sec-factorized}
+### Factorized proposal {#sec-factorized}
 
-@since Factorized was the default and only choice prior to v1.0 and continues to be available
-
-@todo how to activate it
+@since Factorized was the default and only choice prior to v1.0 and continues to be available using BCEngineMCMC::SetProposeMultivariate(true)
 
 The factorized proposal in \f$d\f$ dimensions is a product of 1D proposals.
 
@@ -157,7 +161,7 @@ zero or one, the factorized proposal typically generates a new point
 in every iteration that differs from the previous point in some but
 not all dimensions.
 
-## Multivariate proposal {#sec-multivariate}
+### Multivariate proposal {#sec-multivariate}
 
 @since 1.0
 
@@ -175,16 +179,16 @@ acceptance rate into a certain range.
 
 @todo Pseudocode
 
-## Prerun {#sec-mcmc-prerun}
+<!-- ## Prerun {#sec-mcmc-prerun} -->
 
-@todo Explain main options to adjust length of prerun, updates etc.,
-discuss proposal-specific options below
+<!-- @todo Explain main options to adjust length of prerun, updates etc., -->
+<!-- discuss proposal-specific options below -->
 
-The prerun terminates after a maximum number of iterations or if
-multiple chains mix according to the R value. Optionally the
-minimum/maximum number of iterations can be set with
-BCEngineMCMC::SetNIterationsPreRunMin and
-BCEngineMCMC::SetNIterationsPreRunMax.
+<!-- The prerun terminates after a maximum number of iterations or if -->
+<!-- multiple chains mix according to the R value. Optionally the -->
+<!-- minimum/maximum number of iterations can be set with -->
+<!-- BCEngineMCMC::SetNIterationsPreRunMin and -->
+<!-- BCEngineMCMC::SetNIterationsPreRunMax. -->
 
 ## Comparison {#sec-mcmc-proposal-comparison}
 
