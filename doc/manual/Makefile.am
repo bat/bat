@@ -2,6 +2,7 @@
 input = front.md basics.md bayes.md mcmc.md factorized.md share.md
 
 doxyinput = $(addprefix $(srcdir)/, $(input))
+doxyinput += $(top_srcdir)/INSTALL.md
 stylefile = bat.sty
 
 define extradoxyconf

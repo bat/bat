@@ -3,8 +3,8 @@
 
 ### For the impatient
 
-For a quick tutorial covering the basic features, jump directly to the
-[basic tutorial](@ref basics).
+For a quick tutorial covering the basic features, jump directly to
+the [basic tutorial](@ref basics).
 
 The purpose of this document is to introduce the Bayesian Analysis
 Toolkit (BAT), a C++ package providing tools to
