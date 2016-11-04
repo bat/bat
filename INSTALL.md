@@ -200,14 +200,14 @@ After installation, BAT offers two mechanisms to make BAT available:
 
 If you do not install BAT to the system directories, you need to
 manually add the path to `bat-config`, `bat.pc`, the libraries, and
-the include files to the search paths. Depending on your shell you can
-do that via the commands
+the include files to the search paths. Depending on your shell, the
+set of commands is
 
 ```bash
 BATPREFIX="/bat/install/prefix"
 export PATH="$BATPREFIX/bin:$PATH"
-export LD_LIBRARY_PATH="$BATPREFIX/lib:$LD_LIBRARY_PATH"
 export CPATH="$BATPREFIX/include:$CPATH"
+export LD_LIBRARY_PATH="$BATPREFIX/lib:$LD_LIBRARY_PATH"
 export PKG_CONFIG_PATH="$BATPREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 ```
 
@@ -216,8 +216,8 @@ for bash-compatible shells or
 ```bash
 set BATPREFIX = /bat/install/prefix
 setenv PATH              "${BATPREFIX}/bin:${PATH}"
-setenv LD_LIBRARY_PATH   "${BATPREFIX}/lib:${LD_LIBRARY_PATH}"
 setenv CPATH             "${BATPREFIX}/include:${CPATH}"
+setenv LD_LIBRARY_PATH   "${BATPREFIX}/lib:${LD_LIBRARY_PATH}"
 setenv PKG_CONFIG_PATH   "${BATPREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
 ```
 
@@ -226,11 +226,16 @@ for csh-compatible shells. On Mac OS X you might also need to setup
 add the above commands to your login script; for example `.profile` or
 `.bashrc`.
 
-Note that `bat-config` needs to be available to compile the examples
-in the `examples/` subdirectory after installation.
+Updating `$CPATH` is required if you work with interactive ROOT macros
+that use BAT (both for ROOT 5 and 6).
 
-Updating `$CPATH` is required if you work with ROOT macros that use
-BAT (both for ROOT 5 and 6).
+The minimal setup does not require setting `LD_LIBRARY_PATH` if
+libraries or executables are linked to BAT using `bat-config --libs`
+because the directory from which the BAT libraries are loaded at
+runtime is set via the `rpath` option.
+
+`PKG_CONFIG_PATH` is only needed to make BAT known to `pkg-config`, it
+is not used by BAT itself.
 
 Including BAT in your project
 -----------------------------

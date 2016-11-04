@@ -13,7 +13,7 @@ AM_CXXFLAGS += -g -O0 -Wall -Wextra -pedantic -Wno-long-long -Wno-unknown-pragma
 else
 AM_CXXFLAGS += -O2 -Wno-unknown-pragmas
 endif
-AM_LDFLAGS = -L$(ROOTLIBDIR)
+AM_LDFLAGS = $(ROOTLIBDIRFLAGS)
 
 noinst_LIBRARIES = libBATtest.a
 

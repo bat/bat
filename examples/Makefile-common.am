@@ -15,8 +15,7 @@ LDADD = \
 	$(top_builddir)/models/mtf/libBATmtf.la \
 	$(ROOTLIBS)
 
-AM_LDFLAGS = -L$(ROOTLIBDIR)
-
+AM_LDFLAGS = $(ROOTLIBDIRFLAGS)
 
 TEST_EXTENSIONS =
 AM_TESTS_ENVIRONMENT = . $(top_builddir)/test-env.sh;

@@ -46,7 +46,6 @@ includedir="@includedir@"
 
 # ---------------------------------------------------------------------
 
-
 usage()
 {
   cat <<EOF
@@ -122,7 +121,7 @@ fi
 
 if test "$echo_libs" = "yes" ; then
     if test "${libdir}" != "/usr/lib" ; then
-        echo -L${libdir} @PKG_LIBS@ @DEP_LIBS@
+        echo -Wl,-rpath,${libdir} -L${libdir} @PKG_LIBS@ @DEP_LIBS@
     else
         echo @PKG_LIBS@ @DEP_LIBS@
     fi
