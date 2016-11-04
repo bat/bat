@@ -61,6 +61,15 @@ Here markdown ok again
 
     ## Factorized proposal {#sec-factorized}
 
+
+### link to next/previous page
+
+doxygen doesn't do this automatically. we can do
+
+    @ref cha-basics
+
+but that doesn't look good. Rather define a HTML structure and style it with css
+
 debugging doxygen
 -----------------
 

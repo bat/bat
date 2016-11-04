@@ -1,4 +1,4 @@
-Markov chain Monte Carlo {#cha-MCMC}
+Markov chain Monte Carlo {#cha-mcmc}
 ============
 
 [TOC]
