@@ -10,6 +10,10 @@ define doxyconf
 	PROJECT_NUMBER = @VERSION@
 	MATHJAX_RELPATH = $(MATHJAX_RELPATH)
 	MATHJAX_CODEFILE = $(top_srcdir)/doc/newcommands.js
+	HTML_HEADER = $(top_srcdir)/doc/header.html
+	HTML_FOOTER = $(top_srcdir)/doc/footer.html
+	HTML_EXTRA_STYLESHEET = $(top_srcdir)/doc/customdoxygen.css
+	HTML_EXTRA_FILES = $(top_srcdir)/doc/doxy-boot.js
 endef
 # follow http://stackoverflow.com/a/649462/987623 to get multi-line string to work
 export doxyconf
