@@ -53,7 +53,9 @@ public:
     /**
      * Get fit function. */
     TF1& GetFitFunction()
-    { return fFitFunction.at(GetCurrentChain()); }
+    {
+        return fFitFunction.at(GetCurrentChain());
+    }
 
     /**
      * @param level Desired probability mass
@@ -61,10 +63,13 @@ public:
      * @param overcoverage Flag for whether to overcover desired probability mass.
      * @return A 2D histogram of the smallest interval in Y for each bin in X containing the desired probability mass. */
     TH2* GetGraphicalErrorBandXY(double level = .68, int nsmooth = 0, bool overcoverage = true) const;
-    
-    //* @return A copy of the internal errorband histogram
-    TH2* GetErrorBandXYCopy()const;
-        
+
+    //* @return A const reference of the internal errorband histogram
+    const TH2& GetErrorBandXY()const
+    {
+        return fErrorBandXY;
+    };
+
     /**
      * Returns a vector of y-values at a certain probability level.
      * @param level The level of probability
@@ -76,7 +81,9 @@ public:
     TGraph* GetFitFunctionGraph(const std::vector<double>& parameters);
 
     TGraph* GetFitFunctionGraph()
-    { return GetFitFunctionGraph(std::vector<double>(GetBestFitParameters().begin(), GetBestFitParameters().begin() + GetNParameters())); }
+    {
+        return GetFitFunctionGraph(std::vector<double>(GetBestFitParameters().begin(), GetBestFitParameters().begin() + GetNParameters()));
+    }
 
     TGraph* GetFitFunctionGraph(const std::vector<double>& parameters, double xmin, double xmax, int n = 1000);
 
@@ -85,7 +92,9 @@ public:
     bool GetFixedDataAxis(unsigned int index) const;
 
     double GetPValue() const
-    { return fPValue; }
+    {
+        return fPValue;
+    }
 
     /* @} */
 
@@ -95,45 +104,65 @@ public:
     /**
      * Sets the error band flag to continuous function */
     void SetErrorBandContinuous(bool flag);
-    
+
     /**
      *Extends the lower x Edge of th errorband by -extension */
-    void SetErrorBandExtensionLowEdgeX(double extension){fErrorBandExtensionLowEdgeX=extension;}
-    
+    void SetErrorBandExtensionLowEdgeX(double extension)
+    {
+        fErrorBandExtensionLowEdgeX = extension;
+    }
+
     /**
      *Extends the lower x Edge of th errorband by +extension */
-    void SetErrorBandExtensionUpEdgeX(double extension){fErrorBandExtensionUpEdgeX=extension;}
-    
+    void SetErrorBandExtensionUpEdgeX(double extension)
+    {
+        fErrorBandExtensionUpEdgeX = extension;
+    }
+
     /**
      *Extends the lower y Edge of th errorband by -extension */
-    void SetErrorBandExtensionLowEdgeY(double extension){fErrorBandExtensionLowEdgeY=extension;}
-    
+    void SetErrorBandExtensionLowEdgeY(double extension)
+    {
+        fErrorBandExtensionLowEdgeY = extension;
+    }
+
     /**
      *Extends the lower y Edge of th errorband by +extension */
-    void SetErrorBandExtensionUpEdgeY(double extension){fErrorBandExtensionUpEdgeY=extension;}
+    void SetErrorBandExtensionUpEdgeY(double extension)
+    {
+        fErrorBandExtensionUpEdgeY = extension;
+    }
     /**
      * Turn on or off the filling of the error band during the MCMC run.
      * @param flag set to true for turning on the filling */
     void SetFillErrorBand(bool flag = true)
-    { fFlagFillErrorBand = flag; }
+    {
+        fFlagFillErrorBand = flag;
+    }
 
     /**
      * Turn off filling of the error band during the MCMC run.
      * This method is equivalent to SetFillErrorBand(false) */
     void UnsetFillErrorBand()
-    { fFlagFillErrorBand = false; }
+    {
+        fFlagFillErrorBand = false;
+    }
 
     /**
      * Sets index of the x values in function fits.
      * @param index Index of the x values */
     void SetFitFunctionIndexX(int index)
-    { fFitFunctionIndexX = index; }
+    {
+        fFitFunctionIndexX = index;
+    }
 
     /**
      * Sets index of the y values in function fits.
      * @param index Index of the y values */
     void SetFitFunctionIndexY(int index)
-    { fFitFunctionIndexY = index; }
+    {
+        fFitFunctionIndexY = index;
+    }
 
     /**
      * Sets indices of the x and y values in function fits.
@@ -150,7 +179,9 @@ public:
      * true: use ROOT's TF1::Integrate() \n
      * false: use linear interpolation */
     void SetFlagIntegration(bool flag)
-    { fFlagIntegration = flag; };
+    {
+        fFlagIntegration = flag;
+    };
 
     /**
      * Defines a fit function.
@@ -253,18 +284,18 @@ protected:
 
     /** Storage for plot objects with proper clean-up */
     mutable BCAux::BCTrash<TObject> fObjectTrash;
-    
+
     /**
      * extends the lower edge of x range by the given value  */
     double fErrorBandExtensionLowEdgeX;
     /**
      * extends the upper edge of x range by the given value  */
     double fErrorBandExtensionUpEdgeX;
-    
+
     /**
      * extends the upper edge of y range by the given value  */
     double fErrorBandExtensionLowEdgeY;
-    
+
     /**
      * extends the upper edge of y range by the given value  */
     double fErrorBandExtensionUpEdgeY;
