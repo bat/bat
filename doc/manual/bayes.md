@@ -150,8 +150,7 @@ implement are
     virtual double LogAPrioriProbability(const std::vector<double>& params)
 @endcode
 
-@todo BCEngine link works but BCModel method not found. Why?
-    @ref BCEngineMCMC::SetNIterationsPreRunMax
+@todo BCEngine link works but BCModel method not found. Why? @ref BCEngineMCMC::SetNIterationsPreRunMax
 
 @see BCModel::LogAPrioriProbability BCModel::LogLikelihood BCModel::LogProbabilityNN
 
