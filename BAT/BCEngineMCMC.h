@@ -2,13 +2,13 @@
 #define __BCENGINEMCMC__H
 
 /**
- * \class BCEngineMCMC
- * \brief An engine class for Markov Chain Monte Carlo
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 08.2008
- * \detail This class represents an engine class for Markov Chain
+ * @class BCEngineMCMC
+ * @brief An engine class for Markov Chain Monte Carlo
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.0
+ * @date 08.2008
+ * @details This class represents an engine class for Markov Chain
  * Monte Carlo (MCMC). One or more chains can be defined
  * simultaneously.
  */
@@ -362,9 +362,9 @@ public:
 
     /**
      * @return R-value for a parameter
-     * @param i parameter index */
-    double GetRValueParameters(unsigned p) const
-    { return fMCMCRValueParameters.at(p); }
+     * @param index parameter index */
+    double GetRValueParameters(unsigned index) const
+    { return fMCMCRValueParameters.at(index); }
 
     /** Flag for correcting convergence checking for initial sampling variability. */
     bool GetCorrectRValueForSamplingVariability() const
@@ -407,8 +407,7 @@ public:
     { return fMCMCStatistics.at(c); }
 
     /**
-     * Get vector of MCMC statistics for each chain separately
-     * @param c Chain to get statistics of. */
+     * Get vector of MCMC statistics for each chain separately. */
     const std::vector<BCEngineMCMC::Statistics>& GetStatisticsVector() const
     { return fMCMCStatistics; }
 
@@ -567,7 +566,7 @@ public:
     { return fParameters.At(index); }
 
     /**
-     * @deprecatd Instead call GetParameters().Get(name)
+     * @deprecated Instead call GetParameters().Get(name)
      * @param name The name of the parameter in the parameter set.
      * @return The parameter. */
     BCParameter& GetParameter(const std::string& name)
@@ -957,7 +956,7 @@ public:
      * @param filename Name of file to write chain to.
      * @param option file-open options (TFile), must be "NEW", "CREATE", "RECREATE", or "UPDATE" (i.e. writeable).
      * @param flag_run Flag for writing run Markov chain to ROOT file (true) or not (false).
-     * @param flag prerun Flag for writing prerun Markov chain to ROOT file (true) or not (false). */
+     * @param flag_prerun Flag for writing prerun Markov chain to ROOT file (true) or not (false). */
     void WriteMarkovChain(const std::string& filename, const std::string& option, bool flag_run = true, bool flag_prerun = true);
 
     /** @} */
@@ -1048,7 +1047,7 @@ public:
      * @param mode The mode of the Gaussian
      * @param sigma_below Standard deviation below mode.
      * @param sigma_above Standard deviation above mode. */
-    void SetPriorGauss(const std::string& name, double mode, double sigmadown, double sigmaup)
+    void SetPriorGauss(const std::string& name, double mode, double sigma_below, double sigma_above)
     {	SetPriorGauss(fParameters.Index(name), mode, sigmadown, sigmaup); }
 
     /**
@@ -1112,7 +1111,7 @@ public:
      * @param quantile_values Vector of quantile values to draw
      * @param rescale_ranges Flag for rescaling to range surveyed by MCMC chains
      * @return Number of pages printed. */
-    unsigned PrintParameterPlot(const std::string& filename, int npar = 10, double interval_content = 68e-2, std::vector<double> quantile_vals = std::vector<double>(0), bool rescale_ranges = true) const;
+    unsigned PrintParameterPlot(const std::string& filename, int npar = 10, double interval_content = 68e-2, std::vector<double> quantile_values = std::vector<double>(0), bool rescale_ranges = true) const;
 
     /**
      * Draw a summary plot for the parameters in the range provided to current pad
@@ -1358,7 +1357,7 @@ public:
      * Check parameter tree against model.
      * @param partree Tree of parameters to check against model.
      * @param checkObservables Flag for whether to check observables.
-     * @param Whether tree's parameters match those of model. */
+     * @return Whether tree's parameters match those of model. */
     virtual bool ParameterTreeMatchesModel(TTree* partree, bool checkObservables = true);
 
     /**

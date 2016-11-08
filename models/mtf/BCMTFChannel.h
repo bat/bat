@@ -1,14 +1,14 @@
 #ifndef __BCMTFCHANNEL__H
 #define __BCMTFCHANNEL__H
 
-/*!
- * \class BCMTFChannel
- * \brief A class describing a physics channel.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.1
- * \date 06.2012
- * \detail This class describes a physics channel.
+/**
+ * @class BCMTFChannel
+ * @brief A class describing a physics channel.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.1
+ * @date 06.2012
+ * @details This class describes a physics channel.
  */
 
 /*
@@ -274,4 +274,3 @@ private:
 // ---------------------------------------------------------
 
 #endif
-

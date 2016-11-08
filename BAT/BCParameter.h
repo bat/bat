@@ -1,15 +1,15 @@
 #ifndef __BCPARAMETER__H
 #define __BCPARAMETER__H
 
-/*!
- * \class BCParameter
- * \brief A class representing a parameter of a model.
- * \author Daniel Greenwald
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 08.2008
- * \detail This class represents a parameter of a model. It contains
+/**
+ * @class BCParameter
+ * @brief A class representing a parameter of a model.
+ * @author Daniel Greenwald
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.0
+ * @date 08.2008
+ * @details This class represents a parameter of a model. It contains
  * information about the name and the range of the parameter.
  */
 
@@ -121,8 +121,8 @@ public:
 
     /**
      * @return a random value distributed according to the prior.
-     * @param rnd Pointer to the random generator to be used, if needed. */
-    virtual double GetRandomValueAccordingToPrior(TRandom* const R) const;
+     * @param rng Pointer to the random generator to be used, if needed. */
+    virtual double GetRandomValueAccordingToPrior(TRandom* const rng) const;
 
     /** @} */
 

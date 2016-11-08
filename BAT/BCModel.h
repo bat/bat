@@ -1,15 +1,15 @@
 #ifndef __BCMODEL__H
 #define __BCMODEL__H
 
-/*!
- * \class BCModel
- * \brief The base class for all user-defined models.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \author Daniel Greenwald
- * \version 1.0
- * \date 08.2008
- * \detail This class represents a model. It contains a container of prior distributions and the likelihood. The methods that implement the prior and the likelihood
+/**
+ * @class BCModel
+ * @brief The base class for all user-defined models.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @author Daniel Greenwald
+ * @version 1.0
+ * @date 08.2008
+ * @details This class represents a model. It contains a container of prior distributions and the likelihood. The methods that implement the prior and the likelihood
  * have to be overloaded by the user in the user defined model class
  * derived from this class.
  */
@@ -212,15 +212,15 @@ public:
     /**
      * Returns the a posteriori probability given a set of parameter values
      * @param parameters A set of parameter values
-     * @return The a posteriori probability */
-    virtual double Probability(const std::vector<double>& parameter)
+     * @return The posterior probability */
+    virtual double Probability(const std::vector<double>& parameters)
     { return exp(LogProbability(parameter)); }
 
     /**
      * Returns natural logarithm of the  a posteriori probability given a set of parameter values
      * @param parameters A set of parameter values
-     * @return The a posteriori probability */
-    virtual double LogProbability(const std::vector<double>& parameter);
+     * @return log(posterior probability) */
+    virtual double LogProbability(const std::vector<double>& parameters);
 
     /**
      * Sampling function used for importance sampling.

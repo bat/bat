@@ -1,17 +1,17 @@
 #ifndef __BCMATH__H
 #define __BCMATH__H
 
-/*!
- * \namespace BCMath
- * \brief Some useful mathematic functions.
- * \author Frederik Beaujean
- * \author Daniel Greenwald
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \author Jing Liu
- * \version 1.0
- * \date 08.2008
- * \detail A namespace which encapsulates some mathematical functions
+/**
+ * @namespace BCMath
+ * @brief Some useful mathematic functions.
+ * @author Frederik Beaujean
+ * @author Daniel Greenwald
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @author Jing Liu
+ * @version 1.0
+ * @date 08.2008
+ * @details A namespace which encapsulates some mathematical functions
  * necessary for BAT.
  */
 
@@ -145,7 +145,7 @@ double LogBinomFactorExact(unsigned n, unsigned k);
 double LogFact(unsigned n);
 
 /** Cache factorials for first \arg \c n integers. */
-unsigned CacheFactorials(unsigned int n);
+unsigned CacheFactorials(unsigned n);
 
 /**
  * Returns the nearest integer of a double number. */

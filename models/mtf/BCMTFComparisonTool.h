@@ -1,14 +1,14 @@
 #ifndef __BCMTFCOMPARISONTOOL__H
 #define __BCMTFCOMPARISONTOOL__H
 
-/*!
- * \class BCMTFComparisonTool
- * \brief A helper class for BCMTFAnalysisFacility storing information.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.1
- * \date 06.2012
- * \detail This is a helper class for BCMTFAnalysisFacility storing information.
+/**
+ * @class BCMTFComparisonTool
+ * @brief A helper class for BCMTFAnalysisFacility storing information.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.1
+ * @date 06.2012
+ * @details This is a helper class for BCMTFAnalysisFacility storing information.
  */
 
 /*
@@ -142,4 +142,3 @@ private:
 // ---------------------------------------------------------
 
 #endif
-
