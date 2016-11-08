@@ -1,15 +1,15 @@
 #ifndef __BCVARIABLE__H
 #define __BCVARIABLE__H
 
-/*!
- * \class BCVariable
- * \brief A class representing a variable of a model.
- * \author Daniel Greenwald
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 08.2008
- * \detail This class represents a variable of a model. It contains
+/**
+ * @class BCVariable
+ * @brief A class representing a variable of a model.
+ * @author Daniel Greenwald
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.0
+ * @date 08.2008
+ * @details This class represents a variable of a model. It contains
  * information about the name and the range of the variable.
  */
 

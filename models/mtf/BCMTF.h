@@ -1,14 +1,14 @@
 #ifndef __BCMTF__H
 #define __BCMTF__H
 
-/*!
- * \class BCMTF
- * \brief A class for fitting several templates to a data set.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.1
- * \date 06.2012
- * \detail This class can be used for fitting several template
+/**
+ * @class BCMTF
+ * @brief A class for fitting several templates to a data set.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.1
+ * @date 06.2012
+ * @details This class can be used for fitting several template
  * histograms to a data histogram. The templates are assumed to have
  * no statistical uncertainty whereas the data are assumed to have
  * Poissonian fluctuations in each bin. Several methods to judge the

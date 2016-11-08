@@ -1,14 +1,14 @@
 #ifndef __BCEFFICIENCYFITTER__H
 #define __BCEFFICIENCYFITTER__H
 
-/*!
- * \class BCEfficiencyFitter
- * \brief A class for fitting histograms with functions
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 11.2008
- * \detail This class allows fitting of efficiencies defined as
+/**
+ * @class BCEfficiencyFitter
+ * @brief A class for fitting histograms with functions
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.0
+ * @date 11.2008
+ * @details This class allows fitting of efficiencies defined as
  * a ratio of two TH1D histograms using a TF1 function. It uses
  * binomial probabilities calculated based on the number of entries
  * in histograms. This is only applicable if the numerator is

@@ -1,14 +1,14 @@
 #ifndef __BCMODELHISTOGRAMFITTER__H
 #define __BCMODELHISTOGRAMFITTER__H
 
-/*!
- * \class BCHistogramFitter
- * \brief A class for fitting histograms with functions
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 11.2008
- * \detail This class allows fitting of a TH1D histogram using
+/**
+ * @class BCHistogramFitter
+ * @brief A class for fitting histograms with functions
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.0
+ * @date 11.2008
+ * @details This class allows fitting of a TH1D histogram using
  * a TF1 function.
  */
 
@@ -102,7 +102,6 @@ public:
      * CalculatePValueLikelihood, see eq. (32.13),
      * PDG: Statistics, Monte Carlo, Group Theory. Physics Letters B 667, 316-339(2008).
      * @param par The set of parameter values used in the model, usually the best fit parameters
-     * @param pvalue The pvalue
      * @param weight use the variance from the expected #counts (true) or the measured counts (false)
      * @return p-value */
     double CalculatePValueLeastSquares(const std::vector<double>& par, bool weightExpect = true);

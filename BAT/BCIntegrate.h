@@ -1,14 +1,14 @@
 #ifndef __BCINTEGRATE__H
 #define __BCINTEGRATE__H
 
-/*!
- * \class BCIntegrate
- * \brief A class for handling numerical operations for models.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 08.2008
- * \detail This is a base class for a model class. It contains
+/**
+ * @class BCIntegrate
+ * @brief A class for handling numerical operations for models.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.0
+ * @date 08.2008
+ * @details This is a base class for a model class. It contains
  * numerical methods to carry out the integration, marginalization,
  * peak finding etc.
  */
@@ -422,7 +422,7 @@ public:
     /** \name Member functions (set) */
     /** @{ */
     /**
-     * @flag Flag whether or not to ignore result of previous mode finding */
+     * @param flag Flag whether or not to ignore result of previous mode finding */
     void SetFlagIgnorePrevOptimization(bool flag)
     { fFlagIgnorePrevOptimization = flag; }
 
@@ -601,7 +601,7 @@ public:
      * is used as an initial point. If that is not available,
      * then the Minuit default will be used (center of the parameter space).
      * @return The mode found.
-     * @note The result may not coincide with the result of @code GetBestFitParameters()
+     * @note The result may not coincide with the result of GetBestFitParameters()
      * if a previous optimization found a better value. */
     std::vector<double> FindMode(std::vector<double> start = std::vector<double>());
 
@@ -856,7 +856,7 @@ private:
      * @param mode a reference to a vector holding the mode
      * @param errors a reference to a vector holding the errors
      * @return The mode found.
-     * @note The result may not coincide with the result of @code GetBestFitParameters()
+     * @note The result may not coincide with the result of GetBestFitParameters()
      * if a previous optimization found a better value. */
     std::vector<double> FindModeMinuit(std::vector<double>& mode, std::vector<double>& errors, std::vector<double> start = std::vector<double>(0), int printlevel = -1);
 
@@ -865,7 +865,7 @@ private:
      * @param mode a reference to a vector holding the mode
      * @param errors a reference to a vector holding the errors
      * @return The mode.
-     * @note The result may not coincide with the result of @code GetBestFitParameters()
+     * @note The result may not coincide with the result of GetBestFitParameters()
      * if a previous optimization found a better value. */
     std::vector<double> FindModeMCMC(std::vector<double>& mode, std::vector<double>& errors);
 
@@ -877,7 +877,7 @@ private:
      * @param errors a reference to a vector holding the errors
      * @param start point in parameter space from thich the mode finding is started.
      * @return The mode.
-     * @note The result may not coincide with the result of @code GetBestFitParameters()
+     * @note The result may not coincide with the result of GetBestFitParameters()
      * if a previous optimization found a better value.*/
     std::vector<double> FindModeSA(std::vector<double>& mode, std::vector<double>& errors, std::vector<double> start = std::vector<double>(0));
 

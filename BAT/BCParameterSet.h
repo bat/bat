@@ -2,7 +2,8 @@
 #define __BCPARAMETERSET__H
 
 /**
- * @class BCParameterSet Wrapper to allow access by name into list of BCParameter.
+ * @class BCParameterSet
+ * @brief Wrapper to allow access by name into list of BCParameter.
  * @author Frederik Beaujean
  * @author Daniel Greenwald
  * @note Parameters are not owned, and will not be deleted by BCParameterSet.
