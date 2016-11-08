@@ -4,7 +4,7 @@
 ### For the impatient
 
 For a quick tutorial covering the basic features, jump directly to
-the [basic tutorial](@ref basics).
+the [basic tutorial](@ref cha-basics).
 
 The purpose of this document is to introduce the Bayesian Analysis
 Toolkit (BAT), a C++ package providing tools to
@@ -20,9 +20,9 @@ BAT was originally developed at
 
 ### Structure of this document
 
-After the [basic tutorial](@ref basics), we give a brief introduction
+After the [basic tutorial](@ref cha-basics), we give a brief introduction
 to @ref cha-Bayes and describe the core algorithm of BAT in @ref
-cha-MCMC. Further chapters describe other tools of BAT, specific
+cha-mcmc. Further chapters describe other tools of BAT, specific
 statistical models, and advanced features.
 <!-- @htmlonly Use the navigation bar on the left to jump to the chapters @endhtmlonly -->
 

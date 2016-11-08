@@ -1355,7 +1355,7 @@ DISABLE_INDEX          = NO
 
 # treeview doesn't work with doxygen-bootstrap
 # https://github.com/Velron/doxygen-bootstrapped/issues/2
-GENERATE_TREEVIEW      = NO
+GENERATE_TREEVIEW      = YES
 
 # The ENUM_VALUES_PER_LINE tag can be used to set the number of enum values that
 # doxygen will group on one line in the generated HTML documentation.
