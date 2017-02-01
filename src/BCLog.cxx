@@ -87,7 +87,7 @@ void BCLog::StartupInfo()
     const char* message = Form(
                               " +------------------------------------------------------+\n"
                               " |                                                      |\n"
-                              " | BAT version %7s                                  |\n"
+                              " | BAT version %-12s                             |\n"
                               " | Copyright (C) 2007-2015, the BAT core developer team |\n"
                               " | All rights reserved.                                 |\n"
                               " |                                                      |\n"
