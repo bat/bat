@@ -162,6 +162,13 @@ public:
         m.SetRandomSeed(613);
         if (ndim >= 4)
             m.GetParameter(3).Fix(0.5);
+        // set to boundary of parameter range
+        // but the range should be small so the integral doesn't vanish
+        if (ndim == 5) {
+            BCParameter& p = m.GetParameter(4);
+            p.SetLimits(-15, 3);
+            p.Fix(3);
+        }
 
         /* optimization */
 
@@ -336,7 +343,7 @@ public:
         Integration();
         Optimization();
         FixedParameters(2);
-        FixedParameters(4);
+        FixedParameters(5);
         Slice();
     }
 } bcIntegrateTest;
