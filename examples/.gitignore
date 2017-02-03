@@ -8,6 +8,7 @@
 # Binaries
 asymmErrorsFitterExample
 ensembletest
+readRootOutput
 runAnomCouplings
 runCombineGaussians
 runCombination

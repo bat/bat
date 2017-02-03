@@ -107,15 +107,20 @@ void Wrapper::Init(const std::vector<double>& start, int printlevel)
 
     for (unsigned i = 0; i < adapt.m->GetNParameters(); ++i) {
         const BCParameter& p = adapt.m->GetParameter(i);
-        const bool success = min.SetLimitedVariable(i, p.GetName(),
-                             newstart.at(i),
-                             p.GetRangeWidth() / 100.,
-                             p.GetLowerLimit(), p.GetUpperLimit());
-        if (!success) {
-            BCLOG_ERROR(std::string("Can't add parameter ") + ToString(i) + std::string(" to minuit"));
-        }
-        if (p.Fixed() && !(min.SetVariableValue(i, p.GetFixedValue()) && min.FixVariable(i)))  {
-            BCLOG_ERROR(std::string("Cannot fix parameter ") + ToString(i) + " in minuit");
+        if (p.Fixed()) {
+            const bool success = min.SetFixedVariable(i, p.GetName(),
+                                 newstart.at(i));
+            if (!success) {
+                BCLOG_ERROR(std::string("Cannot add fixed parameter ") + ToString(i) + " to minuit");
+            }
+        } else {
+            const bool success = min.SetLimitedVariable(i, p.GetName(),
+                                 newstart.at(i),
+                                 p.GetRangeWidth() / 100.,
+                                 p.GetLowerLimit(), p.GetUpperLimit());
+            if (!success) {
+                BCLOG_ERROR(std::string("Cannot add parameter ") + ToString(i) + " to minuit");
+            }
         }
     }
 }
