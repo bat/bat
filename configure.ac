@@ -5,9 +5,12 @@ AC_INIT([BAT], 1.1.0-DEV, [], [BAT])
 AM_INIT_AUTOMAKE()
 AM_CONFIG_HEADER(config.h)
 AC_PROG_CXX
-AM_PROG_LIBTOOL
+LT_INIT
 AC_HEADER_STDC
 AC_FUNC_UTIME_NULL
+
+# autoconf and libtool macros will be copied to m4/
+AC_CONFIG_MACRO_DIR([m4])
 
 dnl Get filename extension for dynamic libraries:
 SHLIBEXT="${shrext_cmds}"
