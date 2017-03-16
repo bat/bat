@@ -1,6 +1,8 @@
 BAT - Bayesian Analysis Toolkit
 ===============================
 
+[![Build Status](https://travis-ci.org/bat/bat.svg?branch=master)](https://travis-ci.org/bat/bat)
+
 The Bayesian Analysis Toolkit is a software analysis package which allows
 to address the main goals of a typical data analysis:
 
