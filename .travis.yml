@@ -13,6 +13,7 @@ services:
 
 env:
   - DOCKER_IMAGE=batk/bat-testenv:centos7-root6
+  - DOCKER_IMAGE=batk/bat-testenv:centos7-root5
 
 before_install:
   - docker pull "$DOCKER_IMAGE"
