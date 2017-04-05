@@ -1,4 +1,4 @@
-Defining a factorized prior {#cha-factorized}
+Defining a factorized prior {#cha-factorized-prior}
 ================
 
 [TOC]
