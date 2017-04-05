@@ -1,8 +1,24 @@
 # every file is a chapter of the manual; the order of files is respected
-input = front.md basics.md bayes.md mcmc.md factorized.md share.md
+input = \
+		getting-started.md \
+		bayes.md \
+		mcmc.md \
+		integration.md \
+		optimization.md \
+		predefined-models.md \
+		\
+		code-structure.md \
+		output.md \
+		model-comparison.md \
+		factorized-prior.md \
+		sharing-samples.md \
+		threading.md \
+		validation.md \
+		troubleshooting.md
 
-doxyinput = $(addprefix $(srcdir)/, $(input))
+doxyinput = $(srcdir)/front.md
 doxyinput += $(top_srcdir)/INSTALL.md
+doxyinput += $(addprefix $(srcdir)/, $(input))
 stylefile = bat.sty
 
 define extradoxyconf
