@@ -2,7 +2,7 @@ SUBDIRS = ref-guide manual
 
 EXTRA_DIST = \
 	COPYING CREDITS LICENSE releasenotes.md \
-	customdoxygen.css  newcommands.js
+	customdoxygen.css  doxy-boot.js newcommands.js
 
 .PHONY: ref-guide
 ref-guide:
