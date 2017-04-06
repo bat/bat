@@ -70,13 +70,7 @@ doxygen doesn't do this automatically. we can do
 
 but that doesn't look good. Rather define a HTML structure and style it with css
 
-debugging doxygen
------------------
-
-    doxygen Doxyfile -d
-
-images
-------
+### images
 
 From inkscape, export to png for html output with
 
@@ -107,8 +101,7 @@ output specific code
     some text only visible in the latex output
     @endlatexonly
 
-source code examples
---------------------
+### source code examples
 
 Syntax highlighting (and linking in html) with
 
@@ -118,3 +111,26 @@ Syntax highlighting (and linking in html) with
         return -0.5 * (x - fMean) * (x - fMean) / fSigma / fSigma - log(fSigma) - 0.5 * log(2 * M_PI);
     }
     @endcode
+
+debugging doxygen
+-----------------
+
+    doxygen Doxyfile -d
+
+changing the output style
+------------------------
+
+https://www.stack.nl/~dimitri/doxygen/manual/customize.html
+
+### latex
+
+Modify `bat.sty` which is loaded in the preamble.
+
+### html
+
+Change names of tabs in `DoxygenLayout.xml`, CSS in
+`customdoxygen.css`. We use the twitter bootstrap layout from
+https://github.com/Velron/doxygen-bootstrapped
+
+Warning: a few markups like `@see` are only displayed in pdf not in
+html. I still need to figure out how to make this work with bootstrap.
