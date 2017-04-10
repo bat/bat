@@ -94,11 +94,26 @@ Refer to the image with
 
 ### copying from introduction.tex
 
-emacs regex to translate math
+use pandoc to convert to markdown
 
-    \$ -> \\f\$ ->  # inline
-    \begin{ -> \f{ # display
-    \\end{.*} -> \\f} # display
+    pandoc introduction.tex -t markdown -o introduction.md
+
+It's left for emacs regex to translate math expressions
+
+    \$\([[:ascii:]]+?\)\$ -> \\f$\1\\f$ # inline math
+    \$\$\\begin{\(.+?\)}\([[:ascii:]]+?\)\\end{.+?}\$\$ -> ^J\\f{\1}{\2^J\\f}^J) # display math
+
+pandoc uses aligned everywhere and doesn't respect the math environment chosen, so check if outlooks ok, else reinstate what was there before
+
+    {aligned} -> {eqnarray}
+
+Unlabelled section can stay as they are. Convert subsections that have a label.
+
+    ^### \(.+?\) {#\(.+?\)}^J-*$ -> @section \2 \1
+
+Labels may not contain `:` for doxygen
+
+    ^@section section:\(.+? \)\(.+?\)$ -> @section sec-mtf-\1 \2
 
 
 output specific code
@@ -136,6 +151,8 @@ https://www.stack.nl/~dimitri/doxygen/manual/customize.html
 ### latex
 
 Modify `bat.sty` which is loaded in the preamble.
+
+Todo: `### foo` and `#### bar` look the same, they shouldn't. latex `paragraph` -> `####`
 
 ### html
 
