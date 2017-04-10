@@ -70,6 +70,8 @@ doxygen doesn't do this automatically. we can do
 
 but that doesn't look good. Rather define a HTML structure and style it with css
 
+doxygen does this in its own documentation. Let's see if we can find out how. Perhapse use `@htmlonly`, see below.
+
 ### images
 
 From inkscape, export to png for html output with
@@ -89,6 +91,15 @@ Keep the caption in `""` short because it doesn't look good in HTML and avoid ma
 Refer to the image with
 
     @ref random-walk-2D "2D example plot"
+
+### copying from introduction.tex
+
+emacs regex to translate math
+
+    \$ -> \\f\$ ->  # inline
+    \begin{ -> \f{ # display
+    \\end{.*} -> \\f} # display
+
 
 output specific code
 ----------
@@ -132,5 +143,7 @@ Change names of tabs in `DoxygenLayout.xml`, CSS in
 `customdoxygen.css`. We use the twitter bootstrap layout from
 https://github.com/Velron/doxygen-bootstrapped
 
-Warning: a few markups like `@see` are only displayed in pdf not in
-html. I still need to figure out how to make this work with bootstrap.
+Warning: a few markups like `@see` and the bibliography are only
+displayed in pdf not in html. I still need to figure out how to make
+this work with bootstrap. Seems to be a general problem
+https://github.com/Velron/doxygen-bootstrapped/issues/21
