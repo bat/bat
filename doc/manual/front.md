@@ -1,6 +1,4 @@
-<!-- First header is ignored by doxygen for the main page -->
-<!-- ### Overview -->
-
+ <!-- First header is ignored by doxygen for the main page -->
 ### For the impatient
 
 For a quick tutorial covering the basic features, jump directly to
