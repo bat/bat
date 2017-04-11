@@ -36,7 +36,8 @@ export extradoxyconf
 include $(top_srcdir)/doc/Makefile-common.am
 
 EXTRA_DIST = \
-	$(input) Doxyfile references.bib $(stylefile) \
+	$(input) Doxyfile DoxygenLayout.xml \
+	references.bib $(stylefile) \
 	figures/random-walk.png figures/random-walk.pdf
 
 # rely on doxygen to create latex/
