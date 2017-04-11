@@ -139,8 +139,8 @@ where `channelname` and `processname` are the names of the channel and
 the process, respectively. The parameter `hist` is the (`TH1D`)
 histogram (or template) which represents the process. The histogram will
 be normalized to unity and the entries in the normalized histogram are
-the probabilities to find an event of a process \f$k\f$ and channel \f$i\f$ in
-bin \f$j\f$. This probability is denoted
+the probabilities to find an event of a process \f$k\f$ and channel \f$i\f$ in
+bin \f$j\f$. This probability is denoted
 \f$f_{ijk}\,(i=1\dots N_{\mathrm{ch}}, \, j=1\dots N_{\mathrm{b}}, \,
 k=1\dots N_{\mathrm{p}})\f$ in the @ref sec-mtf-math. The last
 parameter, `efficiency`, is the efficiency of the process in that
@@ -157,12 +157,12 @@ particular channel.
 Systematic uncertainties can alter the shape of a template. Sources of
 systematic uncertainty can be included in the fit using nuisance
 parameters. This nuisance parameter is assumed to alter the original
-template linearly, where values of -1, 0, and 1 correspond to the
+template linearly, where values of -1, 0, and 1 correspond to the
 “downwards” shifted, nominal and “upwards shifted” template,
 respectively. The nuisance parameters are denoted \f$\delta_{l} \,
 (l=1\dots N_{\mathrm{syst}})\f$ in the @ref sec-mtf-math. Shifted
 refers to a change of one standard deviation. An example for a nuisance
-parameter could be the jet energy scale (JES). With a nominal JES of 1
+parameter could be the jet energy scale (JES). With a nominal JES of 1
 and and uncertainty of 5%, the scaled templates correspond to a JES of
 0.95 and 1.05, respectively. A prior needs to be defined for each
 nuisance parameter which is usually chosen to be a standard normal
