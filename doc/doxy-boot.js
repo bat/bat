@@ -231,7 +231,7 @@ $( document ).ready(function() {
         + "<div class=\"panel-body\">" + $(todoelements[i+1]).html() + "</div>"
       + '</div>');
   }
-  $('.contents > .textblock > dl').remove();
+  // $('.contents > .textblock > dl').remove();
 
 
 	$(".memitem").removeClass('memitem');
