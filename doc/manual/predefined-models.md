@@ -1,6 +1,8 @@
 Predefined Models {#cha-predefined-models}
 =================
 
+[TOC]
+
 @todo Only describe how to use BAT, not to extend it
 
 @section sec-native-data Using BAT's Native Data Structures
@@ -10,18 +12,16 @@ Predefined Models {#cha-predefined-models}
 @section sec-graph-fitter Graph Fitter
 @section sec-hist-fitter Histogram Fitter
 
-<!-- ------------------- -->
 @section sec-mtf Multi-template Fitter
-<!-- ------------------- -->
 
-@todo let Kevin check if info up to date, this is just copied from introduction.tex
+@todo let Kevin check if info up to date, this is just copied from introduction.tex Since this section is long, it deserves its own chapter
 
 The Multi-Template Fitter (MTF) is a tool which allows to fit several
 template histograms to a data histogram. The content of the bins in the
 templates are assumed to fluctuate independently according to Poisson
 distributions. Several channels can be fitted simultaneously.
 
-@section sec-mtf-math  Mathematical formulation
+@subsection sec-mtf-math  Mathematical Formulation
 
 The multi-template fitter is formulated in terms of Bayesian reasoning.
 The posterior probability is proportional to the product of the
@@ -35,7 +35,7 @@ The parameters of the model are thus the expectation values of the
 different processes, \f$\lambda_{k}\f$, and the nuisance parameters,
 \f$\delta_{l}\f$.
 
-#### Excluding systematic uncertainies.
+@subsubsection sec-mtf-exclsyst Excluding Systematic Uncertainies
 
 In case no sources of systematic uncertainty are taken into account the
 Likelihood is defined as
@@ -60,7 +60,7 @@ the \f$i\f$th channel specified when setting the template. \f$\lambda_{k}\f$ is
 the contribution of the \f$k\f$th process and is a free parameter of the
 fit.
 
-#### Including systematic uncertainties.
+@subsubsection sec-mtf-inclsyst Including Systematic Uncertainies
 
 In case sources of systematic uncertainties are taken into account, the
 efficiency \f$\epsilon_{ik}\f$ is modified according to a nuisance
@@ -75,16 +75,19 @@ parameter associated with the source of systematic uncertainty and
 source of systematic uncertainty in the \f$i\f$th channel and \f$j\f$th bin for
 the \f$k\f$th process.
 
-@section sec-mtf-basics  Creating the fitter
-The main MTF class `mtf` is derived from the `BCModel` class. A new
+@subsection sec-mtf-basics  Creating the Fitter
+
+The main MTF class `BCMTF` is derived from the `BCModel` class. A new
 instance can be created via
 
+    @code{.cpp}
     BCMTF::BCMTF()
-    BCMTF::BCMTF(const char * name) ,
+    BCMTF::BCMTF(const char * name)
+    @endcode
 
 where the name of the MTF can be specified via argument `name`.
 
-### Adding a channel
+@subsection sec-mtf-addchannel Adding a Channel
 
 The MTF fits several channels simultaneously. These channels can be
 physics channels, e.g., \f$Z^{0}\rightarrow e^{+}e^{-}\f$ and
@@ -92,32 +95,37 @@ physics channels, e.g., \f$Z^{0}\rightarrow e^{+}e^{-}\f$ and
 multiplicity or entirely different classes altogether. A new channel can
 be added using the following method:
 
-    int BCMTF::AddChannel(const char * name) ,
+    @code{.cpp}
+    int BCMTF::AddChannel(const char * name)
+    @endcode
 
 where `name` is the name of the process, and the return value is an
 error code. Note that at least one channel has to be added.
 
-### Adding a data set
+@subsection sec-mtf-adddata Adding a Data Set
 
 Each channel added to the MTF has a unique data set which comes in form
 of a (`TH1D`) histogram. It can be defined using the following method:
 
-    int BCMTF::SetData(const char * channelname,
-                       TH1D hist) ,
+    @code{.cpp}
+    int BCMTF::SetData(const char * channelname, TH1D hist)
+    @endcode
 
 where `channelname` is the name of the channel and `hist` is the
 histogram representing the data. The return value is an error code.
 
-### Adding a process
+@subsection sec-mtf-addprocess Adding a Process
 
 Each template that is fit to the data set corresponds to a process,
 where one process can occur in several channels. The fit then defines
 the contribution of the process and thus each process comes with one
 model parameter. A process can be added using the following method:
 
+    @code{.cpp}
     int BCMTF::AddProcess(const char * name,
                           double nmin = 0.,
                           double nmax = 1.) ,
+    @endcode
 
 where `name` is the name of the process and `nmin` and `nmax` are the
 lower and upper bound of the parameter associated with the contribution
@@ -130,10 +138,12 @@ It is likely that a single process will have different shapes in
 different channels. Thus, templates for a process need to be defined for
 each channel separately using the following method:
 
+    @code{.cpp}
     int BCMTF::SetTemplate(const char * channelname,
                            const char * processname,
                            TH1D hist,
                            double efficiency = 1.) ,
+    @endcode
 
 where `channelname` and `processname` are the names of the channel and
 the process, respectively. The parameter `hist` is the (`TH1D`)
@@ -152,7 +162,7 @@ the @ref sec-mtf-math. The return value is an error code. Note that
 templates do not have to be set if the process does not contribute to a
 particular channel.
 
-### Adding systematic uncertainties
+@subsection sec-mtf-addunc Adding Systematic Uncertainties
 
 Systematic uncertainties can alter the shape of a template. Sources of
 systematic uncertainty can be included in the fit using nuisance
@@ -169,9 +179,11 @@ nuisance parameter which is usually chosen to be a standard normal
 distribution. A source of systematic uncertainty can be added using the
 following method:
 
+    @code{.cpp}
     int BCMTF::AddSystematic(const char * name,
                              double min = -5.,
                              double max = 5.) ,
+    @endcode
 
 where `name` is the name of the source of systematic uncertainty and
 `min` and `max` are the lower and upper bound of the nuisance parameter,
@@ -181,11 +193,13 @@ Since the different sources of systematic uncertainty have an individual
 impact on each process and in each channel, these need to be specified.
 Two method can be used to define the impact:
 
+    @code{.cpp}
     int BCMTF::SetSystematicVariation(const char * channelname,
                                       const char * processname,
                                       const char * systematicname,
                                       TH1D hist_up,
                                       TH1D hist_down) ,
+    @endcode
 
 where `channelname`, `processname` and `systematicname` are the names of
 the channel, the process and the source of systematic uncertainty. The
@@ -211,12 +225,14 @@ multiplied by \f$(1+0.05)\f$. The return value is an error code.
 The second variant does not take the difference in efficiency, but
 calculates it internally from the absolute values:
 
+    @code{.cpp}
     int BCMTF::SetSystematicVariation(const char * channelname,
                                       const char * processname,
                                       const char * systematicname,
                                       TH1D hist,
                                       TH1D hist_up,
                                       TH1D hist_down) ,
+    @endcode
 
 where `channelname`, `processname` and `systematicname` are the names of
 the channel, the process and the source of systematic uncertainty. The
@@ -226,64 +242,68 @@ histogram and the histograms corresponding to an “up”- and
 In this case, the histograms are not the relative differences but the
 absolute values. The return value is an error code.
 
-### Running the fit
+@subsection sec-mtf-runfit Running the Fit
 
 The fit can be started using one of the standard `BCModel` fitting
 methods, e.g.
 
+    @code{.cpp}
     BCMTF::MarginalizeAll() ,
     BCMTF::FindMode() .
+    @endcode
 
-@section sec-mtf-mtfoutput  Output
+@subsection sec-mtf-mtfoutput  Output
 The MTF produces several outputs:
 
--   `PrintAllMarginalized(const char* name)` prints the marginalized
-    distributions in 1D and 2D for all parameters, i.e., the processes
-    and nuisance parameters into a PostScript file `name`.
+1. `PrintAllMarginalized(const char* name)` prints the marginalized
+distributions in 1D and 2D for all parameters, i.e., the processes
+and nuisance parameters into a PostScript file `name`.
 
--   `PrintResults(const char* name)` writes a summary of the fit into a
-    text file `name`.
+2. `PrintResults(const char* name)` writes a summary of the fit into a
+text file `name`.
 
--   PrintStack(int channelindex,
-                   const std::vector<double> & parameters,
-                   const char * filename = "stack.pdf",
-                   const char * options = "")
-        PrintStack(const char * channelname,
-                   const std::vector<double> & parameters,
-                   const char * filename = "stack.pdf",
-                   const char * options = "")
+3. To print a stacked histogram of the templates and the data histogram in
+the file `name` using a set of parameters `parameters`, do
+@code{.cpp}
+PrintStack(int channelindex,
+           const std::vector<double> & parameters,
+           const char * filename = "stack.pdf",
+           const char * options = "")
+PrintStack(const char * channelname,
+           const std::vector<double> & parameters,
+           const char * filename = "stack.pdf",
+           const char * options = "")
+@endcode
 
-    prints a stacked histogram of the templates and the data histogram
-    in the file `name` using a set of parameters `parameters`. For
-    example, these could be the best fit results. Several options can be
-    specified:
+For example, these could be the best fit results. Several options can
+be specified:
 
-    -   `logx`: uses a log-scale for the x-axis.
+-   `logx`: uses a log-scale for the x-axis.
 
-    -   `logy`: uses a log-scale for the y-axis.
+-   `logy`: uses a log-scale for the y-axis.
 
-    -   `logx`: plot the x-axis on a log scale
+-   `logx`: plot the x-axis on a log scale
 
-    -   `logy`: plot the y-axis on a log scale
+-   `logy`: plot the y-axis on a log scale
 
-    -   `bw`: plot in black and white
+-   `bw`: plot in black and white
 
-    -   `sum`: draw a line corresponding to the sum of all templates
+-   `sum`: draw a line corresponding to the sum of all templates
 
-    -   `stack`: draw the templates as a stack
+-   `stack`: draw the templates as a stack
 
-    -   `e0`: do not draw error bars
+-   `e0`: do not draw error bars
 
-    -   `e1`: draw error bars corresponding to sqrt(n)
+-   `e1`: draw error bars corresponding to sqrt(n)
 
-    -   `b0`: draw an error band on the expectation corresponding to the
-        central 68% probability
+-   `b0`: draw an error band on the expectation corresponding to the
+    central 68% probability
 
-    -   `b1`: draw bands showing the probability to observe a certain
-        number of events given the expectation. The green (yellow, red)
-        bands correspond to the central 68% (95%, 99.8%) probability
+-   `b1`: draw bands showing the probability to observe a certain
+    number of events given the expectation. The green (yellow, red)
+    bands correspond to the central 68% (95%, 99.8%) probability
 
-@section sec-mtf-mtfsettings  Settings
+@subsection sec-mtf-mtfsettings  Settings
 Several settings can be changed which impact the fit.
 
 -   `SetFlagEfficiencyConstraint` sets a flag if the overall efficiency
@@ -291,28 +311,31 @@ Several settings can be changed which impact the fit.
     corresponding systematic uncertainties) is constrained to be
     between 0 and 1 or not. The default value is `true`.
 
-@section sec-mtf-facility  Analysis facility
+@subsection sec-mtf-facility  Analysis Facility
 The analysis facility allows to perform a variety of analyses and
 ensemble tests for a given MTF. It can be created using the constructor:
 
-    BCMTFAnalysisFacility::BCMTFAnalysisFacility(BCMTF * mtf) ,
+    @code{.cpp}
+    BCMTFAnalysisFacility::BCMTFAnalysisFacility(BCMTF * mtf)
+    @endcode
 
 where `mtf` is the corresponding MTF object.
 
-### Performing ensemble tests
+@subsection sec-mtf-perf_ensemble Performing Ensemble Tests
 
 Ensemble testing is done in two steps: first, ensembles are generated
 according to the processes defined in the MTF. The ensembles are stored
 in root files. In a second step, the ensembles are analyzed using the
 MTF specified.
 
-#### Creating ensembles.
+@subsection sec-mtf-create_ensem Creating Ensembles
 
 Ensembles can be generated using several methods. A single ensemble can
 be generated using the following method:
 
-    std::vector<TH1D> BCMTFAnalysisFacility::
-                      BuildEnsemble(const std::vector<double> & parameters) ,
+    @code{.cpp}
+    std::vector<TH1D> BCMTFAnalysisFacility::BuildEnsemble(const std::vector<double> & parameters)
+    @endcode
 
 where `parameters` is a set of parameters which corresponds to those in
 the template fitter, i.e., the process contributions and nuisance
@@ -322,9 +345,9 @@ corresponding to a pseudo data set for the different channels.
 
 A similar method is used to generate multiple ensembles:
 
-    std::vector<TH1D> BCMTFAnalysisFacility::
-                      BuildEnsembles(const std::vector<double> & parameters,
-                                     int nensembles) ,
+    @code{.cpp}
+    std::vector<TH1D> BCMTFAnalysisFacility::BuildEnsembles(const std::vector<double> & parameters, int nensembles)
+    @endcode
 
 where `nensembles` is the number of ensembles to be generated. The
 return value is a pointer to a `TTree` object in which the ensembles are
@@ -336,21 +359,23 @@ parameters for each ensemble. This option is preferred if, e.g., the
 ensembles should be varied accoring to the prior probabilities. The
 method used to generate ensembles is
 
-    std::vector<TH1D> BCMTFAnalysisFacility::
-                      BuildEnsembles(TTree * tree, int nensembles) ,
+    @code{.cpp}
+    std::vector<TH1D> BCMTFAnalysisFacility::BuildEnsembles(TTree * tree, int nensembles)
+    @endcode
 
 where `tree` is the input tree. Note that the ensembles are randomized,
 i.e., the first event in the tree does not correspond to the first
 ensemble. This is done to avoid biases if the tree itself is the output
 of a Markov Chain.
 
-#### Analyzing ensembles.
+@subsection sec-mtf-analyze_ensem Analyzing Ensembles
 
 Ensemble tests can be performed usign the ensembles defined earlier or
 using a set of parameters. In the former case, the method is:
 
-    TTree * BCMTFAnalysisFacility::
-            PerformEnsembleTest(TTree * tree, int nensembles) ,
+    @code{.cpp}
+    TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles)
+    @endcode
 
 where `tree` is the tree of ensembles and `nensembles` is the number of
 ensembles to be analyzed. The return value is a tree containing the
@@ -394,32 +419,33 @@ information about the analyzed ensemble. The list of variables is
 
 Ensemble tests can also be performed using the following methd:
 
-    TTree * BCMTFAnalysisFacility::
-            PerformEnsembleTest(const std::vector<double> & parameters,
-                                int nensembles) ,
+    @code{.cpp}
+    TTree * BCMTFAnalysisFacility::PerformEnsembleTest(const std::vector<double> & parameters, int nensembles)
+    @endcode
 
 in which case the ensembles are generated internally using the
 parameters and are then analyzed.
 
 By default the log messages for both the screen and the log-file are
 suppressed while performing the ensemble test. This can be changed using
-method:
 
-    void BCMTFAnalysisFacility::SetLogLevel(BCLog::LogLevel level) .
+    @code{.cpp}
+    void BCMTFAnalysisFacility::SetLogLevel(BCLog::LogLevel level)
+    @endcode
 
-### Performing automated analyses
+@subsection sec-mtf-autom_analyses Performing Automated Analyses
 
 The analysis facility also allows to perform an automated analysis over
 individual channels and or systematic uncertainties.
 
-#### Performing single channel analyses
+@subsubsection sec-mtf-perf_single_channel Performing Single-Channel Analyses
 
 The current data set can be analyzed automatically for each channel
 separately using the analysis facility method
 
-    int BCMTFAnalysisFacility::
-        PerformSingleChannelAnalyses(const char * dirname,
-                                     const char * options = "")
+    @code{.cpp}
+    int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, const char * options = "")
+    @endcode
 
 where `dirname` is the name of a directory which will be created and
 into which all plots will be copied. If `mcmc` is specified in the
@@ -428,28 +454,29 @@ all marginalized distributions and results as well as an overview plot.
 If the option `nosyst` is specified, the systematic uncertainties are
 all switched off.
 
-#### Performing single systematic analyses
+@subsubsection sec-mtf-perf_single_channel_syst Performing Single Systematic Analyses
 
 Similarly, the method
 
-    int BCMTFAnalysisFacility::
-        PerformSingleSystematicAnalyses(const char * dirname,
-                                        const char * options = "")
+    @code{.cpp}
+    int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname, const char * options = "")
+    @endcode
 
 can be used to perform a set of analyses for each systematic uncertainty
 separately.
 
-#### Performing calibration analyses
+@subsubsection sec-mtf-perf_calib Performing Calibration Analyses
 
 Ensemble tests for different sets of parameters can be automized by
 using the method
 
-    int BCMTFAnalysisFacility::
-        PerformCalibrationAnalysis(const char * dirname,
+    @code{.cpp}
+    int BCMTFAnalysisFacility::PerformCalibrationAnalysis(const char * dirname,
                                    const std::vector<double> & default_parameters,
                                    int index,
                                    const std::vector<double> & parametervalues,
                                    int nensembles = 1000)
+    @endcode
 
 which can be used to easily generate calibration curves. The ensembles
 are generated for a set of parameters, `default_parameters` where one of

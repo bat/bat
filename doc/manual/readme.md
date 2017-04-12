@@ -55,6 +55,8 @@ Unfortunately markdown syntax with a label to appear in the TOC doesn't work des
 
     @section sec-mcmc-motiv Motivation
 
+Section w/o a label don't appear in the TOC as no link can be established, so every section should have a link!
+
 ### subsection
 
 Here markdown ok again
