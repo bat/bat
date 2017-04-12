@@ -158,7 +158,8 @@ Todo: `### foo` and `#### bar` look the same, they shouldn't. latex `paragraph` 
 
 Change names of tabs in `DoxygenLayout.xml`, CSS in
 `customdoxygen.css`. We use the twitter bootstrap layout from
-https://github.com/Velron/doxygen-bootstrapped
+https://github.com/Velron/doxygen-bootstrapped defined in javascript
+in `doxy-boot.js`.
 
 Warning: a few markups like `@see` and the bibliography are only
 displayed in pdf not in html. I still need to figure out how to make
