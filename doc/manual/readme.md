@@ -64,17 +64,20 @@ Here markdown ok again
     ## Factorized proposal {#sec-factorized}
 
 
-### link to next/previous page
+### link to next/previous chapter
 
-doxygen doesn't do this automatically. we can do
+    @htmlonly
+    <br/><br/>
+    Return to the <a href="cha-predefined-models.html">previous</a> section or go to the
+    <a href="cha-output.html">next</a> section.
+    @endhtmlonly
 
-    @ref cha-basics
-
-but that doesn't look good. Rather define a HTML structure and style it with css
-
-doxygen does this in its own documentation. Let's see if we can find out how. Perhapse use `@htmlonly`, see below.
+Better would be to define something in javascript that takes two
+arguments, the previous and next chapter, and style it with css.
 
 ### images
+
+Great overview at http://alesnosek.com/blog/2015/06/28/diagrams-and-images-in-doxygen/
 
 From inkscape, export to png for html output with
 
