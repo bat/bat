@@ -18,7 +18,7 @@ input = \
 
 doxyinput = $(srcdir)/front.md
 doxyinput += $(top_srcdir)/INSTALL.md
-doxyinput += $(addprefix $(srcdir)/, $(input))
+doxyinput += $(input:%=$(srcdir)/%)
 stylefile = bat.sty
 
 define extradoxyconf

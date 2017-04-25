@@ -1,7 +1,8 @@
 # can't change doxygen options via command line
 # but we want to specify input and output directory
 # to be compatible with out-of-source build
-doxyinput = $(addprefix $(top_srcdir)/, src models BAT README.md)
+doxyinput_raw = src models BAT README.md
+doxyinput = $(doxyinput_raw:%=$(top_srcdir)/%)
 
 define extradoxyconf
 	PROJECT_NAME = "BAT"
