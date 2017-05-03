@@ -24,12 +24,84 @@ When the number of parameters grows, the only feasible algorithms to
 perform the integration are Monte Carlo methods; i.e., methods based
 on random numbers.
 
+@todo explain in general the idea of Monte Carlo integration, grid for low dimensions default in BAT
+
+@section sec-mcmc-integration Monte Carlo integration
+
+We begin with the *fundamental Monte Carlo* principle. Suppose we have a
+probability density \f$P(\vecth)\f$, often called the *target*
+density, and an arbitrary function \f$f(\vecth)\f$ with finite
+expectation value under \f$P\f$
+\f{align}{
+    \label{eq:mc-expect}
+    E_P[ f ] = \int \rmdx{ \vecth} P(\vecth) f(\vecth) < \infty .
+\f}
+Then a
+set of draws \f$\{ \vecth_i:i=1 \dots N \}\f$ from the density \f$P\f$, that is \f$\vecth_i \sim P\f$, is
+enough to estimate the expectation value. Specifically, the integral
+can be replaced by the estimator (distinguished by the symbol
+\f$\widehat{\phantom{a}}\f$)
+\f{align}{ \label{eq:mc-expect-discrete} \boxed{
+\widehat{E_P[f]} \approx \frac{1}{N} \sum_{i=1}^{N} f(\vecth_i), \;
+\vecth \sim P  }
+\f}
+As \f$N \to \infty\f$, the estimate
+converges almost surely at a rate \f$\propto 1/\sqrt{N}\f$
+by the strong law of large numbers if \f$\int \rmdx{ \vecth}
+P(\vecth) f^2(\vecth) < \infty\f$ @cite Casella:2004 .
+
+@anchor mcmc-histogram
+@image html histogram.png "Histogram approximation to the 1D marginal."
+@image latex histogram.pdf "Histogram approximation to the 1D marginal." width=0.3\textwidth
+
+How does this @latexonly Eq.~\ref{eq:mc-expect-discrete}@endlatexonly
+relate to Bayesian inference? Upon applying Bayes’ theorem to
+real-life problems, one usually has to marginalize over several
+parameters, and this can usually not be done analytically, hence one
+has to resort to numerical techniques. In low dimensions, say \f$d \le
+2\f$, quadrature and other grid-based methods are fast and accurate,
+but as \f$d\f$ increases, these methods generically suffer from the
+*curse of dimensionality*. The number of function evaluations grows
+exponentially as \f$\order{m^d}\f$, where \f$m\f$ is the number of
+grid points in one dimension. Though less accurate in few dimensions,
+Monte Carlo — i.e., random-number based — methods are the first choice
+in \f$d \gtrsim 3\f$ because the computational complexity is (at least
+in principle) independent of \f$d\f$. Which function \f$f\f$ is of
+interest to us? For example when integrating over all but the first
+dimension of \f$\vecth\f$, the marginal posterior probability
+that \f$\theta_1\f$ is in \f$[a,b]\f$ can be estimated as
+
+\f[
+\label{eq:disc-marg} P(a \le \theta_1 \le b|D) \approx \frac{1}{N}
+\sum_{i=1}^{N} \mathbf{1}_{\theta_1 \in [a,b]} (\vecth_i) \, \f]
+with the *indicator function*
+\f[ \label{eq:indicator-fct}
+\mathbf{1}_{\theta_1 \in [a,b]} (\vecth) = \begin{cases} 1, \theta_1
+\in [a,b] \\ 0, {\rm else} \end{cases}
+\f]
+
+This follows immediately from the Monte Carlo principle with
+\f$f(\vecth) = \mathbf{1}_{\theta_1 \in [a,b]}(\vecth)\f$. The major
+simplification arises as we perform the integral over \f$d-1\f$
+dimensions simply by ignoring these dimensions in the indicator
+function. If the parameter range of \f$\theta_1\f$ is partitioned into
+bins, then the above holds in every bin, and defines the histogram
+approximation to \f$P(\theta_1|D)\f$. In exact analogy, the 2D
+histogram approximation is computed from the samples for 2D bins in
+the indicator function. For understanding and presenting the results
+of Bayesian parameter inference, the set of 1D and 2D marginal
+distributions is the primary goal. Given samples from the full
+posterior, we have immediate access to *all* marginal distributions at
+once; i.e., there is no need for separate integration to obtain for
+example \f$P(\theta_1|D)\f$ and \f$P(\theta_2|D)\f$. This is a major
+benefit of the Monte Carlo method in conducting Bayesian inference.
+
+@section sec-mcmc-foundations Foundations
+
 The key ingredient in BAT is an implementation of the Metropolis
 algorithm to create a Markov chain; i.e. a sequence of (correlated)
 samples from the posterior. We use the shorthand MCMC for Markov chain
 Monte Carlo.
-
-@section sec-mcmc-foundations Foundations
 
 Efficient MCMC algorithms are the topic of past and current
 research. This section is a concise overview of the general idea and
@@ -53,6 +125,11 @@ corner. Rejected moves are indicated by the dashed arrow, accepted
 moves are indicated by the solid arrow. The circled number is the
 number of iterations the chain stays at a given point \f$\vecth =
 (\theta_1, \theta_2)\f$.
+
+In each iteration \f$i\f$, one updates the estimate of the 1D marginal
+distribution \f$P(\theta_1 | D)\f$ by adding the first coordinate of
+\f$\vecth_i\f$ to a histogram. Repeat this for all other coordinates
+to update the other \f$d-1\f$ 1D marginals.
 
 @section sec-convergence Convergence
 @todo mixing, burn in, R value, multimodal problems

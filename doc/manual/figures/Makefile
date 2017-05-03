@@ -1,7 +1,10 @@
 inkscape = inkscape --export-area-drawing
 
-random-walk.png: random-walk.svg
+%.png: %.svg
 	$(inkscape) --export-png=$@ --export-width 500 $^
 
-random-walk.pdf: random-walk.svg
+histogram.png: histogram.svg
+	$(inkscape) --export-png=$@ --export-width 250 $^
+
+%.pdf: %.svg
 	$(inkscape) --export-pdf=$@ $^

@@ -39,6 +39,7 @@ EXTRA_DIST = \
 	$(input) Doxyfile DoxygenLayout.xml \
 	references.bib $(stylefile) \
 	figures/random-walk.png figures/random-walk.pdf
+	figures/histogram.png figures/histogram.pdf
 
 # rely on doxygen to create latex/
 .PHONY: pdf
