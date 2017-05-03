@@ -1,12 +1,12 @@
 \NeedsTeXFormat{LaTeX2e}[1994/06/01]
 \ProvidesPackage{bat}[2016/10/26 v1.0.0 BAT's Doxygen style]
-\usepackage{libertine}
-\usepackage{newtxmath}
+\usepackage{libertine,newtxmath} % matching text and math fonts
 \usepackage{amssymb,amsfonts,amsmath}  % bold math symbols, AMStex
+\usepackage{physics} % for integration symbols
 
 % math
 \newcommand{\cond}{\,|\,}
-\newcommand\rmdx[1]{\mbox{d}#1\,} % differential
+\newcommand\rmdx[1]{\dd{#1}} % differential
 \newcommand{\scath}{\theta} % scalar parameter
 \newcommand{\vecth}{\boldsymbol{\theta}} % vector parameter
 
