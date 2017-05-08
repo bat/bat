@@ -27,9 +27,7 @@
 // Below are the includes needed for compilation of the macro
 // the #if ... #endif directives around the includes allow to
 // run the macro in both normal and compiled mode.
-#define COMPILER (!defined(__CINT__) && !defined(__CLING__))
-
-#if defined(__MAKECINT__) || defined(__ROOTCLING__) || COMPILER
+#if defined(__MAKECINT__) || defined(__ROOTCLING__) || (!defined(__CINT__) && !defined(__CLING__))
 
 #include <BAT/BCAux.h>
 #include <BAT/BCGaussianPrior.h>
