@@ -80,6 +80,13 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = bat.pc
 endif
 
+if COND_USE_RPATH
+USE_RPATH=yes
+else
+USE_RPATH=no
+endif
+
+
 install-data-hook:
 	@echo
 	@echo "   ============================================================"
@@ -88,7 +95,7 @@ install-data-hook:
 	@echo "In the bash, you can set up your environment with"
 	@echo
 	@echo 'export PATH="$(bindir):$$PATH"'
-	@echo 'export LD_LIBRARY_PATH="$(libdir):$$LD_LIBRARY_PATH"'
+	@test "$(USE_RPATH)" != "yes" && echo 'export LD_LIBRARY_PATH="$(libdir):$$LD_LIBRARY_PATH"' || true
 	@echo 'export CPATH="$(includedir):$$CPATH"'
 	@echo 'export PKG_CONFIG_PATH="$(pkgconfigdir):$$PKG_CONFIG_PATH"'
 	@echo

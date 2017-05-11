@@ -7,5 +7,5 @@ Name: bat
 Version: @VERSION@
 Description: Bayesian Analysis Toolkit
 Requires:
-Libs: -Wl,-rpath,${libdir} -L${libdir} @PKG_LIBS@ @DEP_LIBS@
+Libs: -L${libdir} @PKG_LIBS@ @DEP_LIBS@
 Cflags: -I${includedir} @DEP_CFLAGS@
