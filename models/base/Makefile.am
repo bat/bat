@@ -4,8 +4,8 @@ clean-local:
 	-rm -rf .includes
 
 lib_LTLIBRARIES= libBATmodels.la
-libBATmodels_la_LDFLAGS= -version-info 1:0:0
-libBATmodels_la_LIBADD = $(top_builddir)/src/libBAT.la
+libBATmodels_la_LDFLAGS= -version-info 1:0:0 $(ROOTLIBDIRFLAGS)
+libBATmodels_la_LIBADD = $(top_builddir)/src/libBAT.la $(ROOTLIBS)
 
 AM_CXXFLAGS = $(ROOTAUXCFLAGS) -Wall -fPIC -I.includes -I$(top_builddir)/src/.includes $(ROOTCFLAGS)
 AM_LDFLAGS  = -O
