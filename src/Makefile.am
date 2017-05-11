@@ -7,7 +7,7 @@ lib_LTLIBRARIES = libBAT.la
 libBAT_la_LDFLAGS = -version-info 1:0:0
 
 # this fixes the linker error on ubuntu with gcc > 4.4 with missing reference to TCanvas(bool) etc.
-libBAT_la_LDFLAGS += -L$(ROOTLIBDIR)
+libBAT_la_LDFLAGS += $(ROOTLIBDIRFLAGS)
 libBAT_la_LIBADD = $(ROOTLIBS)
 
 AM_CXXFLAGS = $(ROOTAUXCFLAGS) -Wall -fPIC -I$(top_srcdir)/BAT -I.includes $(ROOTCFLAGS) $(CUBAINCLUDE)
