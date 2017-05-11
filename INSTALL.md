@@ -201,7 +201,7 @@ After installation, BAT offers two mechanisms to make BAT available:
 If you do not install BAT to the system directories, you need to
 manually add the path to `bat-config`, `bat.pc`, the libraries, and
 the include files to the search paths. Depending on your shell, the
-set of commands is
+set of commands on linux for bash-compatible shells is
 
 ```bash
 BATPREFIX="/bat/install/prefix"
@@ -211,7 +211,7 @@ export LD_LIBRARY_PATH="$BATPREFIX/lib:$LD_LIBRARY_PATH"
 export PKG_CONFIG_PATH="$BATPREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 ```
 
-for bash-compatible shells or
+and for csh-compatible shells is
 
 ```bash
 set BATPREFIX = /bat/install/prefix
@@ -221,21 +221,19 @@ setenv LD_LIBRARY_PATH   "${BATPREFIX}/lib:${LD_LIBRARY_PATH}"
 setenv PKG_CONFIG_PATH   "${BATPREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
 ```
 
-for csh-compatible shells. On Mac OS X you might also need to setup
-`DYLD_LIBRARY_PATH`. If you want to make BAT permanently available,
-add the above commands to your login script; for example `.profile` or
-`.bashrc`.
+If you want to make BAT permanently available, add the above commands
+to your login script, for example to `.profile` or to `.bashrc`.
+
+On Mac OS X you do not have to set up `LD_LIBRARY_PATH` because we use
+the `rpath` option to make BAT compatible with the SIP feature enabled
+by default on Mac OS X starting with El Capitan.
 
 Updating `$CPATH` is required if you work with interactive ROOT macros
 that use BAT (both for ROOT 5 and 6).
 
-The minimal setup does not require setting `LD_LIBRARY_PATH` if
-libraries or executables are linked to BAT using `bat-config --libs`
-because the directory from which the BAT libraries are loaded at
-runtime is set via the `rpath` option.
-
-`PKG_CONFIG_PATH` is only needed to make BAT known to `pkg-config`, it
-is not used by BAT itself.
+The minimal setup does not require setting `PKG_CONFIG_PATH` to run
+BAT unless you want to integrate BAT into another probject using
+`pkg-config`. BAT itself does not use `pkg-config`.
 
 Including BAT in your project
 -----------------------------
