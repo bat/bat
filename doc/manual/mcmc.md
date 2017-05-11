@@ -131,6 +131,9 @@ distribution \f$P(\theta_1 | D)\f$ by adding the first coordinate of
 \f$\vecth_i\f$ to a histogram. Repeat this for all other coordinates
 to update the other \f$d-1\f$ 1D marginals.
 
+@todo continue as in Lydia's email
+As a concrete example, suppose the chain has 5 iterations..
+
 @section sec-convergence Convergence
 @todo mixing, burn in, R value, multimodal problems
 
