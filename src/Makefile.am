@@ -32,13 +32,27 @@ EXTRA_DIST = LinkDef.h
 
 library_includedir= $(includedir)/BAT
 
+# cling >6.08 requires headers in order of least dependency. The 1st
+# group of headers do not include any other BAT header. The 2nd group
+# includes only headers from the 1st...
+#
+# 1st group: grep -L '#include.*BC.*\.h' BC*.h
 incs= \
+	BCHistogramBase.h \
+	BCLog.h \
+	BCMath.h \
+	BCVariable.h \
+	\
 	BCDataPoint.h \
 	BCDataSet.h \
-	BCHistogramBase.h \
 	BCH1D.h \
 	BCH2D.h \
+	BCObservable.h \
+	BCParameter.h \
+	\
+	BCAux.h \
 	BCPrior.h \
+	\
 	BCConstantPrior.h \
 	BCGaussianPrior.h \
 	BCSplitGaussianPrior.h \
@@ -47,27 +61,22 @@ incs= \
 	BCTF1LogPrior.h \
 	BCTH1Prior.h \
 	BCPositiveDefinitePrior.h \
+	BCVariableSet.h \
+	\
 	BCObservableSet.h \
 	BCParameterSet.h \
-	BCObservable.h \
-	BCParameter.h \
-	BCVariable.h \
+	\
 	BCEngineMCMC.h \
 	BCIntegrate.h \
 	BCModel.h \
 	BCEmptyModel.h \
 	BCPriorModel.h \
-	BCModelManager.h \
-	BCLog.h \
-	BCMath.h \
-	BCAux.h
+	BCModelManager.h
 
-non_source_incs = \
-	BCVariableSet.h
+EXTRA_DIST += $(incs:%.h=$(top_srcdir)/BAT/%.h)
 
-EXTRA_DIST += $(incs:%.h=$(top_srcdir)/BAT/%.h) $(non_source_incs:%.h=$(top_srcdir)/BAT/%.h)
-
-nodist_library_include_HEADERS = $(incs:%.h=.includes/$(PACKAGE)/%.h) $(non_source_incs:%.h=.includes/$(PACKAGE)/%.h)
+# copy headers and change `#include "BC*.h"` -> `#include <BC*.h>` for root integration
+nodist_library_include_HEADERS = $(incs:%.h=.includes/$(PACKAGE)/%.h)
 
 $(nodist_library_include_HEADERS): .includes/$(PACKAGE)/%.h: $(top_srcdir)/BAT/%.h
 	mkdir -p .includes/$(PACKAGE)
