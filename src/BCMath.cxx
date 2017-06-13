@@ -52,23 +52,24 @@ double BCMath::LogSplitGaus(double x, double mode, double sigma_below, double si
 // ---------------------------------------------------------
 double BCMath::LogPoisson(double x, double lambda)
 {
-    if (x < 0)
+    if (x < 0.0)
         return -std::numeric_limits<double>::infinity();
 
-    if (lambda == 0) {
-        BCLog::OutWarning("BCMath::LogPoisson : expectation value (lambda) cannot be zero.");
-        return std::numeric_limits<double>::quiet_NaN();
+    // for lambda == 0, only x = 0 allowed
+    if (lambda == 0.0) {
+        return (x == 0.0) ? 0.0 : -std::numeric_limits<double>::infinity();
     }
 
-    if (lambda < 0) {
+    if (lambda < 0.0) {
         BCLog::OutWarning("BCMath::LogPoisson : expectation value (lambda) cannot be negative.");
         return std::numeric_limits<double>::quiet_NaN();
     }
 
-    if (lambda > 899)
+    if (lambda > 899.0)
         return LogGaus(x, lambda, sqrt(lambda), true);
 
-    if (x == 0.)
+    // now lambda > 0
+    if (x == 0.0)
         return -lambda;
 
     return x * log(lambda) - lambda - ApproxLogFact(x);
