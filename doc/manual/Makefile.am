@@ -2,8 +2,8 @@
 input = \
 		getting-started.md \
 		bayes.md \
-		mcmc.md \
 		integration.md \
+		mcmc.md \
 		optimization.md \
 		predefined-models.md \
 		\

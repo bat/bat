@@ -5,6 +5,7 @@ Markov chain Monte Carlo {#cha-mcmc}
 
 @todo workhorse of BAT. mention Metropolis algorithm, role of proposal function, different choices in bat, why it has to be adapted in prerun. What else happens in prerun:R value and convergence checking. Mention that samples are correlated, chains can get stuck if model wrong/poor.
 
+@todo overlap with chapter on integration
 @section sec-mcmc-motiv Motivation
 
 The reason that BAT exists is that nearly any Bayesian analysis
@@ -20,6 +21,15 @@ one needs to be able to compute and visualize 1D and 2D *marginal distributions*
   \label{eq:mcmc-marginal}
   P(\theta_1, \theta_2 \cond D) = \int \prod_{i \ne 1,2} \rmdx{\theta_i} P(\vecth \cond D).
 \f}
+Therefore Bayesian inference in practice requires good integration techniques.
+
+
+For low-dimensional problems, deterministic integration methods are
+usually the fastest and most robust. For marginalization, BAT defaults
+to evaluating on a grid, that is Riemann integration, for 1D and 2D problems.
+
+@see BCIntegrate::SetMarginalizationMethod(BCIntegrate::kMargGrid)
+
 When the number of parameters grows, the only feasible algorithms to
 perform the integration are Monte Carlo methods; i.e., methods based
 on random numbers.
