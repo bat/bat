@@ -55,7 +55,7 @@ Unfortunately markdown syntax with a label to appear in the TOC doesn't work des
 
     @section sec-mcmc-motiv Motivation
 
-Section w/o a label don't appear in the TOC as no link can be established, so every section should have a link!
+Section w/o a label don't appear in the TOC as no link can be established, so every section should have a label!
 
 ### subsection
 
@@ -63,6 +63,9 @@ Here markdown ok again
 
     ## Factorized proposal {#sec-factorized}
 
+### link to section
+
+    @ref sec-mcmc-motiv
 
 ### link to next/previous chapter
 
