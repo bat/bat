@@ -1048,7 +1048,7 @@ public:
      * @param sigma_below Standard deviation below mode.
      * @param sigma_above Standard deviation above mode. */
     void SetPriorGauss(const std::string& name, double mode, double sigma_below, double sigma_above)
-    {	SetPriorGauss(fParameters.Index(name), mode, sigmadown, sigmaup); }
+    {	SetPriorGauss(fParameters.Index(name), mode, sigma_below, sigma_above); }
 
     /**
      * @deprecated Instead call: GetParameter(index)->SetPrior(new BCTH1Prior(h,interpolate))

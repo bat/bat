@@ -214,7 +214,7 @@ public:
      * @param parameters A set of parameter values
      * @return The posterior probability */
     virtual double Probability(const std::vector<double>& parameters)
-    { return exp(LogProbability(parameter)); }
+    { return exp(LogProbability(parameters)); }
 
     /**
      * Returns natural logarithm of the  a posteriori probability given a set of parameter values
