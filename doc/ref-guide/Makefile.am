@@ -12,8 +12,6 @@ define extradoxyconf
 endef
 export extradoxyconf
 
-EXTRA_DIST = Doxyfile
-
 include $(top_srcdir)/doc/Makefile-common.am
 
 clean-local:

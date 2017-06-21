@@ -27,8 +27,9 @@ EXTRA_DIST= \
 	models/base/LDef.h  \
 	models/base/LDef_roostats.h \
 	examples \
-	tools/bat-project.in \
-	$(manual_pdf)
+	tools/bat-project.in
+# \
+# 	$(manual_pdf)
 
 dist_bin_SCRIPTS = \
 	bat-config \
@@ -54,7 +55,7 @@ dist_pkgdata_DATA = \
 	tools/ModelTemplate.h tools/ModelTemplate.cxx \
 	tools/MakefileTemplate
 
-dist-hook: $(manual_pdf)
+dist-hook:
 	rm -f $(distdir)/models/libBATmodels.rootmap
 	rm -rf `find $(distdir)/examples -name Makefile`
 
