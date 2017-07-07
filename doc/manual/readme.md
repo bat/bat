@@ -1,6 +1,12 @@
 Build
 -----
 
+### requirements
+
+doxygen, graphviz, latex. On cent os, the necessary latex stuff is installed via
+
+    yum install -y texlive-collection-latexrecommended
+
 ### high level
 
 go to `doc/`:
