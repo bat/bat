@@ -23,7 +23,9 @@ void check_efficiency(const GaussModel& m, double efficiency)
         TEST_CHECK_FAILED(stringify(efficiency) + " larger than required " + stringify(m.GetMaximumEfficiency()));
 }
 
-GaussModel* gauss_check(bool multivariate_proposal, double fix = std::numeric_limits<double>::infinity())
+GaussModel* gauss_check(bool multivariate_proposal,
+                        double fix = std::numeric_limits<double>::infinity(),
+                        bool zero_range = false)
 {
     /* set up model */
     const bool fixLast = (fix != std::numeric_limits<double>::infinity());
@@ -39,7 +41,11 @@ GaussModel* gauss_check(bool multivariate_proposal, double fix = std::numeric_li
     // keep track of free and total number of parameters
     unsigned nfree = ntotal;
     if (fixLast) {
-        m.GetParameter(ntotal - 1).Fix(fix);
+        BCParameter& p = m.GetParameter(ntotal - 1);
+        if (zero_range) {
+            p.SetLimits(fix, fix);
+        } else
+            p.Fix(fix);
         --nfree;
     }
     TEST_CHECK_EQUAL(m.GetNParameters(), ntotal);
@@ -223,8 +229,17 @@ public:
                      GaussModel* m = ::gauss_check(true);
                      delete m;
                     );
-        TEST_SECTION("multivariate, fix one",
+        TEST_SECTION("multivariate, fix last",
                      GaussModel* m = ::gauss_check(true, 1.1);
+                     delete m;
+                    );
+        static const bool zero_range = true;
+        TEST_SECTION("multivariate, zero par range",
+                     GaussModel* m = ::gauss_check(true, 1.1, zero_range);
+                     delete m;
+                    );
+        TEST_SECTION("factorized, zero par range",
+                     GaussModel* m = ::gauss_check(false, 1.1, zero_range);
                      delete m;
                     );
     }
