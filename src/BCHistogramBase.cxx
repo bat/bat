@@ -53,7 +53,8 @@ BCHistogramBase::BCHistogramBase(const TH1* const hist, int dimension)
       fDrawStandardDeviation(true),
       fDrawLegend(true),
       fDrawStats(false),
-      fDimension(dimension)
+      fDimension(dimension),
+      fROOToptions("HIST")
 {
     SetHistogram(hist);
     SetColorScheme(kGreenYellowRed);
