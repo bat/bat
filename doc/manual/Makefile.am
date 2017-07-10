@@ -27,7 +27,8 @@ define extradoxyconf
 	LAYOUT_FILE = $(srcdir)/DoxygenLayout.xml
 	TAGFILES = $(top_builddir)/doc/ref-guide/bat-ref.tag=$(top_builddir)/ref-guide/html
 	GENERATE_LATEX = YES
-	IMAGE_PATH = $(srcdir)/figures
+	IMAGE_PATH = $(srcdir)/figures $(srcdir)/examples
+	EXAMPLE_PATH = $(srcdir)/examples $(top_srcdir)/BAT
 	CITE_BIB_FILES = $(srcdir)/references.bib
 	EXTRA_PACKAGES = bat
 endef
