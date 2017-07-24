@@ -1882,16 +1882,10 @@ bool BCEngineMCMC::MetropolisPreRun()
 
             // Calculate & check R values
             fMCMCNIterationsConvergenceGlobal = fMCMCCurrentIteration;
+            fMCMCRValueParameters = RValues(fMCMCStatistics, fCorrectRValueForSamplingVariability, GetNParameters());
             for (unsigned p = 0; p < GetNParameters(); ++p) {
                 if (GetParameter(p).Fixed())
                     continue;
-                std::vector<double> means(fMCMCNChains, 0);
-                std::vector<double> variances(fMCMCNChains, 0);
-                for (unsigned c = 0; c < fMCMCNChains; ++c) {
-                    means[c]     = fMCMCStatistics[c].mean[p];
-                    variances[c] = fMCMCStatistics[c].variance[p];
-                }
-                fMCMCRValueParameters[p] = RValue(means, variances, fMCMCStatistics[0].n_samples, fCorrectRValueForSamplingVariability);
                 if (fMCMCRValueParameters[p] > fMCMCRValueParametersCriterion)
                     fMCMCNIterationsConvergenceGlobal = -1;
             }
@@ -2083,6 +2077,44 @@ double BCEngineMCMC::RValue(const std::vector<double>& means, const std::vector<
 
     return rvalue * sqrt((df + 3) / (df + 1));
 }
+
+// --------------------------------------------------------
+std::vector<double> BCEngineMCMC::RValues(const std::vector<BCEngineMCMC::Statistics>& stats, bool correctForSamplingVariability, int n)
+{
+    if (stats.empty())
+        throw;
+
+    size_t N = (n < 0) ? stats[0].mean.size() : static_cast<size_t>(n);
+    
+    std::vector<double> R;
+    R.reserve(std::min(N, stats[0].mean.size()));
+
+    // loop over variables of stats
+    for (unsigned p = 0; p < N and p < stats[0].mean.size(); ++p) {
+
+        // store means and variances of p of all elts of stats
+        std::vector<double> means(stats.size(), 0);
+        std::vector<double> variances(stats.size(), 0);
+        // check whether all variances are zero (aka parameter was fixed)
+        bool all_zero = true;
+        for (unsigned c = 0; c < stats.size(); ++c) {
+            means[c]     = stats[c].mean[p];
+            variances[c] = stats[c].variance[p];
+            all_zero    &= (stats[c].variance[p] != 0);
+        }
+        
+        // if variances were zero, set 1
+        if (all_zero)
+            R.push_back(1.);
+        // else calculate
+        else
+            R.push_back(RValue(means, variances, stats[0].n_samples, correctForSamplingVariability));
+
+    }
+
+    return R;
+}
+
 
 // --------------------------------------------------------
 bool BCEngineMCMC::Metropolis()
@@ -2754,6 +2786,17 @@ void BCEngineMCMC::PrintMarginalizationSummary() const
                 for (unsigned j = 0; j < fMCMCNChains; ++j)
                     scalefactor += fMCMCProposalFunctionScaleFactor[j][i] / fMCMCNChains;
                 BCLog::OutDetail(Form(" %-*s :          % 6.4g %%        %4.1f %%", fParameters.MaxNameLength(), GetParameter(i).GetName().data(), 100.*scalefactor, 100.*fMCMCStatistics_AllChains.efficiency[i]));
+            }
+        }
+        if (fMCMCNChains > 1) {
+            std::vector<double> R = RValues(fMCMCStatistics, fCorrectRValueForSamplingVariability, GetNParameters());
+            BCLog::OutSummary(" R-values for main run:");
+            BCLog::OutSummary(Form("       - %-*s :  R-Value", fParameters.MaxNameLength(), "Parameter"));
+            for (unsigned p = 0; p < GetNParameters(); ++p) {
+                if (GetParameter(p).Fixed())
+                    BCLog::OutDetail(Form("         %-*s :  fixed", fParameters.MaxNameLength(), GetParameter(p).GetName().data()));
+                else
+                    BCLog::OutDetail(Form("         %-*s :  %.03f", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), R[p]));
             }
         }
     }
