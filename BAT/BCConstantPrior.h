@@ -37,7 +37,7 @@ public:
     /** \name Constructors and destructor */
     /** @{ */
 
-    /** Constructor for constant unit prior*/
+    /** Constructor for constant unit prior */
     BCConstantPrior();
 
     /** Constructor for constant 1/range prior */
@@ -87,7 +87,7 @@ public:
     virtual double GetRandomValue(double xmin, double xmax, TRandom* const R = NULL);
 
 protected:
-
+    ///> log of the width of the parameter range
     double fLogRangeWidth;
 
 };

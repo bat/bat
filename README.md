@@ -22,8 +22,7 @@ on flexibility and modularity in defining models while keeping in mind
 the reliability and speed requirements of the numerical operations.
 
 The information about the main features introduced in this version
-can be found in `doc/releasenotes.md`. The detailed list of changes
-can be found in `doc/ChangeLog`.
+can be found in `doc/releasenotes.md`.
 
 Authors
 --------

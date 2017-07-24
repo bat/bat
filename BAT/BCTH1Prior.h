@@ -137,8 +137,8 @@ public:
 
     /**
      * Get BCH1D object for prior.
-     * @param h pointer to TH1 object defining binning to use.
-     * @param name name to give histogram created for BCH1D object
+     * @param bins Pointer to TH1 object defining binning to use.
+     * @param name Name to give histogram created for BCH1D object
      * @return BCH1D object for prior. */
     virtual BCH1D GetBCH1D(TH1* bins, const std::string& name = "prior");
 
@@ -151,11 +151,10 @@ public:
     { fInterpolate = interpolate; }
 
     /**
-     * @return a random value distributed according to the prior.
      * @param xmin lower limit of range to generate value in
      * @param xmax upper limit of range to generate value in
      * @param R Pointer to the random generator to be used, if needed.
-     * @return random value. */
+     * @return a random value distributed according to the prior. */
     virtual double GetRandomValue(double /*xmin*/, double /*xmax*/, TRandom* const /*R*/ = NULL)
     { return fPriorHistogram->GetRandom(); }
 

@@ -392,6 +392,8 @@ AC_DEFINE_UNQUOTED([BAT_BUILDDIR], "$ac_pwd", [Absolute path to the build direct
 AC_DEFINE_UNQUOTED([BAT_SRCDIR], "`readlink -f $ac_pwd/$srcdir`", [Absolute path to the top-level source directory])
 AC_DEFINE_UNQUOTED([BAT_TESTDIR], "$ac_pwd/test/", [Absolute path to the test directory])
 
+AC_SUBST(BAT_MANUAL_PDF, BAT-manual.pdf)
+
 AC_OUTPUT(
 	Makefile
 	bat.pc
@@ -425,4 +427,7 @@ AC_OUTPUT(
 	examples/advanced/referenceCounting/Makefile
 	examples/advanced/rooInterface/Makefile
 	examples/advanced/trialFunction/Makefile
+	doc/Makefile
+	doc/manual/Makefile
+	doc/ref-guide/Makefile
 )

@@ -1,14 +1,14 @@
 #ifndef __BCLOG__H
 #define __BCLOG__H
 
-/*!
- * \class BCLog
- * \brief A class for managing log messages.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 08.2008
- * \detail This class manages log messages for printing on the screen
+/**
+ * @class BCLog
+ * @brief A class for managing log messages.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.0
+ * @date 08.2008
+ * @details This class manages log messages for printing on the screen
  * and into a log file
  */
 

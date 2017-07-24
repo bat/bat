@@ -1,14 +1,14 @@
 #ifndef __BCMTFSYSTEMATICVARIATION__H
 #define __BCMTFSYSTEMATICVARIATION__H
 
-/*!
- * \class BCMTFSystematicVariation
- * \brief A class describing a systematic variation.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.1
- * \date 06.2012
- * \detail This class describes the impact of a systematic
+/**
+ * @class BCMTFSystematicVariation
+ * @brief A class describing a systematic variation.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.1
+ * @date 06.2012
+ * @details This class describes the impact of a systematic
  * uncertainty.
  */
 
@@ -149,4 +149,3 @@ private:
 // ---------------------------------------------------------
 
 #endif
-

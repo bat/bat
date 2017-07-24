@@ -1,14 +1,14 @@
 #ifndef __BCDATAPOINT__H
 #define __BCDATAPOINT__H
 
-/*!
- * \class BCDataPoint
- * \brief A class representing a data point.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 08.2008
- * \detail This class represents a data point which is the basic unit
+/**
+ * @class BCDataPoint
+ * @brief A class representing a data point.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.0
+ * @date 08.2008
+ * @details This class represents a data point which is the basic unit
  * of information. A data point can be an event, a bin content, etc.
  * Each data point can store several variables of type  double.
  * The variables are organized in a vector.
@@ -137,4 +137,3 @@ private:
 // ---------------------------------------------------------
 
 #endif
-

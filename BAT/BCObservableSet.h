@@ -2,7 +2,8 @@
 #define __BCOBSERVABLESET__H
 
 /**
- * @class BCObservableSet Wrapper to allow access by name into list of BCObservable.
+ * @class BCObservableSet
+ * @brief Wrapper to allow access by name into list of BCObservable.
  * @author Frederik Beaujean
  * @author Daniel Greenwald
  * @note Observables are owned, and will be deleted by BCObservableSet.

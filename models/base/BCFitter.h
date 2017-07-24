@@ -1,10 +1,10 @@
 #ifndef __BCFITTER__H
 #define __BCFITTER__H
 
-/*!
- * \class BCFitter
- * \brief A base class for all fitting classes
- * \detail This a general class around fitting a 1D function to data of various kinds with uncertainty propagation.
+/**
+ * @class BCFitter
+ * @brief A base class for all fitting classes
+ * @details This a general class around fitting a 1D function to data of various kinds with uncertainty propagation.
  */
 
 /*

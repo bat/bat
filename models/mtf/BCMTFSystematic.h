@@ -1,14 +1,14 @@
 #ifndef __BCMTFSYSTEMATIC__H
 #define __BCMTFSYSTEMATIC__H
 
-/*!
- * \class BCMTFSystematic
- * \brief A class desribing a systematic uncertainty.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.1
- * \date 06.2012
- * \detail This class describes a systematic uncertainty.
+/**
+ * @class BCMTFSystematic
+ * @brief A class desribing a systematic uncertainty.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.1
+ * @date 06.2012
+ * @details This class describes a systematic uncertainty.
  */
 
 /*
@@ -95,4 +95,3 @@ private:
 // ---------------------------------------------------------
 
 #endif
-

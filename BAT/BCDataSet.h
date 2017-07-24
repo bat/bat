@@ -1,14 +1,14 @@
 #ifndef __BCDATASET__H
 #define __BCDATASET__H
 
-/*!
- * \class BCDataSet
- * \brief A class representing a set of data points.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 08.2008
- * \detail This class represents a data set containing a set of data
+/**
+ * @class BCDataSet
+ * @brief A class representing a set of data points.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.0
+ * @date 08.2008
+ * @details This class represents a data set containing a set of data
  * points. The data points are organized in a vector. The class
  * provides functions to read in data from a file.
  */
@@ -126,7 +126,6 @@ public:
     { return fUserLowerBounds; }
 
     /**
-     * @param check_size Flag for checking size of user-set bound object against data point size.
      * @return BCDataPoint with values set to user-set upper bounds of data. */
     BCDataPoint& GetUserUpperBounds()
     { return fUserUpperBounds; }
@@ -319,4 +318,3 @@ private:
 // ---------------------------------------------------------
 
 #endif
-

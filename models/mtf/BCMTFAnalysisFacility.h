@@ -1,14 +1,14 @@
 #ifndef __BCMTFANALYSISFACILITY__H
 #define __BCMTFANALYSISFACILITY__H
 
-/*!
- * \class BCMTFAnalysisFacility
- * \brief A class summarizing a set of predefined measurements.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.1
- * \date 06.2012
- * \detail This class defines a set of measurements.
+/**
+ * @class BCMTFAnalysisFacility
+ * @brief A class summarizing a set of predefined measurements.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.1
+ * @date 06.2012
+ * @details This class defines a set of measurements.
  */
 
 /*
@@ -195,4 +195,3 @@ private:
 // ---------------------------------------------------------
 
 #endif
-

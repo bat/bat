@@ -1,15 +1,15 @@
 #ifndef __BCH1D__H
 #define __BCH1D__H
 
-/*!
- * \class BCH1D
- * \brief A class for handling 1D distributions.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \author Daniel Greenwald
- * \version 1.0
- * \date 08.2008
- * \detail This class contains a TH1 histogram and some additional
+/**
+ * @class BCH1D
+ * @brief A class for handling 1D distributions.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @author Daniel Greenwald
+ * @version 1.0
+ * @date 08.2008
+ * @details This class contains a TH1 histogram and some additional
  * functions. It is used for marginalized distributions.
  */
 
@@ -94,7 +94,7 @@ public:
      * @param probability The probability.
      * @return The quantile of the distribution for the probability.
      * @see GetLimit(double probability) */
-    double GetQuantile(double probablity);
+    double GetQuantile(double probability);
 
     /**
      * Return the quantile of the distribution

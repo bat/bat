@@ -1,14 +1,14 @@
 #ifndef __BCMODELMANAGER__H
 #define __BCMODELMANAGER__H
 
-/*!
- * \class BCModelManager
- * \brief A class representing a set of BCModels.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 08.2008
- * \detail This class represents a manager for BCModels. It handles
+/**
+ * @class BCModelManager
+ * @brief A class representing a set of BCModels.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.0
+ * @date 08.2008
+ * @details This class represents a manager for BCModels. It handles
  * common data sets and performs operations on BCModels
  * simultaneously. Model comparsion in terms of a posteriori
  * probabilities is only possible with this class.

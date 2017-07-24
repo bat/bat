@@ -17,19 +17,19 @@ SUBDIRS= \
 	models/base \
 	models/mtf \
 	test \
+	doc \
 	examples
 
+manual_pdf = doc/manual/@BAT_MANUAL_PDF@
 EXTRA_DIST= \
 	INSTALL.md \
 	README.md \
 	models/base/LDef.h  \
 	models/base/LDef_roostats.h \
-	doc/COPYING doc/CREDITS doc/LICENSE doc/ChangeLog doc/releasenotes.md \
-	doc/introduction/bat.pdf  doc/introduction/introduction.tex  doc/introduction/Makefile \
-	doc/quickstart/bat.pdf  doc/quickstart/Makefile  doc/quickstart/quickstart.tex \
-	doc/customdoxygen.css  doc/Doxyfile \
 	examples \
 	tools/bat-project.in
+# \
+# 	$(manual_pdf)
 
 dist_bin_SCRIPTS = \
 	bat-config \
@@ -55,12 +55,14 @@ dist_pkgdata_DATA = \
 	tools/ModelTemplate.h tools/ModelTemplate.cxx \
 	tools/MakefileTemplate
 
-dist-hook: prep-docs
+dist-hook:
 	rm -f $(distdir)/models/libBATmodels.rootmap
 	rm -rf `find $(distdir)/examples -name Makefile`
 
-prep-docs: BAT-intro.pdf BAT-quickstart.pdf
+$(manual_pdf):
+	$(MAKE) -C doc/ manual
 
+# TODO remove
 BAT-intro.pdf:
 	mkdir -p $(top_builddir)/doc/intro-tmp
 	cp -r $(top_srcdir)/doc/introduction/* $(top_builddir)/doc/introduction/versions.tex $(top_builddir)/doc/intro-tmp

@@ -1,14 +1,14 @@
 #ifndef __BCMTFPROCESS__H
 #define __BCMTFPROCESS__H
 
-/*!
- * \class BCMTFProcess
- * \brief A class describing a process.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.1
- * \date 06.2012
- * \detail This class describes a process.
+/**
+ * @class BCMTFProcess
+ * @brief A class describing a process.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.1
+ * @date 06.2012
+ * @details This class describes a process.
  */
 
 /*
@@ -35,7 +35,7 @@ public:
 
     /**
      * The default constructor.
-     * name The name of the process. */
+     * @param name The name of the process. */
     BCMTFProcess(const std::string& name);
 
     /**
@@ -128,4 +128,3 @@ private:
 // ---------------------------------------------------------
 
 #endif
-

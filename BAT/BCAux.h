@@ -1,14 +1,14 @@
 #ifndef __BCAUX__H
 #define __BCAUX__H
 
-/*!
- * \namespace BCAux
- * \brief Some functions not fitting anywhere else
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 01.2009
- * \detail A namespace which encapsulates auxiliary functions
+/**
+ * @namespace BCAux
+ * @brief Some functions not fitting anywhere else
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.0
+ * @date 01.2009
+ * @details A namespace which encapsulates auxiliary functions
  * necessary for BAT.
  */
 
@@ -112,7 +112,8 @@ void DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posterior, boo
 
 /**
  * Print plots
- * @param vector of vectors of BC histogram objects
+ * @param h1 Vector of 1D histograms to plot
+ * @param h2 Vector of 2D histograms to plot
  * @param filename Path to file to print to
  * @param hdiv Number of columns of plots per page
  * @param vdiv Number of rows of plots per page
