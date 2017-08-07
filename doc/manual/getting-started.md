@@ -4,10 +4,10 @@ Getting started {#cha-basics}
 
 To demonstrate the basic usage of BAT, we will build an example
 analysis step by step. Step one, naturally, is to install BAT---please
-refer to chapter in this manual concerning installation. To check if
-you have BAT installed and accessible, run the following command 
+refer to the installation chapter in this manual. To check if
+you have BAT installed and accessible, run the following command
 
-	bat-config
+    bat-config
 
 in your terminal. It should output a usage statement. This program
 outputs information about your BAT installation:
@@ -23,15 +23,15 @@ outputs information about your BAT installation:
 </table>
 
 BAT has a second executable, which creates for you the files necessary
-to start a basic analysis with. We will use this executable to
+to start a basic analysis. We will use this executable to
 initialize our tutorial project:
 
     bat-project MyTut MyMod
 
 This will create a directory called `MyTut` that contains
 <table>
-<tr><td> `Makefile`     <td> a makefile to compile our tutorial project
-<tr><td> `runMyTut.cxx` <td> the C++ source to an executable to run our tutorial project
+<tr><td> `Makefile`      <td> a makefile to compile our tutorial project
+<tr><td> `runMyTut.cxx`  <td> the C++ source to an executable to run our tutorial project
 <tr><td> `MyMod.h`       <td> the C++ header for our tutorial model `MyMod`
 <tr><td> `MyMod.cxx`     <td> the C++ source for our tutorial model `MyMod`
 </table>
@@ -41,7 +41,7 @@ If BAT is installed correctly, you can compile and run this project already:
     cd MyTut
     make
     ./runMyTut
-    
+
 BAT will issue a series of errors telling you your model has no
 parameters. Because of course we haven't actually put anything into
 our model yet. Let's do that.
@@ -49,9 +49,11 @@ our model yet. Let's do that.
 @section sec-basics-define-a-model Defining a model
 
 To define a valid BAT model we must make three additions to the empty
-model that `bat-project` has created: we must add parameters to our
-model; we must implement a log-likelihood function; and we must
-implement or state our priors.
+model that `bat-project` has created:
+1. we must add parameters to our
+model;
+2. we must implement a log-likelihood function;
+3. and we must implement or state our priors.
 
 We will start with a simple model that fits a normal distribution to
 data, and so has three parameters: the mode (\f$\mu\f$) and standard
@@ -71,20 +73,21 @@ add to the class
 
 class MyMod : public BCModel
 {
-    
+
     ...
-    
+
 private:
     TH1D fDataHistogram
-    
+
 };
 @endcode
 
 And in the source file, we initialize our `fDataHistogram` in the
-contructor; let's also fill it with some random data, which ROOT can
+constructor; let's also fill it with some random data, which ROOT can
 do for us using a TF1:
 
 @code{.cpp}
+#include "MyMod.h"
 #include <TF1.h>
 
 ...
@@ -113,7 +116,7 @@ You must indicate a parameter's name and its allowed range, via `min`
 and `max`. Each parameter must be added with a unique name. BAT will
 also create a "safe version" of the name which removes all non
 alpha-numeric characters except for the underscore, which is needed
-for naming of internal storage objects. Each parameters name should
+for naming of internal storage objects. Each parameter name should
 also convert to a unique safe name; BAT will complain if this is not
 the case (and `AddParameter` will return `false`).
 
@@ -130,7 +133,7 @@ MyMod::MyMod(const std::string& name)
       fDataHistogram("data", ";mass [GeV];count", 100, 5.0, 5.6)
 {
     ...
-    
+
     AddParameter("mu",    5.27, 5.29, "#mu", "[GeV]");
     AddParameter("sigma", 25e-3, 45e-3, "#sigma", "[GeV]");
     AddParameter("height", 0, 10, "", "[events]");
@@ -171,13 +174,14 @@ double MyMod::LogAPrioriProbability(const std::vector<double>& pars)
 }
 @endcode
 
-Or we can set individual priors for each parameter, and BAT will
-multiply them together for us. If each parameter has a prior that
-factorizes from all the others, then this is the much better
-option. In this case, we **must not** override
-`LogAPrioriProbability`. Instead we tell BAT what the factorized prior
-is for each parameter, by adding a `BCPrior` object to each parameter
-after we create it:
+In this case, you have to make sure the prior is properly normalized if you wish to compare different models as BAT will not do this for you.
+
+Or we can set individual priors for each parameter, and BAT will multiply them
+together for us including the proper normalization. If each parameter has a
+prior that factorizes from all the others, then this is the much better option.
+In this case, we **must not** override `LogAPrioriProbability`. Instead we tell
+BAT what the factorized prior is for each parameter, by adding a `BCPrior`
+object to each parameter after we create it:
 
 @code{.cpp}
 #include <BAT/BCGaussianPrior.h>
@@ -189,14 +193,14 @@ MyMod::MyMod(const std::string& name)
       fDataHistogram("data", ";mass [GeV];count", 100, 5.0, 5.6)
 {
     ...
-    
+
     // add parameters for Gaussian distribution
     AddParameter("mu",    5.27, 5.29, "#mu", "[GeV]");
     GetParameters().Back().SetPrior(new BCGaussianPrior(5.28, 2e-3));
-    
+
     AddParameter("sigma", 25e-3, 45e-3, "#sigma", "[GeV]");
     GetParameters().Back().SetPrior(new BCGaussianPrior(35e-3, 3e-3));
-    
+
     AddParameter("height", 0, 10, "", "[events]");
     GetParameters().Back().SetPriorConstant();
 }
@@ -239,7 +243,7 @@ Working with the log-likelihood, this transforms into a sum:
     \log\mathcal{L}(\vec\lambda) \equiv \sum_{i} \log\text{Poisson}(n_i|\nu_i).
 \f}
 
-BAT convienently has a function to calculate the logarithm of the
+BAT conveniently has a function to calculate the logarithm of the
 Poisson distribution (with observed \f$x\f$ and expected
 \f$\lambda\f$) for you:
 
@@ -277,7 +281,7 @@ double MyMod::LogLikelihood(const std::vector<double>& pars)
 
         // add to log-likelihood sum
         LL += BCMath::LogPoisson(x, nu);
-                                 
+
     }
 
     // return log-likelihood
@@ -285,7 +289,7 @@ double MyMod::LogLikelihood(const std::vector<double>& pars)
 }
 @endcode
 
-@section sec-basics-output Looking at the ouput
+@section sec-basics-output Looking at the output
 
 Our model class is now ready to go. Let's just make one edit to the
 `runMyTut.cxx` file to change our model name from the default
@@ -327,23 +331,23 @@ command line. This includes the global mode
 
 and marginalized posteriors:
 
-	Summary :   (0) Parameter "mu" :
-	Summary :       Mean +- sqrt(Variance):         5.279748 +- 0.001065279
-	Summary :       Median +- central 68% interval: 5.279749 +  0.00105881 - -0.00106418
-	Summary :       (Marginalized) mode:            5.2797
-	Summary :        5% quantile:                   5.278005
-	Summary :       10% quantile:                   5.278381
-	Summary :       16% quantile:                   5.278685
-	Summary :       84% quantile:                   5.280808
-	Summary :       90% quantile:                   5.281112
-	Summary :       95% quantile:                   5.281498
-	Summary :       Smallest interval containing 69.8% and local mode:
-	Summary :       (5.2786, 5.2808) (local mode at 5.2797 with rel. height 1; rel. area 1)
+    Summary :   (0) Parameter "mu" :
+    Summary :       Mean +- sqrt(Variance):         5.279748 +- 0.001065279
+    Summary :       Median +- central 68% interval: 5.279749 +  0.00105881 - -0.00106418
+    Summary :       (Marginalized) mode:            5.2797
+    Summary :        5% quantile:                   5.278005
+    Summary :       10% quantile:                   5.278381
+    Summary :       16% quantile:                   5.278685
+    Summary :       84% quantile:                   5.280808
+    Summary :       90% quantile:                   5.281112
+    Summary :       95% quantile:                   5.281498
+    Summary :       Smallest interval containing 69.8% and local mode:
+    Summary :       (5.2786, 5.2808) (local mode at 5.2797 with rel. height 1; rel. area 1)
 
 @section sec-basics-observables Adding an observable
 
 We can store the posterior distribution of any function of the
-parameters of our model using BAT's `BCObversable`'s. Let us suppose
+parameters of our model using BAT's `BCObservable`s. Let us suppose
 we want to know the posterior distribution for the total number of
 events our model predicts---the signal yield; and we want to know the
 standard deviation's relation to the mean: \f$\sigma/\mu\f$. In our
@@ -387,7 +391,7 @@ void MyMod::CalculateObservables(const std::vector<double>& pars)
 {
     // store total of number events expected
     double nu = 0;
-    
+
     // loop over bins of our data
     for (int i = 1; i <= fDataHistogram.GetNbinsX(); ++i)
         // calculate expected number of events in that bin
@@ -403,21 +407,21 @@ void MyMod::CalculateObservables(const std::vector<double>& pars)
 @endcode
 
 Compile and run `runMyTut.cxx` and you will see new marginalized
-distributions and text output for the observerables:
+distributions and text output for the observables:
 
-	Summary :   (3) Observable "SignalYield" :
-	Summary :       Mean +- sqrt(Variance):         1000.9 +- 31.53
-	Summary :       Median +- central 68% interval: 1000.6 +  31.937 - -31.194
-	Summary :       (Marginalized) mode:            1003
-	Summary :        5% quantile:                   949.52
-	Summary :       10% quantile:                   960.52
-	Summary :       16% quantile:                   969.44
-	Summary :       84% quantile:                   1032.6
-	Summary :       90% quantile:                   1041.9
-	Summary :       95% quantile:                   1053.5
-	Summary :       Smallest intervals containing 68.7% and local modes:
-	Summary :       (970, 1032) (local mode at 1003 with rel. height 1; rel. area 0.97769)
-	Summary :       (1032, 1034) (local mode at 1033 with rel. height 0.57407; rel. area 0.022311)
+    Summary :   (3) Observable "SignalYield" :
+    Summary :       Mean +- sqrt(Variance):         1000.9 +- 31.53
+    Summary :       Median +- central 68% interval: 1000.6 +  31.937 - -31.194
+    Summary :       (Marginalized) mode:            1003
+    Summary :        5% quantile:                   949.52
+    Summary :       10% quantile:                   960.52
+    Summary :       16% quantile:                   969.44
+    Summary :       84% quantile:                   1032.6
+    Summary :       90% quantile:                   1041.9
+    Summary :       95% quantile:                   1053.5
+    Summary :       Smallest intervals containing 68.7% and local modes:
+    Summary :       (970, 1032) (local mode at 1003 with rel. height 1; rel. area 0.97769)
+    Summary :       (1032, 1034) (local mode at 1033 with rel. height 0.57407; rel. area 0.022311)
 
 As we expected, the mean of the total yield posterior is just the
 number of events in our data set and the standard deviation is its
@@ -428,7 +432,7 @@ square root.
 BAT has a few more output options than the two mentioned above. The
 code for turning them on is already included in the `runMyTut.cxx`
 generated by `bat-project`. You can write the Markov-chain samples to
-a ROOT `TTree` by uncommenting the following line:
+a ROOT `TTree` for further postprocessing by uncommenting the following line:
 
 @code{.cpp}
 m.WriteMarkovChain(m.GetSafeName() + "_mcmc.root", "RECREATE");
@@ -459,7 +463,7 @@ image:
 @image latex MyTut/gaus_mod_parameters_1.pdf "Summary of parameter marginalizations." width=\textwidth
 
 The correlation plot and the correlation matrix summarize graphically
-the correlations amongst parameters and observables:
+the correlations among parameters and observables:
 
 @image html MyTut/gaus_mod_correlation.png "Parameter and observable correlation plots."
 @image latex MyTut/gaus_mod_correlation.pdf "Parameter and observable correlation plots." width=\textwidth
@@ -480,4 +484,3 @@ we used a multivariate prior, then we'd see what this looks like for
 each parameter. We also see what the prior of our observables look
 like given the priors of the variables they are functions of. These
 are very useful things to know.
-
