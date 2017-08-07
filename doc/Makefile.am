@@ -5,6 +5,9 @@ EXTRA_DIST = \
 	Doxyfile header.html footer.html \
 	customdoxygen.css doxy-boot.js newcommands.js
 
+.PHONY: all
+all: manual
+
 .PHONY: ref-guide
 ref-guide:
 	make -C ref-guide/ doxy

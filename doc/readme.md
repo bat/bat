@@ -1,6 +1,10 @@
 Building the documentation
 ==========================
 
+To build the entire documentation, do
+
+    make
+
 To build only reference guide with `doxygen`, do
 
     make ref-guide
