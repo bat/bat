@@ -12,7 +12,13 @@ define extradoxyconf
 endef
 export extradoxyconf
 
+all: doxy
+
 include $(top_srcdir)/doc/Makefile-common.am
+
+# don't rerun doxygen if file exists. `all` always does that
+bat-ref.tag:
+	$(MAKE) doxy
 
 clean-local:
 	-rm -rf html/ bat-ref.tag doxygen_sqlite3.db

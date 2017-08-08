@@ -19,7 +19,7 @@ endef
 export doxyconf
 
 .PHONY: doxy
-doxy:
+doxy: $(TAGFILE)
 	(cat $(top_srcdir)/doc/Doxyfile; \
 	echo "INPUT = " $(doxyinput); \
 	echo "$$doxyconf"; \
