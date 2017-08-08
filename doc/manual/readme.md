@@ -69,6 +69,10 @@ Here markdown ok again
 
     ## Factorized proposal {#sec-factorized}
 
+### link to a member function
+
+Linking to classes should work directly as in `BCModel` but member functions have to be prefixed by the class as in `BCModel::LogAPrioriProbability`.
+
 ### link to section
 
     @ref sec-mcmc-motiv
@@ -96,6 +100,18 @@ In general not solved http://stackoverflow.com/questions/43191252/references-to-
     \f}
 
     @latexonly Eq.~\ref{eq:mc-expect-discrete}@endlatexonly
+
+### link to a URL
+
+Contrary to what the doxygen docs at https://www.stack.nl/~dimitri/doxygen/manual/markdown.html#md_links say, a standard markdown link like `[The link text](https://example.net/)` doesn't work. On invoking `doxygen`, there is a warning on `stderr`
+
+    warning: unable to resolve reference to `https:' for \ref command
+
+Just use HTML links
+
+    <a href="https://github.com/bat/bat/blob/master/INSTALL.md">
+
+they are converted properly for latex, too.
 
 ### images
 
