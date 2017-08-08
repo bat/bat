@@ -173,6 +173,10 @@ debugging doxygen
 
     doxygen Doxyfile -d
 
+To see warnings better, split output to stdout and stderr
+
+    make > build.log
+
 changing the output style
 ------------------------
 
