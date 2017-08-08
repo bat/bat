@@ -1,36 +1,14 @@
 Build
 -----
 
-### requirements
-
-doxygen, graphviz, latex. On cent os, the necessary latex stuff is installed via
-
-    yum install -y texlive-collection-latexrecommended
 
 ### high level
 
-go to `doc/`:
-
-    make ref-guide # output in ref-guide/html
-    make manual # output in ref-guide/html and BAT-manual.pdf
-
-in `doc/ref-guide`
-
-    make doxy
-
-in `doc/manual`
-
-    make doxy # html
-    make pdf  # pdflatex
-
-Point to a local copy of mathjax
-
-    export MATHJAX_RELPATH=/usr/share/javascript/mathjax/
-    make manual
+follow the instructions at `doc/readme.md`:
 
 ### details
 
-create the reference guide first to create a tag file that is referenced from the manual
+The reference guide needs to first be created and it produces a tag file that is referenced from the manual. The makefile handles this dependency automatically.
 
 To make latex recognize `\newcommand`, add it to `doc/bat.sty`, it is copied by the makefile to the latex subdirectory
 
