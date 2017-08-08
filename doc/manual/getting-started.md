@@ -2,9 +2,10 @@ Getting started {#cha-basics}
 =================
 [TOC]
 
-To demonstrate the basic usage of BAT, we will build an example
-analysis step by step. Step one, naturally, is to install BAT---please
-refer to the installation chapter in this manual. To check if
+To demonstrate the basic usage of BAT, we will build an example analysis step by
+step. Step one, naturally, is to install BAT---please refer to the installation
+chapter in this [manual](INSTALL.md) or <a
+href="https://github.com/bat/bat/blob/master/INSTALL.md">online</a>. To check if
 you have BAT installed and accessible, run the following command
 
     bat-config
@@ -107,7 +108,7 @@ MyMod::MyMod(const std::string& name)
 
 @subsection subsec-basics-add-parameters Adding parameters
 
-To add a parameter to a model, call its member function `#AddParameter`:
+To add a parameter to a model, call its member function `BCModel::AddParameter`:
 @code{.cpp}
 bool AddParameter(const std::string& name, double min, double max, const std::string& latexname = "", const std::string& unitstring = "")
 @endcode
@@ -163,9 +164,10 @@ error if you try to run `runMyTut`, since we are still missing priors.
 
 @subsection subsec-basics-setting-priors Setting prior distributions
 
-There are two ways we may set the prior, \f$P_0(\vec\lambda)\f$ for a
-parameter point: We can override the function that returns the log
-_a priori_ probability for a model and code anything we can dream of in C++:
+There are two ways we may set the prior, \f$P_0(\vec\lambda)\f$ for a parameter
+point: We can override the function that returns the log _a priori_ probability
+for a model (`BCModel::LogAPrioriProbability`) and code anything we can dream of
+in C++:
 
 @code{.cpp}
 double MyMod::LogAPrioriProbability(const std::vector<double>& pars)
@@ -347,7 +349,7 @@ and marginalized posteriors:
 @section sec-basics-observables Adding an observable
 
 We can store the posterior distribution of any function of the
-parameters of our model using BAT's `BCObservable`s. Let us suppose
+parameters of our model using BAT's `BCObservable`'s. Let us suppose
 we want to know the posterior distribution for the total number of
 events our model predicts---the signal yield; and we want to know the
 standard deviation's relation to the mean: \f$\sigma/\mu\f$. In our
