@@ -71,7 +71,7 @@ cuba_min_version=3.3
 AC_DEFINE_UNQUOTED([CUBA_MIN_VERSION], [$cuba_min_version], [Minimum cuba version])
 AC_ARG_WITH(
 	[cuba],
-	[AS_HELP_STRING([--with-cuba[[=DIR]]],[Compile with Cuba support (default: no). If a local build in 'cuba/' is found, it is used and Cuba is activated automatically. The optional DIR is the top of a Cuba installation. If DIR is not given, the location is inferred from the 'partview' executable, else Cuba is assumed to be available in the system directories.])],
+	[AS_HELP_STRING([--with-cuba[[=DIR]]],[Compile with Cuba support (default: no). If a local build in 'cuba/' is found, it is used and Cuba is activated automatically. The optional DIR is the top of a Cuba installation. If DIR==download, a compatible version of cuba is downloaded from the official cuba website. If DIR is not given, the location is inferred from the 'partview' executable, else Cuba is assumed to be available in the system directories.])],
 	[
 		echo "compiling with Cuba support: requires version $cuba_min_version or later"
 	]
@@ -196,9 +196,9 @@ if test "x$use_cuba" != xno; then
 		const char * statefile = "";
 		void * userdata;
 		Suave(ndim, ncomp, &integrand, userdata, nvec,
-			  epsrel, ebsabs, flags, seed, mineval, maxeval,
-			  nnew, flatness, statefile,
-			  nregions, neval, fail, integral, error, prob);
+				epsrel, ebsabs, flags, seed, mineval, maxeval,
+				nnew, flatness, statefile,
+				nregions, neval, fail, integral, error, prob);
 
 		return 0;
 	}
@@ -224,10 +224,10 @@ if test "x$use_cuba" != xno; then
 		const char * statefile = "";
 		void * userdata;
 		Suave(ndim, ncomp, &integrand, userdata, nvec,
-			  epsrel, ebsabs, flags, seed, mineval, maxeval,
-			  nnew, flatness, statefile,
-			  spin, /*spin was added in 4.0 */
-			  nregions, neval, fail, integral, error, prob);
+				epsrel, ebsabs, flags, seed, mineval, maxeval,
+				nnew, flatness, statefile,
+				spin, /*spin was added in 4.0 */
+				nregions, neval, fail, integral, error, prob);
 
 		return 0;
 	}
@@ -254,10 +254,10 @@ if test "x$use_cuba" != xno; then
 		const char * statefile = "";
 		void * userdata;
 		Suave(ndim, ncomp, &integrand, userdata, nvec,
-			  epsrel, epsabs, flags, seed, mineval, maxeval, nnew,
-			  nmin, /* nmin added in 4.1 */
-			  flatness, statefile, spin,
-			  nregions, neval, fail, integral, error, prob);
+				epsrel, epsabs, flags, seed, mineval, maxeval, nnew,
+				nmin, /* nmin added in 4.1 */
+				flatness, statefile, spin,
+				nregions, neval, fail, integral, error, prob);
 
 		return 0;
 	}
@@ -320,8 +320,8 @@ ROOT_PATH(
 	,
 	[
 		AC_MSG_ERROR([ROOT cannot be found. Please ensure that it is installed
-		  and that either \$ROOTSYS is defined corectly or root-config is in the path.
-		  One can pass --with-rootsys=/path/to/rootsys to configure as well.])
+			and that either \$ROOTSYS is defined corectly or root-config is in the path.
+			One can pass --with-rootsys=/path/to/rootsys to configure as well.])
 		exit
 	]
 )
@@ -336,8 +336,8 @@ AC_MSG_CHECKING(whether ROOT is compiled with MathMore support)
 hasmathmore=`$ROOTCONF --has-mathmore`
 AC_MSG_RESULT($hasmathmore)
 if test x$hasmathmore = xyes; then
-   ROOTLIBS="$ROOTLIBS -lMathMore"
-   AC_DEFINE([ROOTMATHMORE], 1,  [ROOT MathMore available])
+	 ROOTLIBS="$ROOTLIBS -lMathMore"
+	 AC_DEFINE([ROOTMATHMORE], 1,  [ROOT MathMore available])
 fi
 AM_CONDITIONAL([ROOTMATHMORE], [test x$hasmathmore = xyes])
 
@@ -363,8 +363,8 @@ USE_RPATH="no"
 ROOTLIBDIRFLAGS="-L$ROOTLIBDIR"
 PKG_LIBS="-lBAT -lBATmodels -lBATmtf"
 case "${host_os}" in
-  darwin*)
-    USE_RPATH="yes"
+	darwin*)
+		USE_RPATH="yes"
 	ROOTLIBDIRFLAGS="-Wl,-rpath,$ROOTLIBDIR ${ROOTLIBDIRFLAGS}"
 	PKG_LIBS="-Wl,-rpath,\${libdir} ${PKG_LIBS}"
 	;;
@@ -384,7 +384,7 @@ AM_CONDITIONAL([COND_PKGCONFIG], [test "$PKGCONFIG" != "false"])
 
 dnl files that may not be part of the release but exist only in a checkout of the source repository
 if test -f "$srcdir/doc/introduction/versions.tex.in" ; then
-    AC_OUTPUT(doc/introduction/versions.tex)
+		AC_OUTPUT(doc/introduction/versions.tex)
 fi
 
 dnl directories needed to store output files (e.g. from unit tests) in the proper place

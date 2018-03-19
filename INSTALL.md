@@ -22,7 +22,9 @@ a terminal.
 
 ### Required: Basic tools
 
-Compilation and tests work fine with gcc > 4.2 and clang >= 3.3.
+BAT itself uses only C++03 features. Compilation and tests work
+fine with gcc >= 4.3 and clang >= 3.3. But recent versions of ROOT
+(see below) may require a C++11 compliant compiler.
 
 Under Debian or Ubuntu, you can install the essential requirements with
 
@@ -33,6 +35,9 @@ release, some more packages are needed
 
     sudo apt-get install autoconf automake git-core libtool
 
+Building and installing works with automake >= 1.10. To run the tests, a more
+recent version is needed, v1.15 is known to be sufficient.
+
 ### Required: ROOT
 
 ROOT is an object-oriented data-analysis framework. At
@@ -40,7 +45,7 @@ http://root.cern.ch/, you can obtain the source code as well as binary
 distributions for a number of Linux distributions and Mac OS X
 versions. We advise to download the latest production release of
 ROOT. BAT is compatible with ROOT 6 and we regularly run unit tests
-with ROOT 5.34/20 to ensure backward compatibility.
+with ROOT 5.34/36 to ensure backward compatibility.
 
 On Linux, an alternative is to check your package manager for the
 availability of ROOT packages. Usually these packages are rather old
