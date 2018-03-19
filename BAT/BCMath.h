@@ -162,7 +162,7 @@ int Nint(double x);
  * @param nobservations The number of data points.
  * @return corrected p value
  */
-double CorrectPValue(const double& pvalue, const unsigned& npar, const unsigned& nobservations) throw (std::domain_error);
+double CorrectPValue(const double& pvalue, const unsigned& npar, const unsigned& nobservations);
 
 /**
  * Calculate the p value using fast MCMC for a histogram and the likelihood as test statistic.
@@ -175,7 +175,7 @@ double CorrectPValue(const double& pvalue, const unsigned& npar, const unsigned&
  * @return The p value
  */
 double FastPValue(const std::vector<unsigned>& observed, const std::vector<double>& expected,
-                  unsigned nIterations = 1e5, unsigned seed = 0) throw (std::invalid_argument);
+                  unsigned nIterations = 1e5, unsigned seed = 0);
 
 /** @} */
 
