@@ -34,8 +34,7 @@ BCMTFChannel::BCMTFChannel(const std::string& name)
 // ---------------------------------------------------------
 BCMTFChannel::~BCMTFChannel()
 {
-    if (fData)
-        delete fData;
+    delete fData;
 
     for (unsigned int i = 0; i < fTemplateContainer.size(); ++i)
         delete (fTemplateContainer.at(i));
@@ -43,13 +42,17 @@ BCMTFChannel::~BCMTFChannel()
     for (unsigned int i = 0; i < fSystematicVariationContainer.size(); ++i)
         delete (fSystematicVariationContainer.at(i));
 
-    /*
-      if (fHistUncertaintyBandExpectation)
-      delete fHistUncertaintyBandExpectation;
+    delete fHistUncertaintyBandExpectation;
+    delete fHistUncertaintyBandPoisson;
+}
 
-      if (fHistUncertaintyBandPoisson)
-      delete fHistUncertaintyBandPoisson;
-    */
+// ---------------------------------------------------------
+void BCMTFChannel::SetHistUncertaintyBandExpectation(TH2D* hist)
+{
+    if (fHistUncertaintyBandExpectation) {
+        delete fHistUncertaintyBandExpectation;
+    }
+    fHistUncertaintyBandExpectation = hist;
 }
 
 // ---------------------------------------------------------

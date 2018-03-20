@@ -1087,6 +1087,7 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
 
         case BCIntegrate::kOptDefault:
             SetOptimizationMethod(BCIntegrate::kOptMinuit);
+            /* Falls through. */
         case BCIntegrate::kOptMinuit: {
             BCIntegrate::FindModeMinuit(mode_temp, errors_temp, start, ::PrintLevel());
             break;

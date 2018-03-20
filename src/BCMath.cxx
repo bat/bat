@@ -282,7 +282,7 @@ double BCMath::LogLogNormal(double x, double mean, double sigma)
 }
 
 // ---------------------------------------------------------
-double BCMath::CorrectPValue(const double& pvalue, const unsigned& npar, const unsigned& nobservations) throw (std::domain_error)
+double BCMath::CorrectPValue(const double& pvalue, const unsigned& npar, const unsigned& nobservations)
 {
     // avoid pathologies
     if (pvalue < 0 or pvalue > 1)
@@ -308,7 +308,7 @@ double BCMath::CorrectPValue(const double& pvalue, const unsigned& npar, const u
 
 // ---------------------------------------------------------
 double BCMath::FastPValue(const std::vector<unsigned>& observed, const std::vector<double>& expected,
-                          unsigned nIterations, unsigned seed) throw (std::invalid_argument)
+                          unsigned nIterations, unsigned seed)
 {
     size_t nbins = observed.size();
     if (nbins != expected.size()) {
