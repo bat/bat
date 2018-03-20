@@ -131,10 +131,7 @@ public:
      * Set a histogram ued for the calculation of the error band of
      * the expectation.
      * @param hist The histogram. */
-    void SetHistUncertaintyBandExpectation(TH2D* hist)
-    {
-        fHistUncertaintyBandExpectation = hist;
-    }
+    void SetHistUncertaintyBandExpectation(TH2D* hist);
 
     /**
      * Set a histogram used for the calculation of the Poisson fluctuations.

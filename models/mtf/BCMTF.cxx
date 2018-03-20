@@ -205,16 +205,6 @@ void BCMTF::SetData(const std::string& channelname, TH1D hist, double minimum, d
         data->SetHistogram(0);
     }
 
-    // remove old uncertainty histograms if they exist
-    if (channel->GetHistUncertaintyBandExpectation()) {
-        delete channel->GetHistUncertaintyBandExpectation();
-        channel->SetHistUncertaintyBandExpectation(0);
-    }
-    if (channel->GetHistUncertaintyBandPoisson()) {
-        delete channel->GetHistUncertaintyBandPoisson();
-        channel->SetHistUncertaintyBandPoisson(0);
-    }
-
     // create new histograms for uncertainty bands
     //	 double minimum = floor(TMath::Max(0., hist.GetMinimum() - 7.*sqrt(hist.GetMinimum())));
     if (minimum == -1)
@@ -227,14 +217,28 @@ void BCMTF::SetData(const std::string& channelname, TH1D hist, double minimum, d
         a[i] = hist.GetXaxis()->GetBinLowEdge(i + 1);
     }
 
-    TH2D* hist_uncbandexp = new TH2D(Form("UncertaintyBandExpectation_%s_%d", GetSafeName().data(), channelindex), "", hist.GetNbinsX(), &a[0], 1000, minimum, maximum);
-    hist_uncbandexp->SetStats(kFALSE);
+    // histograms are deleted by us, prevent issues if a TFile happens to be around
+    // https://github.com/bat/bat/issues/166
+    TH1D* hist_copy;
+    TH2D *hist_uncbandexp, *hist_uncbandpoisson;
+    {
+        // don't let ROOT manage these hists
+        const bool oldDirectoryStatus = TH1::AddDirectoryStatus();
+        TH1::AddDirectory(false);
 
-    TH2D* hist_uncbandpoisson = new TH2D(Form("UncertaintyBandPoisson_%s_%d", GetSafeName().data(), channelindex), "", hist.GetNbinsX(), &a[0], int(maximum - minimum), minimum, maximum);
-    hist_uncbandpoisson->SetStats(kFALSE);
+        hist_copy = new TH1D(hist);
+
+        hist_uncbandexp = new TH2D(Form("UncertaintyBandExpectation_%s_%d", GetSafeName().data(), channelindex), "", hist.GetNbinsX(), &a[0], 1000, minimum, maximum);
+        hist_uncbandexp->SetStats(kFALSE);
+
+        hist_uncbandpoisson = new TH2D(Form("UncertaintyBandPoisson_%s_%d", GetSafeName().data(), channelindex), "", hist.GetNbinsX(), &a[0], int(maximum - minimum), minimum, maximum);
+        hist_uncbandpoisson->SetStats(kFALSE);
+
+        TH1::AddDirectory(oldDirectoryStatus);
+    }
 
     // set histograms
-    data->SetHistogram(new TH1D(hist), hist.Integral());
+    data->SetHistogram(hist_copy, hist.Integral());
     channel->SetHistUncertaintyBandExpectation(hist_uncbandexp);
     channel->SetHistUncertaintyBandPoisson(hist_uncbandpoisson);
 
