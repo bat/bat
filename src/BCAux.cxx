@@ -14,11 +14,7 @@
 #include <TCanvas.h>
 #include <TGaxis.h>
 #include <TH1.h>
-#include <TH2C.h>
-#include <TH2S.h>
-#include <TH2I.h>
-#include <TH2F.h>
-#include <TH2D.h>
+#include <TH2.h>
 #include <TLegend.h>
 #include <TLegendEntry.h>
 #include <TList.h>
@@ -158,17 +154,11 @@ TH2* BCAux::Transpose(const TH2* const h, const std::string& name)
 
     std::string title = std::string(h->GetTitle()) + ";" + xtitle + ";" + ytitle + ";" + h->GetZaxis()->GetTitle();
 
-    if (dynamic_cast<const TH2C*>(h) != NULL)
-        return new TH2C(newName.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
-    if (dynamic_cast<const TH2S*>(h) != NULL)
-        return new TH2S(newName.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
-    if (dynamic_cast<const TH2I*>(h) != NULL)
-        return new TH2I(newName.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
-    if (dynamic_cast<const TH2F*>(h) != NULL)
-        return new TH2F(newName.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
-    if (dynamic_cast<const TH2D*>(h) != NULL)
-        return new TH2D(newName.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
-    return NULL;
+    TH2* ht = static_cast<TH2*>(h->Clone());
+    ht->SetBins(nbins_x, xmin, xmax, nbins_y, ymin, ymax);
+    ht->SetNameTitle(newName.data(), title.data());
+
+    return ht;
 }
 
 // ---------------------------------------------------------

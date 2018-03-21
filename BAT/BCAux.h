@@ -85,8 +85,8 @@ bool AllowedCharacter(char c);
 /** An enumerator for the knowledge update drawing style presets. */
 enum BCKnowledgeUpdateDrawingStyle {
     kKnowledgeUpdateDefaultStyle      = 0, ///< Simple line-drawn histograms
-    kKnowledgeUpdateDetailedPosterior = 1, ///< Posterior drawn with detailed info, prior drawn as overlayed line
-    kKnowledgeUpdateDetailedPrior     = 2	 ///< Prior drawn with detailed info, posterior drawn as overladed line
+    kKnowledgeUpdateDetailedPosterior = 1, ///< Posterior drawn with detailed info, prior drawn as overlaid line
+    kKnowledgeUpdateDetailedPrior     = 2  ///< Prior drawn with detailed info, posterior drawn as overlaid line
 };
 
 /**
