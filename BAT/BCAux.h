@@ -27,6 +27,8 @@
 #include "BCH1D.h"
 #include "BCH2D.h"
 
+#include <TROOT.h>
+
 class TH2;
 
 // ---------------------------------------------------------
@@ -134,6 +136,26 @@ private:
 
     TDirectory* fDirectory;
 };
+
+/**
+ * Create a clone of the input but avoid registering the object with ROOT so it
+ * cannot be deleted twice */
+template <class T>
+T* OwnClone(const T* o)
+{
+    return static_cast<T*>(gROOT->CloneObject(o, false));
+}
+
+/**
+ * Create a clone of the input, change the name but avoid registering the object
+ * with ROOT so it cannot be deleted twice */
+template <class T>
+T* OwnClone(const T* o, const std::string& name)
+{
+    T* res = OwnClone(o);
+    res->SetName(name.c_str());
+    return res;
+}
 
 /**
  * A trash to keep heap-allocated objects of type T alive until the
