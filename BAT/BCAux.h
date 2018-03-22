@@ -24,7 +24,6 @@
 
 #include <string>
 
-#include "BCHistogramBase.h"
 #include "BCH1D.h"
 #include "BCH2D.h"
 
@@ -120,10 +119,26 @@ void DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posterior, boo
 unsigned PrintPlots(std::vector<BCH1D>& h1, std::vector<BCH2D>& h2, const std::string& filename, unsigned hdiv = 1, unsigned vdiv = 1);
 
 /**
+ *
+ * */
+class RootSideEffectGuard
+{
+public:
+    RootSideEffectGuard();
+    ~RootSideEffectGuard();
+
+private:
+    // not implemented
+    RootSideEffectGuard(const RootSideEffectGuard&);
+    RootSideEffectGuard& operator=(const RootSideEffectGuard&);
+
+    TDirectory* fDirectory;
+};
+
+/**
  * A trash to keep heap-allocated objects of type T alive until the
  * trash goes out of scope. Then they are deleted. Ownership is not
- * transferred in copies, only during a swap.
- */
+ * transferred in copies, only during a swap. */
 template <typename T>
 class BCTrash
 {

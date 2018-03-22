@@ -12,6 +12,7 @@
 #include "BCLog.h"
 
 #include <TCanvas.h>
+#include <TDirectory.h>
 #include <TGaxis.h>
 #include <TH1.h>
 #include <TH2.h>
@@ -528,4 +529,15 @@ unsigned BCAux::PrintPlots(std::vector<BCH1D>& h1, std::vector<BCH2D>& h2, const
 
     // return total number of drawn histograms
     return nplots;
+}
+
+BCAux::RootSideEffectGuard::RootSideEffectGuard() :
+    fDirectory(gDirectory)
+{
+    gDirectory = NULL;
+}
+
+BCAux::RootSideEffectGuard::~RootSideEffectGuard()
+{
+    gDirectory = fDirectory;
 }
