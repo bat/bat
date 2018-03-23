@@ -24,9 +24,10 @@
 
 #include <string>
 
-#include "BCHistogramBase.h"
 #include "BCH1D.h"
 #include "BCH2D.h"
+
+#include <TROOT.h>
 
 class TH2;
 
@@ -85,8 +86,8 @@ bool AllowedCharacter(char c);
 /** An enumerator for the knowledge update drawing style presets. */
 enum BCKnowledgeUpdateDrawingStyle {
     kKnowledgeUpdateDefaultStyle      = 0, ///< Simple line-drawn histograms
-    kKnowledgeUpdateDetailedPosterior = 1, ///< Posterior drawn with detailed info, prior drawn as overlayed line
-    kKnowledgeUpdateDetailedPrior     = 2	 ///< Prior drawn with detailed info, posterior drawn as overladed line
+    kKnowledgeUpdateDetailedPosterior = 1, ///< Posterior drawn with detailed info, prior drawn as overlaid line
+    kKnowledgeUpdateDetailedPrior     = 2  ///< Prior drawn with detailed info, posterior drawn as overlaid line
 };
 
 /**
@@ -120,10 +121,46 @@ void DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posterior, boo
 unsigned PrintPlots(std::vector<BCH1D>& h1, std::vector<BCH2D>& h2, const std::string& filename, unsigned hdiv = 1, unsigned vdiv = 1);
 
 /**
+ *
+ * */
+class RootSideEffectGuard
+{
+public:
+    RootSideEffectGuard();
+    ~RootSideEffectGuard();
+
+private:
+    // not implemented
+    RootSideEffectGuard(const RootSideEffectGuard&);
+    RootSideEffectGuard& operator=(const RootSideEffectGuard&);
+
+    TDirectory* fDirectory;
+};
+
+/**
+ * Create a clone of the input but avoid registering the object with ROOT so it
+ * cannot be deleted twice */
+template <class T>
+T* OwnClone(const T* o)
+{
+    return static_cast<T*>(gROOT->CloneObject(o, false));
+}
+
+/**
+ * Create a clone of the input, change the name but avoid registering the object
+ * with ROOT so it cannot be deleted twice */
+template <class T>
+T* OwnClone(const T* o, const std::string& name)
+{
+    T* res = OwnClone(o);
+    res->SetName(name.c_str());
+    return res;
+}
+
+/**
  * A trash to keep heap-allocated objects of type T alive until the
  * trash goes out of scope. Then they are deleted. Ownership is not
- * transferred in copies, only during a swap.
- */
+ * transferred in copies, only during a swap. */
 template <typename T>
 class BCTrash
 {

@@ -10,6 +10,7 @@
 
 #include "BCH1D.h"
 
+#include "BCAux.h"
 #include "BCLog.h"
 
 #include <TArrow.h>
@@ -161,11 +162,12 @@ void BCH1D::DrawBands(const std::string& options)
     int i0 = fROOTObjects.size();
     for (int i = nbands - 1; i >= 0; --i) {
 
-        TH1* hist_band = 0;
+        TH1* hist_band = NULL;
         std::string legend_text;
 
         if (fBandType == kSmallestInterval) {
-            hist_band = (TH1*) GetHistogram()->Clone((std::string(GetHistogram()->GetName()) + "_band").data());
+            hist_band = BCAux::OwnClone(GetHistogram(), std::string(GetHistogram()->GetName()) + "_band");
+
             for (int b = 1; b <= hist_band->GetNbinsX(); ++b)
                 if (hist_band->GetBinContent(b) < bounds[i].first)
                     hist_band->SetBinContent(b, 0);
@@ -249,9 +251,9 @@ void BCH1D::DrawQuantiles(const unsigned n)
         return;
 
     TLine* quantile_line = new TLine();
+    fROOTObjects.push_back(quantile_line);
     quantile_line->SetLineStyle(2);
     quantile_line->SetLineColor(GetQuantileLineColor());
-    fROOTObjects.push_back(quantile_line);
 
     double ymin = gPad->GetUymin();
     double ymax = gPad->GetUymax();
@@ -322,10 +324,10 @@ void BCH1D::DrawMedian()
     }
 
     TMarker* marker_median = new TMarker(GetMedian(), ymid * (fLogy ? pow(ymax / ymin, -0.1) : 0.8), 21);
+    fROOTObjects.push_back(marker_median);
     marker_median->SetMarkerColor(GetMarkerColor());
     marker_median->SetMarkerSize(fMarkerScale * gPad->GetWNDC());
     marker_median->Draw();
-    fROOTObjects.push_back(marker_median);
 
     TLegendEntry* le = 0;
     double q[2], p[2] = {0.1587, 0.8413};
@@ -334,10 +336,10 @@ void BCH1D::DrawMedian()
         TArrow* arrow_ci = new TArrow(q[0], ymid * (fLogy ? pow(ymax / ymin, -0.1) : 0.8),
                                       q[1], ymid * (fLogy ? pow(ymax / ymin, -0.1) : 0.8),
                                       0.02 * gPad->GetWNDC(), "<|>");
+        fROOTObjects.push_back(arrow_ci);
         arrow_ci->SetLineColor(marker_median->GetMarkerColor());
         arrow_ci->SetFillColor(marker_median->GetMarkerColor());
         arrow_ci->Draw();
-        fROOTObjects.push_back(arrow_ci);
         le = AddLegendEntry(arrow_ci, "median and central 68% interval", "PL");
         le->SetLineColor(arrow_ci->GetLineColor());
     } else
@@ -365,8 +367,9 @@ TH1* BCH1D::GetSubHistogram(double min, double max, const std::string& name, boo
     if (name.empty())
         newName = std::string(GetHistogram()->GetName()) + "_subhist";
 
-    if ( min <= xmin and max >= xmax )
-        return (TH1*) GetHistogram()->Clone(name.data());
+    if ( min <= xmin and max >= xmax ) {
+        return BCAux::OwnClone(GetHistogram(), name);
+    }
     min = std::max<double>(min, xmin);
     max = std::min<double>(max, xmax);
 
@@ -390,7 +393,11 @@ TH1* BCH1D::GetSubHistogram(double min, double max, const std::string& name, boo
         bins[n++] = GetHistogram()->GetXaxis()->GetBinUpEdge(i1);
 
     // now define the new histogram
-    TH1D* h0 = new TH1D(newName.data(), Form("%s;%s;%s", GetHistogram()->GetTitle(), GetHistogram()->GetXaxis()->GetTitle(), GetHistogram()->GetYaxis()->GetTitle()), n - 1, &bins[0]);
+    TH1* h0;
+    {
+        BCAux::RootSideEffectGuard g;
+        h0 = new TH1D(newName.data(), Form("%s;%s;%s", GetHistogram()->GetTitle(), GetHistogram()->GetXaxis()->GetTitle(), GetHistogram()->GetYaxis()->GetTitle()), n - 1, &bins[0]);
+    }
     imin = h0->FindFixBin(min);
     imax = h0->FindFixBin(max);
     for (int i = imin; i <= imax; ++i)

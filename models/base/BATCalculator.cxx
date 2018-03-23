@@ -206,9 +206,13 @@ RooAbsPdf* BATCalculator::GetPosteriorPdf1D(const char* POIname) const
     _myRooInterface->FindMode();
     BCH1D myPosterior = _myRooInterface->GetMarginalized(POIname);
     TH1* posteriorTH1D = myPosterior.GetHistogram();
-    _posteriorTH1D = static_cast<TH1D*>(posteriorTH1D->Clone("_posteriorTH1D"));
-    RooDataHist* posteriorRooDataHist = new RooDataHist("posteriorhist", "", fPOI, posteriorTH1D);
-    fPosteriorPdf = new RooHistPdf("posteriorPdf", "", fPOI, *posteriorRooDataHist);
+    // TODO Is this a memory leak?
+    _posteriorTH1D =  static_cast<TH1D*>(BCAux::OwnClone(posteriorTH1D, "_posteriorTH1D"));
+    {
+        BCAux::RootSideEffectGuard g;
+        RooDataHist* posteriorRooDataHist = new RooDataHist("posteriorhist", "", fPOI, posteriorTH1D);
+        fPosteriorPdf = new RooHistPdf("posteriorPdf", "", fPOI, *posteriorRooDataHist);
+    }
 
     return fPosteriorPdf; // is of type RooAbsPdf*
 }

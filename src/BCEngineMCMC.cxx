@@ -195,7 +195,7 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
     fH1Marginalized = std::vector<TH1*>(other.fH1Marginalized.size(), NULL);
     for (unsigned i = 0; i < other.fH1Marginalized.size(); ++i)
         if (other.fH1Marginalized[i])
-            fH1Marginalized[i] = dynamic_cast<TH1*>(other.fH1Marginalized[i]->Clone());
+            fH1Marginalized[i] = BCAux::OwnClone(other.fH1Marginalized[i]);
 
     if (!other.fH2Marginalized.empty() && !other.fH2Marginalized.front().empty()) {
         fH2Marginalized = std::vector<std::vector<TH2*> > (other.fH2Marginalized.size(), std::vector<TH2*>(other.fH2Marginalized.front().size(), NULL));
@@ -203,7 +203,7 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
             fH2Marginalized[i].assign(other.fH2Marginalized[i].size(), NULL);
             for (unsigned j = 0; j < other.fH2Marginalized[i].size(); ++j)
                 if (other.fH2Marginalized[i][j])
-                    fH2Marginalized[i][j] = dynamic_cast<TH2*>(other.fH2Marginalized[i][j]->Clone());
+                    fH2Marginalized[i][j] = BCAux::OwnClone(other.fH2Marginalized[i][j]);
         }
     }
 }
@@ -863,13 +863,13 @@ bool BCEngineMCMC::ValidMCMCTree(TTree* tree, bool checkObservables) const
 
     // The following are not necessary for loading in the MCMC tree for further use
     // if (!(tree->GetBranch("Iteration")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("LogProbability")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("LogLikelihood")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("LogPrior")))
-    // 	return false;
+    //  return false;
 
     unsigned nvar = checkObservables ? GetNObservables() : GetNParameters();
     for (unsigned i = 0; i < nvar; ++i)
@@ -902,25 +902,25 @@ bool BCEngineMCMC::ValidParameterTree(TTree* tree) const
 
     // The following are not necessary for loading in a parameter tree for further use
     // if (!(tree->GetBranch("safe_name")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("latex_name")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("precission")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("nbins")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("fill_1d")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("fill_2d")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("fixed")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("fixed_value")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("nchain")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("scale")))
-    // 	return false;
+    //  return false;
 
     return true;
 }
@@ -2873,12 +2873,12 @@ unsigned BCEngineMCMC::PrintParameterPlot(const std::string& filename, int npar,
     if (newFilename.empty())
         return 0;
 
-    TCanvas* c_par = new TCanvas("c_parplot_init");
-    c_par->Print(Form("%s[", newFilename.data()));
-    c_par->cd();
-    c_par->SetTicky(1);
-    c_par->SetFrameLineWidth(0);
-    c_par->SetFrameLineColor(0);
+    TCanvas c_par("c_parplot_init");
+    c_par.Print(Form("%s[", newFilename.data()));
+    c_par.cd();
+    c_par.SetTicky(1);
+    c_par.SetFrameLineWidth(0);
+    c_par.SetFrameLineColor(0);
 
     if (npar <= 0) // all parameters on one page, all user-defined observables on the next
         npar = std::max<int> (GetNParameters(), GetNObservables());
@@ -2888,20 +2888,20 @@ unsigned BCEngineMCMC::PrintParameterPlot(const std::string& filename, int npar,
     // parameters first
     for (unsigned i = 0; i < GetNParameters(); i += npar)
         if (DrawParameterPlot(i, std::min<int>(npar, GetNParameters() - i), interval_content, quantiles, rescale_ranges)) {
-            c_par->Print(newFilename.data());
-            c_par->Clear();
+            c_par.Print(newFilename.data());
+            c_par.Clear();
             ++pages_printed;
         }
 
     // then user-defined observables
     for (unsigned i = GetNParameters(); i < GetNVariables(); i += npar)
         if (DrawParameterPlot(i, std::min<int>(npar, GetNVariables() - i), interval_content, quantiles, rescale_ranges)) {
-            c_par->Print(newFilename.data());
-            c_par->Clear();
+            c_par.Print(newFilename.data());
+            c_par.Clear();
             ++pages_printed;
         }
 
-    c_par->Print(Form("%s]", newFilename.data()));
+    c_par.Print(Form("%s]", newFilename.data()));
     return pages_printed > 0;
 }
 
@@ -3014,9 +3014,18 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
     /////////////////////////
     // Draw it all
 
+    // TODO TObjects are created but not cleaned up
+
+    // axes have a name, the other objects don't, so they are not registered
+    // with ROOT and we don't need a guard
+
     // Create, label, and draw axes
-    TH2D* hist_axes = new TH2D(Form("h2_axes_parplot_%s_%d_%d", GetSafeName().data(), i0, i1), "",  //";;Scaled range [a.u.]",
-                               i1 - i0, i0 - 0.5, i1 - 0.5, 10, -0.05 + 1e-3, 1.05 - 1e-3);
+    TH2D* hist_axes;
+    {
+        BCAux::RootSideEffectGuard g;
+        hist_axes = new TH2D(Form("h2_axes_parplot_%s_%d_%d", GetSafeName().data(), i0, i1), "",  //";;Scaled range [a.u.]",
+                             i1 - i0, i0 - 0.5, i1 - 0.5, 10, -0.05 + 1e-3, 1.05 - 1e-3);
+    }
     hist_axes->SetStats(kFALSE);
     hist_axes->GetXaxis()->SetAxisColor(0);
     hist_axes->GetXaxis()->SetLabelOffset(0.015);
@@ -3144,7 +3153,11 @@ bool BCEngineMCMC::PrintCorrelationMatrix(const std::string& filename) const
     }
 
     // create histogram
-    TH2D* hist_corr = new TH2D(Form("hist_correlation_matrix_%s", GetSafeName().data()), ";;", GetNVariables(), -0.5, GetNVariables() - 0.5, GetNVariables(), -0.5, GetNVariables() - 0.5);
+    TH2D* hist_corr;
+    {
+        BCAux::RootSideEffectGuard g;
+        hist_corr = new TH2D(Form("hist_correlation_matrix_%s", GetSafeName().data()), ";;", GetNVariables(), -0.5, GetNVariables() - 0.5, GetNVariables(), -0.5, GetNVariables() - 0.5);
+    }
     hist_corr->SetStats(false);
     hist_corr->GetXaxis()->SetTickLength(0.0);
     hist_corr->GetYaxis()->SetTickLength(0.0);
@@ -3270,7 +3283,7 @@ bool BCEngineMCMC::PrintCorrelationPlot(const std::string& filename, bool includ
         return 0;
     }
 
-    // Array of indices for which any maginalizations were stored
+    // Array of indices for which any marginalizations were stored
     std::vector<unsigned> I;
     unsigned n = (include_observables) ? GetNVariables() : GetNParameters();
     for (unsigned i = 0; i < n && i < fH1Marginalized.size(); ++i) {

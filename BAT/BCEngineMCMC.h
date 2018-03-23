@@ -481,7 +481,6 @@ public:
      * Obtain the individual marginalized distributions
      * with respect to one parameter.
      * @note The most efficient method is to access by index.
-     * @note Ownership of the returned heap object is conferred to the caller.
      * @param name The parameter's name
      * @return 1D marginalized probability */
     BCH1D GetMarginalized(const std::string& name) const
@@ -490,7 +489,6 @@ public:
     /**
      * Obtain the individual marginalized distributions
      * with respect to one parameter.
-     * @note Ownership of the returned heap object is conferred to the caller.
      * @param index The parameter index
      * @return 1D marginalized probability */
     BCH1D GetMarginalized(unsigned index) const;
@@ -499,7 +497,6 @@ public:
      * Obtain the individual marginalized distributions
      * with respect to two parameters.
      * @note The most efficient method is to access by indices.
-     * @note Ownership of the returned heap object is conferred to the caller.
      * @param name1 Name of first parameter
      * @param name2 Name of second parameter
      * @return 2D marginalized probability */
@@ -509,7 +506,6 @@ public:
     /**
      * Obtain the individual marginalized distributions
      * with respect to two parameters.
-     * @note Ownership of the returned heap object is conferred to the caller.
      * @param index1 Index of first parameter
      * @param index2 Index of second parameter
      * @return 2D marginalized probability */

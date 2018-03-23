@@ -108,6 +108,7 @@ std::string BCVariable::OneLineSummary(bool print_prefix, int name_length) const
 // ---------------------------------------------------------
 TH1* BCVariable::CreateH1(const std::string& name) const
 {
+    BCAux::RootSideEffectGuard g;
     return new TH1D(name.data(),
                     (";" + GetLatexNameWithUnits() +
                      ";P(" + GetLatexName() + " | Data)").data(),
@@ -117,6 +118,7 @@ TH1* BCVariable::CreateH1(const std::string& name) const
 // ---------------------------------------------------------
 TH2* BCVariable::CreateH2(const std::string& name, const BCVariable& ordinate) const
 {
+    BCAux::RootSideEffectGuard g;
     return new TH2D(name.data(),
                     (";" + GetLatexNameWithUnits() +
                      ";" + ordinate.GetLatexNameWithUnits() +
@@ -128,6 +130,7 @@ TH2* BCVariable::CreateH2(const std::string& name, const BCVariable& ordinate) c
 // ---------------------------------------------------------
 TH3* BCVariable::CreateH3(const std::string& name, const BCVariable& ordinate_y, const BCVariable& ordinate_z) const
 {
+    BCAux::RootSideEffectGuard g;
     return new TH3D(name.data(),
                     (";" + GetLatexNameWithUnits() +
                      ";" + ordinate_y.GetLatexNameWithUnits() +

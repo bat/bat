@@ -38,7 +38,12 @@ void BCMTFComparisonTool::AddContribution(const std::string& name, TH1D hist)
     fNameContainer.push_back(name);
 
     // add histogram to container
-    fHistogramContainer.push_back(new TH1D(hist));
+    TH1D* h;
+    {
+        BCAux::RootSideEffectGuard g;
+        h = new TH1D(hist);
+    }
+    fHistogramContainer.push_back(h);
 
     // add central value to container
     fCentralValueContainer.push_back(hist.GetMean());
@@ -54,7 +59,7 @@ void BCMTFComparisonTool::AddContribution(const std::string& name, double centra
     fNameContainer.push_back(name);
 
     // add 0 to container
-    fHistogramContainer.push_back(0);
+    fHistogramContainer.push_back(NULL);
 
     // add central value to container
     fCentralValueContainer.push_back(centralvalue);
@@ -66,15 +71,12 @@ void BCMTFComparisonTool::AddContribution(const std::string& name, double centra
 // ---------------------------------------------------------
 void BCMTFComparisonTool::PrintHistograms(const std::string& filename)
 {
-    // get number of histograms
-    int nhistograms = (int) fHistogramContainer.size();
-
     // create canvas
     TCanvas c1;
     c1.cd();
 
     // loop over all histograms
-    for (int i = 0; i < nhistograms; ++i) {
+    for (unsigned i = 0; i < fHistogramContainer.size(); ++i) {
         // get histogram
         TH1D* hist = fHistogramContainer.at(i);
 

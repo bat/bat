@@ -264,7 +264,10 @@ public:
      * new histogram can have 2 more bins than the original one as the
      * bins where min and max fall into will be split in two (except for the
      * case when min and/or max are equal to some of the original bin
-     * boundaries.
+     * boundaries).
+     *
+     * @note The caller is responsible for deletion of the returned object.
+     *
      * @param min lower boundary of the non-zero interval
      * @param max upper boundary of the non-zero interval
      * @param name Name for new histogram; empty string (default) appends "subhist" to histogram name.
