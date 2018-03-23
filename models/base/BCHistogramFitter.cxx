@@ -34,13 +34,7 @@ BCHistogramFitter::BCHistogramFitter(const TH1& hist, const TF1& func, const std
     if (hist.GetDimension() != 1)
         throw std::invalid_argument("Only 1D histograms supported");
 
-    // Unfortunately the Copy() method is not public in very old versions of ROOT.
-    // But the workaround is good enough for our purposes.
-#if ROOTVERSION >= 5034019
     hist.Copy(fHistogram);
-#else
-    BCFitter::CopyHist(hist, fHistogram);
-#endif
 
     // create data points and add them to the data set.
     // the x value is the lower edge of the bin, and
