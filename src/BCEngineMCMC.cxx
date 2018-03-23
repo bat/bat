@@ -2873,12 +2873,12 @@ unsigned BCEngineMCMC::PrintParameterPlot(const std::string& filename, int npar,
     if (newFilename.empty())
         return 0;
 
-    TCanvas* c_par = new TCanvas("c_parplot_init");
-    c_par->Print(Form("%s[", newFilename.data()));
-    c_par->cd();
-    c_par->SetTicky(1);
-    c_par->SetFrameLineWidth(0);
-    c_par->SetFrameLineColor(0);
+    TCanvas c_par("c_parplot_init");
+    c_par.Print(Form("%s[", newFilename.data()));
+    c_par.cd();
+    c_par.SetTicky(1);
+    c_par.SetFrameLineWidth(0);
+    c_par.SetFrameLineColor(0);
 
     if (npar <= 0) // all parameters on one page, all user-defined observables on the next
         npar = std::max<int> (GetNParameters(), GetNObservables());
@@ -2888,20 +2888,20 @@ unsigned BCEngineMCMC::PrintParameterPlot(const std::string& filename, int npar,
     // parameters first
     for (unsigned i = 0; i < GetNParameters(); i += npar)
         if (DrawParameterPlot(i, std::min<int>(npar, GetNParameters() - i), interval_content, quantiles, rescale_ranges)) {
-            c_par->Print(newFilename.data());
-            c_par->Clear();
+            c_par.Print(newFilename.data());
+            c_par.Clear();
             ++pages_printed;
         }
 
     // then user-defined observables
     for (unsigned i = GetNParameters(); i < GetNVariables(); i += npar)
         if (DrawParameterPlot(i, std::min<int>(npar, GetNVariables() - i), interval_content, quantiles, rescale_ranges)) {
-            c_par->Print(newFilename.data());
-            c_par->Clear();
+            c_par.Print(newFilename.data());
+            c_par.Clear();
             ++pages_printed;
         }
 
-    c_par->Print(Form("%s]", newFilename.data()));
+    c_par.Print(Form("%s]", newFilename.data()));
     return pages_printed > 0;
 }
 
@@ -3013,6 +3013,11 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
 
     /////////////////////////
     // Draw it all
+
+    // TODO TObjects are created but not cleaned up
+
+    // axes have a name, the other objects don't, so they are not registered
+    // with ROOT and we don't need a guard
 
     // Create, label, and draw axes
     TH2D* hist_axes;

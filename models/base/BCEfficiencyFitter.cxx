@@ -149,6 +149,7 @@ void BCEfficiencyFitter::DrawFit(const std::string& options, bool flaglegend)
 {
     // create efficiency graph
     TGraphAsymmErrors* histRatio = new TGraphAsymmErrors();
+    fObjectTrash.Put(histRatio);
     histRatio->SetMarkerStyle(20);
     histRatio->SetMarkerSize(1.5);
 
@@ -176,6 +177,8 @@ void BCEfficiencyFitter::DrawFit(const std::string& options, bool flaglegend)
                                    fTrials.GetXaxis()->GetBinLowEdge(1),
                                    fTrials.GetXaxis()->GetBinLowEdge(fTrials.GetNbinsX() + 1),
                                    1, 0., 1.);
+
+        fObjectTrash.Put(hist_axes);
         hist_axes->SetStats(kFALSE);
         hist_axes->Draw();
 
