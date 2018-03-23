@@ -396,11 +396,17 @@ void BCAux::DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posteri
         miny = std::min<double>(prior.GetHistogram()->GetYaxis()->GetXmin(), posterior.GetHistogram()->GetYaxis()->GetXmin());
         maxy = std::max<double>(prior.GetHistogram()->GetYaxis()->GetXmax(), posterior.GetHistogram()->GetYaxis()->GetXmax());
     }
+    // TODO How could h2_axes ever be deleted? We'd have to return h2_axes.
 
     // draw axes
-    TH2D* h2_axes = new TH2D(Form("h2_axes_knowledge_update_%s_%s", prior.GetHistogram()->GetName(), posterior.GetHistogram()->GetName()),
-                             Form(";%s;%s", prior.GetHistogram()->GetXaxis()->GetTitle(), prior.GetHistogram()->GetYaxis()->GetTitle()),
-                             10, minx, maxx, 10, miny, maxy);
+    TH2D* h2_axes;
+    {
+        RootSideEffectGuard g;
+        h2_axes = new TH2D(Form("h2_axes_knowledge_update_%s_%s",
+                                prior.GetHistogram()->GetName(), posterior.GetHistogram()->GetName()),
+                           Form(";%s;%s", prior.GetHistogram()->GetXaxis()->GetTitle(), prior.GetHistogram()->GetYaxis()->GetTitle()),
+                           10, minx, maxx, 10, miny, maxy);
+    }
     h2_axes->SetStats(false);
     h2_axes->GetXaxis()->SetNdivisions(508);
     if (prior.GetDimension() > 1)
@@ -531,12 +537,14 @@ unsigned BCAux::PrintPlots(std::vector<BCH1D>& h1, std::vector<BCH2D>& h2, const
     return nplots;
 }
 
+// ---------------------------------------------------------
 BCAux::RootSideEffectGuard::RootSideEffectGuard() :
     fDirectory(gDirectory)
 {
     gDirectory = NULL;
 }
 
+// ---------------------------------------------------------
 BCAux::RootSideEffectGuard::~RootSideEffectGuard()
 {
     gDirectory = fDirectory;

@@ -10,6 +10,7 @@
 
 #include "BCH1D.h"
 
+#include "BCAux.h"
 #include "BCLog.h"
 
 #include <TArrow.h>
@@ -390,7 +391,11 @@ TH1* BCH1D::GetSubHistogram(double min, double max, const std::string& name, boo
         bins[n++] = GetHistogram()->GetXaxis()->GetBinUpEdge(i1);
 
     // now define the new histogram
-    TH1D* h0 = new TH1D(newName.data(), Form("%s;%s;%s", GetHistogram()->GetTitle(), GetHistogram()->GetXaxis()->GetTitle(), GetHistogram()->GetYaxis()->GetTitle()), n - 1, &bins[0]);
+    TH1* h0;
+    {
+        BCAux::RootSideEffectGuard g;
+        h0 = new TH1D(newName.data(), Form("%s;%s;%s", GetHistogram()->GetTitle(), GetHistogram()->GetXaxis()->GetTitle(), GetHistogram()->GetYaxis()->GetTitle()), n - 1, &bins[0]);
+    }
     imin = h0->FindFixBin(min);
     imax = h0->FindFixBin(max);
     for (int i = imin; i <= imax; ++i)

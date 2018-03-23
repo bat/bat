@@ -256,7 +256,11 @@ void BCMTFChannel::CalculateHistUncertaintyBandPoisson()
 // ---------------------------------------------------------
 TH1D* BCMTFChannel::CalculateUncertaintyBandPoisson(double minimum, double maximum, int color)
 {
-    TH1D* hist = new TH1D(*(fData->GetHistogram()));
+    TH1D* hist;
+    {
+        BCAux::RootSideEffectGuard g;
+        hist = new TH1D(*(fData->GetHistogram()));
+    }
     hist->SetMarkerSize(0);
     hist->SetFillColor(color);
     hist->SetFillStyle(1001);

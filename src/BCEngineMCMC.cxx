@@ -3015,8 +3015,12 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
     // Draw it all
 
     // Create, label, and draw axes
-    TH2D* hist_axes = new TH2D(Form("h2_axes_parplot_%s_%d_%d", GetSafeName().data(), i0, i1), "",  //";;Scaled range [a.u.]",
-                               i1 - i0, i0 - 0.5, i1 - 0.5, 10, -0.05 + 1e-3, 1.05 - 1e-3);
+    TH2D* hist_axes;
+    {
+        BCAux::RootSideEffectGuard g;
+        hist_axes = new TH2D(Form("h2_axes_parplot_%s_%d_%d", GetSafeName().data(), i0, i1), "",  //";;Scaled range [a.u.]",
+                             i1 - i0, i0 - 0.5, i1 - 0.5, 10, -0.05 + 1e-3, 1.05 - 1e-3);
+    }
     hist_axes->SetStats(kFALSE);
     hist_axes->GetXaxis()->SetAxisColor(0);
     hist_axes->GetXaxis()->SetLabelOffset(0.015);
@@ -3144,7 +3148,11 @@ bool BCEngineMCMC::PrintCorrelationMatrix(const std::string& filename) const
     }
 
     // create histogram
-    TH2D* hist_corr = new TH2D(Form("hist_correlation_matrix_%s", GetSafeName().data()), ";;", GetNVariables(), -0.5, GetNVariables() - 0.5, GetNVariables(), -0.5, GetNVariables() - 0.5);
+    TH2D* hist_corr;
+    {
+        BCAux::RootSideEffectGuard g;
+        hist_corr = new TH2D(Form("hist_correlation_matrix_%s", GetSafeName().data()), ";;", GetNVariables(), -0.5, GetNVariables() - 0.5, GetNVariables(), -0.5, GetNVariables() - 0.5);
+    }
     hist_corr->SetStats(false);
     hist_corr->GetXaxis()->SetTickLength(0.0);
     hist_corr->GetYaxis()->SetTickLength(0.0);
@@ -3270,7 +3278,7 @@ bool BCEngineMCMC::PrintCorrelationPlot(const std::string& filename, bool includ
         return 0;
     }
 
-    // Array of indices for which any maginalizations were stored
+    // Array of indices for which any marginalizations were stored
     std::vector<unsigned> I;
     unsigned n = (include_observables) ? GetNVariables() : GetNParameters();
     for (unsigned i = 0; i < n && i < fH1Marginalized.size(); ++i) {

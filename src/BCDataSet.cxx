@@ -10,6 +10,7 @@
 
 #include "BCDataSet.h"
 
+#include "BCAux.h"
 #include "BCDataPoint.h"
 #include "BCLog.h"
 
@@ -373,5 +374,10 @@ TH2* BCDataSet::CreateH2(const char* name, const char* title, unsigned x, unsign
         y_high += dY;
     }
 
-    return new TH2D(name, title, nbins_x, x_low, x_high, nbins_y, y_low, y_high);
+    TH2* res;
+    {
+        BCAux::RootSideEffectGuard g;
+        res = new TH2D(name, title, nbins_x, x_low, x_high, nbins_y, y_low, y_high);
+    }
+    return res;
 }

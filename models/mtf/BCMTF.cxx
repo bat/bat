@@ -220,11 +220,9 @@ void BCMTF::SetData(const std::string& channelname, TH1D hist, double minimum, d
     // histograms are deleted by us, prevent issues if a TFile happens to be around
     // https://github.com/bat/bat/issues/166
     TH1D* hist_copy;
-    TH2D *hist_uncbandexp, *hist_uncbandpoisson;
+    TH2D* hist_uncbandexp, *hist_uncbandpoisson;
     {
-        // don't let ROOT manage these hists
-        const bool oldDirectoryStatus = TH1::AddDirectoryStatus();
-        TH1::AddDirectory(false);
+        BCAux::RootSideEffectGuard g;
 
         hist_copy = new TH1D(hist);
 
@@ -233,8 +231,6 @@ void BCMTF::SetData(const std::string& channelname, TH1D hist, double minimum, d
 
         hist_uncbandpoisson = new TH2D(Form("UncertaintyBandPoisson_%s_%d", GetSafeName().data(), channelindex), "", hist.GetNbinsX(), &a[0], int(maximum - minimum), minimum, maximum);
         hist_uncbandpoisson->SetStats(kFALSE);
-
-        TH1::AddDirectory(oldDirectoryStatus);
     }
 
     // set histograms

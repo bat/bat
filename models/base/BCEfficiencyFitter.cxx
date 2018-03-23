@@ -167,6 +167,8 @@ void BCEfficiencyFitter::DrawFit(const std::string& options, bool flaglegend)
 
     // if not same, draw the histogram first to get the axes
     if (!opt.Contains("same")) {
+        BCAux::RootSideEffectGuard g;
+
         // create new histogram
         TH2D* hist_axes = new TH2D("hist_axes",
                                    Form(";%s;ratio", fTrials.GetXaxis()->GetTitle()),
