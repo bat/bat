@@ -262,6 +262,9 @@ public:
 
     /**
      * Creates a 1D Histogram for this variable.
+     *
+     * @note The caller is responsible for deletion of the returned object.
+     *
      * @param name Name of the histogram.
      * @return pointer to histogram object. */
     virtual TH1* CreateH1(const std::string& name) const;
@@ -269,6 +272,9 @@ public:
     /**
      * Creates a 2D Histogram for this variable as the abcissa
      * and a second as the ordinate.
+     *
+     * @note The caller is responsible for deletion of the returned object.
+     *
      * @name name The name of the histogram.
      * @param ordinate The variable to be used for the ordinate. */
     virtual TH2* CreateH2(const std::string& name, const BCVariable& ordinate) const;
@@ -276,6 +282,9 @@ public:
     /**
      * Creates a 3D Histogram for this variable as the abcissa
      * and a second as the ordinate.
+     *
+     * @note The caller is responsible for deletion of the returned object.
+     *
      * @name name The name of the histogram.
      * @param ordinate_y The variable to be used for the y ordinate.
      * @param ordinate_z The variable to be used for the z ordinate. */

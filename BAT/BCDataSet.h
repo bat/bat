@@ -250,6 +250,9 @@ public:
 
     /**
      * Get data set as ROOT TGraph object,
+     *
+     * @note The caller is responsible for deletion of the returned object.
+     *
      * @param x Index of data axis plotted as abscissa
      * @param y Index of data axis plotted as ordinate
      * @return pointer to filled ROOT TGraph */
@@ -258,6 +261,9 @@ public:
     /**
      * Get data set as ROOT TGraphErrors object.
      * Set error indices negative to leave errors unset.
+     *
+     * @note The caller is responsible for deletion of the returned object.
+     *
      * @param x Index of data axis plotted as abscissa
      * @param y Index of data axis plotted as ordinate
      * @param ex Index of data axis for error on abscissa
@@ -268,6 +274,9 @@ public:
     /**
      * Get data set as ROOT TGraphAsymmErrors object.
      * Set error indices negative to leave errors unset.
+     *
+     * @note The caller is responsible for deletion of the returned object.
+     *
      * @param x Index of data axis plotted as abscissa
      * @param y Index of data axis plotted as ordinate
      * @param ex_below Index of data axis for error on abscissa below data points
@@ -280,6 +289,9 @@ public:
     /**
      * Get ROOT TH2 with ranges set to data bounds.
      * Padding is specified as fraction of boundary range.
+     *
+     * @note The caller is responsible for deletion of the returned object.
+     *
      * @param x Index of data axis for abscissa
      * @param y Index of data axis for ordinate
      * @param nbins_x number of bins on abscissa (default 100)

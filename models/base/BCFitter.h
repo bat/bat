@@ -76,15 +76,23 @@ public:
      * @return vector of y-values */
     std::vector<double> GetErrorBand(double level) const;
 
+    /**
+     * @note The caller is responsible for deletion of the returned object. */
     TGraph* GetErrorBandGraph(double level1, double level2) const;
 
+    /**
+     * @note The caller is responsible for deletion of the returned object. */
     TGraph* GetFitFunctionGraph(const std::vector<double>& parameters);
 
+    /**
+     * @note The caller is responsible for deletion of the returned object. */
     TGraph* GetFitFunctionGraph()
     {
         return GetFitFunctionGraph(std::vector<double>(GetBestFitParameters().begin(), GetBestFitParameters().begin() + GetNParameters()));
     }
 
+    /**
+     * @note The caller is responsible for deletion of the returned object. */
     TGraph* GetFitFunctionGraph(const std::vector<double>& parameters, double xmin, double xmax, int n = 1000);
 
     void FixDataAxis(unsigned int index, bool fixed);
