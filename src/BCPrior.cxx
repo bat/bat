@@ -164,7 +164,8 @@ BCH1D BCPrior::GetBCH1D(TH1* bins, const std::string& name)
     if (!IsValid())
         return bch1;
 
-    TH1* h = (TH1*) bins->Clone(name.c_str());
+    TH1* h = BCAux::OwnClone(bins, name);
+
     h->Add(&GetFunction(), 1, "I");
 
     bch1 = h;
@@ -189,7 +190,7 @@ BCH2D BCPrior::GetBCH2D(BCPrior* ordinate, TH2* bins, const std::string& name)
     if  (!bch_y.Valid())
         return bch2;
 
-    TH2* h = (TH2*) bins->Clone(name.c_str());
+    TH2* h = BCAux::OwnClone(bins, name);
 
     // get x bins:
     std::vector<double> bin_edges_x(bch_x.GetHistogram()->GetNbinsX() + 1, 0);

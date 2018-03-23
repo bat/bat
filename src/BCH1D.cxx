@@ -366,8 +366,9 @@ TH1* BCH1D::GetSubHistogram(double min, double max, const std::string& name, boo
     if (name.empty())
         newName = std::string(GetHistogram()->GetName()) + "_subhist";
 
-    if ( min <= xmin and max >= xmax )
-        return (TH1*) GetHistogram()->Clone(name.data());
+    if ( min <= xmin and max >= xmax ) {
+        return BCAux::OwnClone(GetHistogram(), name);
+    }
     min = std::max<double>(min, xmin);
     max = std::min<double>(max, xmax);
 

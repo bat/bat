@@ -132,7 +132,7 @@ void BCMTF::SetTemplate(const std::string& channelname, const std::string& proce
     hist.SetLineStyle(linestyle);
 
     // create new histogram
-    TH1D* temphist = new TH1D(hist);
+    TH1D* temphist = BCAux::OwnClone(&hist);
 
     // set histogram
     bctemplate->SetHistogram(temphist, norm);

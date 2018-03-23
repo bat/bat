@@ -155,7 +155,7 @@ TH2* BCAux::Transpose(const TH2* const h, const std::string& name)
 
     std::string title = std::string(h->GetTitle()) + ";" + xtitle + ";" + ytitle + ";" + h->GetZaxis()->GetTitle();
 
-    TH2* ht = static_cast<TH2*>(h->Clone());
+    TH2* ht = OwnClone(h);
     ht->SetBins(nbins_x, xmin, xmax, nbins_y, ymin, ymax);
     ht->SetNameTitle(newName.data(), title.data());
 

@@ -195,7 +195,7 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
     fH1Marginalized = std::vector<TH1*>(other.fH1Marginalized.size(), NULL);
     for (unsigned i = 0; i < other.fH1Marginalized.size(); ++i)
         if (other.fH1Marginalized[i])
-            fH1Marginalized[i] = dynamic_cast<TH1*>(other.fH1Marginalized[i]->Clone());
+            fH1Marginalized[i] = BCAux::OwnClone(other.fH1Marginalized[i]);
 
     if (!other.fH2Marginalized.empty() && !other.fH2Marginalized.front().empty()) {
         fH2Marginalized = std::vector<std::vector<TH2*> > (other.fH2Marginalized.size(), std::vector<TH2*>(other.fH2Marginalized.front().size(), NULL));
@@ -203,7 +203,7 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
             fH2Marginalized[i].assign(other.fH2Marginalized[i].size(), NULL);
             for (unsigned j = 0; j < other.fH2Marginalized[i].size(); ++j)
                 if (other.fH2Marginalized[i][j])
-                    fH2Marginalized[i][j] = dynamic_cast<TH2*>(other.fH2Marginalized[i][j]->Clone());
+                    fH2Marginalized[i][j] = BCAux::OwnClone(other.fH2Marginalized[i][j]);
         }
     }
 }
@@ -863,13 +863,13 @@ bool BCEngineMCMC::ValidMCMCTree(TTree* tree, bool checkObservables) const
 
     // The following are not necessary for loading in the MCMC tree for further use
     // if (!(tree->GetBranch("Iteration")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("LogProbability")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("LogLikelihood")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("LogPrior")))
-    // 	return false;
+    //  return false;
 
     unsigned nvar = checkObservables ? GetNObservables() : GetNParameters();
     for (unsigned i = 0; i < nvar; ++i)
@@ -902,25 +902,25 @@ bool BCEngineMCMC::ValidParameterTree(TTree* tree) const
 
     // The following are not necessary for loading in a parameter tree for further use
     // if (!(tree->GetBranch("safe_name")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("latex_name")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("precission")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("nbins")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("fill_1d")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("fill_2d")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("fixed")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("fixed_value")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("nchain")))
-    // 	return false;
+    //  return false;
     // if (!(tree->GetBranch("scale")))
-    // 	return false;
+    //  return false;
 
     return true;
 }

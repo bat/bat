@@ -10,6 +10,7 @@
 
 #include "BCHistogramBase.h"
 
+#include "BCAux.h"
 #include "BCLog.h"
 
 #include <TArrow.h>
@@ -195,12 +196,12 @@ void BCHistogramBase::SetHistogram(const TH1* const hist)
         return;
     }
 
-    fHistogram = (TH1*) (hist->Clone(Form("%s_bch", hist->GetName())));
+    fHistogram = BCAux::OwnClone(hist, Form("%s_bch", hist->GetName()));
     fHistogram->SetStats(false);
     fHistogram->SetDirectory(0);
     fDimension = fHistogram->GetDimension();
 
-    // normalize; TO DO: replace with division of each bin by width/area for arbitrary binning
+    // normalize; TODO: replace with division of each bin by width/area for arbitrary binning
     double integral = GetHistogram()->Integral("width");
     if (integral != 0)
         GetHistogram()->Scale(1. / integral);
@@ -218,7 +219,7 @@ void BCHistogramBase::SetHistogram(const TH1* const hist)
     GetHistogram()->GetXaxis()->SetNdivisions(508);
     // Set Y title, if 1D
     // if (GetHistogram()->GetDimension()==1 and strlen(GetHistogram()->GetYaxis()->GetTitle())==0)
-    // 	GetHistogram()->SetYTitle(TString::Format("P(%s|Data)",GetHistogram()->GetXaxis()->GetTitle()));
+    //  GetHistogram()->SetYTitle(TString::Format("P(%s|Data)",GetHistogram()->GetXaxis()->GetTitle()));
     if (GetHistogram()->GetDimension() > 1)
         GetHistogram()->GetYaxis()->SetNdivisions(508);
 }
@@ -659,6 +660,7 @@ void BCHistogramBase::DrawMean()
         marker_mean->Draw();
         fROOTObjects.push_back(marker_mean);
 
+        // TODO Why are le, arrow_std, arrow_std2 not in fROOTObjects?
         TLegendEntry* le = 0;
         if ( fDrawStandardDeviation ) {
             TArrow* arrow_std = new TArrow(marker_mean->GetX() - GetHistogram()->GetRMS(1), marker_mean->GetY(),
