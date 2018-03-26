@@ -63,19 +63,13 @@ BCHistogramFitter::BCHistogramFitter(const TH1& hist, const TF1& func, const std
 }
 
 // ---------------------------------------------------------
-BCHistogramFitter::~BCHistogramFitter() {}
-
-// ---------------------------------------------------------
 double BCHistogramFitter::LogLikelihood(const std::vector<double>& params)
 {
     // initialize probability
     double loglikelihood = 0;
 
-    // get the number of bins
-    int nbins = fHistogram.GetNbinsX();
-
     // loop over all bins
-    for (int ibin = 1; ibin <= nbins; ++ibin) {
+    for (int ibin = 1; ibin <= fHistogram.GetNbinsX(); ++ibin) {
         // get bin edges and integrate for expectation
         const double xmin = fHistogram.GetXaxis()->GetBinLowEdge(ibin);
         const double xmax = fHistogram.GetXaxis()->GetBinUpEdge(ibin);
@@ -249,4 +243,10 @@ bool BCHistogramFitter::CalculatePValueLeastSquares(const std::vector<double>& p
 
     // no error
     return true;
+}
+
+// ---------------------------------------------------------
+double BCHistogramFitter::GraphCorrection(unsigned ibin) const
+{
+    return fHistogram.GetXaxis()->GetBinUpEdge(ibin) - fHistogram.GetXaxis()->GetBinLowEdge(ibin);
 }

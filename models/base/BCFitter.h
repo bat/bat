@@ -305,6 +305,12 @@ protected:
      * as it is used internally. */
     using BCModel::SetDataSet;
     using BCModel::GetDataSet;
+
+    /** Take care of bin width when creating a graph from the fit function */
+    virtual double GraphCorrection(unsigned /* ibin */) const
+    {
+        return 1.0;
+    }
 };
 
 // ---------------------------------------------------------

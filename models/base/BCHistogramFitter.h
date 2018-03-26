@@ -47,7 +47,7 @@ public:
 
     /**
      * The default destructor. */
-    virtual ~BCHistogramFitter();
+    virtual ~BCHistogramFitter() {};
 
     /* @} */
 
@@ -122,6 +122,8 @@ protected:
     /**
      * fPValue accounting for degrees of freedom. */
     double fPValueNDoF;
+
+    virtual double GraphCorrection(unsigned ibin) const;
 };
 
 // ---------------------------------------------------------
