@@ -4,6 +4,6 @@
 
 ./autogen.sh
 ./configure --with-cuba=download --enable-roostats --enable-parallel
-make -j`nprocs` distcheck
+make -j`nprocs` distcheck VERBOSE=1
 
 echo "OK"

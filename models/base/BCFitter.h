@@ -246,13 +246,6 @@ private:
 
 protected:
     /**
-     * Copy over the most important properties of a 1D histogram.
-     * This function is to emulate the TH1::Copy() method for our purposes.
-     * It is not needed for root 5.34.19 and higher.
-     */
-    static void CopyHist(const TH1& source, TH1D& destination);
-
-    /**
      * Flag whether or not to fill the error band */
     bool fFlagFillErrorBand;
 
@@ -312,6 +305,12 @@ protected:
      * as it is used internally. */
     using BCModel::SetDataSet;
     using BCModel::GetDataSet;
+
+    /** Take care of bin width when creating a graph from the fit function */
+    virtual double GraphCorrection(unsigned /* ibin */) const
+    {
+        return 1.0;
+    }
 };
 
 // ---------------------------------------------------------

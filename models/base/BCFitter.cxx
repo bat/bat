@@ -198,12 +198,6 @@ double BCFitter::Integral(const std::vector<double>& params, const double xmin, 
 {
     TF1& f = GetFitFunction();
 
-    // set the parameters of the function
-    // passing the pointer to first element of the vector is
-    // not completely safe as there might be an implementation where
-    // the vector elements are not stored consecutively in memory.
-    // however it is much faster than copying the contents, especially
-    // for large number of parameters
     f.SetParameters(&params[0]);
 
     // use ROOT's TH1::Integral method
@@ -267,8 +261,10 @@ TGraph* BCFitter::GetErrorBandGraph(double level1, double level2) const
     std::vector<double> ymax = GetErrorBand(level2);
 
     for (int i = 0; i < nx; i++) {
-        graph->SetPoint(i, fErrorBandXY.GetXaxis()->GetBinCenter(i + 1), ymin[i]);
-        graph->SetPoint(nx + i, fErrorBandXY.GetXaxis()->GetBinCenter(nx - i), ymax[nx - i - 1]);
+        graph->SetPoint(i, fErrorBandXY.GetXaxis()->GetBinCenter(i + 1),
+                        ymin[i] * GraphCorrection(i + 1));
+        graph->SetPoint(nx + i, fErrorBandXY.GetXaxis()->GetBinCenter(nx - i),
+                        ymax[nx - i - 1] * GraphCorrection(i + 1));
     }
 
     return graph;
@@ -304,7 +300,7 @@ TH2* BCFitter::GetGraphicalErrorBandXY(double level, int nsmooth, bool overcover
 TGraph* BCFitter::GetFitFunctionGraph(const std::vector<double>& parameters)
 {
     // define new graph
-    int nx = fErrorBandXY.GetNbinsX();
+    const int nx = fErrorBandXY.GetNbinsX();
     TGraph* graph = new TGraph(nx);
 
     // loop over x values
@@ -313,7 +309,7 @@ TGraph* BCFitter::GetFitFunctionGraph(const std::vector<double>& parameters)
 
         std::vector<double> xvec;
         xvec.push_back(x);
-        double y = FitFunction(xvec, parameters);
+        double y = FitFunction(xvec, parameters) * GraphCorrection(i + 1);
         xvec.clear();
 
         graph->SetPoint(i, x, y);
@@ -335,7 +331,7 @@ TGraph* BCFitter::GetFitFunctionGraph(const std::vector<double>& parameters, dou
         double x = (double) i * dx + xmin;
         std::vector<double> xvec;
         xvec.push_back(x);
-        double y = FitFunction(xvec, parameters);
+        double y = FitFunction(xvec, parameters) * GraphCorrection(i + 1);
 
         xvec.clear();
 
@@ -367,20 +363,4 @@ void BCFitter::SetErrorBandContinuous(bool flag)
 
     // copy data x-values
     fErrorBandX = fDataSet->GetDataComponents(fFitFunctionIndexX);
-}
-
-// ---------------------------------------------------------
-void BCFitter::CopyHist(const TH1& source, TH1D& dest)
-{
-    std::vector<double> bins(source.GetNbinsX() + 1);
-    source.GetXaxis()->GetLowEdge(&bins[0]);
-    // now add the overflow left edge
-    bins.back() = source.GetXaxis()->GetXmax();
-    dest = TH1D(source.GetName(),
-                Form("%s;%s;%s", source.GetTitle(), source.GetXaxis()->GetTitle(), source.GetYaxis()->GetTitle()),
-                source.GetNbinsX(), &bins[0]);
-    // copy contents (include underflow and overflow)
-    for (int i = 0; i <= source.GetNbinsX() + 1; ++i) {
-        dest.SetBinContent(i, source.GetBinContent(i));
-    }
 }
