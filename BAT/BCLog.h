@@ -88,6 +88,12 @@ public:
     static BCLog::LogLevel GetLogLevelScreen()
     { return fMinimumLogLevelScreen; };
 
+    /**
+     * Returns true if the loglevel is prefixed to every message.
+     * Default: true */
+    static bool GetPrefix()
+    { return fPrefix; }
+
     /** @} */
     /** \name Setters */
     /** @{ */
@@ -116,6 +122,11 @@ public:
      * @param loglevel log level */
     static void SetLogLevel(BCLog::LogLevel loglevel)
     { SetLogLevel(loglevel, loglevel); };
+
+    /**
+     * Toggle if the loglevel is prefixed to every message. */
+    static void SetPrefix(bool flag)
+    { fPrefix = flag; }
 
     /** @} */
     /** \name Miscellaneous */
@@ -199,8 +210,12 @@ private:
     static std::ofstream fOutputStream;
 
     /**
-     * Specifies wheather there were output printouts already */
+     * Specifies whether there were output printouts already */
     static bool fFirstOutputDone;
+
+    /**
+     * Include a prefix before each message? */
+    static bool fPrefix;
 
 };
 
