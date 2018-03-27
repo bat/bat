@@ -1724,7 +1724,6 @@ bool BCEngineMCMC::MetropolisPreRun()
 
     // autosave every 10 checks
     if (fMCMCTree) {
-        fMCMCTree->SetAutoSave(10 * nIterationsPreRunCheck);
         fMCMCTree->AutoSave("SaveSelf");
     }
 
@@ -1914,7 +1913,9 @@ bool BCEngineMCMC::MetropolisPreRun()
                 }
             } // end convergence conditional
         } // end chains>1 conditional
-
+        if (nChecks%10==0){
+          fMCMCTree->AutoSave("SaveSelf");
+        }
         ++nChecks;              // increase number of checks made
 
         // scales have not been adjusted and convergence has been reached (or only one chain used)
