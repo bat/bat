@@ -730,7 +730,7 @@ void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile)
         fMCMCTree->Branch("Chain",          &fMCMCTree_Chain,       "chain/i");
         fMCMCTree->Branch("Iteration",      &fMCMCCurrentIteration, "iteration/i");
         fMCMCTree->Branch("Phase",          &fMCMCPhase,            "phase/I");
-        fMCMCTree->Branch("LogProbability", &fMCMCTree_Prob,        "log(probability)/D");
+        fMCMCTree->Branch("LogProbability", &fMCMCTree_Prob,        "log_probability/D");
         fMCMCTree_Parameters.assign(GetNParameters(), 0);
         for (unsigned j = 0; j < GetNParameters(); ++j) {
             fMCMCTree->Branch(GetParameter(j).GetSafeName().data(), &fMCMCTree_Parameters[j], (GetParameter(j).GetSafeName() + "/D").data());
