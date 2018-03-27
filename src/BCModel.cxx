@@ -115,8 +115,8 @@ void BCModel::InitializeMarkovChainTree(bool replacetree, bool replacefile)
     BCEngineMCMC::InitializeMarkovChainTree(replacetree, replacefile);
     if (!fMCMCTree)
         return;
-    fMCMCTree->Branch("LogLikelihood", &fMCMCTree_LogLikelihood, "log(likelihood)/D");
-    fMCMCTree->Branch("LogPrior",      &fMCMCTree_LogPrior,      "log(prior)/D");
+    fMCMCTree->Branch("LogLikelihood", &fMCMCTree_LogLikelihood, "log_likelihood/D");
+    fMCMCTree->Branch("LogPrior",      &fMCMCTree_LogPrior,      "log_prior/D");
 }
 
 // ---------------------------------------------------------
