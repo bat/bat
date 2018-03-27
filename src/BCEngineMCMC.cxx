@@ -2739,14 +2739,14 @@ void BCEngineMCMC::PrintMarginalizationSummary() const
         BCLog::OutSummary(Form(" Number of iterations per chain:         %u", fMCMCNIterationsRun));
 
         if (fMCMCProposeMultivariate) {
-            BCLog::OutSummary(" Scale factors and efficiencies (measured in last %d iterations):");
-            BCLog::OutSummary(" Chain : Scale factor    Efficiency");
+            BCLog::OutDetail(" Scale factors and efficiencies (measured in last %d iterations):");
+            BCLog::OutDetail(" Chain : Scale factor    Efficiency");
             for (unsigned c = 0; c < fMCMCNChains; ++c)
                 BCLog::OutDetail(Form("   %3d :       % 6.4g        %4.1f %%", c, fMCMCProposalFunctionScaleFactor[c][0], 100.*fMCMCStatistics[c].efficiency[0]));
 
         } else {
-            BCLog::OutSummary(" Average scale factors and efficiencies:");
-            BCLog::OutSummary(Form(" %-*s : Scale factor    Efficiency", fParameters.MaxNameLength(), "Parameter"));
+            BCLog::OutDetail(" Average scale factors and efficiencies:");
+            BCLog::OutDetail(Form(" %-*s : Scale factor    Efficiency", fParameters.MaxNameLength(), "Parameter"));
             for (unsigned i = 0; i < GetNParameters(); ++i) {
                 if (GetParameter(i).Fixed())
                     continue;
