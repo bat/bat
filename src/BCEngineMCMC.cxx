@@ -510,7 +510,9 @@ void BCEngineMCMC::WriteMarginalizedDistributions(const std::string& filename, c
                 fOut->WriteTObject(GetMarginalizedHistogram(i, j));
     }
 
-    fOut->Write();
+    // Causes multiple instances of any tree that already exists in the root file.
+    // fOut->Write();
+
     if (closeExistingFile)
         fOut->Close();
 
@@ -2518,11 +2520,11 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
         if (GetVariable(i).FillH1()) {
             if (i < GetNParameters()) {	// parameter
                 if (!GetParameter(i).Fixed()) {
-                    fH1Marginalized[i] = GetVariable(i).CreateH1(Form("h1_%s_parameter_%i", GetSafeName().data() , i));
+                    fH1Marginalized[i] = GetVariable(i).CreateH1(Form("h1_%s_parameter_%s", GetSafeName().data() , GetParameter(i).GetSafeName().data()));
                     ++filling;
                 }
             } else {									// user-defined observable
-                fH1Marginalized[i] = GetVariable(i).CreateH1(Form("h1_%s_observable_%i", GetSafeName().data() , i - GetNParameters()));
+                fH1Marginalized[i] = GetVariable(i).CreateH1(Form("h1_%s_observable_%s", GetSafeName().data() , GetVariable(i).GetSafeName().data()));
                 ++filling;
             }
         }
@@ -2550,12 +2552,11 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
             if (h->second >= 0) { // par vs par
                 if (j >= GetNParameters())
                     continue;
-                fH2Marginalized[i][j] = GetParameter(i).CreateH2(Form("h2_%s_par_%i_vs_par_%i", GetSafeName().data(), j, i), GetParameter(j));
-
+                fH2Marginalized[i][j] = GetParameter(i).CreateH2(Form("h2_%s_par_%s_vs_par_%s", GetSafeName().data(), GetParameter(j).GetSafeName().data(), GetParameter(i).GetSafeName().data()), GetParameter(j));
             } else {              // obs vs par
                 if (j >= GetNObservables())
                     continue;
-                fH2Marginalized[i][j + GetNParameters()] = GetParameter(i).CreateH2(Form("h2_%s_obs_%i_vs_par_%i", GetSafeName().data(), j, i), GetObservable(j));
+                fH2Marginalized[i][j + GetNParameters()] = GetParameter(i).CreateH2(Form("h2_%s_obs_%s_vs_par_%s", GetSafeName().data(), GetObservable(j).GetSafeName().data(), GetParameter(i).GetSafeName().data()), GetObservable(j));
             }
 
         } else {
@@ -2565,12 +2566,11 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
             if (h->second >= 0) { // par vs obs
                 if (j >= GetNParameters())
                     continue;
-                fH2Marginalized[i + GetNParameters()][j] = GetObservable(i).CreateH2(Form("h2_%s_par_%i_vs_obs_%i", GetSafeName().data(), j, i), GetParameter(j));
-
+                fH2Marginalized[i + GetNParameters()][j] = GetObservable(i).CreateH2(Form("h2_%s_par_%s_vs_obs_%s", GetSafeName().data(), GetParameter(j).GetSafeName().data(), GetObservable(i).GetSafeName().data()), GetParameter(j));
             } else { // obs vs obs
                 if (j >= GetNObservables())
                     continue;
-                fH2Marginalized[i + GetNParameters()][j + GetNParameters()] = GetObservable(i).CreateH2(Form("h2_%s_obs_%i_vs_obs_%i", GetSafeName().data(), j, i), GetObservable(j));
+                fH2Marginalized[i + GetNParameters()][j + GetNParameters()] = GetObservable(i).CreateH2(Form("h2_%s_obs_%s_vs_obs_%s", GetSafeName().data(), GetObservable(j).GetSafeName().data(), GetObservable(i).GetSafeName().data()), GetObservable(j));
             }
         }
         ++filling;
@@ -2586,13 +2586,13 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
         // parameter j as ordinate
         for (unsigned j = i + 1; j < GetNParameters(); ++j)
             if (!GetParameter(j).Fixed() && GetParameter(j).FillH2() && !fH2Marginalized[i][j]) {
-                fH2Marginalized[i][j] = GetParameter(i).CreateH2(Form("h2_%s_par_%i_vs_par_%i", GetSafeName().data(), j, i), GetParameter(j));
+                fH2Marginalized[i][j] = GetParameter(i).CreateH2(Form("h2_%s_par_%s_vs_par_%s", GetSafeName().data(), GetParameter(j).GetSafeName().data(), GetParameter(i).GetSafeName().data()), GetParameter(j));
                 ++filling;
             }
         // user-defined observable j as ordinate
         for (unsigned j = 0; j < GetNObservables(); ++j)
             if (GetObservable(j).FillH2() && !fH2Marginalized[i][j + GetNParameters()]) {
-                fH2Marginalized[i][j + GetNParameters()] = GetParameter(i).CreateH2(Form("h2_%s_obs_%i_vs_par_%i", GetSafeName().data(), j, i), GetObservable(j));
+                fH2Marginalized[i][j + GetNParameters()] = GetParameter(i).CreateH2(Form("h2_%s_obs_%s_vs_par_%s", GetSafeName().data(), GetObservable(j).GetSafeName().data(), GetParameter(i).GetSafeName().data()), GetObservable(j));
                 ++filling;
             }
     }
@@ -2605,7 +2605,7 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
         // user-defined observable j as ordinate
         for (unsigned j = i + 1; j < GetNObservables(); ++j)
             if (GetObservable(j).FillH2() && !fH2Marginalized[i + GetNParameters()][j + GetNParameters()]) {
-                fH2Marginalized[i + GetNParameters()][j + GetNParameters()] = GetObservable(i).CreateH2(Form("h2_%s_obs_%i_vs_obs_%i", GetSafeName().data(), j, i), GetObservable(j));
+                fH2Marginalized[i + GetNParameters()][j + GetNParameters()] = GetObservable(i).CreateH2(Form("h2_%s_obs_%s_vs_obs_%s", GetSafeName().data(), GetObservable(j).GetSafeName().data(), GetObservable(i).GetSafeName().data()), GetObservable(j));
                 ++filling;
             }
     }
