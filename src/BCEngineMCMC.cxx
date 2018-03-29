@@ -1974,12 +1974,12 @@ bool BCEngineMCMC::MetropolisPreRun()
         fMCMCStatistics_AllChains += fMCMCStatistics[c];
 
     if (fMCMCProposeMultivariate) {
-        BCLog::OutDetail(Form(" --> Scale factors and efficiencies (measured in last %d iterations):", fMCMCStatistics.front().n_samples_efficiency));
+        BCLog::OutDetail(Form(" --> Scale factors and efficiencies (measured in last %u iterations):", fMCMCStatistics.front().n_samples_efficiency));
         BCLog::OutDetail("       - Chain : Scale factor    Efficiency");
         for (unsigned c = 0; c < fMCMCNChains; ++c)
             BCLog::OutDetail(Form("           %3d :       % 6.4g        %4.1f %%", c, fMCMCProposalFunctionScaleFactor[c][0], 100.*fMCMCStatistics[c].efficiency[0]));
     } else {
-        BCLog::OutDetail(Form(" --> Average scale factors and efficiencies (measured in last %d iterations):", fMCMCStatistics.front().n_samples_efficiency));
+        BCLog::OutDetail(Form(" --> Average scale factors and efficiencies (measured in last %u iterations):", fMCMCStatistics.front().n_samples_efficiency));
         BCLog::OutDetail(Form("       - %-*s : Scale factor    Efficiency", fParameters.MaxNameLength(), "Parameter"));
         // print scale factors and efficiencies
         for (unsigned i = 0; i < GetNParameters(); ++i) {
@@ -2168,12 +2168,12 @@ bool BCEngineMCMC::Metropolis()
 
     // print efficiencies
     if (fMCMCProposeMultivariate) {
-        BCLog::OutDetail(Form(" --> Efficiencies (measured in %d iterations):", fMCMCStatistics.front().n_samples_efficiency));
+        BCLog::OutDetail(Form(" --> Efficiencies (measured in %u iterations):", fMCMCStatistics.front().n_samples_efficiency));
         BCLog::OutDetail("       - Chain : Efficiency");
         for (unsigned c = 0; c < fMCMCNChains; ++c)
             BCLog::OutDetail(Form("           %3d :     %4.1f %%", c, 100.*fMCMCStatistics[c].efficiency[0]));
     } else {
-        BCLog::OutDetail(Form(" --> Average efficiencies (measured in %d iterations):", fMCMCStatistics_AllChains.n_samples_efficiency / fMCMCNChains));
+        BCLog::OutDetail(Form(" --> Average efficiencies (measured in %u iterations):", fMCMCStatistics_AllChains.n_samples_efficiency / fMCMCNChains));
         BCLog::OutDetail(Form("       - %-*s : Efficiency", fParameters.MaxNameLength(), "Parameter"));
         for (unsigned i = 0; i < GetNParameters(); ++i) {
             if (GetParameter(i).Fixed())
@@ -2742,10 +2742,11 @@ void BCEngineMCMC::PrintMarginalizationSummary() const
         BCLog::OutSummary(Form(" Number of iterations per chain:         %u", fMCMCNIterationsRun));
 
         if (fMCMCProposeMultivariate) {
-            BCLog::OutDetail(" Scale factors and efficiencies (measured in last %d iterations):");
+            BCLog::OutDetail(Form(" Scale factors and efficiencies (measured in last %u iterations):", fMCMCStatistics.front().n_samples_efficiency));
             BCLog::OutDetail(" Chain : Scale factor    Efficiency");
-            for (unsigned c = 0; c < fMCMCNChains; ++c)
-                BCLog::OutDetail(Form("   %3d :       % 6.4g        %4.1f %%", c, fMCMCProposalFunctionScaleFactor[c][0], 100.*fMCMCStatistics[c].efficiency[0]));
+            for (unsigned c = 0; c < fMCMCNChains; ++c) {
+                BCLog::OutDetail(Form("   %3d :       %-6.4g        %4.1f %%", c, fMCMCProposalFunctionScaleFactor[c][0], 100.*fMCMCStatistics[c].efficiency[0]));
+            }
 
         } else {
             BCLog::OutDetail(" Average scale factors and efficiencies:");
