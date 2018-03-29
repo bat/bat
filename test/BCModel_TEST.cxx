@@ -121,11 +121,47 @@ public:
 
         m.MarginalizeAll();
 
-        // basic test: no segfault
-        GaussModel m2 = m;
+        // histograms are dynamically created, they are the criticial part
+        // during copying.
+        TH1* const h = m.GetMarginalizedHistogram(0);
 
-        // non-default values should be taken over
-        TEST_CHECK_EQUAL(m2.GetNChains(), m.GetNChains());
+        // test copy ctor
+        {
+            GaussModel m2(m);
+
+            // non-default values should be taken over
+            TEST_CHECK_EQUAL(m2.GetNChains(), m.GetNChains());
+
+            // Original values should be untouched
+            TEST_CHECK_EQUAL(h, m.GetMarginalizedHistogram(0));
+
+            TH1* const hafter = m2.GetMarginalizedHistogram(0);
+            TEST_CHECK(hafter != h);
+            TEST_CHECK(hafter != NULL);
+            TEST_CHECK_EQUAL(hafter->GetNbinsX(), h->GetNbinsX());
+            for (int i = 0; i < h->GetNbinsX(); ++i) {
+                TEST_CHECK_EQUAL(hafter->GetBinContent(i),
+                                 h->GetBinContent(i));
+            }
+        }
+
+        // test assignment operator
+        {
+            GaussModel m3("assignment", 1);
+            TH1* const hbefore = m3.GetMarginalizedHistogram(0);
+            TEST_CHECK_EQUAL(hbefore, NULL);
+
+            m3 = m;
+
+            TEST_CHECK_EQUAL(m3.GetName(), "copy");
+            TEST_CHECK_EQUAL(m3.GetNChains(), m.GetNChains());
+
+            TH1* const hafter = m3.GetMarginalizedHistogram(0);
+            TEST_CHECK_EQUAL(h, m.GetMarginalizedHistogram(0));
+            TEST_CHECK(hbefore != hafter);
+            TEST_CHECK(h != hafter);
+        }
+
     }
 
     virtual void run() const
@@ -137,8 +173,3 @@ public:
         copy();
     }
 } bcmodel_test;
-
-
-// Local Variables:
-// compile-command: "make -C ../ && make BCModel.TEST && ./BCModel.TEST"
-// End:

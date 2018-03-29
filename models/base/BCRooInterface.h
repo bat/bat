@@ -24,6 +24,7 @@ class RooArgList;
  * it is essentially unmaintained. Known limitations are
  * + thread safety: this class is not thread safe.
  * + root 6 support: you cannot use BCRooInterface or BATCalculator from within cling. But you can use these two classes in compiled code.
+ * + copy and assignment are untested
  */
 class BCRooInterface : public BCModel
 {

@@ -216,18 +216,13 @@ public:
      * Copy constructor */
     BCIntegrate(const BCIntegrate& other);
 
-    // No assignment operator for abstract class
+    /**
+     * Copy-assignment operator */
+    BCIntegrate& operator=(const BCIntegrate&);
 
     /**
      * Destructor */
     virtual ~BCIntegrate() {};
-
-    /** @} */
-
-    /** \name swap*/
-    /** @{ */
-
-    friend void swap(BCIntegrate& A, BCIntegrate& B);
 
     /** @} */
 

@@ -62,15 +62,12 @@ public:
     BCModel(const std::string& filename, const std::string& name, bool loadObservables = true);
 
     /**
+     * Copy-assignment operator */
+    BCModel& operator=(const BCModel&);
+
+    /**
      * Destructor. */
     virtual ~BCModel();
-
-    /** @} */
-    /** \name swap*/
-    /** @{ */
-
-    /** swap */
-    friend void swap(BCModel& A, BCModel& B);
 
     /** @} */
     /** \name Member functions (get) */

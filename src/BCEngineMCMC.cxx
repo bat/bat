@@ -75,10 +75,10 @@ BCEngineMCMC::BCEngineMCMC(const std::string& name)
       fMCMCPhase(BCEngineMCMC::kUnsetPhase),
       fCorrectRValueForSamplingVariability(false),
       fMCMCRValueParametersCriterion(1.1),
-      fMCMCTree(0),
+      fMCMCTree(NULL),
       fMCMCTreeLoaded(false),
       fMCMCTreeReuseObservables(true),
-      fParameterTree(0),
+      fParameterTree(NULL),
       fRescaleHistogramRangesAfterPreRun(false),
       fHistogramRescalePadding(0.1)
 {
@@ -92,7 +92,7 @@ BCEngineMCMC::BCEngineMCMC(const std::string& filename, const std::string& name,
     : fMCMCNIterationsConvergenceGlobal(-1),
       fMCMCFlagWriteChainToFile(false),
       fMCMCFlagWritePreRunToFile(false),
-      fMCMCOutputFile(0),
+      fMCMCOutputFile(NULL),
       fMCMCOutputFilename(""),
       fMCMCOutputFileOption(""),
       fMCMCScaleFactorLowerLimit(0),
@@ -112,10 +112,10 @@ BCEngineMCMC::BCEngineMCMC(const std::string& filename, const std::string& name,
       fMCMCPhase(BCEngineMCMC::kUnsetPhase),
       fCorrectRValueForSamplingVariability(false),
       fMCMCRValueParametersCriterion(1.1),
-      fMCMCTree(0),
+      fMCMCTree(NULL),
       fMCMCTreeLoaded(false),
       fMCMCTreeReuseObservables(true),
-      fParameterTree(0),
+      fParameterTree(NULL),
       fRescaleHistogramRangesAfterPreRun(false),
       fHistogramRescalePadding(0.1)
 {
@@ -192,6 +192,100 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
       fRescaleHistogramRangesAfterPreRun(other.fRescaleHistogramRangesAfterPreRun),
       fHistogramRescalePadding(other.fHistogramRescalePadding)
 {
+    // set again in case user overloads the setter to create custom structures
+    SetNChains(other.fMCMCNChains);
+
+    CloneMarginals(other);
+}
+
+BCEngineMCMC& BCEngineMCMC::operator=(const BCEngineMCMC& other)
+{
+    if (this == &other) {
+        return *this;
+    }
+
+    DeleteMarginals();
+    CloseOutputFile();
+
+    // exception safety
+    try {
+        fMCMCThreadLocalStorage = other.fMCMCThreadLocalStorage;
+        fChainIndex = other.fChainIndex;
+        fName = other.fName;
+        fSafeName = other.fSafeName;
+        fParameters = other.fParameters;
+        fObservables = other.fObservables;
+        SetNChains(other.fMCMCNChains);
+        fMCMCNLag = other.fMCMCNLag;
+        fMCMCNIterations = other.fMCMCNIterations;
+        fMCMCCurrentIteration = other.fMCMCCurrentIteration;
+        fMCMCNIterationsPreRunCheck = other.fMCMCNIterationsPreRunCheck;
+        fMCMCPreRunCheckClear = other.fMCMCPreRunCheckClear;
+        fMCMCNIterationsConvergenceGlobal = other.fMCMCNIterationsConvergenceGlobal;
+        fMCMCNIterationsPreRunMax = other.fMCMCNIterationsPreRunMax;
+        fMCMCNIterationsRun = other.fMCMCNIterationsRun;
+        fMCMCNIterationsPreRunMin = other.fMCMCNIterationsPreRunMin;
+        fMCMCFlagWriteChainToFile = other.fMCMCFlagWriteChainToFile;
+        fMCMCFlagWritePreRunToFile = other.fMCMCFlagWritePreRunToFile;
+        fMCMCOutputFile = other.fMCMCOutputFile;
+        fMCMCOutputFilename = other.fMCMCOutputFilename;
+        fMCMCOutputFileOption = other.fMCMCOutputFileOption;
+        fMCMCScaleFactorLowerLimit = other.fMCMCScaleFactorLowerLimit;
+        fMCMCScaleFactorUpperLimit = other.fMCMCScaleFactorUpperLimit;
+        fMCMCProposalFunctionScaleFactor = other.fMCMCProposalFunctionScaleFactor;
+        fMCMCInitialScaleFactors = other.fMCMCInitialScaleFactors;
+        fMultivariateProposalFunctionCovariance = other.fMultivariateProposalFunctionCovariance;
+        fMultivariateProposalFunctionCholeskyDecomposition = other.fMultivariateProposalFunctionCholeskyDecomposition;
+        fMultivariateCovarianceUpdates = other.fMultivariateCovarianceUpdates;
+        fMultivariateCovarianceUpdateLambda = other.fMultivariateCovarianceUpdateLambda;
+        fMultivariateEpsilon = other.fMultivariateEpsilon;
+        fMultivariateScaleMultiplier = other.fMultivariateScaleMultiplier;
+        fMCMCFlagPreRun = other.fMCMCFlagPreRun;
+        fMCMCFlagRun = other.fMCMCFlagRun;
+        fMCMCInitialPosition = other.fMCMCInitialPosition;
+        fMCMCEfficiencyMin = other.fMCMCEfficiencyMin;
+        fMCMCEfficiencyMax = other.fMCMCEfficiencyMax;
+        fInitialPositionScheme = other.fInitialPositionScheme;
+        fInitialPositionAttemptLimit = other.fInitialPositionAttemptLimit;
+        fMCMCProposeMultivariate = other.fMCMCProposeMultivariate;
+        fMCMCProposalFunctionDof = other.fMCMCProposalFunctionDof;
+        fMCMCPhase = other.fMCMCPhase;
+        fMCMCx = other.fMCMCx;
+        fMCMCObservables = other.fMCMCObservables;
+        fMCMCStatistics = other.fMCMCStatistics;
+        fMCMCStatistics_AllChains = other.fMCMCStatistics_AllChains;
+        fMCMCprob = other.fMCMCprob;
+        fMCMCLogLikelihood = other.fMCMCLogLikelihood;
+        fMCMCLogLikelihood_Provisional = other.fMCMCLogLikelihood_Provisional;
+        fMCMCLogPrior = other.fMCMCLogPrior;
+        fMCMCLogPrior_Provisional = other.fMCMCLogPrior_Provisional;
+        fCorrectRValueForSamplingVariability = other.fCorrectRValueForSamplingVariability;
+        fMCMCRValueParametersCriterion = other.fMCMCRValueParametersCriterion;
+        fMCMCRValueParameters = other.fMCMCRValueParameters;
+        fRandom = other.fRandom;
+        fRequestedH2 = other.fRequestedH2;
+        fMCMCTreeReuseObservables = other.fMCMCTreeReuseObservables;
+        fLocalModes = other.fLocalModes;
+        fBCH1DdrawingOptions = other.fBCH1DdrawingOptions;
+        fBCH2DdrawingOptions = other.fBCH2DdrawingOptions;
+        fRescaleHistogramRangesAfterPreRun = other.fRescaleHistogramRangesAfterPreRun;
+        fHistogramRescalePadding = other.fHistogramRescalePadding;
+
+        // don't create file!
+
+        CloneMarginals(other);
+    } catch (...) {
+        // leave object in sane state but otherwise don't know what to do with exception
+        DeleteMarginals();
+        throw;
+    }
+
+    return *this;
+}
+
+// ---------------------------------------------------------
+void BCEngineMCMC::CloneMarginals(const BCEngineMCMC& other)
+{
     fH1Marginalized = std::vector<TH1*>(other.fH1Marginalized.size(), NULL);
     for (unsigned i = 0; i < other.fH1Marginalized.size(); ++i)
         if (other.fH1Marginalized[i])
@@ -209,10 +303,8 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
 }
 
 // ---------------------------------------------------------
-BCEngineMCMC::~BCEngineMCMC()
+void BCEngineMCMC::DeleteMarginals()
 {
-    CloseOutputFile();
-
     // delete 1-d marginalized distributions
     for (unsigned i = 0; i < fH1Marginalized.size(); ++i)
         delete fH1Marginalized[i];
@@ -224,79 +316,10 @@ BCEngineMCMC::~BCEngineMCMC()
 }
 
 // ---------------------------------------------------------
-void swap(BCEngineMCMC& A, BCEngineMCMC& B)
+BCEngineMCMC::~BCEngineMCMC()
 {
-    std::swap(A.fMCMCThreadLocalStorage, B.fMCMCThreadLocalStorage);
-    std::swap(A.fChainIndex, B.fChainIndex);
-    std::swap(A.fName, B.fName);
-    std::swap(A.fSafeName, B.fSafeName);
-    std::swap(A.fParameters, B.fParameters);
-    std::swap(A.fObservables, B.fObservables);
-    std::swap(A.fMCMCNChains, B.fMCMCNChains);
-    std::swap(A.fMCMCNLag, B.fMCMCNLag);
-    std::swap(A.fMCMCNIterations, B.fMCMCNIterations);
-    std::swap(A.fMCMCCurrentIteration, B.fMCMCCurrentIteration);
-    std::swap(A.fMCMCNIterationsPreRunCheck, B.fMCMCNIterationsPreRunCheck);
-    std::swap(A.fMCMCPreRunCheckClear, B.fMCMCPreRunCheckClear);
-    std::swap(A.fMCMCNIterationsConvergenceGlobal, B.fMCMCNIterationsConvergenceGlobal);
-    std::swap(A.fMCMCNIterationsPreRunMax, B.fMCMCNIterationsPreRunMax);
-    std::swap(A.fMCMCNIterationsRun, B.fMCMCNIterationsRun);
-    std::swap(A.fMCMCNIterationsPreRunMin, B.fMCMCNIterationsPreRunMin);
-    std::swap(A.fMCMCFlagWriteChainToFile, B.fMCMCFlagWriteChainToFile);
-    std::swap(A.fMCMCFlagWritePreRunToFile, B.fMCMCFlagWritePreRunToFile);
-    std::swap(A.fMCMCOutputFile, B.fMCMCOutputFile);
-    std::swap(A.fMCMCOutputFilename, B.fMCMCOutputFilename);
-    std::swap(A.fMCMCOutputFileOption, B.fMCMCOutputFileOption);
-    std::swap(A.fMCMCScaleFactorLowerLimit, B.fMCMCScaleFactorLowerLimit);
-    std::swap(A.fMCMCScaleFactorUpperLimit, B.fMCMCScaleFactorUpperLimit);
-    std::swap(A.fMCMCProposalFunctionScaleFactor, B.fMCMCProposalFunctionScaleFactor);
-    std::swap(A.fMCMCInitialScaleFactors, B.fMCMCInitialScaleFactors);
-    std::swap(A.fMultivariateProposalFunctionCovariance, B.fMultivariateProposalFunctionCovariance);
-    std::swap(A.fMultivariateProposalFunctionCholeskyDecomposition, B.fMultivariateProposalFunctionCholeskyDecomposition);
-    std::swap(A.fMultivariateCovarianceUpdates, B.fMultivariateCovarianceUpdates);
-    std::swap(A.fMultivariateCovarianceUpdateLambda, B.fMultivariateCovarianceUpdateLambda);
-    std::swap(A.fMultivariateEpsilon, B.fMultivariateEpsilon);
-    std::swap(A.fMultivariateScaleMultiplier, B.fMultivariateScaleMultiplier);
-    std::swap(A.fMCMCFlagPreRun, B.fMCMCFlagPreRun);
-    std::swap(A.fMCMCFlagRun, B.fMCMCFlagRun);
-    std::swap(A.fMCMCInitialPosition, B.fMCMCInitialPosition);
-    std::swap(A.fMCMCEfficiencyMin, B.fMCMCEfficiencyMin);
-    std::swap(A.fMCMCEfficiencyMax, B.fMCMCEfficiencyMax);
-    std::swap(A.fInitialPositionScheme, B.fInitialPositionScheme);
-    std::swap(A.fInitialPositionAttemptLimit, B.fInitialPositionAttemptLimit);
-    std::swap(A.fMCMCProposeMultivariate, B.fMCMCProposeMultivariate);
-    std::swap(A.fMCMCProposalFunctionDof, B.fMCMCProposalFunctionDof);
-    std::swap(A.fMCMCPhase, B.fMCMCPhase);
-    std::swap(A.fMCMCx, B.fMCMCx);
-    std::swap(A.fMCMCObservables, B.fMCMCObservables);
-    std::swap(A.fMCMCStatistics, B.fMCMCStatistics);
-    std::swap(A.fMCMCStatistics_AllChains, B.fMCMCStatistics_AllChains);
-    std::swap(A.fMCMCprob, B.fMCMCprob);
-    std::swap(A.fMCMCLogLikelihood, B.fMCMCLogLikelihood);
-    std::swap(A.fMCMCLogLikelihood_Provisional, B.fMCMCLogLikelihood_Provisional);
-    std::swap(A.fMCMCLogPrior, B.fMCMCLogPrior);
-    std::swap(A.fMCMCLogPrior_Provisional, B.fMCMCLogPrior_Provisional);
-    std::swap(A.fCorrectRValueForSamplingVariability, B.fCorrectRValueForSamplingVariability);
-    std::swap(A.fMCMCRValueParametersCriterion, B.fMCMCRValueParametersCriterion);
-    std::swap(A.fMCMCRValueParameters, B.fMCMCRValueParameters);
-
-    // swap root object
-    TRandom3 temp(A.fRandom);
-    A.fRandom = B.fRandom;
-    B.fRandom = temp;
-
-    std::swap(A.fH1Marginalized, B.fH1Marginalized);
-    std::swap(A.fH2Marginalized, B.fH2Marginalized);
-    std::swap(A.fRequestedH2, B.fRequestedH2);
-    std::swap(A.fMCMCTree, B.fMCMCTree);
-    std::swap(A.fMCMCTreeLoaded, B.fMCMCTreeLoaded);
-    std::swap(A.fMCMCTreeReuseObservables, B.fMCMCTreeReuseObservables);
-    std::swap(A.fParameterTree, B.fParameterTree);
-    std::swap(A.fLocalModes, B.fLocalModes);
-    std::swap(A.fBCH1DdrawingOptions, B.fBCH1DdrawingOptions);
-    std::swap(A.fBCH2DdrawingOptions, B.fBCH2DdrawingOptions);
-    std::swap(A.fRescaleHistogramRangesAfterPreRun, B.fRescaleHistogramRangesAfterPreRun);
-    std::swap(A.fHistogramRescalePadding, B.fHistogramRescalePadding);
+    DeleteMarginals();
+    CloseOutputFile();
 }
 
 // ---------------------------------------------------------
@@ -689,13 +712,13 @@ void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile)
         delete fMCMCTree;
         fMCMCTree = 0;
         delete fParameterTree;
-        fParameterTree = 0;
+        fParameterTree = NULL;
     }
     if (replacefile) {
         if (fMCMCOutputFile)
             fMCMCOutputFile->Close();
         delete fMCMCOutputFile;
-        fMCMCOutputFile = 0;
+        fMCMCOutputFile = NULL;
     }
 
     // don't initialize a 2nd time
@@ -1665,7 +1688,12 @@ void BCEngineMCMC::CloseOutputFile()
         fMCMCOutputFile->Write(0, TObject::kWriteDelete);
         fMCMCOutputFile->Close();
     }
-    // delete fMCMCOutputFile;
+    // ROOT also deletes associated named objects, the trees
+    delete fMCMCOutputFile;
+    fMCMCOutputFile = NULL;
+    fMCMCTree = NULL;
+    fParameterTree = NULL;
+    fMCMCTreeLoaded = false;
 }
 
 // --------------------------------------------------------
