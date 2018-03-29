@@ -442,6 +442,14 @@ private:
      * P value accounting for degrees of freedom. */
     double fPValueNDoF;
 
+    /**
+     * Copying can lead to a double-delete */
+    BCMTF(const BCMTF&);
+
+    /**
+     * Copy-assignment can lead to a double-delete */
+    BCMTF& operator=(const BCMTF&);
+
 };
 // ---------------------------------------------------------
 

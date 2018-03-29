@@ -161,17 +161,13 @@ public:
     BCEngineMCMC(const std::string& filename, const std::string& name, bool loadObservables = true);
 
     /**
+     * Copy-assignment operator */
+    BCEngineMCMC& operator=(const BCEngineMCMC&);
+
+    /**
      * Destructor. */
     virtual ~BCEngineMCMC();
 
-    /** @} */
-    /** \name swap */
-    /** @{ */
-
-    /** swap */
-    friend void swap(BCEngineMCMC& A, BCEngineMCMC& B);
-
-    /** @} */
     /** \name Getters */
     /** @{ */
 
@@ -1466,6 +1462,14 @@ private:
 
     typedef std::map<int, unsigned> ChainIndex_t;
     ChainIndex_t fChainIndex;
+
+    /**
+     * Delete marginal histograms */
+    void DeleteMarginals();
+
+    /**
+     * Clone marginal histograms from another BCEngineMCMC */
+    void CloneMarginals(const BCEngineMCMC&);
 
 protected:
 

@@ -52,7 +52,7 @@ BCModel::BCModel(const std::string& filename, const std::string& name, bool load
 BCModel::BCModel(const BCModel& other)
     : BCIntegrate(other),
       fDataSet(other.fDataSet),
-      fPriorModel(0),
+      fPriorModel(NULL),
       fBCH1DPriorDrawingOptions(other.fBCH1DPriorDrawingOptions),
       fBCH2DPriorDrawingOptions(other.fBCH2DPriorDrawingOptions),
       fBCH1DPosteriorDrawingOptions(other.fBCH1DPosteriorDrawingOptions),
@@ -63,23 +63,25 @@ BCModel::BCModel(const BCModel& other)
 }
 
 // ---------------------------------------------------------
-BCModel::~BCModel()
+BCModel& BCModel::operator=(const BCModel& other)
 {
-    delete fPriorModel;
+    BCIntegrate::operator=(other);
+    fDataSet = other.fDataSet;
+    fPriorModel = NULL;
+    fBCH1DPriorDrawingOptions = other.fBCH1DPriorDrawingOptions;
+    fBCH2DPriorDrawingOptions = other.fBCH2DPriorDrawingOptions;
+    fBCH1DPosteriorDrawingOptions = other.fBCH1DPosteriorDrawingOptions;
+    fBCH2DPosteriorDrawingOptions = other.fBCH2DPosteriorDrawingOptions;
+    fDrawPriorFirst = other.fDrawPriorFirst;
+    fFactorizedPrior = other.fFactorizedPrior;
+
+    return *this;
 }
 
 // ---------------------------------------------------------
-void swap(BCModel& A, BCModel& B)
+BCModel::~BCModel()
 {
-    swap(static_cast<BCIntegrate&>(A), static_cast<BCIntegrate&>(B));
-    std::swap(A.fDataSet, B.fDataSet);
-    std::swap(A.fPriorModel, B.fPriorModel);
-    std::swap(A.fBCH1DPriorDrawingOptions, B.fBCH1DPriorDrawingOptions);
-    std::swap(A.fBCH2DPriorDrawingOptions, B.fBCH2DPriorDrawingOptions);
-    std::swap(A.fBCH1DPosteriorDrawingOptions, B.fBCH1DPosteriorDrawingOptions);
-    std::swap(A.fBCH2DPosteriorDrawingOptions, B.fBCH2DPosteriorDrawingOptions);
-    std::swap(A.fDrawPriorFirst, B.fDrawPriorFirst);
-    std::swap(A.fFactorizedPrior, B.fFactorizedPrior);
+    delete fPriorModel;
 }
 
 // ---------------------------------------------------------

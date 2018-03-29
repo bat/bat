@@ -248,56 +248,44 @@ BCIntegrate::BCIntegrate(const BCIntegrate& other)
       fCubaCuhreOptions(other.fCubaCuhreOptions)
 {}
 
-// ---------------------------------------------------------
-void swap(BCIntegrate& A, BCIntegrate& B)
+BCIntegrate& BCIntegrate::operator=(const BCIntegrate& other)
 {
-    using std::swap;
-    // this can only occur in a free standing function
-    // and not as a member of BCIntegrate because BCEngineMCMC is abstract
-    swap(static_cast<BCEngineMCMC&>(A), static_cast<BCEngineMCMC&>(B));
-    swap(A.fFlagIgnorePrevOptimization, B.fFlagIgnorePrevOptimization);
-    swap(A.fSAT0, B.fSAT0);
-    swap(A.fSATmin, B.fSATmin);
-    swap(A.fSATree, B.fSATree);
-    swap(A.fFlagWriteSAToFile, B.fFlagWriteSAToFile);
-    swap(A.fSANIterations, B.fSANIterations);
-    swap(A.fSATemperature, B.fSATemperature);
-    swap(A.fSALogProb, B.fSALogProb);
-    swap(A.fSAx, B.fSAx);
-    swap(A.fFlagMarginalized, B.fFlagMarginalized);
-    swap(A.fSAOutputFile, B.fSAOutputFile);
-    swap(A.fSAOutputFilename, B.fSAOutputFilename);
-    swap(A.fSAOutputFileOption, B.fSAOutputFileOption);
-    swap(A.fSAOutputFileAutoclose, B.fSAOutputFileAutoclose);
+    BCEngineMCMC::operator=(other);
+    fFlagIgnorePrevOptimization = other.fFlagIgnorePrevOptimization;
+    fSAT0 = other.fSAT0;
+    fSATmin = other.fSATmin;
+    fSANIterations = other.fSANIterations;
+    fSATemperature = other.fSATemperature;
+    fSALogProb = other.fSALogProb;
+    fSAx = other.fSAx;
+    fFlagMarginalized = other.fFlagMarginalized;
+    // TMinuitMinimizer is not copyable
+    fMinimizer.Reset(*this);
+    fOptimizationMethodCurrent = other.fOptimizationMethodCurrent;
+    fOptimizationMethodUsed = other.fOptimizationMethodUsed;
+    fIntegrationMethodCurrent = other.fIntegrationMethodCurrent;
+    fIntegrationMethodUsed = other.fIntegrationMethodUsed;
+    fMarginalizationMethodCurrent = other.fMarginalizationMethodCurrent;
+    fMarginalizationMethodUsed = other.fMarginalizationMethodUsed;
+    fSASchedule = other.fSASchedule;
+    fNIterationsMin = other.fNIterationsMin;
+    fNIterationsMax = other.fNIterationsMax;
+    fNIterationsPrecisionCheck = other.fNIterationsPrecisionCheck;
+    fNIterations = other.fNIterations;
+    fBestFitParameters = other.fBestFitParameters;
+    fBestFitParameterErrors = other.fBestFitParameterErrors;
+    fLogMaximum = other.fLogMaximum;
+    fIntegral = other.fIntegral;
+    fRelativePrecision = other.fRelativePrecision;
+    fAbsolutePrecision = other.fAbsolutePrecision;
+    fError = other.fError;
+    fCubaIntegrationMethod = other.fCubaIntegrationMethod;
+    fCubaVegasOptions = other.fCubaVegasOptions;
+    fCubaSuaveOptions = other.fCubaSuaveOptions;
+    fCubaDivonneOptions = other.fCubaDivonneOptions;
+    fCubaCuhreOptions = other.fCubaCuhreOptions;
 
-    // TMinuitMinimizer is neither copyable nor assignable
-    // both lose state
-    A.fMinimizer.Reset(B);
-    B.fMinimizer.Reset(A);
-
-    swap(A.fOptimizationMethodCurrent, B.fOptimizationMethodCurrent);
-    swap(A.fOptimizationMethodUsed, B.fOptimizationMethodUsed);
-    swap(A.fIntegrationMethodCurrent, B.fIntegrationMethodCurrent);
-    swap(A.fIntegrationMethodUsed, B.fIntegrationMethodUsed);
-    swap(A.fMarginalizationMethodCurrent, B.fMarginalizationMethodCurrent);
-    swap(A.fMarginalizationMethodUsed, B.fMarginalizationMethodUsed);
-    swap(A.fSASchedule, B.fSASchedule);
-    swap(A.fNIterationsMin, B.fNIterationsMin);
-    swap(A.fNIterationsMax, B.fNIterationsMax);
-    swap(A.fNIterationsPrecisionCheck, B.fNIterationsPrecisionCheck);
-    swap(A.fNIterations, B.fNIterations);
-    swap(A.fBestFitParameters, B.fBestFitParameters);
-    swap(A.fBestFitParameterErrors, B.fBestFitParameterErrors);
-    swap(A.fLogMaximum, B.fLogMaximum);
-    swap(A.fIntegral, B.fIntegral);
-    swap(A.fRelativePrecision, B.fRelativePrecision);
-    swap(A.fAbsolutePrecision, B.fAbsolutePrecision);
-    swap(A.fError, B.fError);
-    swap(A.fCubaIntegrationMethod, B.fCubaIntegrationMethod);
-    swap(A.fCubaVegasOptions, B.fCubaVegasOptions);
-    swap(A.fCubaSuaveOptions, B.fCubaSuaveOptions);
-    swap(A.fCubaDivonneOptions, B.fCubaDivonneOptions);
-    swap(A.fCubaCuhreOptions, B.fCubaCuhreOptions);
+    return *this;
 }
 
 // ---------------------------------------------------------

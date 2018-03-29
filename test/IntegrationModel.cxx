@@ -1,4 +1,3 @@
-
 #include <IntegrationModel.h>
 
 #include <TString.h>

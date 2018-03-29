@@ -1,4 +1,3 @@
-
 #ifndef __BC_TEST__GAUSSMODEL__H
 #define __BC_TEST__GAUSSMODEL__H
 
