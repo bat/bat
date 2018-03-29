@@ -101,18 +101,18 @@ public:
          * @param n_obs number of observables to calculate statistics for (sans efficiencies). */
         Statistics(unsigned n_par = 0, unsigned n_obs = 0);
 
-        unsigned n_samples;					                  ///< number of samples used to calculate statistics
-        std::vector<double> mean;		                  ///< means of all variables
+        unsigned n_samples;                           ///< number of samples used to calculate statistics
+        std::vector<double> mean;                     ///< means of all variables
         std::vector<double> variance;                 ///< variances of all variables
         std::vector<std::vector<double> > covariance; ///< covariances of all pairs of variables
-        std::vector<double> minimum;									///< minimum value of variables
-        std::vector<double> maximum;									///< maximum value of variables
-        double probability_mean;											///< mean of probability
-        double probability_variance;									///< variance of probability
-        std::vector<double> mode;											///< mode of variables
+        std::vector<double> minimum;                  ///< minimum value of variables
+        std::vector<double> maximum;                  ///< maximum value of variables
+        double probability_mean;                      ///< mean of probability
+        double probability_variance;                  ///< variance of probability
+        std::vector<double> mode;                     ///< mode of variables
         double probability_at_mode;                   ///< mode of probability
-        unsigned n_samples_efficiency;								///< number of samples used to calculate efficiencies
-        std::vector<double> efficiency;								///< efficiencies for each parameter (NB: not stored for observables)
+        unsigned n_samples_efficiency;                ///< number of samples used to calculate efficiencies
+        std::vector<double> efficiency;               ///< efficiencies for each parameter (NB: not stored for observables)
 
         /** clear all members.
          * @param clear_mode Flag for clearing information about mode*/
@@ -1045,7 +1045,7 @@ public:
      * @param sigma_below Standard deviation below mode.
      * @param sigma_above Standard deviation above mode. */
     void SetPriorGauss(const std::string& name, double mode, double sigmadown, double sigmaup)
-    {	SetPriorGauss(fParameters.Index(name), mode, sigmadown, sigmaup); }
+    { SetPriorGauss(fParameters.Index(name), mode, sigmadown, sigmaup); }
 
     /**
      * @deprecated Instead call: GetParameter(index)->SetPrior(new BCTH1Prior(h,interpolate))
@@ -1756,13 +1756,13 @@ protected:
      * flag for whether to reuse MCMC Tree's observables. */
     bool fMCMCTreeReuseObservables;
 
-    unsigned int fMCMCTree_Chain;			///< (For writing to fMCMCTree) chain number
-    unsigned int fMCMCTree_Iteration;	///< (For writing to fMCMCTree) iteration number
-    double fMCMCTree_Prob;						///< (For writing to fMCMCTree) log(posterior)
-    double fMCMCTree_LogLikelihood;		///< (For writing to fMCMCTree) log(likelihood)
-    double fMCMCTree_LogPrior;				///< (For writing to fMCMCTree) log(prior)
-    std::vector<double> fMCMCTree_Parameters;	///< (For writing to fMCMCTree) parameter set
-    std::vector<double> fMCMCTree_Observables; ///< (For writing to fMCMCTree) observable set
+    unsigned int fMCMCTree_Chain;       ///< (For writing to fMCMCTree) chain number
+    unsigned int fMCMCTree_Iteration;   ///< (For writing to fMCMCTree) iteration number
+    double fMCMCTree_Prob;              ///< (For writing to fMCMCTree) log(posterior)
+    double fMCMCTree_LogLikelihood;     ///< (For writing to fMCMCTree) log(likelihood)
+    double fMCMCTree_LogPrior;          ///< (For writing to fMCMCTree) log(prior)
+    std::vector<double> fMCMCTree_Parameters;   ///< (For writing to fMCMCTree) parameter set
+    std::vector<double> fMCMCTree_Observables;  ///< (For writing to fMCMCTree) observable set
 
     /**
      * The tree containing the parameter information.*/

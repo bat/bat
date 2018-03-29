@@ -1127,7 +1127,7 @@ bool BCEngineMCMC::LoadMCMC(const std::string& filename, const std::string& mcmc
     std::string newParameterTreeName(mcmcTreeName);
 
     // set tree names if empty
-    if (newMCMCTreeName.empty())		// default mcmc tree name
+    if (newMCMCTreeName.empty())    // default mcmc tree name
         newMCMCTreeName = Form("%s_mcmc", GetSafeName().data());
     if (parameterTreeName.empty()) // default parameter tree name
         newParameterTreeName = Form("%s_parameters", GetSafeName().data());
@@ -1509,7 +1509,7 @@ bool BCEngineMCMC::GetNewPointMetropolis(unsigned chain, unsigned parameter)
                 // decrease efficiency
                 fMCMCStatistics[chain].efficiency[parameter] *= 1.*fMCMCStatistics[chain].n_samples_efficiency / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
             }
-        } else {						// new log(likelihood) was not a finite number
+        } else {            // new log(likelihood) was not a finite number
             BCLog::OutDebug(Form("Log(likelihood) evaluated to nan or inf in chain %i while varying parameter %s to %.3e", chain, GetParameter(parameter).GetName().data(), fMCMCThreadLocalStorage[chain].xLocal[parameter]));
             // decrease efficiency
             fMCMCStatistics[chain].efficiency[parameter] *= 1.*fMCMCStatistics[chain].n_samples_efficiency / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
@@ -1849,7 +1849,7 @@ bool BCEngineMCMC::MetropolisPreRun()
                             else
                                 BCLog::OutDetail(Form("         %-*s is below %.0f %% (%.0f %%) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCProposalFunctionScaleFactor[c][p]));
                             inefficientScalesAdjustable = true;
-                        }	else { // no more room to tune
+                        } else { // no more room to tune
                             if (fMCMCStatistics[c].efficiency[p] == 0)
                                 BCLog::OutDetail(Form("         %-*s is below %.0f %% (zero) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, c, fMCMCProposalFunctionScaleFactor[c][p]));
                             else if (fMCMCStatistics[c].efficiency[p] < 1.e-2)
@@ -2143,7 +2143,7 @@ bool BCEngineMCMC::Metropolis()
         if (fMCMCCurrentIteration % fMCMCNLag != 0) // apply lag
             continue;
 
-        MCMCUserIterationInterface();		// user action (overloadable)
+        MCMCUserIterationInterface();   // user action (overloadable)
 
         for (unsigned c = 0; c < fMCMCNChains; ++c)
             fMCMCStatistics[c].Update(fMCMCprob[c], fMCMCx[c], fMCMCObservables[c]);
@@ -2519,18 +2519,18 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
 
     for (unsigned i = 0; i < GetNVariables(); ++i)
         if (GetVariable(i).FillH1()) {
-            if (i < GetNParameters()) {	// parameter
+            if (i < GetNParameters()) { // parameter
                 if (!GetParameter(i).Fixed()) {
                     fH1Marginalized[i] = GetVariable(i).CreateH1(Form("h1_%s_parameter_%s", GetSafeName().data() , GetParameter(i).GetSafeName().data()));
                     ++filling;
                 }
-            } else {									// user-defined observable
+            } else {                  // user-defined observable
                 fH1Marginalized[i] = GetVariable(i).CreateH1(Form("h1_%s_observable_%s", GetSafeName().data() , GetVariable(i).GetSafeName().data()));
                 ++filling;
             }
         }
 
-    if (filling == 0)	// if filling no 1D histograms, clear vector
+    if (filling == 0) // if filling no 1D histograms, clear vector
         fH1Marginalized.clear();
 
     // define 2D histograms for marginalization
@@ -2611,7 +2611,7 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
             }
     }
 
-    if (filling == 0)	// if filling no 2D histograms, clear vector
+    if (filling == 0) // if filling no 2D histograms, clear vector
         fH2Marginalized.clear();
 
     // restore bounds
@@ -3326,16 +3326,16 @@ bool BCEngineMCMC::PrintCorrelationPlot(const std::string& filename, bool includ
     TLatex* ylabel = new TLatex();
     ylabel->SetTextFont(62);
     ylabel->SetTextSize(1e-1 / I.size());
-    ylabel->SetTextAlign(22);			// set to 32, if latex names too long
+    ylabel->SetTextAlign(22);     // set to 32, if latex names too long
     ylabel->SetNDC();
-    ylabel->SetTextAngle(90);			// set to 80, if latex names too long
+    ylabel->SetTextAngle(90);     // set to 80, if latex names too long
 
     TLatex* xlabel = new TLatex();
     xlabel->SetTextFont(62);
     xlabel->SetTextSize(1e-1 / I.size());
-    xlabel->SetTextAlign(22);			// set to 12, if latex names too long
+    xlabel->SetTextAlign(22);     // set to 12, if latex names too long
     xlabel->SetNDC();
-    xlabel->SetTextAngle(0);			// set to 350, if latex names too long
+    xlabel->SetTextAngle(0);      // set to 350, if latex names too long
 
     // Box + Text for empty squares:
     TText* text_na = new TText();
@@ -3395,9 +3395,9 @@ bool BCEngineMCMC::PrintCorrelationPlot(const std::string& filename, bool includ
 
             c->cd();
 
-            if (i == 0)								// y-axis labels
+            if (i == 0)               // y-axis labels
                 ylabel->DrawLatex(margin * (1 - 8 * ylabel->GetTextSize()), yup - padsize / 2., GetVariable(I[j]).GetLatexNameWithUnits().data());
-            if (j == I.size() - 1)				// x-axis labels
+            if (j == I.size() - 1)        // x-axis labels
                 xlabel->DrawLatex(xlow + padsize / 2., margin * (1 - 8 * xlabel->GetTextSize()), GetVariable(I[i]).GetLatexNameWithUnits().data());
         }
     }
@@ -3429,7 +3429,7 @@ bool BCEngineMCMC::PrintParameterLatex(const std::string& filename) const
     unsigned texwidth = 15;
 
     // print table
-    ofi	<< "\\documentclass[11pt, a4paper]{article}\n\n"
+    ofi << "\\documentclass[11pt, a4paper]{article}\n\n"
         << "\\usepackage[landscape]{geometry}\n\n"
         << "\\begin{document}\n\n"
         << "  \\begin{table}[ht!]\n\n"
@@ -3448,7 +3448,7 @@ bool BCEngineMCMC::PrintParameterLatex(const std::string& filename) const
 
     for (unsigned i = 0; i < GetNVariables(); ++i) {
 
-        if (i == GetNParameters())		// first user-defined observable
+        if (i == GetNParameters())    // first user-defined observable
             ofi << "        &\\\\\n"
                 << "        User-defined Observable &\n"
                 << Form("        %*s & %*s & %*s & %*s & %*s & %*s & %*s\\\\\n",
@@ -3503,7 +3503,7 @@ bool BCEngineMCMC::PrintParameterLatex(const std::string& filename) const
         }
     }
 
-    ofi	<< "        \\hline\n" << std::endl
+    ofi << "        \\hline\n" << std::endl
         << "      \\end{tabular}\n" << std::endl
         << "      \\caption{Summary of the parameter estimates.}\n" << std::endl
         << "    \\end{center}\n" << std::endl
@@ -3584,7 +3584,7 @@ double BCEngineMCMC::ThreadLocalStorage::scale(double dof)
 void BCEngineMCMC::SyncThreadStorage()
 {
     if (fMCMCNChains > fMCMCThreadLocalStorage.size())
-        fRandom.Rndm();					// fix return value of GetSeed()
+        fRandom.Rndm();         // fix return value of GetSeed()
 
     // add storage until equal to number of chains
     fMCMCThreadLocalStorage.reserve(fMCMCNChains);
