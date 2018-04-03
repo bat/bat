@@ -17,6 +17,7 @@ public:
 
     // Methods to overload, see file GaussModel.cxx
     virtual double LogLikelihood(const std::vector<double>& parameters);
+    virtual void CalculateObservables(const std::vector<double>& parameters);
 
     unsigned long Calls() const
     {
@@ -47,7 +48,6 @@ private:
      * Count how often likelihood is called
      */
     unsigned long fCalls;
-
 };
 // ---------------------------------------------------------
 

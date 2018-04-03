@@ -651,6 +651,17 @@ unsigned BCEngineMCMC::GetNIterationsPreRun() const
 }
 
 // ---------------------------------------------------------
+const std::vector<double> BCEngineMCMC::GetBestFitParameters() const
+{
+    if (fMCMCStatistics_AllChains.mode.size() >= GetNParameters())
+        return std::vector<double>(fMCMCStatistics_AllChains.mode.begin(),
+                                   fMCMCStatistics_AllChains.mode.begin() + GetNParameters());
+
+    BCLOG_ERROR("Mode not available. Run Markov chain first");
+    return std::vector<double>();
+}
+
+// ---------------------------------------------------------
 const std::vector<double>& BCEngineMCMC::GetLocalModes(bool force_recalculation)
 {
     if (fLocalModes.empty() || force_recalculation) {
