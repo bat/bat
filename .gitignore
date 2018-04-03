@@ -12,6 +12,7 @@ libtool
 *.d
 *.log
 ltmain.sh
+m4/
 Makefile
 /Makefile.in
 /test/Makefile.in
