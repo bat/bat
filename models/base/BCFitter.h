@@ -17,9 +17,9 @@
 
 // ---------------------------------------------------------
 
-#include "../../BAT/BCAux.h"
-#include "../../BAT/BCDataSet.h"
-#include "../../BAT/BCModel.h"
+#include <BAT/BCAux.h>
+#include <BAT/BCDataSet.h>
+#include <BAT/BCModel.h>
 
 #include <TF1.h>
 #include <TH2D.h>
