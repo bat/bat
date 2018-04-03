@@ -287,7 +287,3 @@ public:
     }
 } rvalue_test;
 #endif
-
-// Local Variables:
-// compile-command: "make check TESTS= && (./BCEngineMCMC.TEST || cat test-suite.log)"
-// End:
