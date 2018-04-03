@@ -56,12 +56,12 @@ public:
 
     /**
      * @return The name of the channel. */
-    const std::string& GetName()
+    const std::string& GetName() const
     { return fName; };
 
     /**
      * @return The name of the channel. */
-    const std::string& GetSafeName()
+    const std::string& GetSafeName() const
     { return fSafeName; };
 
     /**
@@ -271,4 +271,3 @@ private:
 // ---------------------------------------------------------
 
 #endif
-

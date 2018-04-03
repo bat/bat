@@ -48,27 +48,27 @@ public:
 
     /**
      * @return The name of the process. */
-    const std::string& GetName()
+    const std::string& GetName() const
     { return fName; };
 
     /**
      * @return The safe name of the process. */
-    const std::string& GetSafeName()
+    const std::string& GetSafeName() const
     { return fSafeName; };
 
     /**
      * @return The histogram color. */
-    int GetHistogramColor()
+    int GetHistogramColor() const
     { return fHistogramColor; };
 
     /**
      * @return The histogram fill style. */
-    int GetHistogramFillStyle()
+    int GetHistogramFillStyle() const
     { return fHistogramFillStyle; };
 
     /**
      * @return the Histogram line style. */
-    int GetHistogramLineStyle()
+    int GetHistogramLineStyle() const
     { return fHistogramLineStyle; };
 
     /** @} */
@@ -128,4 +128,3 @@ private:
 // ---------------------------------------------------------
 
 #endif
-

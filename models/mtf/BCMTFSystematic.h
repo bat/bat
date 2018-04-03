@@ -48,17 +48,17 @@ public:
 
     /**
      * @return The name of the systematic uncertainty. */
-    const std::string& GetName()
+    const std::string& GetName() const
     { return fName; };
 
     /**
      * @return The name of the systematic uncertainty. */
-    const std::string& GetSafeName()
+    const std::string& GetSafeName() const
     { return fSafeName; };
 
     /**
      * @return A flag defining if this uncertainty is active or not. */
-    bool GetFlagSystematicActive()
+    bool GetFlagSystematicActive() const
     { return fFlagSystematicActive; };
 
     /** @} */
@@ -95,4 +95,3 @@ private:
 // ---------------------------------------------------------
 
 #endif
-
