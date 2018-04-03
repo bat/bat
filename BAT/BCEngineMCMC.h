@@ -633,9 +633,8 @@ public:
     { return fObservables.Size(); }
 
     /**
-     * @return vector of parameter and observable values at global mode. */
-    virtual const std::vector<double>& GetBestFitParameters() const
-    { return fMCMCStatistics_AllChains.mode; }
+     * @return vector of parameter values at global mode. */
+    virtual const std::vector<double> GetBestFitParameters() const;
 
     /**
      * @return vector of the local modes of parameters and observables

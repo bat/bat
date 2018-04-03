@@ -289,7 +289,7 @@ BCIntegrate& BCIntegrate::operator=(const BCIntegrate& other)
 }
 
 // ---------------------------------------------------------
-const std::vector<double>& BCIntegrate::GetBestFitParameters() const
+const std::vector<double> BCIntegrate::GetBestFitParameters() const
 {
     if (fBestFitParameters.empty() && !BCEngineMCMC::GetBestFitParameters().empty())
         return BCEngineMCMC::GetBestFitParameters();
@@ -422,12 +422,6 @@ void BCIntegrate::SetBestFitParameters(const std::vector<double>& x, const doubl
 void BCIntegrate::SetBestFitParameters(const std::vector<double>& x)
 {
     fBestFitParameters = x;
-    if (fBestFitParameters.size() == GetNParameters() && GetNObservables() > 0) {
-        Eval(fBestFitParameters); // in case user uses likelihood to set values needed for observable calculation
-        CalculateObservables(fBestFitParameters);
-        for (unsigned i = 0; i < GetNObservables(); ++i)
-            fBestFitParameters.push_back(GetObservable(i).Value());
-    }
 }
 
 // ---------------------------------------------------------

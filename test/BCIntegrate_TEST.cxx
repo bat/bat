@@ -338,8 +338,33 @@ public:
         TEST_CHECK_NEARLY_EQUAL(0, m.GetBestFitParameters()[0], 5e-5);
     }
 
+    void Observables() const
+    {
+        static const unsigned npar = 3;
+        GaussModel m("observables", npar);
+        m.AddObservable("obs1", 0, 20, "#obs_1");
+        TEST_CHECK_EQUAL(m.GetNObservables(), 1);
+
+        {
+            m.MarginalizeAll();
+
+            /* make sure observables don't show up in best-fit parameters */
+            TEST_CHECK_EQUAL(m.GetNParameters(), npar);
+            TEST_CHECK_EQUAL(m.GetBestFitParameters().size(), npar);
+        }
+
+        {
+            m.FindMode();
+
+            TEST_CHECK_EQUAL(m.GetNParameters(), npar);
+            TEST_CHECK_EQUAL(m.GetBestFitParameters().size(), npar);
+            TEST_CHECK_EQUAL(m.GetBestFitParameterErrors().size(), npar);
+        }
+    }
+
     virtual void run() const
     {
+        Observables();
         Integration();
         Optimization();
         FixedParameters(2);
@@ -347,4 +372,3 @@ public:
         Slice();
     }
 } bcIntegrateTest;
-

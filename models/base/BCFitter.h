@@ -88,7 +88,7 @@ public:
      * @note The caller is responsible for deletion of the returned object. */
     TGraph* GetFitFunctionGraph()
     {
-        return GetFitFunctionGraph(std::vector<double>(GetBestFitParameters().begin(), GetBestFitParameters().begin() + GetNParameters()));
+        return GetFitFunctionGraph(GetBestFitParameters());
     }
 
     /**
