@@ -348,6 +348,3 @@ public:
     }
 } bcIntegrateTest;
 
-// Local Variables:
-// compile-command: "make -C ../ && make BCIntegrate.TEST && ./BCIntegrate.TEST"
-// End:

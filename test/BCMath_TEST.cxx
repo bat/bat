@@ -104,7 +104,3 @@ public:
         }
     }
 } gammaTest;
-
-// Local Variables:
-// compile-command: "make check TESTS= && (./BCMath.TEST || cat test-suite.log)"
-// End:
