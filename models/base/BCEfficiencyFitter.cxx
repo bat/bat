@@ -12,7 +12,6 @@
 #include "BCEfficiencyFitter.h"
 
 #include <BAT/BCDataPoint.h>
-#include <BAT/BCDataSet.h>
 #include <BAT/BCH1D.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCMath.h>
