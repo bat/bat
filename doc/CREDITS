@@ -5,7 +5,7 @@ Authors in alphabetical order
 
 Frederik Beaujean -  Ludwig Maximilians University, Munich, Germany
 Allen Caldwell    -  MPI for Physics, Munich, Germany
-Daniel Greenwald  -  Technical University Munich, Germany
+Daniel Greenwald  -  TU Munich, Germany
 Daniel Kollar     -  Nürnberg, Germany
 Kevin Kröninger   -  TU Dortmund University, Germany
 Oliver Schulz     -  MPI for Physics, Munich, Germany
@@ -18,8 +18,12 @@ Carsten Brachem
   - Simulated Annealing
 
 Sverre Dørheim
-  - Technical University Munich, Germany
+  - TU Munich, Germany
   - tree saving and concurrent reading
+
+Danny van Dyk
+  - Technical University Munich, Germany
+  - unit test framework
 
 James Ferrando
   - University of Oxford, UK
@@ -28,6 +32,14 @@ James Ferrando
 Jing Liu
   - MPI for Physics, Munich, Germany
   - test suite for MCMC performance
+
+Thomas Pöschl
+  - TU Munich, Germany
+  - testing, numerous bug fixes
+
+Thomas Quante
+  - TU Dortmund, Germany
+  - bug fixes/reports on fast fitters and cuba integration
 
 Sankalp Sardana
   - Punjab University, India
