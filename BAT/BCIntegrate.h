@@ -510,34 +510,6 @@ public:
      * @param Tmin threshold temperature. */
     void SetSATmin(double Tmin)
     { fSATmin = Tmin; }
-
-    /**
-     * Turn on/off writing of simulated annealing to root file.
-     * If setting true, use function with filename arguments.
-     * @param flag Flag for writing simulated annealing to ROOT file (true) or not (false). */
-    void WriteSAToFile(bool flag);
-
-    /** Turn on writing of simulated annealing to root file.
-     * @param filename Name of file to.
-     * @param file-open options (TFile), must be "NEW", "CREATE", "RECREATE", or "UPDATE" (i.e. writeable).
-     * @param autoclose Toggle autoclosing of file after simulated annealing. */
-    void WriteSAToFile(const std::string& filename, const std::string& option, bool autoclose = true);
-
-    /**
-     * Close SA output file. */
-    void CloseSAOutputFile();
-
-    /**
-     * Getter for the tree containing the  Simulated Annealing  chain. */
-    TTree* GetSATree()
-    { return fSATree; }
-
-    /**
-     * Initialization of the tree for the Simulated Annealing
-     * @param replacetree Whether to delete and recreate tree object if already existing.
-     * @param replacefile Whether to delete and recreate file object if already existing. */
-    void InitializeSATree(bool replacetree = false, bool replacefile = false);
-
     /** @} */
 
     /** \name Member functions (miscellaneous methods) */
@@ -840,14 +812,6 @@ protected:
     double fSATmin;
 
     /**
-     * Tree for the Simulated Annealing */
-    TTree* fSATree;
-
-    /**
-     * Flag deciding whether to write simulated annealing to file or not. */
-    bool fFlagWriteSAToFile;
-
-    /**
      * Number of iterations for simualted annealing. */
     int fSANIterations;
 
@@ -878,22 +842,6 @@ protected:
     /**
      * flag indicating if the model was marginalized */
     bool fFlagMarginalized;
-
-    /**
-     * Output file for writing SA Tree. */
-    TFile* fSAOutputFile;
-
-    /**
-     * Output filename for writing SA Tree. */
-    std::string fSAOutputFilename;
-
-    /**
-     * Output file open option for for writing SA Tree. */
-    std::string fSAOutputFileOption;
-
-    /**
-     * flag for autoclosing SA output file. */
-    bool fSAOutputFileAutoclose;
 
 private:
 
