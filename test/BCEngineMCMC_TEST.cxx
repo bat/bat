@@ -37,6 +37,10 @@ GaussModel* gauss_check(bool multivariate_proposal,
     static const unsigned ntotal = 5;
     GaussModel& m = *new GaussModel(name.c_str(), ntotal);
 
+    // before any chains are run, get an empty vector
+    TEST_CHECK_EQUAL(m.GetBestFitParameters().size(), 0);
+    TEST_CHECK_EQUAL(m.GetBestFitParameterErrors().size(), 0);
+
     // Fix the last parameter so comparison below is simpler to code
     // keep track of free and total number of parameters
     unsigned nfree = ntotal;
@@ -97,6 +101,8 @@ GaussModel* gauss_check(bool multivariate_proposal,
         // mean etc. are per parameter
         TEST_CHECK_EQUAL(s[j].mean.size(), m.GetNParameters());
         TEST_CHECK_EQUAL(s[j].variance.size(), m.GetNParameters());
+        TEST_CHECK_EQUAL(s[j].stderrpar.size(), m.GetNParameters());
+        TEST_CHECK_EQUAL(s[j].stderrobs.size(), 0);
         TEST_CHECK_EQUAL(s[j].covariance.size(), m.GetNParameters());
         TEST_CHECK_EQUAL(s[j].minimum.size(), m.GetNParameters());
         TEST_CHECK_EQUAL(s[j].maximum.size(), m.GetNParameters());
@@ -132,6 +138,9 @@ GaussModel* gauss_check(bool multivariate_proposal,
             // mcmc not a great mode finder => large uncertainty
             TEST_CHECK_NEARLY_EQUAL(s[j].modepar[i], 0, 1);
 
+            // but MCMC should find errors ok
+            TEST_CHECK_NEARLY_EQUAL(s[j].stderrpar[i], 1, 0.03);
+
             if (!multivariate_proposal)
                 check_efficiency(m, s[j].efficiency[i]);
         }
@@ -143,6 +152,7 @@ GaussModel* gauss_check(bool multivariate_proposal,
             TEST_CHECK_EQUAL(s[j].minimum.back(), fix);
             TEST_CHECK_EQUAL(s[j].maximum.back(), fix);
             TEST_CHECK_EQUAL(s[j].modepar.back(), fix);
+            TEST_CHECK_EQUAL(s[j].stderrpar.back(), 0.0);
             TEST_CHECK_EQUAL(s[j].efficiency.back(), 0.0);
 
             continue;

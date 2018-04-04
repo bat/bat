@@ -660,6 +660,15 @@ const std::vector<double>& BCEngineMCMC::GetBestFitParameters() const
 }
 
 // ---------------------------------------------------------
+const std::vector<double>& BCEngineMCMC::GetBestFitParameterErrors() const
+{
+    if (fMCMCStatistics_AllChains.stderrpar.size() < GetNParameters())
+        BCLOG_ERROR("Standard errors not available. Run Markov chain first");
+
+    return fMCMCStatistics_AllChains.stderrpar;
+}
+
+// ---------------------------------------------------------
 const std::vector<double>& BCEngineMCMC::GetLocalModes(bool force_recalculation)
 {
     if (fLocalModes.empty() || force_recalculation) {
@@ -3662,6 +3671,8 @@ BCEngineMCMC::Statistics::Statistics(unsigned n_par, unsigned n_obs) :
     n_samples(0),
     mean(n_par + n_obs, 0),
     variance(mean.size(), 0),
+    stderrpar(n_par, 0),
+    stderrobs(n_obs, 0),
     covariance(mean.size(), std::vector<double>(mean.size(), 0)),
     minimum(mean.size(), +std::numeric_limits<double>::infinity()),
     maximum(mean.size(), -std::numeric_limits<double>::infinity()),
@@ -3681,6 +3692,8 @@ void BCEngineMCMC::Statistics::Clear(bool clear_mode, bool clear_efficiency)
     n_samples = 0;
     mean.clear();
     variance.clear();
+    stderrpar.clear();
+    stderrobs.clear();
     covariance.clear();
     minimum.clear();
     maximum.clear();
@@ -3703,6 +3716,8 @@ void BCEngineMCMC::Statistics::Init(unsigned n_par, unsigned n_obs)
     n_samples = 0;
     mean.assign(n_par + n_obs, 0);
     variance.assign(mean.size(), 0);
+    stderrpar.assign(n_par, 0);
+    stderrobs.assign(n_obs, 0);
     covariance.assign(mean.size(), std::vector<double>(mean.size(), 0));
     minimum.assign(mean.size(), +std::numeric_limits<double>::infinity());
     maximum.assign(mean.size(), -std::numeric_limits<double>::infinity());
@@ -3721,6 +3736,8 @@ void BCEngineMCMC::Statistics::Reset(bool reset_mode, bool reset_efficiency)
     n_samples = 0;
     mean.assign(mean.size(), 0);
     variance.assign(variance.size(), 0);
+    stderrpar.assign(stderrpar.size(), 0);
+    stderrobs.assign(stderrobs.size(), 0);
     covariance.assign(covariance.size(), std::vector<double>(covariance.front().size(), 0));
     minimum.assign(minimum.size(), +std::numeric_limits<double>::infinity());
     maximum.assign(maximum.size(), -std::numeric_limits<double>::infinity());
@@ -3795,6 +3812,11 @@ void BCEngineMCMC::Statistics::Update(double prob, const std::vector<double>& pa
             for (unsigned j = i; j < mean.size(); ++j)
                 covariance[i][j] += delta[i] * delta[j] / n_samples - covariance[i][j] / (n_samples - 1);
     }
+    // update stderrors
+    for (unsigned i = 0; i < par.size(); ++i)
+        stderrpar[i] = std::sqrt(variance[i]);
+    for (unsigned i = 0; i < obs.size(); ++i)
+        stderrobs[i] = std::sqrt(variance[stderrpar.size() + i]);
 }
 
 // ---------------------------------------------------------
@@ -3840,6 +3862,12 @@ BCEngineMCMC::Statistics& BCEngineMCMC::Statistics::operator+=(const BCEngineMCM
         // combine means
         mean[i] = (n_samples * mean[i] + rhs.n_samples * rhs.mean[i]) / n;
     }
+    // update stderrors
+    for (unsigned i = 0; i < stderrpar.size(); ++i)
+        stderrpar[i] = std::sqrt(variance[i]);
+    for (unsigned i = 0; i < stderrobs.size(); ++i)
+        stderrobs[i] = std::sqrt(variance[stderrpar.size() + i]);
+
     // combine n_samples
     n_samples = n;
 
