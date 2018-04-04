@@ -651,14 +651,12 @@ unsigned BCEngineMCMC::GetNIterationsPreRun() const
 }
 
 // ---------------------------------------------------------
-const std::vector<double> BCEngineMCMC::GetBestFitParameters() const
+const std::vector<double>& BCEngineMCMC::GetBestFitParameters() const
 {
-    if (fMCMCStatistics_AllChains.mode.size() >= GetNParameters())
-        return std::vector<double>(fMCMCStatistics_AllChains.mode.begin(),
-                                   fMCMCStatistics_AllChains.mode.begin() + GetNParameters());
+    if (fMCMCStatistics_AllChains.modepar.size() < GetNParameters())
+        BCLOG_ERROR("Mode not available. Run Markov chain first");
 
-    BCLOG_ERROR("Mode not available. Run Markov chain first");
-    return std::vector<double>();
+    return fMCMCStatistics_AllChains.modepar;
 }
 
 // ---------------------------------------------------------
@@ -2226,7 +2224,7 @@ bool BCEngineMCMC::Metropolis()
 
     BCLog::OutDetail(" --> Global mode from MCMC:");
     BCLog::OutDebug(Form(" --> Posterior value: %g", fMCMCStatistics_AllChains.probability_at_mode));
-    PrintParameters(fMCMCStatistics_AllChains.mode, BCLog::OutDetail);
+    PrintParameters(fMCMCStatistics_AllChains.modepar, BCLog::OutDetail);
 
     // reset counter
     fMCMCCurrentIteration = -1;
@@ -3669,7 +3667,8 @@ BCEngineMCMC::Statistics::Statistics(unsigned n_par, unsigned n_obs) :
     maximum(mean.size(), -std::numeric_limits<double>::infinity()),
     probability_mean(0),
     probability_variance(0),
-    mode(mean.size(), 0),
+    modepar(n_par, 0),
+    modeobs(n_obs, 0),
     probability_at_mode(-std::numeric_limits<double>::infinity()),
     n_samples_efficiency(0),
     efficiency(n_par, 0.)
@@ -3689,7 +3688,8 @@ void BCEngineMCMC::Statistics::Clear(bool clear_mode, bool clear_efficiency)
     probability_variance = 0;
     if (clear_mode) {
         probability_at_mode = -std::numeric_limits<double>::infinity();
-        mode.clear();
+        modepar.clear();
+        modeobs.clear();
     }
     if (clear_efficiency) {
         n_samples_efficiency = 0;
@@ -3709,7 +3709,8 @@ void BCEngineMCMC::Statistics::Init(unsigned n_par, unsigned n_obs)
     probability_mean = 0;
     probability_variance = 0;
     probability_at_mode = -std::numeric_limits<double>::infinity();
-    mode.assign(mean.size(), 0);
+    modepar.assign(n_par, 0);
+    modeobs.assign(n_obs, 0);
     n_samples_efficiency = 0;
     efficiency.assign(n_par, 0.);
 }
@@ -3727,7 +3728,8 @@ void BCEngineMCMC::Statistics::Reset(bool reset_mode, bool reset_efficiency)
     probability_variance = 0;
     if (reset_mode) {
         probability_at_mode = -std::numeric_limits<double>::infinity();
-        mode.assign(mode.size(), 0);
+        modepar.assign(modepar.size(), 0);
+        modeobs.assign(modeobs.size(), 0);
     }
     if (reset_efficiency) {
         efficiency.assign(efficiency.size(), 0);
@@ -3754,9 +3756,9 @@ void BCEngineMCMC::Statistics::Update(double prob, const std::vector<double>& pa
     // check mode
     if (prob > probability_at_mode) {
         for (unsigned i = 0; i < par.size(); ++i)
-            mode[i] = par[i];
+            modepar[i] = par[i];
         for (unsigned i = 0; i < obs.size(); ++i)
-            mode[i + par.size()] = obs[i];
+            modeobs[i] = obs[i];
         probability_at_mode = prob;
     }
 
@@ -3812,7 +3814,8 @@ BCEngineMCMC::Statistics& BCEngineMCMC::Statistics::operator+=(const BCEngineMCM
     // check mode:
     if (rhs.probability_at_mode > probability_at_mode) {
         probability_at_mode = rhs.probability_at_mode;
-        mode = rhs.mode;
+        modepar = rhs.modepar;
+        modeobs = rhs.modeobs;
     }
 
     double n = n_samples + rhs.n_samples;

@@ -289,7 +289,7 @@ BCIntegrate& BCIntegrate::operator=(const BCIntegrate& other)
 }
 
 // ---------------------------------------------------------
-const std::vector<double> BCIntegrate::GetBestFitParameters() const
+const std::vector<double>& BCIntegrate::GetBestFitParameters() const
 {
     if (fBestFitParameters.empty() && !BCEngineMCMC::GetBestFitParameters().empty())
         return BCEngineMCMC::GetBestFitParameters();
@@ -1562,7 +1562,7 @@ std::vector<double> BCIntegrate::FindModeMCMC(std::vector<double>& mode, std::ve
     // call PreRun
     MetropolisPreRun();
 
-    mode = fMCMCStatistics_AllChains.mode;
+    mode = fMCMCStatistics_AllChains.modepar;
     errors.assign(fParameters.Size(), -1.);
 
     return mode;

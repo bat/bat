@@ -405,7 +405,7 @@ public:
 
     /**
      * @return vector of parameter and observable values at global mode. */
-    virtual const std::vector<double> GetBestFitParameters() const;
+    virtual const std::vector<double>& GetBestFitParameters() const;
 
     /**
      * Returns the set of errors on the values of the parameters at the global mode */

@@ -109,7 +109,8 @@ public:
         std::vector<double> maximum;                  ///< maximum value of variables
         double probability_mean;                      ///< mean of probability
         double probability_variance;                  ///< variance of probability
-        std::vector<double> mode;                     ///< mode of variables
+        std::vector<double> modepar;                  ///< mode of parameters
+        std::vector<double> modeobs;                  ///< mode of observables
         double probability_at_mode;                   ///< mode of probability
         unsigned n_samples_efficiency;                ///< number of samples used to calculate efficiencies
         std::vector<double> efficiency;               ///< efficiencies for each parameter (NB: not stored for observables)
@@ -634,7 +635,7 @@ public:
 
     /**
      * @return vector of parameter values at global mode. */
-    virtual const std::vector<double> GetBestFitParameters() const;
+    virtual const std::vector<double>& GetBestFitParameters() const;
 
     /**
      * @return vector of the local modes of parameters and observables
