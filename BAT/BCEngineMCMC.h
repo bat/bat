@@ -104,6 +104,8 @@ public:
         unsigned n_samples;                           ///< number of samples used to calculate statistics
         std::vector<double> mean;                     ///< means of all variables
         std::vector<double> variance;                 ///< variances of all variables
+        std::vector<double> stderrpar;                ///< sqrt(variance) of all parameters
+        std::vector<double> stderrobs;                ///< sqrt(variance) of all observables
         std::vector<std::vector<double> > covariance; ///< covariances of all pairs of variables
         std::vector<double> minimum;                  ///< minimum value of variables
         std::vector<double> maximum;                  ///< maximum value of variables
@@ -636,6 +638,10 @@ public:
     /**
      * @return vector of parameter values at global mode. */
     virtual const std::vector<double>& GetBestFitParameters() const;
+
+    /**
+     * @return vector of standard errors (sqrt(variance)) of 1D marginals */
+    virtual const std::vector<double>& GetBestFitParameterErrors() const;
 
     /**
      * @return vector of the local modes of parameters and observables

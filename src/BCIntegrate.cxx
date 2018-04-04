@@ -291,9 +291,19 @@ BCIntegrate& BCIntegrate::operator=(const BCIntegrate& other)
 // ---------------------------------------------------------
 const std::vector<double>& BCIntegrate::GetBestFitParameters() const
 {
-    if (fBestFitParameters.empty() && !BCEngineMCMC::GetBestFitParameters().empty())
+    if (fBestFitParameters.empty())
         return BCEngineMCMC::GetBestFitParameters();
     return fBestFitParameters;
+}
+
+// ---------------------------------------------------------
+const std::vector<double>& BCIntegrate::GetBestFitParameterErrors() const
+{
+    // fall back to MCMC if available
+    if (fBestFitParameterErrors.empty()) {
+        return BCEngineMCMC::GetBestFitParameterErrors();
+    }
+    return fBestFitParameterErrors;
 }
 
 // ---------------------------------------------------------
@@ -1559,11 +1569,10 @@ double BCIntegrate::SAHelperSinusToNIntegral(int dim, double theta) const
 // ---------------------------------------------------------
 std::vector<double> BCIntegrate::FindModeMCMC(std::vector<double>& mode, std::vector<double>& errors)
 {
-    // call PreRun
     MetropolisPreRun();
 
     mode = fMCMCStatistics_AllChains.modepar;
-    errors.assign(fParameters.Size(), -1.);
+    errors = fMCMCStatistics_AllChains.stderrpar;
 
     return mode;
 }

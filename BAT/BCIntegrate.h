@@ -404,13 +404,12 @@ public:
     { return fSATmin; }
 
     /**
-     * @return vector of parameter and observable values at global mode. */
+     * @return vector of parameter and observable values at the mode. */
     virtual const std::vector<double>& GetBestFitParameters() const;
 
     /**
-     * Returns the set of errors on the values of the parameters at the global mode */
-    const std::vector<double>& GetBestFitParameterErrors() const
-    { return fBestFitParameterErrors; }
+     * Returns the set of errors on the values of the parameters at the mode */
+    const std::vector<double>& GetBestFitParameterErrors() const;
 
     /**
      * Returns the posterior at the mode.
