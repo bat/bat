@@ -172,11 +172,6 @@ public:
         return *this;
     }
 
-    void swap(BCTrash<T>& other)
-    {
-        std::swap(fStorage, other.fStorage);
-    }
-
     ~BCTrash()
     {
         for (unsigned i = 0; i < fStorage.size(); ++i)
@@ -192,15 +187,6 @@ private:
     std::vector<T*> fStorage;
 };
 
-}
-
-namespace std
-{
-template <typename T>
-void swap(BCAux::BCTrash<T>& a, BCAux::BCTrash<T>& b)
-{
-    a.swap(b);
-}
 }
 
 // ---------------------------------------------------------
