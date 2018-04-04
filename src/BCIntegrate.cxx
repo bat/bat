@@ -138,16 +138,10 @@ BCIntegrate::BCIntegrate(const std::string& name) :
     fFlagIgnorePrevOptimization(false),
     fSAT0(100),
     fSATmin(0.1),
-    fSATree(0),
-    fFlagWriteSAToFile(false),
     fSANIterations(0),
     fSATemperature(0),
     fSALogProb(0),
     fFlagMarginalized(false),
-    fSAOutputFile(0),
-    fSAOutputFilename(""),
-    fSAOutputFileOption(""),
-    fSAOutputFileAutoclose(false),
     fMinimizer(*this),
     fOptimizationMethodCurrent(BCIntegrate::kOptDefault),
     fOptimizationMethodUsed(BCIntegrate::kOptEmpty),
@@ -174,16 +168,10 @@ BCIntegrate::BCIntegrate(const std::string& filename, const std::string& name, b
     fFlagIgnorePrevOptimization(false),
     fSAT0(100),
     fSATmin(0.1),
-    fSATree(0),
-    fFlagWriteSAToFile(false),
     fSANIterations(0),
     fSATemperature(0),
     fSALogProb(0),
     fFlagMarginalized(false),
-    fSAOutputFile(0),
-    fSAOutputFilename(""),
-    fSAOutputFileOption(""),
-    fSAOutputFileAutoclose(false),
     fMinimizer(*this),
     fOptimizationMethodCurrent(BCIntegrate::kOptDefault),
     fOptimizationMethodUsed(BCIntegrate::kOptEmpty),
@@ -210,17 +198,11 @@ BCIntegrate::BCIntegrate(const BCIntegrate& other)
       fFlagIgnorePrevOptimization(other.fFlagIgnorePrevOptimization),
       fSAT0(other.fSAT0),
       fSATmin(other.fSATmin),
-      fSATree(0),
-      fFlagWriteSAToFile(other.fFlagWriteSAToFile),
       fSANIterations(other.fSANIterations),
       fSATemperature(other.fSATemperature),
       fSALogProb(other.fSALogProb),
       fSAx(other.fSAx),
       fFlagMarginalized(other.fFlagMarginalized),
-      fSAOutputFile(0),
-      fSAOutputFilename(other.fSAOutputFilename),
-      fSAOutputFileOption(other.fSAOutputFileOption),
-      fSAOutputFileAutoclose(other.fSAOutputFileAutoclose),
       // TMinuitMinimizer is not copyable
       fMinimizer(*this),
       fOptimizationMethodCurrent(other.fOptimizationMethodCurrent),
@@ -1165,93 +1147,11 @@ std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double>& mode, std::
     return mode;
 }
 
-// --------------------------------------------------------
-void BCIntegrate::WriteSAToFile(bool flag)
-{
-    if (flag)
-        BCLog::OutError("BCIntegrate::WriteSAToFile: To turn on output use WriteSAToFile(filename,option).");
-    fFlagWriteSAToFile = false;
-}
-
-// --------------------------------------------------------
-void BCIntegrate::WriteSAToFile(const std::string& filename, const std::string& option, bool autoclose)
-{
-    if (filename.empty()) {
-        BCLog::OutError("BCIntegrate::WriteSAToFile: You must specify the filename when turning on simulated annealing output.");
-        return WriteSAToFile(false);
-    }
-    fSAOutputFilename = filename;
-    fSAOutputFileOption = option;
-    fSAOutputFileAutoclose = autoclose;
-    fFlagWriteSAToFile = true;
-}
-
-// ---------------------------------------------------------
-void BCIntegrate::InitializeSATree(bool replacetree, bool replacefile)
-{
-    if (fSATree and replacetree) {
-        delete fSATree;
-        fSATree = 0;
-    }
-    if (fSAOutputFile and replacefile) {
-        fSAOutputFile->Close();
-        delete fSAOutputFile;
-        fSAOutputFile = 0;
-    }
-
-    TDirectory* dir = gDirectory;
-
-    // create file
-    if (!fSAOutputFile)
-        fSAOutputFile = TFile::Open(fSAOutputFilename.c_str(), fSAOutputFileOption.c_str());
-    // if failed
-    if (!fSAOutputFile) {
-        BCLog::OutError("BCIntegrate::InitializeSATree: Could not create new file.");
-        WriteSAToFile(false);
-        return;
-    }
-    // if file mode not writeable
-    if (fSAOutputFile and !fSAOutputFile->IsWritable()) {
-        BCLog::OutError("BCIntegrate::InitializeSATree: File must be opened in a writeable mode.");
-        delete fSAOutputFile;
-        fSAOutputFile = 0;
-        WriteSAToFile(false);
-        return;
-    }
-
-    if (!fSATree) {
-        fSATree = new TTree(Form("%s_sa", GetSafeName().data()), Form("%s_sa", GetSafeName().data()));
-
-        fSATree->Branch("Iteration",      &fSANIterations,   "Iteration/I");
-        fSATree->Branch("Temperature",    &fSATemperature,   "Temperature/D");
-        fSATree->Branch("LogProbability", &fSALogProb,       "LogProbability/D");
-
-        fSAx.assign(fParameters.Size(), 0.0);
-        for (unsigned i = 0; i < fParameters.Size(); ++i) {
-            fSATree->Branch(GetParameter(i).GetSafeName().data(), &fSAx[i], (GetParameter(i).GetSafeName() + "/D").data());
-            fSATree->SetAlias(Form("Parameter%i", i), GetParameter(i).GetSafeName().data());
-        }
-    }
-    gDirectory = dir;
-}
-
-// ---------------------------------------------------------
-void BCIntegrate::CloseSAOutputFile()
-{
-    if (!fSAOutputFile or !fSAOutputFile->IsOpen())
-        return;
-    fSAOutputFile->Write();
-    fSAOutputFile->Close();
-}
-
 // ---------------------------------------------------------
 std::vector<double> BCIntegrate::FindModeSA(std::vector<double>& mode, std::vector<double>& errors, std::vector<double> start)
 {
     // note: if f(x) is the function to be minimized, then
     // f(x) := - LogEval(parameters)
-
-    if (fFlagWriteSAToFile)
-        InitializeSATree();
 
     std::vector<double> x, y; // vectors for current state, new proposed state and best fit up to now
     double fval_x, fval_y, fval_mode; // function values at points x, y and mode (we save them rather than to re-calculate them every time)
@@ -1323,19 +1223,12 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double>& mode, std::vect
         fSALogProb = fval_x;
         fSAx = x;
 
-        // fill tree
-        if (fFlagWriteSAToFile && fSATree)
-            fSATree->Fill();
-
         // increate t
         t++;
     }
 
     // calculate uncertainty
     errors.assign(fParameters.Size(), -1);
-
-    if (fFlagWriteSAToFile and fSAOutputFileAutoclose)
-        CloseSAOutputFile();
 
     return mode;
 }
