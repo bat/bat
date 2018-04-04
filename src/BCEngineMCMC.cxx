@@ -383,7 +383,7 @@ void BCEngineMCMC::SetPrecision(BCEngineMCMC::Precision precision)
     switch (precision) {
 
         case BCEngineMCMC::kLow:
-            fMCMCNChains                          = 1;
+            SetNChains(1);
             fMCMCNIterationsPreRunCheck           = 500;
             fMCMCNIterationsPreRunMin             = 1500;
             fMCMCNIterationsPreRunMax             = 10000;
@@ -391,7 +391,7 @@ void BCEngineMCMC::SetPrecision(BCEngineMCMC::Precision precision)
             break;
 
         case BCEngineMCMC::kQuick:
-            fMCMCNChains                          = 2;
+            SetNChains(2);
             fMCMCNIterationsPreRunCheck           = 500;
             fMCMCNIterationsPreRunMin             = 1500;
             fMCMCNIterationsPreRunMax             = 10000;
@@ -399,7 +399,7 @@ void BCEngineMCMC::SetPrecision(BCEngineMCMC::Precision precision)
             break;
 
         case BCEngineMCMC::kMedium:
-            fMCMCNChains                          = 4;
+            SetNChains(4);
             fMCMCNIterationsPreRunCheck           = 500;
             fMCMCNIterationsPreRunMin             = 1500;
             fMCMCNIterationsPreRunMax             = 100000;
@@ -407,7 +407,7 @@ void BCEngineMCMC::SetPrecision(BCEngineMCMC::Precision precision)
             break;
 
         case BCEngineMCMC::kHigh:
-            fMCMCNChains                          = 8;
+            SetNChains(8);
             fMCMCNIterationsPreRunCheck           = 1000;
             fMCMCNIterationsPreRunMin             = 5000;
             fMCMCNIterationsPreRunMax             = 1000000;
@@ -415,19 +415,22 @@ void BCEngineMCMC::SetPrecision(BCEngineMCMC::Precision precision)
             break;
 
         case BCEngineMCMC::kVeryHigh:
-            fMCMCNChains                          = 8;
+            SetNChains(8);
             fMCMCNIterationsPreRunCheck           = 1000;
             fMCMCNIterationsPreRunMin             = 10000;
             fMCMCNIterationsPreRunMax             = 10000000;
             fMCMCNIterationsRun                   = 10000000;
             break;
+
+        default:
+            BCLOG_ERROR("Invalid precision");
     }
 }
 
 // ---------------------------------------------------------
 void BCEngineMCMC::SetPrecision(const BCEngineMCMC& other)
 {
-    fMCMCNChains                          = other.fMCMCNChains;
+    SetNChains(other.fMCMCNChains);
     fMCMCNLag                             = other.fMCMCNLag;
     fMCMCNIterationsPreRunMin             = other.fMCMCNIterationsPreRunMin;
     fMCMCNIterationsPreRunMax             = other.fMCMCNIterationsPreRunMax;
@@ -1273,14 +1276,15 @@ void BCEngineMCMC::Remarginalize(bool autorange)
     }
 
     // find out how many chains used to generate tree
-    fMCMCNChains = 0;
+    unsigned nchains = 0;
     for (int n = 0; n < fMCMCTree->GetEntries(); ++n) {
         fMCMCTree->GetEntry(n);
-        if (fMCMCNChains > 0 && fMCMCTree_Chain == 0)
+        if (nchains > 0 && fMCMCTree_Chain == 0)
             break;
-        if (fMCMCTree_Chain + 1 > fMCMCNChains)
-            fMCMCNChains = fMCMCTree_Chain + 1;
+        if (fMCMCTree_Chain + 1 > nchains)
+            nchains = fMCMCTree_Chain + 1;
     }
+    SetNChains(nchains);
 
     MCMCInitialize();
 
