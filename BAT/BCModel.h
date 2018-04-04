@@ -287,7 +287,7 @@ public:
 protected:
 
     /**
-     * A data set */
+     * A data set. Not owned by the model. */
     BCDataSet* fDataSet;
 
     /**
