@@ -149,10 +149,10 @@ void BCEfficiencyFitter::DrawData(bool flaglegend)
                                100, fTrials.GetXaxis()->GetXmin(), fTrials.GetXaxis()->GetXmax(),
                                100, std::min(fTrials.GetMinimum(), fSuccesses.GetMinimum()), 1.1 * std::max(fTrials.GetMaximum(), fSuccesses.GetMaximum()));
     hist_axes->SetStats(false);
-    
+
     fObjectTrash.Put(hist_axes);
     hist_axes->Draw();
-    
+
     fTrials.SetLineWidth(1);
     fTrials.SetLineColor(kGray + 3);
     fTrials.SetFillColor(fTrials.GetLineColor());
@@ -161,7 +161,7 @@ void BCEfficiencyFitter::DrawData(bool flaglegend)
     fSuccesses.SetMarkerColor(kRed);
     fSuccesses.SetMarkerStyle(8);
     fSuccesses.SetMarkerSize(0.7);
-    
+
     fTrials.Draw("same");
     fSuccesses.Draw("Psame");
 
@@ -173,7 +173,7 @@ void BCEfficiencyFitter::DrawData(bool flaglegend)
     for (int i = 1; i <= fTrials.GetNbinsX(); ++i)
         if (fTrials.GetBinContent(i) > 0 and fSuccesses.GetBinContent(i) == 0)
             M.DrawMarker(fTrials.GetBinCenter(i), 0);
-    
+
     // draw legend
     if (flaglegend) {
         TLegend* legend = new TLegend(0.135, 0.955, 0.85, 0.98);
