@@ -1,3 +1,11 @@
+/*
+ * Copyright (C) 2007-2015, the BAT core developer team
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
+ */
+
 #ifndef __BC_TEST__GAUSSMODEL__H
 #define __BC_TEST__GAUSSMODEL__H
 
