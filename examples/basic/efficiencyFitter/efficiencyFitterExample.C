@@ -63,7 +63,7 @@ void efficiencyFitterExample()
     // Create new histograms:
     TH1D h_trials("h_trials", "Trials;x;N", 100, 0.0, 100.0);
     h_trials.SetStats(false);
-    
+
     // cloning ensures identical binning
     TH1D h_successes(h_trials);
     h_successes.SetName("h_successes");
@@ -113,7 +113,7 @@ void efficiencyFitterExample()
 
     c.cd(1);
     hef.DrawData(true);
-    
+
     c.cd(2);
     hef.DrawFit("", true); // draw with a legend
 

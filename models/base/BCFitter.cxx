@@ -303,16 +303,14 @@ TGraph* BCFitter::GetFitFunctionGraph(const std::vector<double>& parameters)
     const int nx = fErrorBandXY.GetNbinsX();
     TGraph* graph = new TGraph(nx);
 
+    std::vector<double> xvec(1);
+
     // loop over x values
     for (int i = 0; i < nx; i++) {
-        double x = fErrorBandXY.GetXaxis()->GetBinCenter(i + 1);
+        xvec[0] = fErrorBandXY.GetXaxis()->GetBinCenter(i + 1);
+        const double y = FitFunction(xvec, parameters) * GraphCorrection(i + 1);
 
-        std::vector<double> xvec;
-        xvec.push_back(x);
-        double y = FitFunction(xvec, parameters) * GraphCorrection(i + 1);
-        xvec.clear();
-
-        graph->SetPoint(i, x, y);
+        graph->SetPoint(i, xvec[0], y);
     }
 
     return graph;
@@ -325,17 +323,14 @@ TGraph* BCFitter::GetFitFunctionGraph(const std::vector<double>& parameters, dou
     TGraph* graph = new TGraph(n + 1);
 
     double dx = (xmax - xmin) / (double) n;
+    std::vector<double> xvec(1);
 
     // loop over x values
     for (int i = 0; i <= n; i++) {
-        double x = (double) i * dx + xmin;
-        std::vector<double> xvec;
-        xvec.push_back(x);
-        double y = FitFunction(xvec, parameters) * GraphCorrection(i + 1);
+        xvec[0] = (double) i * dx + xmin;
+        const double y = FitFunction(xvec, parameters) * GraphCorrection(i + 1);
 
-        xvec.clear();
-
-        graph->SetPoint(i, x, y);
+        graph->SetPoint(i, xvec[0], y);
     }
 
     return graph;
