@@ -100,7 +100,8 @@ GaussModel* gauss_check(bool multivariate_proposal,
         TEST_CHECK_EQUAL(s[j].covariance.size(), m.GetNParameters());
         TEST_CHECK_EQUAL(s[j].minimum.size(), m.GetNParameters());
         TEST_CHECK_EQUAL(s[j].maximum.size(), m.GetNParameters());
-        TEST_CHECK_EQUAL(s[j].mode.size(), m.GetNParameters());
+        TEST_CHECK_EQUAL(s[j].modepar.size(), m.GetNParameters());
+        TEST_CHECK_EQUAL(s[j].modeobs.size(), 0);
         TEST_CHECK_EQUAL(s[j].efficiency.size(), m.GetNParameters());
         for (unsigned i = 0; i < m.GetNFreeParameters(); ++i) {
             /* compare to values set inside gauss model' likelihood */
@@ -129,7 +130,7 @@ GaussModel* gauss_check(bool multivariate_proposal,
                     TEST_CHECK_NEARLY_EQUAL(s[j].covariance[i][k], 0.0, 2);
 
             // mcmc not a great mode finder => large uncertainty
-            TEST_CHECK_NEARLY_EQUAL(s[j].mode[i], 0, 1);
+            TEST_CHECK_NEARLY_EQUAL(s[j].modepar[i], 0, 1);
 
             if (!multivariate_proposal)
                 check_efficiency(m, s[j].efficiency[i]);
@@ -141,7 +142,7 @@ GaussModel* gauss_check(bool multivariate_proposal,
             TEST_CHECK_EQUAL(s[j].variance.back(), 0.0);
             TEST_CHECK_EQUAL(s[j].minimum.back(), fix);
             TEST_CHECK_EQUAL(s[j].maximum.back(), fix);
-            TEST_CHECK_EQUAL(s[j].mode.back(), fix);
+            TEST_CHECK_EQUAL(s[j].modepar.back(), fix);
             TEST_CHECK_EQUAL(s[j].efficiency.back(), 0.0);
 
             continue;
@@ -161,7 +162,8 @@ GaussModel* gauss_check(bool multivariate_proposal,
     TEST_CHECK_EQUAL(S.covariance.size(), m.GetNParameters());
     TEST_CHECK_EQUAL(S.minimum.size(), m.GetNParameters());
     TEST_CHECK_EQUAL(S.maximum.size(), m.GetNParameters());
-    TEST_CHECK_EQUAL(S.mode.size(), m.GetNParameters());
+    TEST_CHECK_EQUAL(S.modepar.size(), m.GetNParameters());
+    TEST_CHECK_EQUAL(S.modeobs.size(), 0);
     TEST_CHECK_EQUAL(S.efficiency.size(), m.GetNParameters());
     for (unsigned i = 0; i < m.GetNFreeParameters(); ++i) {
         /* compare to values set inside gauss model' likelihood */
@@ -195,7 +197,7 @@ GaussModel* gauss_check(bool multivariate_proposal,
         TEST_CHECK(S.minimum[i] > -cut);
 
         // mcmc not a great mode finder => large uncertainty
-        TEST_CHECK_NEARLY_EQUAL(S.mode[i], 0, 0.4);
+        TEST_CHECK_NEARLY_EQUAL(S.modepar[i], 0, 0.4);
 
         // 23.8% is "optimal" acceptance rate for Gaussian target in high dimensions
         // and Gaussian proposal
