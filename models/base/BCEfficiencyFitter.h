@@ -139,6 +139,10 @@ public:
     virtual void Fit();
 
     /**
+     * Draw the data in the current pad. */
+    virtual void DrawData(bool flaglegend = false);
+    
+    /**
      * Draw the fit in the current pad. */
     virtual void DrawFit(const std::string& options = "", bool flaglegend = false);
 
