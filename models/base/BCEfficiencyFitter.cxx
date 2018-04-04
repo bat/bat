@@ -22,6 +22,7 @@
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TLegend.h>
+#include <TMarker.h>
 #include <TPad.h>
 #include <TRandom3.h>
 #include <TString.h>
@@ -44,6 +45,7 @@ BCEfficiencyFitter::BCEfficiencyFitter(const TH1& trials, const TH1& successes, 
         }
     }
 
+    // check that there aren't more successes than trials
     for (int i = 1; i <= trials.GetNbinsX(); ++i) {
         if (trials.GetBinContent(i) < successes.GetBinContent(i)) {
             throw std::invalid_argument("Trials histogram has fewer entries than successes histogram.");
@@ -138,21 +140,81 @@ void BCEfficiencyFitter::Fit()
 }
 
 // ---------------------------------------------------------
+void BCEfficiencyFitter::DrawData(bool flaglegend)
+{
+    BCAux::RootSideEffectGuard g;
+
+    // create new histogram
+    TH2D* hist_axes = new TH2D("hist_axes",
+                               (std::string(fTrials.GetTitle()) + ";" + fTrials.GetXaxis()->GetTitle() + ";" + fTrials.GetYaxis()->GetTitle()).data(),
+                               100, fTrials.GetXaxis()->GetXmin(), fTrials.GetXaxis()->GetXmax(),
+                               100, std::min(fTrials.GetMinimum(), fSuccesses.GetMinimum()), 1.1 * std::max(fTrials.GetMaximum(), fSuccesses.GetMaximum()));
+    hist_axes->SetStats(false);
+    
+    fObjectTrash.Put(hist_axes);
+    hist_axes->Draw();
+    
+    fTrials.SetLineWidth(1);
+    fTrials.SetLineColor(kGray + 3);
+    fTrials.SetFillColor(fTrials.GetLineColor());
+    fTrials.SetFillStyle(1001);
+
+    fSuccesses.SetMarkerColor(kRed);
+    fSuccesses.SetMarkerStyle(8);
+    fSuccesses.SetMarkerSize(0.7);
+    
+    fTrials.Draw("same");
+    fSuccesses.Draw("Psame");
+
+    // draw values when trial is nonzero but success is zero
+    TMarker M;
+    M.SetMarkerColor(fSuccesses.GetMarkerColor());
+    M.SetMarkerStyle(fSuccesses.GetMarkerStyle());
+    M.SetMarkerSize(fSuccesses.GetMarkerSize());
+    for (int i = 1; i <= fTrials.GetNbinsX(); ++i)
+        if (fTrials.GetBinContent(i) > 0 and fSuccesses.GetBinContent(i) == 0)
+            M.DrawMarker(fTrials.GetBinCenter(i), 0);
+    
+    // draw legend
+    if (flaglegend) {
+        TLegend* legend = new TLegend(0.135, 0.955, 0.85, 0.98);
+        fObjectTrash.Put(legend);
+        legend->SetBorderSize(0);
+        legend->SetFillColor(0);
+        legend->SetFillStyle(0);
+        legend->SetTextAlign(12);
+        legend->SetTextFont(62);
+        legend->SetTextSize(0.03);
+        legend->SetNColumns(2);
+        legend->SetColumnSeparation(5e-2);
+
+        legend->AddEntry(&fTrials, fTrials.GetTitle(), "F");
+        legend->AddEntry(&fSuccesses, fSuccesses.GetTitle(), "P");
+
+        legend->Draw();
+    }
+}
+
+// ---------------------------------------------------------
 void BCEfficiencyFitter::DrawFit(const std::string& options, bool flaglegend)
 {
     // create efficiency graph
-    TGraphAsymmErrors* histRatio = new TGraphAsymmErrors();
-    fObjectTrash.Put(histRatio);
-    histRatio->SetMarkerStyle(20);
-    histRatio->SetMarkerSize(1.5);
+    TGraphAsymmErrors* graphRatio = new TGraphAsymmErrors();
+    fObjectTrash.Put(graphRatio);
+    graphRatio->SetLineColor(kGray + 3);
+    graphRatio->SetMarkerColor(graphRatio->GetLineColor());
+    graphRatio->SetMarkerStyle(8);
+    graphRatio->SetMarkerSize(0.7);
 
     // set points
     for (int i = 1; i <= fTrials.GetNbinsX(); ++i) {
         // calculate central value and uncertainties
         double xexp, xmin, xmax;
-        GetUncertainties( int(fTrials.GetBinContent(i)), int(fSuccesses.GetBinContent(i)), 0.68, xexp, xmin, xmax);
-        histRatio->SetPoint(i - 1, fTrials.GetBinCenter(i), xexp);
-        histRatio->SetPointError(i - 1, 0, 0, xexp - xmin, xmax - xexp);
+        if (fTrials.GetBinContent(i) > 0) {
+            GetUncertainties( static_cast<int>(fTrials.GetBinContent(i)), static_cast<int>(fSuccesses.GetBinContent(i)), 0.68, xexp, xmin, xmax);
+            graphRatio->SetPoint(graphRatio->GetN(), fTrials.GetBinCenter(i), xexp);
+            graphRatio->SetPointError(graphRatio->GetN() - 1, 0, 0, xexp - xmin, xmax - xexp);
+        }
     }
 
     // check wheather options contain "same"
@@ -166,16 +228,14 @@ void BCEfficiencyFitter::DrawFit(const std::string& options, bool flaglegend)
         // create new histogram
         TH2D* hist_axes = new TH2D("hist_axes",
                                    Form(";%s;ratio", fTrials.GetXaxis()->GetTitle()),
-                                   fTrials.GetNbinsX(),
-                                   fTrials.GetXaxis()->GetBinLowEdge(1),
-                                   fTrials.GetXaxis()->GetBinLowEdge(fTrials.GetNbinsX() + 1),
-                                   1, 0., 1.);
+                                   100, fTrials.GetXaxis()->GetXmin(), fTrials.GetXaxis()->GetXmax(),
+                                   100, 0., 1.05);
 
         fObjectTrash.Put(hist_axes);
         hist_axes->SetStats(kFALSE);
         hist_axes->Draw();
 
-        histRatio->Draw(Form("%sp", opt.Data()));
+        graphRatio->Draw(Form("%sp", opt.Data()));
     }
 
     // draw the error band as central 68% probability interval
@@ -184,8 +244,7 @@ void BCEfficiencyFitter::DrawFit(const std::string& options, bool flaglegend)
     errorBand->Draw("f same");
 
     // now draw the histogram again since it was covered by the band
-    histRatio->SetMarkerSize(.7);
-    histRatio->Draw(Form("%ssamep", opt.Data()));
+    graphRatio->Draw(Form("%ssamepX", opt.Data()));
 
     // draw the fit function on top
     TGraph* graphFitFunction = GetFitFunctionGraph();
@@ -196,36 +255,23 @@ void BCEfficiencyFitter::DrawFit(const std::string& options, bool flaglegend)
 
     // draw legend
     if (flaglegend) {
-        TLegend* legend = new TLegend();
+        TLegend* legend = new TLegend(0.135, 0.955, 0.85, 0.98);
         fObjectTrash.Put(legend);
         legend->SetBorderSize(0);
-        legend->SetFillColor(kWhite);
+        legend->SetFillColor(0);
+        legend->SetFillStyle(0);
         legend->SetTextAlign(12);
         legend->SetTextFont(62);
         legend->SetTextSize(0.03);
         legend->SetNColumns(3);
         legend->SetColumnSeparation(5e-2);
 
-        legend->AddEntry(histRatio, "Data", "PE");
+        legend->AddEntry(graphRatio, "Data", "PE");
         legend->AddEntry(graphFitFunction, "Best fit", "L");
         legend->AddEntry(errorBand, "Error band", "F");
 
-        double ymin = gPad->GetUymin();
-        double ymax = gPad->GetUymax();
-        if (gPad->GetLogy()) {
-            ymin = pow(10, ymin);
-            ymax = pow(10, ymax);
-        }
-        gPad->SetTopMargin(0.02);
-        legend->SetX1NDC(gPad->GetLeftMargin());// +5e-2 * (1 - gPad->GetRightMargin() - gPad->GetLeftMargin()));
-        legend->SetX2NDC(1 - gPad->GetRightMargin());
-        legend->SetY1NDC(1 - gPad->GetTopMargin() - legend->GetTextSize()*legend->GetNRows());
-        legend->SetY2NDC(1 - gPad->GetTopMargin());
-        double y1ndc = legend->GetY1NDC();
-
         legend->Draw();
 
-        gPad->SetTopMargin(1 - y1ndc + 0.01);
     }
     gPad->RedrawAxis();
 }

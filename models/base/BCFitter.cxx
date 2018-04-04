@@ -255,6 +255,7 @@ TGraph* BCFitter::GetErrorBandGraph(double level1, double level2) const
     TGraph* graph = new TGraph(2 * nx);
     graph->SetFillStyle(1001);
     graph->SetFillColor(kYellow);
+    graph->SetLineWidth(0);
 
     // get error bands
     std::vector<double> ymin = GetErrorBand(level1);
