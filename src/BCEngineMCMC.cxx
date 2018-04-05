@@ -560,7 +560,8 @@ TH1* BCEngineMCMC::GetMarginalizedHistogram(unsigned index) const
     // else output warning
     if (index < GetNVariables()) // Marginalization of model parameter
         BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distribution not stored for %s %s", GetVariable(index).GetPrefix().data(), GetVariable(index).GetName().data()));
-    return 0;
+
+    return NULL;
 }
 
 // --------------------------------------------------------
