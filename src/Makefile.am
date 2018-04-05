@@ -11,17 +11,12 @@ libBAT_la_LDFLAGS += $(ROOTLIBDIRFLAGS)
 libBAT_la_LIBADD = $(ROOTLIBS)
 
 AM_CXXFLAGS = $(ROOTAUXCFLAGS) -Wall -fPIC -I$(top_srcdir)/BAT -I.includes $(ROOTCFLAGS) $(CUBAINCLUDE)
+AM_CXXFLAGS += @AM_CXXFLAGS@
 AM_LDFLAGS  = -O
 AM_SOFLAGS  = -shared
 
 if CUBA
 libBAT_la_LIBADD += $(CUBALIB)
-endif
-
-if DEBUG
-AM_CXXFLAGS += -g -O0 -Wall -Wextra -pedantic -Wno-long-long -Wno-unknown-pragmas
-else
-AM_CXXFLAGS += -O2 -Wno-unknown-pragmas
 endif
 
 if IS_DARWIN

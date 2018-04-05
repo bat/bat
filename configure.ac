@@ -39,7 +39,11 @@ AC_ARG_ENABLE(
   ],
   [debug=false]
 )
-AM_CONDITIONAL([DEBUG], [test x$debug = xtrue])
+if test x$debug = xtrue ; then
+  AC_SUBST([AM_CXXFLAGS], '-g -O0 -Wall -Wextra -pedantic -Wno-long-long -Wno-unknown-pragmas')
+else
+  AC_SUBST([AM_CXXFLAGS], '-O2 -Wno-unknown-pragmas')
+fi
 
 dnl
 dnl Check for parallel mode
