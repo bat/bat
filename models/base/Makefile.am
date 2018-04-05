@@ -8,14 +8,9 @@ libBATmodels_la_LDFLAGS= -version-info 1:0:0 $(ROOTLIBDIRFLAGS)
 libBATmodels_la_LIBADD = $(top_builddir)/src/libBAT.la $(ROOTLIBS)
 
 AM_CXXFLAGS = $(ROOTAUXCFLAGS) -Wall -fPIC -I.includes -I$(top_builddir)/src/.includes $(ROOTCFLAGS)
+AM_CXXFLAGS += @AM_CXXFLAGS@
 AM_LDFLAGS  = -O
 AM_SOFLAGS  = -shared
-
-if DEBUG
-AM_CXXFLAGS += -g -O0 -Wall -Wextra -pedantic -Wno-long-long -Wno-unknown-pragmas
-else
-AM_CXXFLAGS += -O2 -Wno-unknown-pragmas
-endif
 
 if IS_DARWIN
 CREATE_SO_LINK = cd $(DESTDIR)$(libdir); rm -f libBATmodels.so; ln -s libBATmodels.dylib libBATmodels.so

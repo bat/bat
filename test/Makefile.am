@@ -7,12 +7,8 @@ CLEANFILES = \
 MAINTAINERCLEANFILES = Makefile.in
 
 AM_CXXFLAGS = $(ROOTAUXCFLAGS) -I$(top_srcdir) $(ROOTCFLAGS)
+AM_CXXFLAGS += @AM_CXXFLAGS@
 
-if DEBUG
-AM_CXXFLAGS += -g -O0 -Wall -Wextra -pedantic -Wno-long-long -Wno-unknown-pragmas
-else
-AM_CXXFLAGS += -O2 -Wno-unknown-pragmas
-endif
 AM_LDFLAGS = $(ROOTLIBDIRFLAGS)
 
 noinst_LIBRARIES = libBATtest.a
