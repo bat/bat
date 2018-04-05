@@ -77,7 +77,7 @@ void efficiencyFitterExample()
 
     // Fill h_trials randomly from Landau distribution
     // with mean = 30 and sigma = 8; simulate 1000 events
-    for (unsigned i = 0; i < 1000 ; ++i)
+    for (int i = 0; i < 1000 ; ++i)
         h_trials.Fill(R.Landau(30., 8.));
 
     // Fill h_successes, with probability of accepting the trials from
