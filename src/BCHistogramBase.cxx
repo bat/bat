@@ -543,10 +543,10 @@ void BCHistogramBase::DrawGlobalMode()
 
     if (fDrawGlobalMode and !fGlobalMode.empty()) {
         TMarker* marker_mode = new TMarker(fGlobalMode[0], y, fGlobalModeMarkerStyle);
+        fROOTObjects.push_back(marker_mode);
         marker_mode->SetMarkerColor(GetMarkerColor());
         marker_mode->SetMarkerSize(fMarkerScale * gPad->GetWNDC());
         marker_mode->Draw();
-        fROOTObjects.push_back(marker_mode);
 
         TLegendEntry* le = AddLegendEntry(marker_mode, "global mode", "P");
         le->SetMarkerStyle(marker_mode->GetMarkerStyle());
@@ -557,10 +557,10 @@ void BCHistogramBase::DrawGlobalMode()
             TArrow* arrow_mode = new TArrow(marker_mode->GetX(), (gPad->GetLogy() ? marker_mode->GetY()*pow(ymax / ymin, -1.5e-2) : marker_mode->GetY() + (ymax - ymin) * -1.5e-2),
                                             marker_mode->GetX(), (gPad->GetLogy() ? ymin * pow(ymax / ymin, 3e-2) : ymin + (ymax - ymin) * 3e-2),
                                             2e-2 * gPad->GetWNDC(), "|>");
+            fROOTObjects.push_back(arrow_mode);
             arrow_mode->SetLineColor(marker_mode->GetMarkerColor());
             arrow_mode->SetFillColor(marker_mode->GetMarkerColor());
             arrow_mode->Draw();
-            fROOTObjects.push_back(arrow_mode);
 
             if (GetHistogram()->GetDimension() > 1 and fGlobalMode.size() > 1) {
                 double xmin = gPad->GetUxmin();
@@ -572,10 +572,10 @@ void BCHistogramBase::DrawGlobalMode()
                 TArrow* arrow_mode2 = new TArrow((gPad->GetLogx() ? marker_mode->GetX()*pow(xmax / xmin, -1.5e-2) : marker_mode->GetX() + (xmax - xmin) * -1.5e-2), marker_mode->GetY(),
                                                  (gPad->GetLogx() ? xmin * pow(xmax / xmin, 3e-2) : xmin + (xmax - xmin) * 3e-2), marker_mode->GetY(),
                                                  2e-2 * gPad->GetWNDC(), "|>");
+                fROOTObjects.push_back(arrow_mode2);
                 arrow_mode2->SetLineColor(marker_mode->GetMarkerColor());
                 arrow_mode2->SetFillColor(marker_mode->GetMarkerColor());
                 arrow_mode2->Draw();
-                fROOTObjects.push_back(arrow_mode2);
             }
         }
 
@@ -599,10 +599,10 @@ void BCHistogramBase::DrawLocalMode()
 
     if (fDrawLocalMode and !fLocalMode.empty()) {
         TMarker* marker_mode = new TMarker(fLocalMode[0], y, fLocalModeMarkerStyle);
+        fROOTObjects.push_back(marker_mode);
         marker_mode->SetMarkerColor(GetMarkerColor());
         marker_mode->SetMarkerSize(fMarkerScale * gPad->GetWNDC());
         marker_mode->Draw();
-        fROOTObjects.push_back(marker_mode);
 
         TLegendEntry* le = AddLegendEntry(marker_mode, "local mode", "P");
         le->SetMarkerStyle(marker_mode->GetMarkerStyle());
@@ -613,10 +613,10 @@ void BCHistogramBase::DrawLocalMode()
             TArrow* arrow_mode = new TArrow(marker_mode->GetX(), (gPad->GetLogy() ? marker_mode->GetY()*pow(ymax / ymin, -1.5e-2) : marker_mode->GetY() + (ymax - ymin) * -1.5e-2),
                                             marker_mode->GetX(), (gPad->GetLogy() ? ymin * pow(ymax / ymin, 3e-2) : ymin + (ymax - ymin) * 3e-2),
                                             2e-2 * gPad->GetWNDC(), "|>");
+            fROOTObjects.push_back(arrow_mode);
             arrow_mode->SetLineColor(marker_mode->GetMarkerColor());
             arrow_mode->SetFillColor(marker_mode->GetMarkerColor());
             arrow_mode->Draw();
-            fROOTObjects.push_back(arrow_mode);
 
             if (GetHistogram()->GetDimension() > 1 and fLocalMode.size() > 1) {
                 double xmin = gPad->GetUxmin();
@@ -628,10 +628,10 @@ void BCHistogramBase::DrawLocalMode()
                 TArrow* arrow_mode2 = new TArrow((gPad->GetLogx() ? marker_mode->GetX()*pow(xmax / xmin, -1.5e-2) : marker_mode->GetX() + (xmax - xmin) * -1.5e-2), marker_mode->GetY(),
                                                  (gPad->GetLogx() ? xmin * pow(xmax / xmin, 3e-2) : xmin + (xmax - xmin) * 3e-2), marker_mode->GetY(),
                                                  2e-2 * gPad->GetWNDC(), "|>");
+                fROOTObjects.push_back(arrow_mode2);
                 arrow_mode2->SetLineColor(marker_mode->GetMarkerColor());
                 arrow_mode2->SetFillColor(marker_mode->GetMarkerColor());
                 arrow_mode2->Draw();
-                fROOTObjects.push_back(arrow_mode2);
             }
         }
 
@@ -655,17 +655,18 @@ void BCHistogramBase::DrawMean()
 
     if ( fDrawMean ) {
         TMarker* marker_mean = new TMarker(GetHistogram()->GetMean(1), y, fMeanMarkerStyle);
+        fROOTObjects.push_back(marker_mean);
         marker_mean->SetMarkerColor(GetMarkerColor());
         marker_mean->SetMarkerSize(fMarkerScale * gPad->GetWNDC());
         marker_mean->Draw();
-        fROOTObjects.push_back(marker_mean);
 
-        // TODO Why are le, arrow_std, arrow_std2 not in fROOTObjects?
+        // legend entry is managed separately and need not be in trash
         TLegendEntry* le = 0;
         if ( fDrawStandardDeviation ) {
             TArrow* arrow_std = new TArrow(marker_mean->GetX() - GetHistogram()->GetRMS(1), marker_mean->GetY(),
                                            marker_mean->GetX() + GetHistogram()->GetRMS(1), marker_mean->GetY(),
                                            0.02 * gPad->GetWNDC(), "<|>");
+            fROOTObjects.push_back(arrow_std);
             arrow_std->SetLineColor(marker_mean->GetMarkerColor());
             arrow_std->SetFillColor(marker_mean->GetMarkerColor());
             arrow_std->Draw();
@@ -676,12 +677,14 @@ void BCHistogramBase::DrawMean()
                 TArrow* arrow_std2 = new TArrow(marker_mean->GetX(), marker_mean->GetY() - GetHistogram()->GetRMS(2),
                                                 marker_mean->GetX(), marker_mean->GetY() + GetHistogram()->GetRMS(2),
                                                 0.02 * gPad->GetWNDC(), "<|>");
+                fROOTObjects.push_back(arrow_std2);
                 arrow_std2->SetLineColor(marker_mean->GetMarkerColor());
                 arrow_std2->SetFillColor(marker_mean->GetMarkerColor());
                 arrow_std2->Draw();
             }
-        } else
+        } else {
             le = AddLegendEntry(marker_mean, "mean", "P");
+        }
         le->SetMarkerStyle(marker_mean->GetMarkerStyle());
         le->SetMarkerSize(marker_mean->GetMarkerSize());
         le->SetMarkerColor(marker_mean->GetMarkerColor());
