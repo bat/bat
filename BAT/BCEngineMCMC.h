@@ -27,7 +27,6 @@
 #include "BCH2D.h"
 #include "BCLog.h"
 #include "BCObservable.h"
-#include "BCObservableSet.h"
 #include "BCParameter.h"
 #include "BCParameterSet.h"
 

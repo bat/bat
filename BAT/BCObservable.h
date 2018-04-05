@@ -22,10 +22,10 @@
  */
 
 // ---------------------------------------------------------
-#include <limits>
-#include <vector>
+#include <string>
 
 #include "BCVariable.h"
+#include "BCVariableSet.h"
 
 // ---------------------------------------------------------
 
@@ -42,13 +42,6 @@ public:
     BCObservable();
 
     /**
-     * Copy constructor.
-     * PLEASE NOTE: if flag is true, the pointer for the internal value of the observable
-     * will be shared by the copy. A change of value to any copy propagates to all others!
-     * @param share_pointer Flag for sharing pointer of value to new observable */
-    BCObservable(const BCObservable& other, bool share_pointer = false);
-
-    /**
      * Function-pointer constructor.
      * @param name The name of the variable.
      * @param lowerlimit The lower limit of the variable values.
@@ -58,20 +51,10 @@ public:
      * @param unitstring Unit string to be printed for variable. */
     BCObservable(const std::string& name, double lowerlimit, double upperlimit, const std::string& latexname = "", const std::string& unitstring = "");
 
-    /**
-     * Destructor */
-    virtual ~BCObservable();
-
     /** @} */
 
     /** \name operators and swap */
     /** @{ */
-
-    /** Copy operator (Creates new pointer for value)*/
-    BCObservable& operator=(BCObservable other);
-
-    /** swap */
-    friend void swap(BCObservable& A, BCObservable& B);
 
     /** assignment to a double operator */
     BCObservable& operator=(const double& value)
@@ -84,8 +67,8 @@ public:
 
     /**
      * @return Value of the observable. */
-    virtual double Value()
-    { return (fObservableValue) ? *fObservableValue : std::numeric_limits<double>::quiet_NaN(); }
+    double Value() const
+    { return fObservableValue; }
 
     /** @} */
 
@@ -96,18 +79,16 @@ public:
     /**
      * Set value of observable. */
     virtual void Value(double val)
-    { if (fObservableValue) *fObservableValue = val; }
-
-    /**
-     * Set value location. */
-    virtual void SetValueLocation(double* location)
-    { fObservableValue = location; }
+    { fObservableValue = val; }
 
     /** @} */
 
 private:
 
-    double* fObservableValue;
+    double fObservableValue;
 
 };
+
+typedef BCVariableSet<BCObservable> BCObservableSet;
+
 #endif
