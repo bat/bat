@@ -27,7 +27,7 @@ double GaussModel::LogLikelihood(const std::vector<double>& parameters)
 }
 
 // --------------------------------------------------------
-double GaussModel::MCMCTrialFunctionSingle(unsigned ichain, unsigned ipar)
+double GaussModel::MCMCTrialFunctionSingle(unsigned /* ichain */, unsigned /* ipar */)
 {
     // no check of range for performance reasons
 
@@ -52,5 +52,3 @@ double GaussModel::MCMCTrialFunctionSingle(unsigned ichain, unsigned ipar)
     // Flat function with fixed width
     return 0.02 * (0.5 - fRandom.Uniform());
 }
-
-
