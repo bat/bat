@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2015, the BAT core developer team
+ * Copyright (C) 2007-2018, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
@@ -110,4 +110,3 @@ double BCSplitGaussianPrior::GetIntegral(double xmin, double xmax)
 
     return (smax * erf_max - smin * erf_min) / (fSigmaAbove + fSigmaBelow);
 }
-

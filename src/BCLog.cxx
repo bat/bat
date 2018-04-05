@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2015, the BAT core developer team
+ * Copyright (C) 2007-2018, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
@@ -90,7 +90,7 @@ void BCLog::StartupInfo()
                               " +------------------------------------------------------+\n"
                               " |                                                      |\n"
                               " | BAT version %-12s                             |\n"
-                              " | Copyright (C) 2007-2015, the BAT core developer team |\n"
+                              " | Copyright (C) 2007-2018, the BAT core developer team |\n"
                               " | All rights reserved.                                 |\n"
                               " |                                                      |\n"
                               " | For the licensing terms see doc/COPYING              |\n"
