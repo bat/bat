@@ -37,7 +37,7 @@ CombinationModel::CombinationModel(const std::string& name,
     // set priors
     GetParameter("mass").SetPrior(new BCPositiveDefinitePrior(new BCGaussianPrior(old_mass_mean, old_mass_sigma)));
     GetParameter("xs").SetPrior(new BCPositiveDefinitePrior(new BCGaussianPrior(old_xs_mean, old_xs_sigma)));
-};
+}
 
 // ---------------------------------------------------------
 double CombinationModel::LogLikelihood(const std::vector<double>& pars)

@@ -26,7 +26,7 @@ public:
     virtual void Fit() {}
 
     // necessary to overload pure virtual BCFitter function
-    virtual void DrawFit(const std::string& options, bool flaglegend = false)
+    virtual void DrawFit(const std::string& /* options */, bool /* flaglegend */)
     {}
 
     // fit function returning expectation value for each data point
