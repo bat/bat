@@ -13,7 +13,7 @@ How to add a new unit test
 
 ```cpp
 /*
- * Copyright (C) 2007-2015, the BAT core developer team
+ * Copyright (C) 2007-2018, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.

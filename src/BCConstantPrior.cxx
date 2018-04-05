@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2015, the BAT core developer team
+ * Copyright (C) 2007-2018, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
@@ -94,5 +94,3 @@ double BCConstantPrior::GetRandomValue(double xmin, double xmax, TRandom* const 
         return std::numeric_limits<double>::quiet_NaN();
     return xmin + R->Rndm() * (xmax - xmin);
 }
-
-
