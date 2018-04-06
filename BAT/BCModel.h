@@ -240,7 +240,9 @@ public:
     { return LogProbabilityNN(parameters); }
 
     /**
-     * Initialize the trees containing the Markov chains and parameter info. */
+     * Initialize the trees containing the Markov chains and parameter info.
+     *
+     * No-op if trees already initialized and replace* = false. */
     virtual void InitializeMarkovChainTree(bool replacetree = false, bool replacefile = false);
 
     /**

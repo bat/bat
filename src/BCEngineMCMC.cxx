@@ -688,8 +688,6 @@ void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile)
     if (replacetree) {
         delete fMCMCTree;
         fMCMCTree = 0;
-    }
-    if (replacetree) {
         delete fParameterTree;
         fParameterTree = 0;
     }
@@ -699,6 +697,10 @@ void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile)
         delete fMCMCOutputFile;
         fMCMCOutputFile = 0;
     }
+
+    // don't initialize a 2nd time
+    if (fMCMCOutputFile && fMCMCTree && fParameterTree)
+        return;
 
     TDirectory* dir = gDirectory;
 
@@ -1071,9 +1073,8 @@ bool BCEngineMCMC::LoadMCMC(const std::string& filename, const std::string& mcmc
 
     TFile* inputfile = TFile::Open(filename.data(), "READ");
     if (!inputfile || inputfile->IsZombie()) {
-        BCLog::OutError(Form("BCEngineMCMC::LoadMCMC: Could not open file %s.", filename.data()));
         gDirectory = dir;
-        return false;
+        throw std::runtime_error(Form("BCEngineMCMC::LoadMCMC: Could not open file %s.", filename.data()));
     }
 
     // set model name if empty
@@ -1676,7 +1677,7 @@ bool BCEngineMCMC::MetropolisPreRun()
     // initialize Markov chain
     MCMCInitialize();
 
-    if (!fMCMCOutputFile && fMCMCFlagWritePreRunToFile)
+    if (fMCMCFlagWritePreRunToFile)
         InitializeMarkovChainTree();
 
     // perform run
@@ -2101,11 +2102,11 @@ bool BCEngineMCMC::Metropolis()
     if (fMCMCFlagPreRun) {
         if (!MetropolisPreRun())
             return false;
-        if (!fMCMCOutputFile && !fMCMCFlagWritePreRunToFile && fMCMCFlagWriteChainToFile)
+        if (!fMCMCFlagWritePreRunToFile && fMCMCFlagWriteChainToFile)
             InitializeMarkovChainTree();
     } else {
         BCLog::OutWarning("BCEngineMCMC::MCMCMetropolis. Not running prerun. This can cause trouble if the data have changed.");
-        if (!fMCMCOutputFile && fMCMCFlagWriteChainToFile)
+        if (fMCMCFlagWriteChainToFile)
             InitializeMarkovChainTree();
     }
 
