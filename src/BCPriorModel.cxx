@@ -26,7 +26,7 @@ bool BCPriorModel::PreparePriorModel()
 {
     // copy parameters and observables
     fParameters = fModel.GetParameters();
-    fObservables = BCObservableSet(fModel.GetObservables(), true);
+    fObservables = fModel.GetObservables();
 
     // but use binning that was used by model
     for (unsigned i = 0; i < fModel.GetNVariables(); ++i)

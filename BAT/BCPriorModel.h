@@ -41,10 +41,6 @@ public:
      * @param call_likelihood Flag to control calling of Model's likelihood. */
     BCPriorModel(BCModel& model, bool call_likelihood = false);
 
-    /**
-     * destructor. */
-    virtual ~BCPriorModel() {};
-
     /** @} */
 
     /**
