@@ -58,7 +58,6 @@ incs= \
 	BCPositiveDefinitePrior.h \
 	BCVariableSet.h \
 	\
-	BCObservableSet.h \
 	BCParameterSet.h \
 	\
 	BCEngineMCMC.h \
