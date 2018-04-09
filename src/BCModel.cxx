@@ -92,10 +92,10 @@ double BCModel::LogProbabilityNN(const std::vector<double>& parameters)
     // then calculation likelihood, or set to -inf, if prior already invalid
     double ll = (std::isfinite(lp)) ? LogLikelihood(parameters) : -std::numeric_limits<double>::infinity();;
 
-    if (GetCurrentChain() < fMCMCLogLikelihood_Provisional.size() && GetCurrentChain() < fMCMCLogPrior_Provisional.size()) {
-        fMCMCLogLikelihood_Provisional[GetCurrentChain()] = ll;
-        fMCMCLogPrior_Provisional[GetCurrentChain()] = lp;
-    }
+    unsigned current_chain = GetCurrentChain();
+    if (current_chain < fMCMCLogLikelihood_Provisional.size())
+        fMCMCLogLikelihood_Provisional[current_chain] = ll;
+
     return ll + lp;
 }
 
