@@ -1715,16 +1715,6 @@ protected:
     std::vector<double> fMCMCLogLikelihood_Provisional;
 
     /**
-     * The log of the prior of the current points of each Markov
-     * chain. The length of the vectors is fMCMCNChains. */
-    std::vector<double> fMCMCLogPrior;
-
-    /**
-     * The log of the prior of the proposed points of each Markov
-     * chain. The length of the vectors is fMCMCNChains. */
-    std::vector<double> fMCMCLogPrior_Provisional;
-
-    /**
      * flag for correcting R value for initial sampling variability. */
     bool fCorrectRValueForSamplingVariability;
 

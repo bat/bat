@@ -175,8 +175,6 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
       fMCMCprob(other.fMCMCprob),
       fMCMCLogLikelihood(other.fMCMCLogLikelihood),
       fMCMCLogLikelihood_Provisional(other.fMCMCLogLikelihood_Provisional),
-      fMCMCLogPrior(other.fMCMCLogPrior),
-      fMCMCLogPrior_Provisional(other.fMCMCLogPrior_Provisional),
       fCorrectRValueForSamplingVariability(other.fCorrectRValueForSamplingVariability),
       fMCMCRValueParametersCriterion(other.fMCMCRValueParametersCriterion),
       fMCMCRValueParameters(other.fMCMCRValueParameters),
@@ -258,8 +256,6 @@ BCEngineMCMC& BCEngineMCMC::operator=(const BCEngineMCMC& other)
         fMCMCprob = other.fMCMCprob;
         fMCMCLogLikelihood = other.fMCMCLogLikelihood;
         fMCMCLogLikelihood_Provisional = other.fMCMCLogLikelihood_Provisional;
-        fMCMCLogPrior = other.fMCMCLogPrior;
-        fMCMCLogPrior_Provisional = other.fMCMCLogPrior_Provisional;
         fCorrectRValueForSamplingVariability = other.fCorrectRValueForSamplingVariability;
         fMCMCRValueParametersCriterion = other.fMCMCRValueParametersCriterion;
         fMCMCRValueParameters = other.fMCMCRValueParameters;
@@ -1360,7 +1356,6 @@ void BCEngineMCMC::Remarginalize(bool autorange)
         fMCMCx[fMCMCTree_Chain]    = fMCMCTree_Parameters;
         fMCMCprob[fMCMCTree_Chain] = fMCMCTree_Prob;
         fMCMCLogLikelihood[fMCMCTree_Chain] = fMCMCTree_LogLikelihood;
-        fMCMCLogPrior[fMCMCTree_Chain] = fMCMCTree_LogPrior;
 
         if (fMCMCTreeReuseObservables)
             fMCMCObservables[fMCMCTree_Chain] = fMCMCTree_Observables;
@@ -1545,7 +1540,6 @@ bool BCEngineMCMC::GetNewPointMetropolis(unsigned chain, unsigned parameter)
                 // save the probability of the point
                 fMCMCprob[chain] = p1;
                 fMCMCLogLikelihood[chain] = fMCMCLogLikelihood_Provisional[chain];
-                fMCMCLogPrior[chain] = fMCMCLogPrior_Provisional[chain];
 
                 // execute user code
                 MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].xLocal, chain, true);
@@ -1590,7 +1584,6 @@ bool BCEngineMCMC::GetNewPointMetropolis(unsigned chain)
                 // save the probability of the point
                 fMCMCprob[chain] = p1;
                 fMCMCLogLikelihood[chain] = fMCMCLogLikelihood_Provisional[chain];
-                fMCMCLogPrior[chain] = fMCMCLogPrior_Provisional[chain];
 
                 // execute user code
                 MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].xLocal, chain, true);
@@ -1693,7 +1686,7 @@ void BCEngineMCMC::InChainFillTree()
     for (fMCMCTree_Chain = 0; fMCMCTree_Chain < fMCMCNChains; ++fMCMCTree_Chain) {
         fMCMCTree_Prob          = fMCMCprob[fMCMCTree_Chain];
         fMCMCTree_LogLikelihood = fMCMCLogLikelihood[fMCMCTree_Chain];
-        fMCMCTree_LogPrior      = fMCMCLogPrior[fMCMCTree_Chain];
+        fMCMCTree_LogPrior      = fMCMCTree_Prob - fMCMCTree_LogLikelihood;
         fMCMCTree_Parameters    = fMCMCx[fMCMCTree_Chain];
         fMCMCTree_Observables   = fMCMCObservables[fMCMCTree_Chain];
         fMCMCTree->Fill();
@@ -2284,8 +2277,6 @@ void BCEngineMCMC::ResetResults()
     fMCMCprob.clear();
     fMCMCLogLikelihood.clear();
     fMCMCLogLikelihood_Provisional.clear();
-    fMCMCLogPrior.clear();
-    fMCMCLogPrior_Provisional.clear();
     fMCMCNIterationsConvergenceGlobal = -1;
     fMCMCRValueParameters.clear();
 
@@ -2326,8 +2317,6 @@ void BCEngineMCMC::MCMCInitialize()
     fMCMCprob.assign(fMCMCNChains, -std::numeric_limits<double>::infinity());
     fMCMCLogLikelihood.assign(fMCMCNChains, -std::numeric_limits<double>::infinity());
     fMCMCLogLikelihood_Provisional.assign(fMCMCNChains, -std::numeric_limits<double>::infinity());
-    fMCMCLogPrior.assign(fMCMCNChains, -std::numeric_limits<double>::infinity());
-    fMCMCLogPrior_Provisional.assign(fMCMCNChains, -std::numeric_limits<double>::infinity());
 
     // rest r value holders
     fMCMCRValueParameters.assign(GetNParameters(), std::numeric_limits<double>::infinity());
@@ -2501,10 +2490,7 @@ void BCEngineMCMC::MCMCInitialize()
         throw std::runtime_error("BCEngineMCMC::MCMCInitialize failed.");
 
     // fill likelihood and prior from calculation
-    for (unsigned c = 0; c < fMCMCNChains; ++c) {
-        fMCMCLogLikelihood[c] = fMCMCLogLikelihood_Provisional[c];
-        fMCMCLogPrior[c] = fMCMCLogPrior_Provisional[c];
-    }
+    fMCMCLogLikelihood = fMCMCLogLikelihood_Provisional;
 }
 
 // ------------------------------------------------------------
