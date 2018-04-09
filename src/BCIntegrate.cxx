@@ -1116,6 +1116,14 @@ std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double>& mode, std::
         return std::vector<double>();
     }
 
+    // set number of chains to be at least one, and call MCMCUserInitialize
+    // allowing the user to make preparations of his or her model if necessary
+    if (GetNChains() == 0)
+        SetNChains(1);
+    MCMCUserInitialize();
+    // set chain number to 0
+    UpdateChainIndex(0);
+    
     // check start values
     if (!start.empty() && start.size() != fParameters.Size()) {
         BCLOG_WARNING("Start point not valid (mismatch of dimensions), set to center.");
@@ -1150,6 +1158,14 @@ std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double>& mode, std::
 // ---------------------------------------------------------
 std::vector<double> BCIntegrate::FindModeSA(std::vector<double>& mode, std::vector<double>& errors, std::vector<double> start)
 {
+    // set number of chains to be at least one, and call MCMCUserInitialize
+    // allowing the user to make preparations of his or her model if necessary
+    if (GetNChains() == 0)
+        SetNChains(1);
+    MCMCUserInitialize();
+    // set chain number to 0
+    UpdateChainIndex(0);
+
     // note: if f(x) is the function to be minimized, then
     // f(x) := - LogEval(parameters)
 
