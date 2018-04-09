@@ -56,7 +56,7 @@ public:
     /**
      * Destructor */
     virtual ~BCVariable() {};
-
+    
     /** @} */
 
     /** \name Member functions (get) */
