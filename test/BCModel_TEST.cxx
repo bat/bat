@@ -11,6 +11,7 @@
 #include "test.h"
 
 #include <TH1.h>
+#include <TH2.h>
 
 #include <BAT/BCH1D.h>
 #include <BAT/BCH2D.h>
@@ -113,9 +114,39 @@ public:
         count_marginals(m, fixed);
     }
 
+    void compare_hist(const TH1* ref, const TH1* target) const
+    {
+        TEST_CHECK(target != ref);
+        TEST_CHECK(target != NULL);
+        TEST_CHECK_EQUAL(target->GetNbinsX(), ref->GetNbinsX());
+        for (int i = 0; i <= ref->GetNbinsX(); ++i) {
+            TEST_CHECK_EQUAL(target->GetBinContent(i),
+                             ref->GetBinContent(i));
+        }
+    }
+
+    void compare_hist(const TH2* ref, const TH2* target) const
+    {
+        TEST_CHECK(target != ref);
+        TEST_CHECK(target != NULL);
+        TEST_CHECK_EQUAL(target->GetNbinsX(), ref->GetNbinsX());
+        TEST_CHECK_EQUAL(target->GetNbinsY(), ref->GetNbinsY());
+        for (int i = 0; i <= ref->GetNbinsX(); ++i) {
+            for (int j = 0; j <= ref->GetNbinsY(); ++j) {
+                TEST_CHECK_EQUAL(target->GetBinContent(i, j),
+                                 ref->GetBinContent(i, j));
+            }
+        }
+    }
+
     void copy() const
     {
-        GaussModel m("copy", 1);
+        GaussModel m("copy", 3);
+
+        // add a data set (not copied!) even though it is not used
+        BCDataSet data(1);
+        m.SetDataSet(&data);
+        TEST_CHECK_EQUAL(m.GetDataSet(), &data);
 
         // use non-default values
         m.SetNChains(m.GetNChains() + 1);
@@ -124,45 +155,46 @@ public:
 
         // histograms are dynamically created, they are the criticial part
         // during copying.
-        TH1* const h = m.GetMarginalizedHistogram(0);
+        TH1* const h0 = m.GetMarginalizedHistogram(0);
+        TH1* const h1 = m.GetMarginalizedHistogram(1);
+        TH2* const h01 = m.GetMarginalizedHistogram(0, 1);
 
-        // test copy ctor
-        {
-            GaussModel m2(m);
+        TEST_SECTION("copy ctor",
 
-            // non-default values should be taken over
-            TEST_CHECK_EQUAL(m2.GetNChains(), m.GetNChains());
+                     GaussModel m2(m);
 
-            // Original values should be untouched
-            TEST_CHECK_EQUAL(h, m.GetMarginalizedHistogram(0));
+                     // non-default values should be taken over
+                     TEST_CHECK_EQUAL(m2.GetNChains(), m.GetNChains());
 
-            TH1* const hafter = m2.GetMarginalizedHistogram(0);
-            TEST_CHECK(hafter != h);
-            TEST_CHECK(hafter != NULL);
-            TEST_CHECK_EQUAL(hafter->GetNbinsX(), h->GetNbinsX());
-            for (int i = 0; i < h->GetNbinsX(); ++i) {
-                TEST_CHECK_EQUAL(hafter->GetBinContent(i),
-                                 h->GetBinContent(i));
-            }
-        }
+                     // data set shared
+                     TEST_CHECK_EQUAL(m2.GetDataSet(), &data);
 
-        // test assignment operator
-        {
-            GaussModel m3("assignment", 1);
-            TH1* const hbefore = m3.GetMarginalizedHistogram(0);
-            TEST_CHECK_EQUAL(hbefore, NULL);
+                     // Original values should be untouched
+                     TEST_CHECK_EQUAL(h0, m.GetMarginalizedHistogram(0));
+                     TEST_CHECK_EQUAL(h1, m.GetMarginalizedHistogram(1));
+                     TEST_CHECK_EQUAL(h01, m.GetMarginalizedHistogram(0, 1));
 
-            m3 = m;
+                     compare_hist(h0, m2.GetMarginalizedHistogram(0));
+                     compare_hist(h1, m2.GetMarginalizedHistogram(1));
+                     compare_hist(h01, m2.GetMarginalizedHistogram(0, 1));
+                    );
 
-            TEST_CHECK_EQUAL(m3.GetName(), "copy");
-            TEST_CHECK_EQUAL(m3.GetNChains(), m.GetNChains());
+        TEST_SECTION("assignment operator",
 
-            TH1* const hafter = m3.GetMarginalizedHistogram(0);
-            TEST_CHECK_EQUAL(h, m.GetMarginalizedHistogram(0));
-            TEST_CHECK(hbefore != hafter);
-            TEST_CHECK(h != hafter);
-        }
+                     GaussModel m3("assignment", 1);
+                     TEST_CHECK_EQUAL(m3.GetMarginalizedHistogram(0), NULL);
+                     TEST_CHECK_EQUAL(m3.GetDataSet(), NULL);
 
+                     m3 = m;
+
+                     TEST_CHECK_EQUAL(m3.GetName(), "copy");
+                     TEST_CHECK_EQUAL(m3.GetDataSet(), &data);
+                     TEST_CHECK_EQUAL(m3.GetNChains(), m.GetNChains());
+
+                     compare_hist(h0, m3.GetMarginalizedHistogram(0));
+                     compare_hist(h1, m3.GetMarginalizedHistogram(1));
+                     compare_hist(h01, m3.GetMarginalizedHistogram(0, 1));
+                    );
     }
 
     virtual void run() const
