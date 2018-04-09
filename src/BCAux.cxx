@@ -207,6 +207,9 @@ bool BCAux::AllowedCharacter(char c)
 }
 
 // ---------------------------------------------------------
+namespace { static const char* ROOToptions = "HISTSAME"; }
+
+// ---------------------------------------------------------
 void BCAux::SetKnowledgeUpdateDrawingStyle(BCH1D& prior, BCH1D& posterior, BCAux::BCKnowledgeUpdateDrawingStyle style)
 {
     switch (style) {
@@ -220,7 +223,7 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH1D& prior, BCH1D& posterior, BCAux
             prior.SetDrawLegend(false);
             prior.SetNBands(0);
             prior.SetBandType(BCH1D::kNoBands);
-            prior.SetROOToptions("same");
+            prior.SetROOToptions(ROOToptions);
             prior.SetLineColor(13);
             prior.SetMarkerColor(13);
             prior.SetNLegendColumns(1);
@@ -242,7 +245,7 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH1D& prior, BCH1D& posterior, BCAux
             posterior.SetDrawLegend(false);
             posterior.SetNBands(0);
             posterior.SetBandType(BCH1D::kNoBands);
-            posterior.SetROOToptions("same");
+            posterior.SetROOToptions(ROOToptions);
             posterior.SetLineColor(13);
             posterior.SetMarkerColor(13);
             posterior.SetNLegendColumns(1);
@@ -266,7 +269,7 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH1D& prior, BCH1D& posterior, BCAux
             prior.SetDrawLegend(false);
             prior.SetNBands(0);
             prior.SetBandType(BCH1D::kNoBands);
-            prior.SetROOToptions("same");
+            prior.SetROOToptions(ROOToptions);
             prior.SetLineColor(kRed);
             prior.SetMarkerColor(kRed);
             prior.SetNLegendColumns(1);
@@ -292,7 +295,7 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH2D& prior, BCH2D& posterior, BCAux
             prior.SetBandFillStyle(-1);
             prior.SetNBands(1);
             prior.SetNSmooth(0);
-            prior.SetROOToptions("same");
+            prior.SetROOToptions(ROOToptions);
             prior.SetLineColor(13);
             prior.SetMarkerColor(13);
             prior.SetLocalModeMarkerStyle(25);
@@ -316,7 +319,7 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH2D& prior, BCH2D& posterior, BCAux
             posterior.SetBandFillStyle(-1);
             posterior.SetNBands(1);
             posterior.SetNSmooth(0);
-            posterior.SetROOToptions("same");
+            posterior.SetROOToptions(ROOToptions);
             posterior.SetLineColor(13);
             posterior.SetMarkerColor(13);
             posterior.SetLocalModeMarkerStyle(25);
@@ -341,7 +344,7 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH2D& prior, BCH2D& posterior, BCAux
             prior.SetBandFillStyle(-1);
             prior.SetNBands(1);
             prior.SetNSmooth(0);
-            prior.SetROOToptions("same");
+            prior.SetROOToptions(ROOToptions);
             prior.SetLineColor(kRed);
             prior.SetMarkerColor(kRed);
             prior.SetNLegendColumns(1);
