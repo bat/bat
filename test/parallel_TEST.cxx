@@ -69,9 +69,9 @@ struct BCCheckModel : BCEmptyModel {
 
     TTree* Tree() const {return fMCMCTree;}
 
-    double prob() const {return fMCMCTree_Prob;}
+    double prob() const {return fMCMCTree_State.log_probability;}
     unsigned phase() const {return fMCMCPhase;}
-    const std::vector<double>& parameters() const {return fMCMCTree_Parameters;}
+    const std::vector<double>& parameters() const {return fMCMCTree_State.parameters;}
 };
 
 class RunComparison

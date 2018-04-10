@@ -135,7 +135,6 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
       fObservables(other.fObservables),
       fMCMCNChains(other.fMCMCNChains),
       fMCMCNLag(other.fMCMCNLag),
-      fMCMCNIterations(other.fMCMCNIterations),
       fMCMCCurrentIteration(other.fMCMCCurrentIteration),
       fMCMCNIterationsPreRunCheck(other.fMCMCNIterationsPreRunCheck),
       fMCMCPreRunCheckClear(other.fMCMCPreRunCheckClear),
@@ -168,13 +167,9 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
       fMCMCProposeMultivariate(other.fMCMCProposeMultivariate),
       fMCMCProposalFunctionDof(other.fMCMCProposalFunctionDof),
       fMCMCPhase(other.fMCMCPhase),
-      fMCMCx(other.fMCMCx),
-      fMCMCObservables(other.fMCMCObservables),
+      fMCMCStates(other.fMCMCStates),
       fMCMCStatistics(other.fMCMCStatistics),
       fMCMCStatistics_AllChains(other.fMCMCStatistics_AllChains),
-      fMCMCprob(other.fMCMCprob),
-      fMCMCLogLikelihood(other.fMCMCLogLikelihood),
-      fMCMCLogLikelihood_Provisional(other.fMCMCLogLikelihood_Provisional),
       fCorrectRValueForSamplingVariability(other.fCorrectRValueForSamplingVariability),
       fMCMCRValueParametersCriterion(other.fMCMCRValueParametersCriterion),
       fMCMCRValueParameters(other.fMCMCRValueParameters),
@@ -183,6 +178,7 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
       fMCMCTree(NULL),
       fMCMCTreeLoaded(false),
       fMCMCTreeReuseObservables(other.fMCMCTreeReuseObservables),
+      fMCMCTree_State(other.fMCMCTree_State),
       fParameterTree(NULL),
       fLocalModes(other.fLocalModes),
       fBCH1DdrawingOptions(other.fBCH1DdrawingOptions),
@@ -215,7 +211,6 @@ BCEngineMCMC& BCEngineMCMC::operator=(const BCEngineMCMC& other)
         fObservables = other.fObservables;
         SetNChains(other.fMCMCNChains);
         fMCMCNLag = other.fMCMCNLag;
-        fMCMCNIterations = other.fMCMCNIterations;
         fMCMCCurrentIteration = other.fMCMCCurrentIteration;
         fMCMCNIterationsPreRunCheck = other.fMCMCNIterationsPreRunCheck;
         fMCMCPreRunCheckClear = other.fMCMCPreRunCheckClear;
@@ -246,21 +241,17 @@ BCEngineMCMC& BCEngineMCMC::operator=(const BCEngineMCMC& other)
         fInitialPositionScheme = other.fInitialPositionScheme;
         fInitialPositionAttemptLimit = other.fInitialPositionAttemptLimit;
         fMCMCProposeMultivariate = other.fMCMCProposeMultivariate;
-        fMCMCProposalFunctionDof = other.fMCMCProposalFunctionDof;
         fMCMCPhase = other.fMCMCPhase;
-        fMCMCx = other.fMCMCx;
-        fMCMCObservables = other.fMCMCObservables;
+        fMCMCStates = fMCMCStates;
         fMCMCStatistics = other.fMCMCStatistics;
         fMCMCStatistics_AllChains = other.fMCMCStatistics_AllChains;
-        fMCMCprob = other.fMCMCprob;
-        fMCMCLogLikelihood = other.fMCMCLogLikelihood;
-        fMCMCLogLikelihood_Provisional = other.fMCMCLogLikelihood_Provisional;
         fCorrectRValueForSamplingVariability = other.fCorrectRValueForSamplingVariability;
         fMCMCRValueParametersCriterion = other.fMCMCRValueParametersCriterion;
         fMCMCRValueParameters = other.fMCMCRValueParameters;
         fRandom = other.fRandom;
         fRequestedH2 = other.fRequestedH2;
         fMCMCTreeReuseObservables = other.fMCMCTreeReuseObservables;
+        fMCMCTree_State = other.fMCMCTree_State;
         fLocalModes = other.fLocalModes;
         fBCH1DdrawingOptions = other.fBCH1DdrawingOptions;
         fBCH2DdrawingOptions = other.fBCH2DdrawingOptions;
@@ -772,18 +763,18 @@ void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile)
     else {
         // or create new MCMC tree (under umbrella of output file)
         fMCMCTree = new TTree(TString::Format("%s_mcmc", GetSafeName().data()), TString::Format("%s_mcmc", GetSafeName().data()));
-        fMCMCTree->Branch("Chain",          &fMCMCTree_Chain,       "chain/i");
-        fMCMCTree->Branch("Iteration",      &fMCMCCurrentIteration, "iteration/i");
-        fMCMCTree->Branch("Phase",          &fMCMCPhase,            "phase/I");
-        fMCMCTree->Branch("LogProbability", &fMCMCTree_Prob,        "log_probability/D");
-        fMCMCTree_Parameters.assign(GetNParameters(), 0);
+        fMCMCTree->Branch("Chain",          &fMCMCTree_Chain,                 "chain/i");
+        fMCMCTree->Branch("Iteration",      &fMCMCTree_State.iteration,       "iteration/i");
+        fMCMCTree->Branch("Phase",          &fMCMCPhase,                      "phase/I");
+        fMCMCTree->Branch("LogProbability", &fMCMCTree_State.log_probability, "log_probability/D");
+        fMCMCTree_State.parameters.assign(GetNParameters(), 0);
         for (unsigned j = 0; j < GetNParameters(); ++j) {
-            fMCMCTree->Branch(GetParameter(j).GetSafeName().data(), &fMCMCTree_Parameters[j], (GetParameter(j).GetSafeName() + "/D").data());
+            fMCMCTree->Branch(GetParameter(j).GetSafeName().data(), &fMCMCTree_State.parameters[j], (GetParameter(j).GetSafeName() + "/D").data());
             fMCMCTree->SetAlias(TString::Format("Parameter%i", j), GetParameter(j).GetSafeName().data());
         }
-        fMCMCTree_Observables.assign(GetNObservables(), 0);
+        fMCMCTree_State.observables.assign(GetNObservables(), 0);
         for (unsigned j = 0; j < GetNObservables(); ++j) {
-            fMCMCTree->Branch(GetObservable(j).GetSafeName().data(), &fMCMCTree_Observables[j], (GetObservable(j).GetSafeName() + "/D").data());
+            fMCMCTree->Branch(GetObservable(j).GetSafeName().data(), &fMCMCTree_State.observables[j], (GetObservable(j).GetSafeName() + "/D").data());
             fMCMCTree->SetAlias(TString::Format("Observable%i", j), GetObservable(j).GetSafeName().data());
         }
     }
@@ -1239,40 +1230,40 @@ void BCEngineMCMC::Remarginalize(bool autorange)
 
     // link log(probability) if available
     if (fMCMCTree->GetBranch("LogProbability"))
-        fMCMCTree->SetBranchAddress("LogProbability", &fMCMCTree_Prob);
+        fMCMCTree->SetBranchAddress("LogProbability", &fMCMCTree_State.log_probability);
 
     // link iteration if available
-    bool has_iteration = true;
     if (fMCMCTree->GetBranch("Iteration"))
-        fMCMCTree->SetBranchAddress("Iteration",      &fMCMCTree_Iteration);
+        fMCMCTree->SetBranchAddress("Iteration",      &fMCMCTree_State.iteration);
     else
-        has_iteration = false;
+        fMCMCTree_State.iteration = 0;
 
     // link log(likelihood) if available
     if (fMCMCTree->GetBranch("LogLikelihood"))
-        fMCMCTree->SetBranchAddress("LogLikelihood", &fMCMCTree_LogLikelihood);
+        fMCMCTree->SetBranchAddress("LogLikelihood", &fMCMCTree_State.log_likelihood);
     else
-        fMCMCTree_LogLikelihood = -std::numeric_limits<double>::infinity();
+        fMCMCTree_State.log_likelihood = -std::numeric_limits<double>::infinity();
 
     // link log(prior) if available
     if (fMCMCTree->GetBranch("LogPrior"))
-        fMCMCTree->SetBranchAddress("LogPrior", &fMCMCTree_LogPrior);
+        fMCMCTree->SetBranchAddress("LogPrior", &fMCMCTree_State.log_prior);
     else
-        fMCMCTree_LogPrior = -std::numeric_limits<double>::infinity();
+        fMCMCTree_State.log_prior = -std::numeric_limits<double>::infinity();
 
     // link parameters
-    fMCMCTree_Parameters.assign(GetNParameters(), 0);
+    fMCMCTree_State.parameters.assign(GetNParameters(), 0);
     for (unsigned i = 0; i < GetNParameters(); ++i)
-        fMCMCTree->SetBranchAddress(GetParameter(i).GetSafeName().data(), &fMCMCTree_Parameters[i]);
+        fMCMCTree->SetBranchAddress(GetParameter(i).GetSafeName().data(), &fMCMCTree_State.parameters[i]);
 
     // link observables
     if (fMCMCTreeReuseObservables) {
-        fMCMCTree_Observables.assign(GetNObservables(), 0);
+        fMCMCTree_State.observables.assign(GetNObservables(), 0);
         for (unsigned i = 0; i < GetNObservables(); ++i)
-            fMCMCTree->SetBranchAddress(GetObservable(i).GetSafeName().data(), &fMCMCTree_Observables[i]);
+            fMCMCTree->SetBranchAddress(GetObservable(i).GetSafeName().data(), &fMCMCTree_State.observables[i]);
     }
 
     // find out how many chains used to generate tree
+    // (this presumes that chains were run in blocks of one iteration at a time!)
     unsigned nchains = 0;
     for (int n = 0; n < fMCMCTree->GetEntries(); ++n) {
         fMCMCTree->GetEntry(n);
@@ -1282,7 +1273,7 @@ void BCEngineMCMC::Remarginalize(bool autorange)
             nchains = fMCMCTree_Chain + 1;
     }
     SetNChains(nchains);
-
+    
     MCMCInitialize();
 
     if (autorange) {
@@ -1301,27 +1292,21 @@ void BCEngineMCMC::Remarginalize(bool autorange)
                 if (fMCMCPhase <= 0)
                     continue;
 
-                for (unsigned i = 0; i < fMCMCTree_Parameters.size(); ++i) {
-                    if (fMCMCTree_Parameters[i] < XMin[i])
-                        XMin[i] = fMCMCTree_Parameters[i];
-                    if (fMCMCTree_Parameters[i] > XMax[i])
-                        XMax[i] = fMCMCTree_Parameters[i];
+                for (unsigned i = 0; i < fMCMCTree_State.parameters.size(); ++i) {
+                    XMin[i] = std::min(XMin[i], fMCMCTree_State.parameters[i]);
+                    XMax[i] = std::max(XMax[i], fMCMCTree_State.parameters[i]);
                 }
                 if (fMCMCTreeReuseObservables) {
-                    for (unsigned i = 0; i < fMCMCTree_Observables.size(); ++i) {
-                        if (fMCMCTree_Observables[i] < XMin[fMCMCTree_Parameters.size() + i])
-                            XMin[fMCMCTree_Parameters.size() + i] = fMCMCTree_Observables[i];
-                        if (fMCMCTree_Observables[i] > XMax[fMCMCTree_Parameters.size() + i])
-                            XMax[fMCMCTree_Parameters.size() + i] = fMCMCTree_Observables[i];
+                    for (unsigned i = 0; i < fMCMCTree_State.observables.size(); ++i) {
+                        XMin[GetNParameters() + i] = std::min(XMin[GetNParameters() + i], fMCMCTree_State.observables[i]);
+                        XMax[GetNParameters() + i] = std::max(XMax[GetNParameters() + i], fMCMCTree_State.observables[i]);
                     }
                 } else {
                     UpdateChainIndex(fMCMCTree_Chain);
-                    CalculateObservables(fMCMCTree_Parameters);
-                    for (unsigned i = fMCMCTree_Parameters.size(); i < XMin.size(); ++i) {
-                        if (fObservables[i - fMCMCTree_Parameters.size()].Value() < XMin[i])
-                            XMin[i] = fObservables[i - fMCMCTree_Parameters.size()].Value();
-                        if (fObservables[i - fMCMCTree_Parameters.size()].Value() > XMax[i])
-                            XMax[i] = fObservables[i - fMCMCTree_Parameters.size()].Value();
+                    CalculateObservables(fMCMCTree_State.parameters);
+                    for (unsigned i = 0; i < GetNObservables(); ++i) {
+                        XMin[GetNParameters() + i] = std::min(XMin[GetNParameters() + i], fObservables[i].Value());
+                        XMax[GetNParameters() + i] = std::max(XMax[GetNParameters() + i], fObservables[i].Value());
                     }
                 }
             }
@@ -1339,47 +1324,49 @@ void BCEngineMCMC::Remarginalize(bool autorange)
             // restore mins and maxes
             for (unsigned i = 0; i < GetNVariables(); ++i)
                 GetVariable(i).SetLimits(xmin[i], xmax[i]);
-
         }
     }
 
     fMCMCStatistics.assign(fMCMCNChains, BCEngineMCMC::Statistics(GetNParameters(), GetNObservables()));
     fMCMCStatistics_AllChains.Init(GetNParameters(), GetNObservables());
-    fMCMCTree_Prob = -std::numeric_limits<double>::infinity();
+
+    fMCMCTree_State.log_probability = -std::numeric_limits<double>::infinity();
 
     for (unsigned n = 0; n < fMCMCTree->GetEntries(); ++n) {
         fMCMCTree->GetEntry(n);
-        if (!has_iteration)
-            fMCMCTree_Iteration = n / fMCMCNChains;
 
-        fMCMCCurrentIteration = fMCMCTree_Iteration;
+        fMCMCStates[fMCMCTree_Chain] = fMCMCTree_State;
+        
+        fMCMCCurrentIteration = fMCMCStates[fMCMCTree_Chain].iteration;
 
-        fMCMCx[fMCMCTree_Chain]    = fMCMCTree_Parameters;
-        fMCMCprob[fMCMCTree_Chain] = fMCMCTree_Prob;
-        fMCMCLogLikelihood[fMCMCTree_Chain] = fMCMCTree_LogLikelihood;
+        // calculate observables if requested
+        if (!fMCMCTreeReuseObservables) {
+            CalculateObservables(fMCMCStates[fMCMCTree_Chain].parameters);
+            for (unsigned i = 0; i < GetNObservables(); ++i)
+                fMCMCStates[fMCMCTree_Chain].observables[i] = GetObservable(i).Value();
+        }
 
-        if (fMCMCTreeReuseObservables)
-            fMCMCObservables[fMCMCTree_Chain] = fMCMCTree_Observables;
-        else
-            EvaluateObservables(fMCMCTree_Chain);
-
+        // store iteration of convergance
         if (fMCMCNIterationsConvergenceGlobal < 0 && fMCMCPhase > 0) {
             for (unsigned c = 0; c < fMCMCNChains; ++c)
                 fMCMCStatistics[c].Reset(false, true);
             fMCMCNIterationsConvergenceGlobal = fMCMCCurrentIteration;
         }
 
-        fMCMCStatistics[fMCMCTree_Chain].Update(fMCMCTree_Prob, fMCMCTree_Parameters, fMCMCTree_Observables);
+        fMCMCStatistics[fMCMCTree_Chain].Update(fMCMCStates[fMCMCTree_Chain]);
 
         if (fMCMCPhase <= 0)
             continue;
 
-        MCMCCurrentPointInterface(fMCMCx[fMCMCTree_Chain], fMCMCTree_Chain, true);
+        MCMCCurrentPointInterface(fMCMCStates[fMCMCTree_Chain].parameters, fMCMCTree_Chain, true);
 
+        // This should be changed:
+        // MCMCUserIterationInterface() should be deleted
+        // and the whole block should be replaced with
+        // InChainFillHistograms(fMCMCStates[fMCMCTree_Chain])
         if (fMCMCTree_Chain == fMCMCNChains - 1) {
             MCMCUserIterationInterface();
-            if (!fH1Marginalized.empty() || !fH2Marginalized.empty())
-                InChainFillHistograms();
+            InChainFillHistograms();
         }
     }
 
@@ -1471,7 +1458,8 @@ double BCEngineMCMC::ProposalFunction(unsigned ichain, unsigned iparameter)
 // --------------------------------------------------------
 bool BCEngineMCMC::GetProposalPointMetropolis(unsigned chain, std::vector<double>& x)
 {
-    x = fMCMCx[chain];
+    // copy the current point into the new
+    x = fMCMCStates[chain].parameters;
 
     // generate N-Free N(0,1) random values
     TVectorD& y = fMCMCThreadLocalStorage[chain].yLocal;
@@ -1491,7 +1479,7 @@ bool BCEngineMCMC::GetProposalPointMetropolis(unsigned chain, std::vector<double
             x[i] += y[I] * scale;
             ++I;
         }
-
+    
     // return whether point is within limits, ignoring fixed parameters
     return GetParameters().IsWithinLimits(x);
 }
@@ -1499,8 +1487,8 @@ bool BCEngineMCMC::GetProposalPointMetropolis(unsigned chain, std::vector<double
 // --------------------------------------------------------
 bool BCEngineMCMC::GetProposalPointMetropolis(unsigned ichain, unsigned ipar, std::vector<double>& x)
 {
-    // copy the old point into the new
-    x = fMCMCx[ichain];
+    // copy the current point into the new
+    x = fMCMCStates[ichain].parameters;
 
     // check if parameter is fixed
     if (GetParameter(ipar).Fixed()) {
@@ -1520,45 +1508,56 @@ bool BCEngineMCMC::GetProposalPointMetropolis(unsigned ichain, unsigned ipar, st
 }
 
 // --------------------------------------------------------
+bool BCEngineMCMC::AcceptOrRejectPoint(unsigned chain, unsigned parameter)
+{
+    // retrieve current probability
+    double p0 = fMCMCStates[chain].log_probability;
+    if (!std::isfinite(p0)) p0 = -std::numeric_limits<double>::max();
+    // calculate proposed probability
+    double p1 = LogEval(fMCMCThreadLocalStorage[chain].parameters);
+
+    // if the new point is more probable, keep it; or else throw dice
+    if (std::isfinite(p1) && (p1 >= p0 || log(fMCMCThreadLocalStorage[chain].rng->Rndm()) < (p1 - p0))) {
+        // accept point
+        fMCMCStates[chain] = fMCMCThreadLocalStorage[chain];
+        // this line shouldn't be necessary
+        fMCMCStates[chain].log_probability = p1;
+        // increase efficiency
+        fMCMCStatistics[chain].efficiency[parameter] += (1. - fMCMCStatistics[chain].efficiency[parameter]) / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
+        // execute user code and return
+        MCMCCurrentPointInterface(fMCMCStates[chain].parameters, chain, true);
+        return true;
+    }
+
+    // else decrease efficiency
+    fMCMCStatistics[chain].efficiency[parameter] *= 1.*fMCMCStatistics[chain].n_samples_efficiency / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
+
+    // if log(likelihood) of proposed point was not a finite number
+    if (!std::isfinite(p1)) {
+        if (fMCMCProposeMultivariate) {
+            BCLog::OutDebug(Form("log(probability) evaluated to nan or inf in chain %i while at ", chain));
+            PrintParameters(fMCMCThreadLocalStorage[chain].parameters, BCLog::OutDebug);
+        } else
+            BCLog::OutDebug(Form("log(probability) evaluated to nan or inf in chain %i while varying parameter %s to %.3e", chain, GetParameter(parameter).GetName().data(), fMCMCThreadLocalStorage[chain].parameters[parameter]));
+    }
+
+    // execute user code and return
+    MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].parameters, chain, false);
+    return false;
+}
+
+// --------------------------------------------------------
 bool BCEngineMCMC::GetNewPointMetropolis(unsigned chain, unsigned parameter)
 {
     // increase counter
-    fMCMCNIterations[chain]++;
+    ++fMCMCStates[chain].iteration;
 
     // get proposal point
-    if (GetProposalPointMetropolis(chain, parameter, fMCMCThreadLocalStorage[chain].xLocal)) {
-        // calculate probabilities of the old and new points
-        double p0 = (std::isfinite(fMCMCprob[chain])) ? fMCMCprob[chain] : -std::numeric_limits<double>::max();
-        double p1 = LogEval(fMCMCThreadLocalStorage[chain].xLocal);
+    if (GetProposalPointMetropolis(chain, parameter, fMCMCThreadLocalStorage[chain].parameters))
+        return AcceptOrRejectPoint(chain, parameter);
 
-        if (std::isfinite(p1)) {
-            // if the new point is more probable, keep it; or else throw dice
-            if (p1 >= p0 || log(fMCMCThreadLocalStorage[chain].rng->Rndm()) < (p1 - p0)) {
-                // increase efficiency
-                fMCMCStatistics[chain].efficiency[parameter] += (1. - fMCMCStatistics[chain].efficiency[parameter]) / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
-                // copy the point
-                fMCMCx[chain][parameter] = fMCMCThreadLocalStorage[chain].xLocal[parameter];
-                // save the probability of the point
-                fMCMCprob[chain] = p1;
-                fMCMCLogLikelihood[chain] = fMCMCLogLikelihood_Provisional[chain];
-
-                // execute user code
-                MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].xLocal, chain, true);
-                return true;
-            } else {
-                // decrease efficiency
-                fMCMCStatistics[chain].efficiency[parameter] *= 1.*fMCMCStatistics[chain].n_samples_efficiency / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
-            }
-        } else {            // new log(likelihood) was not a finite number
-            BCLog::OutDebug(Form("Log(likelihood) evaluated to nan or inf in chain %i while varying parameter %s to %.3e", chain, GetParameter(parameter).GetName().data(), fMCMCThreadLocalStorage[chain].xLocal[parameter]));
-            // decrease efficiency
-            fMCMCStatistics[chain].efficiency[parameter] *= 1.*fMCMCStatistics[chain].n_samples_efficiency / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
-            // print parameter point
-        }
-    }
-
-    // execute user code
-    MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].xLocal, chain, false);
+    // execute user code and return
+    MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].parameters, chain, false);
     return false;
 }
 
@@ -1566,43 +1565,14 @@ bool BCEngineMCMC::GetNewPointMetropolis(unsigned chain, unsigned parameter)
 bool BCEngineMCMC::GetNewPointMetropolis(unsigned chain)
 {
     // increase counter
-    fMCMCNIterations[chain]++;
+    ++fMCMCStates[chain].iteration;
 
     // get proposal point
-    if (GetProposalPointMetropolis(chain, fMCMCThreadLocalStorage[chain].xLocal)) {
-        // calculate probabilities of the old and new points
-        double p0 = (std::isfinite(fMCMCprob[chain])) ? fMCMCprob[chain] : -std::numeric_limits<double>::max();
-        double p1 = LogEval(fMCMCThreadLocalStorage[chain].xLocal);
-
-        if (std::isfinite(p1)) {
-            // if the new point is more probable, keep it; or else throw dice
-            if (p1 >= p0 || log(fMCMCThreadLocalStorage[chain].rng->Rndm()) < (p1 - p0)) {
-                // increase efficiency
-                fMCMCStatistics[chain].efficiency[0] += (1. - fMCMCStatistics[chain].efficiency[0]) / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
-
-                // copy the point
-                fMCMCx[chain] = fMCMCThreadLocalStorage[chain].xLocal;
-                // save the probability of the point
-                fMCMCprob[chain] = p1;
-                fMCMCLogLikelihood[chain] = fMCMCLogLikelihood_Provisional[chain];
-
-                // execute user code
-                MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].xLocal, chain, true);
-                return true;
-            } else {
-                // decrease efficiency
-                fMCMCStatistics[chain].efficiency[0] *= 1.*fMCMCStatistics[chain].n_samples_efficiency / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
-            }
-        } else { // new log(likelihood) was not a finite number
-            BCLog::OutDebug("LogEval is nan or inf at ");
-            PrintParameters(fMCMCThreadLocalStorage[chain].xLocal, BCLog::OutDebug);
-            // decrease efficiency
-            fMCMCStatistics[chain].efficiency[0] *= 1.*fMCMCStatistics[chain].n_samples_efficiency / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
-        }
-    }
-
-    // execute user code for every point
-    MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].xLocal, chain, false);
+    if (GetProposalPointMetropolis(chain, fMCMCThreadLocalStorage[chain].parameters))
+        return AcceptOrRejectPoint(chain, 0);
+    
+    // execute user code and return
+    MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].parameters, chain, false);
     return false;
 }
 
@@ -1631,7 +1601,7 @@ bool BCEngineMCMC::GetNewPointMetropolis()
             #pragma omp parallel for shared(chunk) private(ichain) schedule(static, chunk)
             for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
                 UpdateChainIndex(ichain);
-                return_value *= GetNewPointMetropolis(ichain, ipar);
+                return_value &= GetNewPointMetropolis(ichain, ipar);
             }
         }
 
@@ -1642,7 +1612,7 @@ bool BCEngineMCMC::GetNewPointMetropolis()
         #pragma omp parallel for shared(chunk) private(ichain) schedule(static, chunk)
         for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
             UpdateChainIndex(ichain);
-            return_value *= GetNewPointMetropolis(ichain);
+            return_value &= GetNewPointMetropolis(ichain);
         }
     }
 
@@ -1658,40 +1628,61 @@ bool BCEngineMCMC::GetNewPointMetropolis()
 }
 
 // --------------------------------------------------------
+void BCEngineMCMC::InChainFillHistograms(const ChainState& cs)
+{
+    ////////////////////////////////////////
+    // fill each 1-dimensional histogram that exists
+    for (unsigned i = 0; i < GetNVariables() && i < fH1Marginalized.size(); ++i)
+        if (TH1* h = fH1Marginalized[i]) {
+            if (i < GetNParameters())
+                h->Fill(cs.parameters[i]);
+            else if (i - GetNParameters() < GetNObservables())
+                h->Fill(cs.observables[i - GetNParameters()]);
+        }
+    
+    ////////////////////////////////////////
+    // fill each 2-dimensional histogram that exists
+    for (unsigned j = 0; j < GetNVariables() && j < fH2Marginalized.size(); ++j)
+        for (unsigned k = 0; k < GetNVariables() && k < fH2Marginalized[j].size(); ++k)
+            if (TH2* h = fH2Marginalized[j][k]) {
+                if (j < GetNParameters()) {
+                    if (k < GetNParameters())
+                        h->Fill(cs.parameters[j], cs.parameters[k]);
+                    else if (k - GetNParameters() < GetNObservables())
+                        h->Fill(cs.parameters[j], cs.observables[k - GetNParameters()]);
+                } else if (j - GetNParameters() < GetNObservables()) {
+                    if (k < GetNParameters())
+                        h->Fill(cs.observables[j - GetNParameters()], cs.parameters[k]);
+                    else if (k - GetNParameters() < GetNObservables())
+                        h->Fill(cs.observables[j - GetNParameters()], cs.observables[k - GetNParameters()]);
+                }
+            }
+}
+    
+// --------------------------------------------------------
 void BCEngineMCMC::InChainFillHistograms()
 {
     // loop over chains
-    for (unsigned c = 0; c < fMCMCNChains; ++c) {
-        ////////////////////////////////////////
-        // fill each 1-dimensional histogram that exists
-        for (unsigned j = 0; j < GetNVariables() && j < fH1Marginalized.size(); ++j)
-            if (dynamic_cast<TH1*>(fH1Marginalized[j]) != NULL)
-                fH1Marginalized[j]->Fill((j < GetNParameters()) ? fMCMCx[c][j] : fMCMCObservables[c][j - GetNParameters()]);
-
-        ////////////////////////////////////////
-        // fill each 2-dimensional histogram that exists
-        for (unsigned j = 0; j < GetNVariables() && j < fH2Marginalized.size(); ++j)
-            for (unsigned k = 0; k < GetNVariables() && k < fH2Marginalized[j].size(); ++k)
-                if (dynamic_cast<TH2*>(fH2Marginalized[j][k]) != NULL)
-                    fH2Marginalized[j][k]->Fill((j < GetNParameters()) ? fMCMCx[c][j] : fMCMCObservables[c][j - GetNParameters()],
-                                                (k < GetNParameters()) ? fMCMCx[c][k] : fMCMCObservables[c][k - GetNParameters()]);
-    }
+    for (unsigned c = 0; c < fMCMCNChains; ++c)
+        InChainFillHistograms(fMCMCStates[c]);
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::InChainFillTree()
+void BCEngineMCMC::InChainFillTree(const ChainState& cs, unsigned chain_number)
 {
     if (!fMCMCTree)
         return;
+    fMCMCTree_Chain = chain_number;
+    fMCMCTree_State = cs;
+    fMCMCTree->Fill();
+}
+
+// -------------------------------------------------------
+void BCEngineMCMC::InChainFillTree()
+{
     // loop over all chains
-    for (fMCMCTree_Chain = 0; fMCMCTree_Chain < fMCMCNChains; ++fMCMCTree_Chain) {
-        fMCMCTree_Prob          = fMCMCprob[fMCMCTree_Chain];
-        fMCMCTree_LogLikelihood = fMCMCLogLikelihood[fMCMCTree_Chain];
-        fMCMCTree_LogPrior      = fMCMCTree_Prob - fMCMCTree_LogLikelihood;
-        fMCMCTree_Parameters    = fMCMCx[fMCMCTree_Chain];
-        fMCMCTree_Observables   = fMCMCObservables[fMCMCTree_Chain];
-        fMCMCTree->Fill();
-    }
+    for (unsigned i = 0; i < fMCMCNChains; ++i)
+        InChainFillTree(fMCMCStates[i], i);
 }
 
 //---------------------------------------------------------
@@ -1801,7 +1792,7 @@ bool BCEngineMCMC::MetropolisPreRun()
 
             // update chain statistics
             for (unsigned c = 0; c < fMCMCNChains; ++c)
-                fMCMCStatistics[c].Update(fMCMCprob[c], fMCMCx[c], fMCMCObservables[c]);
+                fMCMCStatistics[c].Update(fMCMCStates[c]);
 
             // update output tree
             if (fMCMCFlagWritePreRunToFile)
@@ -2190,7 +2181,7 @@ bool BCEngineMCMC::Metropolis()
         MCMCUserIterationInterface();   // user action (overloadable)
 
         for (unsigned c = 0; c < fMCMCNChains; ++c)
-            fMCMCStatistics[c].Update(fMCMCprob[c], fMCMCx[c], fMCMCObservables[c]);
+            fMCMCStatistics[c].Update(fMCMCStates[c]);
 
         // fill histograms
         if (!fH1Marginalized.empty() || !fH2Marginalized.empty())
@@ -2259,9 +2250,10 @@ void BCEngineMCMC::EvaluateObservables(unsigned chain)
     if (chain > fMCMCNChains)
         return;
 
-    CalculateObservables(fMCMCx[chain]);
+    UpdateChainIndex(chain);
+    CalculateObservables(fMCMCStates[chain].parameters);
     for (unsigned j = 0; j < GetNObservables(); ++j)
-        fMCMCObservables[chain][j] = GetObservable(j).Value();
+        fMCMCStates[chain].observables[j] = GetObservable(j).Value();
 }
 
 // --------------------------------------------------------
@@ -2273,11 +2265,7 @@ void BCEngineMCMC::ResetResults()
     fMCMCStatistics.clear();
     fMCMCStatistics_AllChains.Clear();
     fMCMCProposalFunctionScaleFactor.clear();
-    fMCMCx.clear();
-    fMCMCObservables.clear();
-    fMCMCprob.clear();
-    fMCMCLogLikelihood.clear();
-    fMCMCLogLikelihood_Provisional.clear();
+    fMCMCStates.clear();
     fMCMCNIterationsConvergenceGlobal = -1;
     fMCMCRValueParameters.clear();
 
@@ -2307,23 +2295,15 @@ void BCEngineMCMC::MCMCInitialize()
     // reset convergence
     fMCMCNIterationsConvergenceGlobal = -1;
 
-    // reset iteration counters
-    fMCMCNIterations.assign(fMCMCNChains, 0);
-
     // reset statistics counters
     fMCMCStatistics.assign(fMCMCNChains, BCEngineMCMC::Statistics(GetNParameters(), GetNObservables()));
     fMCMCStatistics_AllChains.Init(GetNParameters(), GetNObservables());
 
-    // reset likelihood & probability holders
-    fMCMCprob.assign(fMCMCNChains, -std::numeric_limits<double>::infinity());
-    fMCMCLogLikelihood.assign(fMCMCNChains, -std::numeric_limits<double>::infinity());
-    fMCMCLogLikelihood_Provisional.assign(fMCMCNChains, -std::numeric_limits<double>::infinity());
+    // reset states holder
+    fMCMCStates.assign(fMCMCNChains, ChainState(GetNObservables()));
 
     // rest r value holders
     fMCMCRValueParameters.assign(GetNParameters(), std::numeric_limits<double>::infinity());
-
-    // clear positions
-    fMCMCx.clear();
 
     // clear info about local modes
     fLocalModes.clear();
@@ -2332,9 +2312,6 @@ void BCEngineMCMC::MCMCInitialize()
     fMultivariateCovarianceUpdates = 0;
 
     SyncThreadStorage();
-
-    // initialize user-defined observables
-    fMCMCObservables.assign(fMCMCNChains, std::vector<double>(GetNObservables(), 0));
 
     CreateHistograms(false);
 
@@ -2392,106 +2369,112 @@ void BCEngineMCMC::MCMCInitialize()
     // initialize markov chain positions
     switch (fInitialPositionScheme) {
 
-        // keep previous values
-        case kInitContinue : {
-            throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Continuing chains not yet supported. Sorry!");
-
-            // check position vector size
-            if (fMCMCx.size() != fMCMCNChains)
-                throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Number of chains has been changed; cannot continue previous chains.");
-
-            // else do nothing --- continue chains
-            break;
+    // keep previous values
+    case kInitContinue : {
+        throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Continuing chains not yet supported. Sorry!");
+        
+        // check position vector size
+        if (fMCMCStates.size() != fMCMCNChains)
+            throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Number of chains has been changed; cannot continue previous chains.");
+        
+        // else do nothing --- continue chains
+        break;
+    }
+        
+    // use range centers
+    case kInitCenter : {
+        for (unsigned c = 0; c < fMCMCNChains; ++c) {
+            fMCMCThreadLocalStorage[c].parameters = GetParameters().GetRangeCenters();
+            UpdateChainIndex(c);
+            LogEval(fMCMCThreadLocalStorage[c].parameters);
+            if (!std::isfinite(fMCMCThreadLocalStorage[c].log_probability))
+                throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Range center as initial point yields invalid probability.");
+            fMCMCStates[c] = fMCMCThreadLocalStorage[c];
         }
-
-        // use range centers
-        case kInitCenter : {
-            fMCMCx.assign(fMCMCNChains, GetParameters().GetRangeCenters());
-            for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
-                fMCMCprob[ichain] = LogEval(fMCMCx[ichain]);
-                if (!std::isfinite(fMCMCprob[ichain]))
-                    throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Range center as initial point yields invalid probability.");
-            }
-
-            break;
-        }
-
-        // uniformly distribute all coordinates in provided ranges
-        case kInitRandomUniform : {
-            fMCMCx.assign(fMCMCNChains, std::vector<double>());
-            for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
-                for (unsigned n = 0; n < fInitialPositionAttemptLimit && !std::isfinite(fMCMCprob[ichain]); ++n) {
-                    fMCMCx[ichain] = GetParameters().GetUniformRandomValues(fMCMCThreadLocalStorage[ichain].rng);
-                    fMCMCprob[ichain] = LogEval(fMCMCx[ichain]);
-                }
-                if (!std::isfinite(fMCMCprob[ichain]))
-                    throw std::runtime_error(Form("BCEngineMCMC::MCMCInitialize : Could not generate uniformly distributed initial point with valid probability in %u tries.", fInitialPositionAttemptLimit));
-            }
-
-            break;
-        }
-
-        // use user-defined starting points
-        case kInitUserDefined : {
-            // check initial position vector size
-            if (fMCMCInitialPosition.size() < fMCMCNChains)
-                throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Too few initial positions provided.");
-
-            // copy positions
-            fMCMCx.assign(fMCMCInitialPosition.begin(), fMCMCInitialPosition.begin() + fMCMCNChains);
-            // set fixed values then check whether initial positions are within bounds
-            // check whether initial positions are within bounds
-            // also checks that initial position vectors are correct size
-            for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
-                GetParameters().ApplyFixedValues(fMCMCx[ichain]);
-                if (!GetParameters().IsWithinLimits(fMCMCx[ichain])) {
-                    BCLog::OutDebug(Form("Initial point of chain %d", ichain));
-                    PrintParameters(fMCMCx[ichain], BCLog::OutDebug);
-                    throw std::runtime_error("BCEngineMCMC::MCMCInitialize : User-defined initial point is out of bounds.");
-                } else {
-                    fMCMCprob[ichain] = LogEval(fMCMCx[ichain]);
-                    if (!std::isfinite(fMCMCprob[ichain])) {
-                        BCLog::OutDebug(Form("Initial point of chain %d", ichain));
-                        PrintParameters(fMCMCx[ichain], BCLog::OutDebug);
-                        throw std::runtime_error("BCEngineMCMC::MCMCInitialize : User-defined initial point yields invalid probability.");
-                    }
-                }
-            }
-
-            break;
-        }
-
-        // randomly distribute according to factorized priors
-        case kInitRandomPrior : {
-            if (!GetParameters().ArePriorsSet(true))
-                throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Not all unfixed parameters have priors set.");
-
-            fMCMCx.assign(fMCMCNChains, std::vector<double>());
-            for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
-                for (unsigned n = 0; n < fInitialPositionAttemptLimit && !std::isfinite(fMCMCprob[ichain]); ++n) {
-                    fMCMCx[ichain] = GetParameters().GetRandomValuesAccordingToPriors(fMCMCThreadLocalStorage[ichain].rng);
-                    // check new point
-                    if (!GetParameters().IsWithinLimits(fMCMCx[ichain]))
-                        throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Could not generate random point within limits.");
-
-                    fMCMCprob[ichain] = LogEval(fMCMCx[ichain]);
-                }
-                if (!std::isfinite(fMCMCprob[ichain]))
-                    throw std::runtime_error(Form("BCEngineMCMC::MCMCInitialize : Could not generate initial point from prior with valid probability in %u tries.", fInitialPositionAttemptLimit));
-            }
-
-            break;
-        }
-
-        default:
-            throw std::runtime_error("BCEngineMCMC::MCMCInitialize : No MCMC position initialization scheme specified.");
+        
+        break;
     }
 
-    if (fMCMCx.empty())
+    // uniformly distribute all coordinates in provided ranges
+    case kInitRandomUniform : {
+        for (unsigned c = 0; c < fMCMCNChains; ++c) {
+            for (unsigned n = 0; n < fInitialPositionAttemptLimit && !std::isfinite(fMCMCThreadLocalStorage[c].log_probability); ++n) {
+                fMCMCThreadLocalStorage[c].parameters = GetParameters().GetUniformRandomValues(fMCMCThreadLocalStorage[c].rng);
+                UpdateChainIndex(c);
+                LogEval(fMCMCThreadLocalStorage[c].parameters);
+            }
+            if (!std::isfinite(fMCMCThreadLocalStorage[c].log_probability))
+                throw std::runtime_error(Form("BCEngineMCMC::MCMCInitialize : Could not generate uniformly distributed initial point with valid probability in %u tries.", fInitialPositionAttemptLimit));
+            fMCMCStates[c] = fMCMCThreadLocalStorage[c];
+        }
+        
+        break;
+    }
+
+    // use user-defined starting points
+    case kInitUserDefined : {
+        // check initial position vector size
+        if (fMCMCInitialPosition.size() < fMCMCNChains)
+            throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Too few initial positions provided.");
+        
+        // copy positions and set fixed values
+        // then check whether initial positions are within bounds
+        // (which also checks that initial position vectors are correct size)
+        for (unsigned c = 0; c < fMCMCNChains; ++c) {
+            fMCMCThreadLocalStorage[c].parameters = fMCMCInitialPosition[c];
+            GetParameters().ApplyFixedValues(fMCMCThreadLocalStorage[c].parameters);
+            if (!GetParameters().IsWithinLimits(fMCMCThreadLocalStorage[c].parameters)) {
+                BCLog::OutDebug(Form("Initial point of chain %d", c));
+                PrintParameters(fMCMCThreadLocalStorage[c].parameters, BCLog::OutDebug);
+                throw std::runtime_error("BCEngineMCMC::MCMCInitialize : User-defined initial point is out of bounds.");
+            } else {
+                UpdateChainIndex(c);
+                LogEval(fMCMCThreadLocalStorage[c].parameters);
+                if (!std::isfinite(fMCMCThreadLocalStorage[c].log_probability)) {
+                    BCLog::OutDebug(Form("Initial point of chain %d", c));
+                    PrintParameters(fMCMCThreadLocalStorage[c].parameters, BCLog::OutDebug);
+                    throw std::runtime_error("BCEngineMCMC::MCMCInitialize : User-defined initial point yields invalid probability.");
+                } 
+                fMCMCStates[c] = fMCMCThreadLocalStorage[c];
+            }
+        }
+        
+        break;
+    }
+
+    // randomly distribute according to factorized priors
+    case kInitRandomPrior : {
+        if (!GetParameters().ArePriorsSet(true))
+            throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Not all unfixed parameters have priors set.");
+        
+        for (unsigned c = 0; c < fMCMCNChains; ++c) {
+            for (unsigned n = 0; n < fInitialPositionAttemptLimit && !std::isfinite(fMCMCThreadLocalStorage[c].log_probability); ++n) {
+                fMCMCThreadLocalStorage[c].parameters = GetParameters().GetRandomValuesAccordingToPriors(fMCMCThreadLocalStorage[c].rng);
+                // check new point
+                if (!GetParameters().IsWithinLimits(fMCMCThreadLocalStorage[c].parameters))
+                    throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Could not generate random point within limits.");
+                
+                UpdateChainIndex(c);
+                LogEval(fMCMCThreadLocalStorage[c].parameters);
+            }
+            if (!std::isfinite(fMCMCThreadLocalStorage[c].log_probability))
+                throw std::runtime_error(Form("BCEngineMCMC::MCMCInitialize : Could not generate initial point from prior with valid probability in %u tries.", fInitialPositionAttemptLimit));
+            fMCMCStates[c] = fMCMCThreadLocalStorage[c];
+        }
+        
+        break;
+    }
+        
+    default:
+        throw std::runtime_error("BCEngineMCMC::MCMCInitialize : No MCMC position initialization scheme specified.");
+    } // (switch)
+
+    if (fMCMCStates.empty())
         throw std::runtime_error("BCEngineMCMC::MCMCInitialize failed.");
 
-    // fill likelihood and prior from calculation
-    fMCMCLogLikelihood = fMCMCLogLikelihood_Provisional;
+    for (unsigned c = 0; c < fMCMCStates.size(); ++c)
+        if (fMCMCStates[c].parameters.empty())
+            throw std::runtime_error("BCEngineMCMC::MCMCInitialize failed.");
 }
 
 // ------------------------------------------------------------
@@ -3570,15 +3553,21 @@ unsigned BCEngineMCMC::UpdateFrequency(unsigned N) const
 
 // ---------------------------------------------------------
 BCEngineMCMC::ThreadLocalStorage::ThreadLocalStorage(unsigned dim) :
-    xLocal(dim, 0.0),
+    parameters(dim, 0.0),
+    log_prior(-std::numeric_limits<double>::infinity()),
+    log_likelihood(-std::numeric_limits<double>::infinity()),
+    log_probability(-std::numeric_limits<double>::infinity()),
     rng(new TRandom3(0)),
     yLocal(dim)
 {
 }
 
 // ---------------------------------------------------------
-BCEngineMCMC::ThreadLocalStorage::ThreadLocalStorage(const ThreadLocalStorage& other)    :
-    xLocal(other.xLocal),
+BCEngineMCMC::ThreadLocalStorage::ThreadLocalStorage(const ThreadLocalStorage& other) :
+    parameters(other.parameters),
+    log_prior(other.log_prior),
+    log_likelihood(other.log_likelihood),
+    log_probability(other.log_probability),
     rng(new TRandom3(*other.rng)),
     yLocal(other.yLocal)
 {
@@ -3593,7 +3582,10 @@ BCEngineMCMC::ThreadLocalStorage& BCEngineMCMC::ThreadLocalStorage::operator = (
 
 void BCEngineMCMC::ThreadLocalStorage::swap(BCEngineMCMC::ThreadLocalStorage& A, BCEngineMCMC::ThreadLocalStorage& B)
 {
-    std::swap(A.xLocal, B.xLocal);
+    std::swap(A.parameters, B.parameters);
+    std::swap(A.log_prior, B.log_prior);
+    std::swap(A.log_likelihood, B.log_likelihood);
+    std::swap(A.log_probability, B.log_probability);
     std::swap(A.rng, B.rng);
     std::swap(A.yLocal, B.yLocal);
 }
@@ -3632,13 +3624,17 @@ void BCEngineMCMC::SyncThreadStorage()
     while (fMCMCThreadLocalStorage.size() > fMCMCNChains)
         fMCMCThreadLocalStorage.pop_back();
 
-    // update parameter size for each chain
+    // update for each chain
     for (unsigned i = 0; i < fMCMCThreadLocalStorage.size(); ++i) {
         // need full number of parameters, this is passed into user function
-        fMCMCThreadLocalStorage[i].xLocal.assign(GetNParameters(), 0.0);
+        fMCMCThreadLocalStorage[i].parameters.assign(GetNParameters(), 0.0);
         // need only free parameters, these ones are transformed by Cholesky
         fMCMCThreadLocalStorage[i].yLocal.ResizeTo(GetNFreeParameters());
 
+        fMCMCThreadLocalStorage[i].log_prior = -std::numeric_limits<double>::infinity();
+        fMCMCThreadLocalStorage[i].log_likelihood = -std::numeric_limits<double>::infinity();
+        fMCMCThreadLocalStorage[i].log_probability = -std::numeric_limits<double>::infinity();
+        
         // each chains gets a different seed. fRandom always returns same seed after the fixing done above
         fMCMCThreadLocalStorage[i].rng->SetSeed(fRandom.GetSeed() + i);
         fMCMCThreadLocalStorage[i].rng->Rndm();
@@ -3753,25 +3749,23 @@ void BCEngineMCMC::Statistics::ResetEfficiencies()
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::Statistics::Update(double prob, const std::vector<double>& par, const std::vector<double>& obs)
+void BCEngineMCMC::Statistics::Update(const ChainState& cs)
 {
-    if (mean.size() != par.size() + obs.size())
+    if (mean.size() != cs.parameters.size() + cs.observables.size())
         return;
 
     // increment number of samples
     ++n_samples;
 
     // check mode
-    if (prob > probability_at_mode) {
-        for (unsigned i = 0; i < par.size(); ++i)
-            modepar[i] = par[i];
-        for (unsigned i = 0; i < obs.size(); ++i)
-            modeobs[i] = obs[i];
-        probability_at_mode = prob;
+    if (cs.log_probability > probability_at_mode) {
+        modepar = cs.parameters;
+        modeobs = cs.observables;
+        probability_at_mode = cs.log_probability;
     }
 
     // update probability mean and variance
-    double prob_delta = prob - probability_mean;
+    double prob_delta = cs.log_probability - probability_mean;
     probability_mean += prob_delta / n_samples;
     probability_variance += (n_samples > 1) ? prob_delta * prob_delta / n_samples - probability_variance / (n_samples - 1) : 0;
 
@@ -3783,19 +3777,16 @@ void BCEngineMCMC::Statistics::Update(double prob, const std::vector<double>& pa
     // loop over values
     for (unsigned i = 0; i < mean.size(); ++i) {
         // get value
-        double x = (i < par.size()) ? par[i] : obs[i - par.size()];
+        double x = (i < cs.parameters.size()) ? cs.parameters[i] : cs.observables[i - cs.parameters.size()];
         // store difference to current mean
         delta[i] = x - mean[i];
         // update mean
         mean[i] += delta[i] / n_samples;
         // update variance
         variance[i] += (n_samples > 1) ? delta[i] * delta[i] / n_samples - variance[i] / (n_samples - 1.) : 0;
-        // update minimum
-        if (x < minimum[i])
-            minimum[i] = x;
-        // update maximum
-        if (x > maximum[i])
-            maximum[i] = x;
+        // update minimum & maximum
+        minimum[i] = std::min(minimum[i], x);
+        maximum[i] = std::max(maximum[i], x);
     }
     // update covariances
     if (n_samples > 1) {
@@ -3804,9 +3795,9 @@ void BCEngineMCMC::Statistics::Update(double prob, const std::vector<double>& pa
                 covariance[i][j] += delta[i] * delta[j] / n_samples - covariance[i][j] / (n_samples - 1);
     }
     // update stderrors
-    for (unsigned i = 0; i < par.size(); ++i)
+    for (unsigned i = 0; i < modepar.size(); ++i)
         stderrpar[i] = std::sqrt(variance[i]);
-    for (unsigned i = 0; i < obs.size(); ++i)
+    for (unsigned i = 0; i < modeobs.size(); ++i)
         stderrobs[i] = std::sqrt(variance[stderrpar.size() + i]);
 }
 

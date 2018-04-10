@@ -305,6 +305,7 @@ public:
         for (unsigned i = 0; i < fVars.size(); ++i)
             BCLog::OutSummary(Form(" %*u) ", n, i) + fVars[i].OneLineSummary(false, fMaxNameLength));
     }
+
 protected:
     /**
      * Vector of BCVariables that forms the set.

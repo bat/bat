@@ -87,16 +87,18 @@ BCModel::~BCModel()
 // ---------------------------------------------------------
 double BCModel::LogProbabilityNN(const std::vector<double>& parameters)
 {
+    unsigned chain = GetCurrentChain();
+
     // first calculate prior (which is usually cheaper than likelihood)
-    double lp = LogAPrioriProbability(parameters);
+    fMCMCThreadLocalStorage[chain].log_prior = LogAPrioriProbability(parameters);
     // then calculation likelihood, or set to -inf, if prior already invalid
-    double ll = (std::isfinite(lp)) ? LogLikelihood(parameters) : -std::numeric_limits<double>::infinity();;
+    if (std::isfinite(fMCMCThreadLocalStorage[chain].log_prior))
+        fMCMCThreadLocalStorage[chain].log_likelihood = LogLikelihood(parameters);
+    else
+        fMCMCThreadLocalStorage[chain].log_likelihood = -std::numeric_limits<double>::infinity();
 
-    unsigned current_chain = GetCurrentChain();
-    if (current_chain < fMCMCLogLikelihood_Provisional.size())
-        fMCMCLogLikelihood_Provisional[current_chain] = ll;
-
-    return ll + lp;
+    fMCMCThreadLocalStorage[chain].log_probability = fMCMCThreadLocalStorage[chain].log_prior + fMCMCThreadLocalStorage[chain].log_likelihood;
+    return fMCMCThreadLocalStorage[chain].log_probability;
 }
 
 // ---------------------------------------------------------
@@ -117,8 +119,8 @@ void BCModel::InitializeMarkovChainTree(bool replacetree, bool replacefile)
     BCEngineMCMC::InitializeMarkovChainTree(replacetree, replacefile);
     if (!fMCMCTree)
         return;
-    fMCMCTree->Branch("LogLikelihood", &fMCMCTree_LogLikelihood, "log_likelihood/D");
-    fMCMCTree->Branch("LogPrior",      &fMCMCTree_LogPrior,      "log_prior/D");
+    fMCMCTree->Branch("LogLikelihood", &fMCMCTree_State.log_likelihood, "log_likelihood/D");
+    fMCMCTree->Branch("LogPrior",      &fMCMCTree_State.log_prior,      "log_prior/D");
 }
 
 // ---------------------------------------------------------
