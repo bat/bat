@@ -1194,7 +1194,7 @@ void BCMTF::MCMCUserIterationInterface()
         for (int ibin = 1; ibin <= nbins; ++ibin) {
 
             // get expectation value
-            double expectation = Expectation(ichannel, ibin, fMCMCx[0]);
+            double expectation = Expectation(ichannel, ibin, Getx(0));
 
             // fill uncertainty band on expectation
             hist_uncbandexp->Fill(hist_data->GetBinCenter(ibin), expectation);

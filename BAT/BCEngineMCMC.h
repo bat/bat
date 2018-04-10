@@ -92,6 +92,99 @@ public:
     /** \name Structs */
     /** @{ */
 
+private:
+    // grant friendship to BCModel to access the ThreadLocalStorage
+    friend class BCModel;
+    
+    /**
+     * Keeps variables that need to be both members and thread local.
+     */
+    struct ThreadLocalStorage {
+        /**
+         * Store local proposal point  */
+        std::vector<double> parameters;
+
+        /**
+         * Store log_prior of local proposal point */
+        double log_prior;
+
+        /**
+         * Store log_likelihood of local proposal point */
+        double log_likelihood;
+
+        /**
+         * Store log_probability of local proposal point */
+        double log_probability;
+
+        /**
+         * Random number generator */
+        TRandom3* rng;
+
+        /**
+         * Temp vector for matrix multiplication in multivariate proposal */
+        TVectorD yLocal;
+
+        /**
+         * Constructor
+         * @param dim Dimension of a temporary parameter vector
+         */
+        ThreadLocalStorage(unsigned dim);
+
+        /**
+         * Copy constructor. */
+        ThreadLocalStorage(const ThreadLocalStorage& other);
+
+        /**
+         * Assignment operator */
+        ThreadLocalStorage& operator = (ThreadLocalStorage other);
+
+        /** swap, can't be a friend this time because this struct is private */
+        void swap(BCEngineMCMC::ThreadLocalStorage& A, BCEngineMCMC::ThreadLocalStorage& B);
+
+        /**
+         * Destructor */
+        virtual ~ThreadLocalStorage();
+
+        /**
+         * Scale a Gaussian random variate such that it becomes a student's t variate;
+         * i.e. return `sqrt(dof / chi2)`, where `chi2` is a variate from a chi2 distribution
+         * with `dof` degrees of freedom.
+         *
+         * If `dof <= 0`, simply return 1 to keep the Gaussian distribution.
+         */
+        double scale(double dof);
+    };
+
+public:
+
+    /** A struct for holding a state in a Markov chain. */
+    struct ChainState {
+        unsigned iteration;     ///< iteration number
+        std::vector<double> parameters; ///< parameter point
+        std::vector<double> observables; ///< observables at parameter point 
+        double log_probability; ///< log(probability)
+        double log_likelihood;  ///< log(likelihood)
+        double log_prior;       ///< log(prior)
+
+        /** Constructor */
+        ChainState(int n_obs = 0) : iteration(0),
+                                    observables(std::vector<double>(n_obs, 0.)),
+                                    log_probability(-std::numeric_limits<double>::infinity()),
+                                    log_likelihood(-std::numeric_limits<double>::infinity()),
+                                    log_prior(-std::numeric_limits<double>::infinity())
+            {}
+
+        /** assignment */
+        ChainState& operator=(const ThreadLocalStorage& tls)
+            {
+                parameters = tls.parameters;
+                log_prior = tls.log_prior;
+                log_likelihood = tls.log_likelihood;
+                log_probability = tls.log_probability;
+                return *this;
+            }
+    };
+    
     /** A struct for holding statistical information about samples. */
     struct Statistics {
 
@@ -139,7 +232,7 @@ public:
         /** update statistics given new values.
          * @param par Current parameter values.
          * @param obs Current user-define observables values. */
-        void Update(double prob, const std::vector<double>& par, const std::vector<double>& obs);
+        void Update(const ChainState& cs);
     };
 
     /** @} */
@@ -192,11 +285,6 @@ public:
      * @return lag of the Markov chains */
     unsigned GetNLag() const
     { return fMCMCNLag; }
-
-    /**
-     * @return number of iterations */
-    const std::vector<unsigned>& GetNIterations() const
-    { return fMCMCNIterations; }
 
     /**
      * @return current iterations */
@@ -272,33 +360,29 @@ public:
     { return fMCMCProposalFunctionScaleFactor; }
 
     /**
-     * @return current point of each Markov chain */
-    const std::vector<std::vector<double> >& Getx() const
-    { return fMCMCx; }
+     * @param c index of the Markov chain
+     * @return state of chains */
+    const ChainState& GetChainState(unsigned c) const
+    { return fMCMCStates.at(c); }
 
     /**
      * @param c index of the Markov chain
      * @return current point of the Markov chain */
     const std::vector<double>& Getx(unsigned c) const
-    { return fMCMCx.at(c); }
+    { return fMCMCStates.at(c).parameters; }
 
     /**
      * @param c chain index
      * @param p parameter index
      * @return parameter of the Markov chain */
     double Getx(unsigned c, unsigned p) const
-    { return fMCMCx.at(c).at(p); }
-
-    /**
-     * @return log of the probability of the current points of each Markov chain */
-    const std::vector<double>& GetLogProbx() const
-    { return fMCMCprob; }
+    { return fMCMCStates.at(c).parameters.at(p); }
 
     /**
      * @return log of the probability of the current points of the Markov chain.
      * @param c chain index */
     double GetLogProbx(unsigned c) const
-    { return fMCMCprob.at(c); }
+    { return fMCMCStates.at(c).log_probability; }
 
     /**
      * @return pointer to the phase of a run. */
@@ -1197,12 +1281,12 @@ public:
 
     /**
      * Evaluates user-defined observables at current state of all
-     * chains and stores results in fMCMCObservables*/
+     * chains and stores results in fMCMCState*/
     virtual void EvaluateObservables();
 
     /**
      * Evaluates user-defined observables at current state of chain
-     * and stores results in fMCMCObservables
+     * and stores results in fMCMCState
      * @param chain Chain to evaluate observables for. */
     virtual void EvaluateObservables(unsigned chain);
 
@@ -1248,16 +1332,29 @@ public:
 
     /** Generates a new point using the Metropolis algorithm for one chain, varying only one parameter's value
      * @param chain chain index
-     * @param parameter index of parameter to vary
      * @return Whether proposed point was accepted (true) or previous point was kept (false). */
     bool GetNewPointMetropolis(unsigned chain, unsigned parameter);
 
+    /** Accepts or rejects a point for a chain and updates efficiency
+     * @param chain chain index
+     * @param parameter index of parameter to update efficiency for
+     * @return Whether proposed point was accepted (true) or previous point was kept (false). */
+    bool AcceptOrRejectPoint(unsigned chain, unsigned parameter);
+    
     /**
-     * Updates statistics: fill marginalized distributions */
+     * Fill marginalized distributions from a chain state*/
+    void InChainFillHistograms(const ChainState& cs);
+
+    /**
+     * fill marginalized distributions from all chain states*/
     void InChainFillHistograms();
 
     /**
-     * Updates statistics: write chains to file */
+     * Write a chain state to the tree */
+    void InChainFillTree(const ChainState& cs, unsigned chain_number);
+
+    /**
+     * Write all chain states to the tree */
     void InChainFillTree();
 
     /**
@@ -1410,52 +1507,6 @@ public:
     /** @} */
 
 private:
-    /**
-     * Keeps variables that need to be both members and thread local.
-     */
-    struct ThreadLocalStorage {
-        /**
-         * Store local proposal point  */
-        std::vector<double> xLocal;
-
-        /**
-         * Random number generator */
-        TRandom3* rng;
-
-        /**
-         * Temp vector for matrix multiplication in multivariate proposal */
-        TVectorD yLocal;
-
-        /**
-         * Constructor
-         * @param dim Dimension of a temporary parameter vector
-         */
-        ThreadLocalStorage(unsigned dim);
-
-        /**
-         * Copy constructor. */
-        ThreadLocalStorage(const ThreadLocalStorage& other);
-
-        /**
-         * Assignment operator */
-        ThreadLocalStorage& operator = (ThreadLocalStorage other);
-
-        /** swap, can't be a friend this time because this struct is private */
-        void swap(BCEngineMCMC::ThreadLocalStorage& A, BCEngineMCMC::ThreadLocalStorage& B);
-
-        /**
-         * Destructor */
-        virtual ~ThreadLocalStorage();
-
-        /**
-         * Scale a Gaussian random variate such that it becomes a student's t variate;
-         * i.e. return `sqrt(dof / chi2)`, where `chi2` is a variate from a chi2 distribution
-         * with `dof` degrees of freedom.
-         *
-         * If `dof <= 0`, simply return 1 to keep the Gaussian distribution.
-         */
-        double scale(double dof);
-    };
 
     /**
      * Keep thread local variables private. */
@@ -1683,14 +1734,9 @@ protected:
     BCEngineMCMC::Phase fMCMCPhase;
 
     /**
-     * The current points of each Markov chain. */
-    std::vector<std::vector<double> > fMCMCx;
-
-    /**
-     * The current values of the user-defined observables for each
-     * Markov chain. */
-    std::vector<std::vector<double> > fMCMCObservables;
-
+     * The current states of each Markov chain. */
+    std::vector<ChainState> fMCMCStates;
+    
     /**
      * Statistics for each Markov chain. */
     std::vector<BCEngineMCMC::Statistics> fMCMCStatistics;
@@ -1698,21 +1744,6 @@ protected:
     /**
      * Statistics across all Markov chains. */
     BCEngineMCMC::Statistics fMCMCStatistics_AllChains;
-
-    /**
-     * The log of the probability of the current points of each Markov
-     * chain. The length of the vectors is fMCMCNChains. */
-    std::vector<double> fMCMCprob;
-
-    /**
-     * The log of the likelihood of the current points of each Markov
-     * chain. The length of the vectors is fMCMCNChains. */
-    std::vector<double> fMCMCLogLikelihood;
-
-    /**
-     * The log of the likelihood of the proposed points of each Markov
-     * chain. The length of the vectors is fMCMCNChains. */
-    std::vector<double> fMCMCLogLikelihood_Provisional;
 
     /**
      * flag for correcting R value for initial sampling variability. */
@@ -1755,13 +1786,13 @@ protected:
      * flag for whether to reuse MCMC Tree's observables. */
     bool fMCMCTreeReuseObservables;
 
-    unsigned int fMCMCTree_Chain;       ///< (For writing to fMCMCTree) chain number
-    unsigned int fMCMCTree_Iteration;   ///< (For writing to fMCMCTree) iteration number
-    double fMCMCTree_Prob;              ///< (For writing to fMCMCTree) log(posterior)
-    double fMCMCTree_LogLikelihood;     ///< (For writing to fMCMCTree) log(likelihood)
-    double fMCMCTree_LogPrior;          ///< (For writing to fMCMCTree) log(prior)
-    std::vector<double> fMCMCTree_Parameters;   ///< (For writing to fMCMCTree) parameter set
-    std::vector<double> fMCMCTree_Observables;  ///< (For writing to fMCMCTree) observable set
+    /**
+     * MC state object for storing into tree */
+    ChainState fMCMCTree_State;
+
+    /**
+     * Chain number for storing into tree */
+    unsigned int fMCMCTree_Chain;
 
     /**
      * The tree containing the parameter information.*/
