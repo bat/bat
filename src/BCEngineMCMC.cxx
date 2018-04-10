@@ -190,7 +190,8 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
       fBCH1DdrawingOptions(other.fBCH1DdrawingOptions),
       fBCH2DdrawingOptions(other.fBCH2DdrawingOptions),
       fRescaleHistogramRangesAfterPreRun(other.fRescaleHistogramRangesAfterPreRun),
-      fHistogramRescalePadding(other.fHistogramRescalePadding)
+      fHistogramRescalePadding(other.fHistogramRescalePadding),
+      fObjectTrash(other.fObjectTrash)
 {
     // set again in case user overloads the setter to create custom structures
     SetNChains(other.fMCMCNChains);
@@ -270,6 +271,7 @@ BCEngineMCMC& BCEngineMCMC::operator=(const BCEngineMCMC& other)
         fBCH2DdrawingOptions = other.fBCH2DdrawingOptions;
         fRescaleHistogramRangesAfterPreRun = other.fRescaleHistogramRangesAfterPreRun;
         fHistogramRescalePadding = other.fHistogramRescalePadding;
+        fObjectTrash = other.fObjectTrash;
 
         // don't create file!
 

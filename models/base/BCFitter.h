@@ -283,9 +283,6 @@ protected:
      * interpolation (false) */
     bool fFlagIntegration;
 
-    /** Storage for plot objects with proper clean-up */
-    mutable BCAux::BCTrash<TObject> fObjectTrash;
-
     /**
      * extends the lower edge of x range by the given value  */
     double fErrorBandExtensionLowEdgeX;

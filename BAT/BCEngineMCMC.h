@@ -1797,6 +1797,9 @@ protected:
      * factor for enlarging range of histograms when rescaling. */
     double fHistogramRescalePadding;
 
+    /** Storage for plot objects with proper clean-up */
+    mutable BCAux::BCTrash<TObject> fObjectTrash;
+
 };
 
 // ---------------------------------------------------------
