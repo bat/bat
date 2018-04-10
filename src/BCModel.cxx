@@ -429,7 +429,7 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(const std::string& filename, unsigne
         // go to next pad
         c.cd(i % (hdiv * vdiv) + 1)->ResetAttPad();
 
-        BCAux::DrawKnowledgeUpdate(h1[i].first, h1[i].second, fDrawPriorFirst);
+        BCAux::DrawKnowledgeUpdate(h1[i].first, h1[i].second, fDrawPriorFirst, fObjectTrash);
 
         if (++n % 100 == 0)
             BCLog::OutDetail(Form(" --> %d plots done", n));
@@ -451,7 +451,7 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(const std::string& filename, unsigne
         c.cd(i % (hdiv * vdiv) + 1)->ResetAttPad();
 
         // prior text?
-        BCAux::DrawKnowledgeUpdate(h2[i].first, h2[i].second, fDrawPriorFirst);
+        BCAux::DrawKnowledgeUpdate(h2[i].first, h2[i].second, fDrawPriorFirst, fObjectTrash);
 
         if (++n % 100 == 0)
             BCLog::OutDetail(Form(" --> %d plots done", n));

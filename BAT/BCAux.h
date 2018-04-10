@@ -37,6 +37,36 @@ namespace BCAux
 {
 
 /**
+ * A trash to keep heap-allocated objects of type T alive until the
+ * trash goes out of scope. Then they are deleted. Ownership is not
+ * transferred in copies, only during a swap. */
+template <typename T>
+class BCTrash
+{
+public:
+    BCTrash() {}
+    BCTrash(const BCTrash<T>&) {}
+    BCTrash<T>& operator=(const BCTrash<T>&)
+    {
+        return *this;
+    }
+
+    ~BCTrash()
+    {
+        for (unsigned i = 0; i < fStorage.size(); ++i)
+            delete fStorage[i];
+    }
+
+    void Put(T* object)
+    {
+        fStorage.push_back(object);
+    }
+
+private:
+    std::vector<T*> fStorage;
+};
+
+/**
  * Sets the default BAT style for drawing plots. */
 void SetStyle();
 
@@ -109,7 +139,7 @@ void SetKnowledgeUpdateDrawingStyle(BCH2D& prior, BCH2D& posterior, BCAux::BCKno
  * @param prior BCHistogramBase containing prior
  * @param posterior BCHistogramBase containing posterior
  * @param draw_prior_first Flag for deciding drawing order.*/
-void DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posterior, bool draw_prior_first = true);
+void DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posterior, bool draw_prior_first, BCTrash<TObject>& trash);
 
 /**
  * Print plots
@@ -156,36 +186,6 @@ T* OwnClone(const T* o, const std::string& name)
     res->SetName(name.c_str());
     return res;
 }
-
-/**
- * A trash to keep heap-allocated objects of type T alive until the
- * trash goes out of scope. Then they are deleted. Ownership is not
- * transferred in copies, only during a swap. */
-template <typename T>
-class BCTrash
-{
-public:
-    BCTrash() {}
-    BCTrash(const BCTrash<T>&) {}
-    BCTrash<T>& operator=(const BCTrash<T>&)
-    {
-        return *this;
-    }
-
-    ~BCTrash()
-    {
-        for (unsigned i = 0; i < fStorage.size(); ++i)
-            delete fStorage[i];
-    }
-
-    void Put(T* object)
-    {
-        fStorage.push_back(object);
-    }
-
-private:
-    std::vector<T*> fStorage;
-};
 
 }
 
