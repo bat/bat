@@ -354,7 +354,7 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH2D& prior, BCH2D& posterior, BCAux
 
 
 // ---------------------------------------------------------
-void BCAux::DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posterior, bool draw_prior_first)
+void BCAux::DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posterior, bool draw_prior_first, BCTrash<TObject>& trash)
 {
     if (prior.GetDimension() != posterior.GetDimension()) {
         BCLog::OutError("BCAux::DrawKnowledgeUpdate : prior and posterior dimension do not match.");
@@ -397,10 +397,15 @@ void BCAux::DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posteri
         maxy = std::max<double>(prior.GetHistogram()->GetYaxis()->GetXmax(), posterior.GetHistogram()->GetYaxis()->GetXmax());
     }
 
-    // draw axes, it's a named TObject and will be deleted by ROOT
-    TH2D* h2_axes = new TH2D(Form("h2_axes_knowledge_update_%s_%s", prior.GetHistogram()->GetName(), posterior.GetHistogram()->GetName()),
-                             Form(";%s;%s", prior.GetHistogram()->GetXaxis()->GetTitle(), prior.GetHistogram()->GetYaxis()->GetTitle()),
-                             10, minx, maxx, 10, miny, maxy);
+    // draw axes
+    TH2D* h2_axes;
+    {
+        RootSideEffectGuard g;
+        h2_axes = new TH2D(Form("h2_axes_knowledge_update_%s_%s", prior.GetHistogram()->GetName(), posterior.GetHistogram()->GetName()),
+                           Form(";%s;%s", prior.GetHistogram()->GetXaxis()->GetTitle(), prior.GetHistogram()->GetYaxis()->GetTitle()),
+                           10, minx, maxx, 10, miny, maxy);
+    }
+    trash.Put(h2_axes);
     h2_axes->SetStats(false);
     h2_axes->GetXaxis()->SetNdivisions(508);
     if (prior.GetDimension() > 1)
