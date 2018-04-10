@@ -3071,8 +3071,6 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
     /////////////////////////
     // Draw it all
 
-    // TODO TObjects are created but not cleaned up
-
     // axes have a name, the other objects don't, so they are not registered
     // with ROOT and we don't need a guard
 
@@ -3083,6 +3081,7 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
         hist_axes = new TH2D(Form("h2_axes_parplot_%s_%d_%d", GetSafeName().data(), i0, i1), "",  //";;Scaled range [a.u.]",
                              i1 - i0, i0 - 0.5, i1 - 0.5, 10, -0.05 + 1e-3, 1.05 - 1e-3);
     }
+    fObjectTrash.Put(hist_axes);
     hist_axes->SetStats(kFALSE);
     hist_axes->GetXaxis()->SetAxisColor(0);
     hist_axes->GetXaxis()->SetLabelOffset(0.015);
@@ -3097,6 +3096,7 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
 
     // Draw lines
     TLine* line = new TLine();
+    fObjectTrash.Put(line);
     line->SetLineColor(kBlack);
     line->SetLineStyle(1);
     line->SetLineWidth(2);
@@ -3105,6 +3105,7 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
 
     // Mark parameter ranges
     TLatex* latex = new TLatex();
+    fObjectTrash.Put(latex);
     latex->SetTextSize(0.02);
     for (unsigned i = i0; i < i1; ++i)
         if (i < GetNParameters() && GetParameter(i).Fixed()) {
@@ -3120,6 +3121,7 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
 
     // create legend
     TLegend* legend = new TLegend();
+    fObjectTrash.Put(legend);
     legend->SetBorderSize(0);
     legend->SetFillColor(kWhite);
     legend->SetNColumns(2);
@@ -3132,6 +3134,7 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
         // Smallest Interval
         std::vector<double> x_i_err(x_i.size(), 0.5);
         TGraphAsymmErrors* graph_intervals = new TGraphAsymmErrors(x_i.size(), x_i.data(), local_mode.data(), x_i_err.data(), x_i_err.data(), interval_lo.data(), interval_hi.data());
+        fObjectTrash.Put(graph_intervals);
         graph_intervals->SetFillColor(kYellow);
         graph_intervals->SetLineStyle(2);
         graph_intervals->SetLineColor(kRed);
@@ -3146,6 +3149,7 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
         if (!quantiles.empty()) {
             std::vector<double> quantiles_err(x_quantiles.size(), 0.5);
             TGraphErrors* graph_quantiles = new TGraphErrors(x_quantiles.size(), x_quantiles.data(), quantile_vals.data(), quantiles_err.data(), 0);
+            fObjectTrash.Put(graph_quantiles);
             graph_quantiles->SetMarkerSize(0);
             graph_quantiles->SetLineColor(38);
             graph_quantiles->SetLineStyle(2);
@@ -3159,6 +3163,7 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
 
         // Means & RMSs
         TGraphErrors* graph_mean = new TGraphErrors(x_i.size(), x_i.data(), mean.data(), 0, rms.data());
+        fObjectTrash.Put(graph_mean);
         graph_mean->SetMarkerColor(kBlack);
         graph_mean->SetMarkerStyle(21);
         graph_mean->SetMarkerSize(1 * gPad->GetWNDC());
@@ -3171,6 +3176,7 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
     // Global Modes
     if (!x_i_bf.empty()) {
         TGraph* graph_mode = new TGraph(x_i_bf.size(), x_i_bf.data(), global_mode.data());
+        fObjectTrash.Put(graph_mode);
         graph_mode->SetMarkerColor(kRed);
         graph_mode->SetMarkerStyle(20);
         graph_mode->SetMarkerSize(1 * gPad->GetWNDC());
@@ -3210,23 +3216,19 @@ bool BCEngineMCMC::PrintCorrelationMatrix(const std::string& filename) const
     }
 
     // create histogram
-    TH2D* hist_corr;
-    {
-        BCAux::RootSideEffectGuard g;
-        hist_corr = new TH2D(Form("hist_correlation_matrix_%s", GetSafeName().data()), ";;", GetNVariables(), -0.5, GetNVariables() - 0.5, GetNVariables(), -0.5, GetNVariables() - 0.5);
-    }
-    hist_corr->SetStats(false);
-    hist_corr->GetXaxis()->SetTickLength(0.0);
-    hist_corr->GetYaxis()->SetTickLength(0.0);
-    hist_corr->GetXaxis()->SetLabelSize(0);
-    hist_corr->GetYaxis()->SetLabelSize(0);
+    TH2D hist_corr(Form("hist_correlation_matrix_%s", GetSafeName().data()), ";;", GetNVariables(), -0.5, GetNVariables() - 0.5, GetNVariables(), -0.5, GetNVariables() - 0.5);
+    hist_corr.SetStats(false);
+    hist_corr.GetXaxis()->SetTickLength(0.0);
+    hist_corr.GetYaxis()->SetTickLength(0.0);
+    hist_corr.GetXaxis()->SetLabelSize(0);
+    hist_corr.GetYaxis()->SetLabelSize(0);
 
     // vector of unfilled values:
     std::vector<std::pair<unsigned, unsigned> > unfilled;
 
     // fill histogram
     for (unsigned i = 0; i < GetNVariables(); ++i) {
-        hist_corr->SetBinContent(i + 1, GetNVariables() - i, 1);
+        hist_corr.SetBinContent(i + 1, GetNVariables() - i, 1);
 
         double var_i = (i < fMCMCStatistics_AllChains.variance.size()) ? fMCMCStatistics_AllChains.variance[i] : std::numeric_limits<double>::infinity();
         for (unsigned j = i + 1; j < GetNVariables(); ++j) {
@@ -3240,8 +3242,8 @@ bool BCEngineMCMC::PrintCorrelationMatrix(const std::string& filename) const
             else if (j < fH2Marginalized.size() && i < fH2Marginalized[j].size() && fH2Marginalized[j][i])
                 corr_ij = fH2Marginalized[j][i]->GetCorrelationFactor();
             if (std::isfinite(corr_ij)) {
-                hist_corr->SetBinContent(i + 1, GetNVariables() - j, corr_ij);
-                hist_corr->SetBinContent(j + 1, GetNVariables() - i, corr_ij);
+                hist_corr.SetBinContent(i + 1, GetNVariables() - j, corr_ij);
+                hist_corr.SetBinContent(j + 1, GetNVariables() - i, corr_ij);
             } else {
                 unfilled.push_back(std::make_pair(i, j));
             }
@@ -3249,84 +3251,80 @@ bool BCEngineMCMC::PrintCorrelationMatrix(const std::string& filename) const
     }
 
     // print to file
-    TCanvas* c_corr = new TCanvas("c_corr_matrix");
-    c_corr->cd();
+    TCanvas c_corr("c_corr_matrix");
+    c_corr.cd();
 
     double text_size = std::max<double>(0.005, 0.02 * std::min<double>(1., 5. / GetNVariables()));
 
-    TLatex* xlabel = new TLatex();
-    xlabel->SetTextFont(62);
-    xlabel->SetTextSize(text_size);
-    xlabel->SetTextAlign(22);
+    TLatex xlabel;
+    xlabel.SetTextFont(62);
+    xlabel.SetTextSize(text_size);
+    xlabel.SetTextAlign(22);
 
-    TLatex* ylabel = new TLatex();
-    ylabel->SetTextFont(62);
-    ylabel->SetTextSize(text_size);
-    ylabel->SetTextAlign(22);
-    ylabel->SetTextAngle(90);
+    TLatex ylabel;
+    ylabel.SetTextFont(62);
+    ylabel.SetTextSize(text_size);
+    ylabel.SetTextAlign(22);
+    ylabel.SetTextAngle(90);
 
-    TLatex* corr_number = new TLatex();
-    corr_number->SetTextFont(62);
-    corr_number->SetTextSize(text_size);
-    corr_number->SetTextAlign(22);
+    TLatex corr_number;
+    corr_number.SetTextFont(62);
+    corr_number.SetTextSize(text_size);
+    corr_number.SetTextAlign(22);
 
     gStyle->SetPalette(54);
     gStyle->SetPaintTextFormat("+.2g");
-    hist_corr->GetZaxis()->SetRangeUser(-1, 1);
-    hist_corr->GetZaxis()->SetLabelFont(62);
-    hist_corr->GetZaxis()->SetDecimals(true);
-    hist_corr->GetZaxis()->SetLabelSize(text_size);
-    hist_corr->Draw("colz");
+    hist_corr.GetZaxis()->SetRangeUser(-1, 1);
+    hist_corr.GetZaxis()->SetLabelFont(62);
+    hist_corr.GetZaxis()->SetDecimals(true);
+    hist_corr.GetZaxis()->SetLabelSize(text_size);
+    hist_corr.Draw("colz");
 
     // Draw labels and correlations
-    for (int i = 1; i <= hist_corr->GetNbinsX(); ++i) {
+    for (int i = 1; i <= hist_corr.GetNbinsX(); ++i) {
         // labels
-        xlabel->DrawLatex(hist_corr->GetXaxis()->GetBinCenter(i),
-                          hist_corr->GetYaxis()->GetXmax() + 12e-2,
-                          GetVariable(i - 1).GetLatexNameWithUnits().data());
+        xlabel.DrawLatex(hist_corr.GetXaxis()->GetBinCenter(i),
+                         hist_corr.GetYaxis()->GetXmax() + 12e-2,
+                         GetVariable(i - 1).GetLatexNameWithUnits().data());
 
-        ylabel->DrawLatex(hist_corr->GetXaxis()->GetXmin() - 12e-2,
-                          hist_corr->GetYaxis()->GetBinCenter(GetNVariables() - i + 1),
-                          GetVariable(i - 1).GetLatexNameWithUnits().data());
-        for (int j = 1; j <= hist_corr->GetNbinsY(); ++j) {
-            if (hist_corr->GetBinContent(i, j) >= 0)
-                corr_number->SetTextColor(kBlack);
+        ylabel.DrawLatex(hist_corr.GetXaxis()->GetXmin() - 12e-2,
+                         hist_corr.GetYaxis()->GetBinCenter(GetNVariables() - i + 1),
+                         GetVariable(i - 1).GetLatexNameWithUnits().data());
+        for (int j = 1; j <= hist_corr.GetNbinsY(); ++j) {
+            if (hist_corr.GetBinContent(i, j) >= 0)
+                corr_number.SetTextColor(kBlack);
             else
-                corr_number->SetTextColor(kWhite);
-            corr_number->DrawLatex(hist_corr->GetXaxis()->GetBinCenter(i),
-                                   hist_corr->GetYaxis()->GetBinCenter(j),
-                                   Form("%+.2g", hist_corr->GetBinContent(i, j)));
+                corr_number.SetTextColor(kWhite);
+            corr_number.DrawLatex(hist_corr.GetXaxis()->GetBinCenter(i),
+                                  hist_corr.GetYaxis()->GetBinCenter(j),
+                                  Form("%+.2g", hist_corr.GetBinContent(i, j)));
         }
     }
 
     // Blank out empty squares
-    TBox* bcorr = new TBox();
-    bcorr->SetFillColor(kWhite);
+    TBox bcorr;
+    bcorr.SetFillColor(kWhite);
     for (unsigned i = 0; i < unfilled.size(); ++i) {
-        bcorr->DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(unfilled[i].first + 1), hist_corr->GetYaxis()->GetBinLowEdge(GetNVariables() - unfilled[i].second),
-                       hist_corr->GetXaxis()->GetBinUpEdge (unfilled[i].first + 1), hist_corr->GetYaxis()->GetBinUpEdge (GetNVariables() - unfilled[i].second));
-        bcorr->DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(unfilled[i].second + 1), hist_corr->GetYaxis()->GetBinLowEdge(GetNVariables() - unfilled[i].first),
-                       hist_corr->GetXaxis()->GetBinUpEdge (unfilled[i].second + 1), hist_corr->GetYaxis()->GetBinUpEdge (GetNVariables() - unfilled[i].first));
+        bcorr.DrawBox(hist_corr.GetXaxis()->GetBinLowEdge(unfilled[i].first + 1), hist_corr.GetYaxis()->GetBinLowEdge(GetNVariables() - unfilled[i].second),
+                      hist_corr.GetXaxis()->GetBinUpEdge (unfilled[i].first + 1), hist_corr.GetYaxis()->GetBinUpEdge (GetNVariables() - unfilled[i].second));
+        bcorr.DrawBox(hist_corr.GetXaxis()->GetBinLowEdge(unfilled[i].second + 1), hist_corr.GetYaxis()->GetBinLowEdge(GetNVariables() - unfilled[i].first),
+                      hist_corr.GetXaxis()->GetBinUpEdge (unfilled[i].second + 1), hist_corr.GetYaxis()->GetBinUpEdge (GetNVariables() - unfilled[i].first));
     }
 
     // redraw top and right lines
-    TLine* lA = new TLine();
-    lA->DrawLine(hist_corr->GetXaxis()->GetXmin(), hist_corr->GetYaxis()->GetXmax(), hist_corr->GetXaxis()->GetXmax(), hist_corr->GetYaxis()->GetXmax());
-    lA->DrawLine(hist_corr->GetXaxis()->GetXmax(), hist_corr->GetYaxis()->GetXmin(), hist_corr->GetXaxis()->GetXmax(), hist_corr->GetYaxis()->GetXmax());
+    TLine lA;
+    lA.DrawLine(hist_corr.GetXaxis()->GetXmin(), hist_corr.GetYaxis()->GetXmax(), hist_corr.GetXaxis()->GetXmax(), hist_corr.GetYaxis()->GetXmax());
+    lA.DrawLine(hist_corr.GetXaxis()->GetXmax(), hist_corr.GetYaxis()->GetXmin(), hist_corr.GetXaxis()->GetXmax(), hist_corr.GetYaxis()->GetXmax());
     // draw line between parameters and user-defined observables
     if (GetNObservables() > 0) {
-        lA->DrawLine(hist_corr->GetXaxis()->GetXmin() - 0.40, hist_corr->GetYaxis()->GetBinLowEdge(hist_corr->GetNbinsY() - GetNParameters() + 1),
-                     hist_corr->GetXaxis()->GetBinUpEdge(GetNParameters()), hist_corr->GetYaxis()->GetBinLowEdge(hist_corr->GetNbinsY() - GetNParameters() + 1));
-        lA->DrawLine(hist_corr->GetXaxis()->GetBinUpEdge(GetNParameters()), hist_corr->GetYaxis()->GetBinLowEdge(hist_corr->GetNbinsY() - GetNParameters() + 1),
-                     hist_corr->GetXaxis()->GetBinUpEdge(GetNParameters()), hist_corr->GetYaxis()->GetXmax() + 0.45);
+        lA.DrawLine(hist_corr.GetXaxis()->GetXmin() - 0.40, hist_corr.GetYaxis()->GetBinLowEdge(hist_corr.GetNbinsY() - GetNParameters() + 1),
+                    hist_corr.GetXaxis()->GetBinUpEdge(GetNParameters()), hist_corr.GetYaxis()->GetBinLowEdge(hist_corr.GetNbinsY() - GetNParameters() + 1));
+        lA.DrawLine(hist_corr.GetXaxis()->GetBinUpEdge(GetNParameters()), hist_corr.GetYaxis()->GetBinLowEdge(hist_corr.GetNbinsY() - GetNParameters() + 1),
+                    hist_corr.GetXaxis()->GetBinUpEdge(GetNParameters()), hist_corr.GetYaxis()->GetXmax() + 0.45);
     }
 
     gPad->RedrawAxis();
-    c_corr->Print(filename.data());
-
-    delete lA;
-    delete hist_corr;
-    delete c_corr;
+    c_corr.Print(filename.data());
 
     // no error
     return true;
@@ -3360,8 +3358,8 @@ bool BCEngineMCMC::PrintCorrelationPlot(const std::string& filename, bool includ
         return false;
     }
 
-    TCanvas* c = new TCanvas("c_correlation_plot");
-    c->cd();
+    TCanvas c("c_correlation_plot");
+    c.cd();
 
     double margin = 0.1;
     double padsize = (1 - 2 * margin) / I.size();
@@ -3376,26 +3374,26 @@ bool BCEngineMCMC::PrintCorrelationPlot(const std::string& filename, bool includ
     double marginleft   = 4 * margintop;
     double marginright  = marginleft;
 
-    TLatex* ylabel = new TLatex();
-    ylabel->SetTextFont(62);
-    ylabel->SetTextSize(1e-1 / I.size());
-    ylabel->SetTextAlign(22);     // set to 32, if latex names too long
-    ylabel->SetNDC();
-    ylabel->SetTextAngle(90);     // set to 80, if latex names too long
+    TLatex ylabel;
+    ylabel.SetTextFont(62);
+    ylabel.SetTextSize(1e-1 / I.size());
+    ylabel.SetTextAlign(22);     // set to 32, if latex names too long
+    ylabel.SetNDC();
+    ylabel.SetTextAngle(90);     // set to 80, if latex names too long
 
-    TLatex* xlabel = new TLatex();
-    xlabel->SetTextFont(62);
-    xlabel->SetTextSize(1e-1 / I.size());
-    xlabel->SetTextAlign(22);     // set to 12, if latex names too long
-    xlabel->SetNDC();
-    xlabel->SetTextAngle(0);      // set to 350, if latex names too long
+    TLatex xlabel;
+    xlabel.SetTextFont(62);
+    xlabel.SetTextSize(1e-1 / I.size());
+    xlabel.SetTextAlign(22);     // set to 12, if latex names too long
+    xlabel.SetNDC();
+    xlabel.SetTextAngle(0);      // set to 350, if latex names too long
 
     // Box + Text for empty squares:
-    TText* text_na = new TText();
-    text_na->SetTextFont(42);
-    text_na->SetTextAlign(22);
-    text_na->SetTextSize(8e-1 / I.size());
-    text_na->SetTextColor(kGray);
+    TText text_na;
+    text_na.SetTextFont(42);
+    text_na.SetTextAlign(22);
+    text_na.SetTextSize(8e-1 / I.size());
+    text_na.SetTextColor(kGray);
 
     // store histograms for persistency for ROOT until drawing is saved
     std::vector<BCHistogramBase*> bh;
@@ -3410,7 +3408,13 @@ bool BCEngineMCMC::PrintCorrelationPlot(const std::string& filename, bool includ
             ylow = yup - padsize;
 
             // preparing the pad
-            pad[i][j] =  new TPad(Form("pad_correlation_plots_%d_%d", i, j), "", xlow, ylow, xup, yup);
+            {
+                BCAux::RootSideEffectGuard g;
+                pad[i][j] =  new TPad(Form("pad_correlation_plots_%d_%d", i, j), "", xlow, ylow, xup, yup);
+                // despite the guard, the pads are deleted before the trash
+                // cleans up, which leads to a double-delete problem
+                // fObjectTrash.Put(pad[i][j]);
+            }
             pad[i][j]->SetMargin(marginleft, marginright, marginbottom, margintop);
             pad[i][j]->SetFillColor(kWhite);
             pad[i][j]->Draw();
@@ -3443,20 +3447,20 @@ bool BCEngineMCMC::PrintCorrelationPlot(const std::string& filename, bool includ
 
             } else if (!(MarginalizedHistogramExists(I[j], I[i])) && I[i] >= I[j]) { // if the histogram is not available, draw "N/A"
                 // pad[i][j]->SetFillColor(kWhite);
-                text_na->DrawText(.5, .5, "N/A");
+                text_na.DrawText(.5, .5, "N/A");
             }
 
-            c->cd();
+            c.cd();
 
             if (i == 0)               // y-axis labels
-                ylabel->DrawLatex(margin * (1 - 8 * ylabel->GetTextSize()), yup - padsize / 2., GetVariable(I[j]).GetLatexNameWithUnits().data());
+                ylabel.DrawLatex(margin * (1 - 8 * ylabel.GetTextSize()), yup - padsize / 2., GetVariable(I[j]).GetLatexNameWithUnits().data());
             if (j == I.size() - 1)        // x-axis labels
-                xlabel->DrawLatex(xlow + padsize / 2., margin * (1 - 8 * xlabel->GetTextSize()), GetVariable(I[i]).GetLatexNameWithUnits().data());
+                xlabel.DrawLatex(xlow + padsize / 2., margin * (1 - 8 * xlabel.GetTextSize()), GetVariable(I[i]).GetLatexNameWithUnits().data());
         }
     }
 
     // gPad->RedrawAxis();
-    c->Print(filename.data());
+    c.Print(filename.data());
 
     // delete BCHistogramBase objects
     for (unsigned i = 0; i < bh.size(); ++i)
