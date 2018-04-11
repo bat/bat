@@ -610,7 +610,7 @@ public:
      * @param optmethod the optimization method
      * @param start the starting point for the optimization algorithm
      * @return the mode
-     * @seestd::vector<double> FindMode(std::vector<double> start = std::vector<double>(0)); */
+     * @see std::vector<double> FindMode(std::vector<double> start = std::vector<double>(0)); */
     std::vector<double> FindMode(BCIntegrate::BCOptimizationMethod optmethod, std::vector<double> start = std::vector<double>());
 
     /**
