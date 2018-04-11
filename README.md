@@ -2,6 +2,8 @@ BAT - Bayesian Analysis Toolkit
 ===============================
 
 [![Build Status](https://travis-ci.org/bat/bat.svg?branch=master)](https://travis-ci.org/bat/bat)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1203195.svg)](https://doi.org/10.5281/zenodo.1203195)
 
 The Bayesian Analysis Toolkit is a software analysis package which allows
 to address the main goals of a typical data analysis:
@@ -35,7 +37,7 @@ Availability
 
 All BAT releases are available from http://mpp.mpg.de/bat/.  The
 source code is managed online at https://github.com/bat/bat.  BAT is
-open-source software under the GPLv3 or later.  See `doc/COPYING` and
+open-source software under the LGPLv3 or later.  See `doc/COPYING` and
 `doc/LICENSE` for licensing details.
 
 Contents
