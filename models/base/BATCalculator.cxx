@@ -206,7 +206,7 @@ RooAbsPdf* BATCalculator::GetPosteriorPdf1D(const char* POIname) const
     _myRooInterface->FindMode();
     BCH1D myPosterior = _myRooInterface->GetMarginalized(POIname);
     TH1* posteriorTH1D = myPosterior.GetHistogram();
-    // TODO Is this a memory leak?
+    // Is this a memory leak?
     _posteriorTH1D =  static_cast<TH1D*>(BCAux::OwnClone(posteriorTH1D, "_posteriorTH1D"));
     {
         BCAux::RootSideEffectGuard g;
