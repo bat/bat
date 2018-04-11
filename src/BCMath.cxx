@@ -178,7 +178,7 @@ namespace
 /**
  * Caches first factorials statically.
  * Hide in anonymous namespace. */
-static unsigned cached_factorials = BCMath::CacheFactorials(899);
+static unsigned __attribute__((unused)) cached_factorials = BCMath::CacheFactorials(899);
 }
 
 // ---------------------------------------------------------
