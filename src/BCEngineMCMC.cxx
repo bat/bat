@@ -659,9 +659,6 @@ unsigned BCEngineMCMC::GetNIterationsPreRun() const
 // ---------------------------------------------------------
 const std::vector<double>& BCEngineMCMC::GetBestFitParameters() const
 {
-    if (fMCMCStatistics_AllChains.modepar.size() < GetNParameters())
-        BCLOG_ERROR("Mode not available. Run Markov chain first");
-
     return fMCMCStatistics_AllChains.modepar;
 }
 
