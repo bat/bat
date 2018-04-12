@@ -438,9 +438,6 @@ std::vector<std::pair<double, double> > BCHistogramBase::GetSmallestIntervalBoun
 // ---------------------------------------------------------
 std::vector<double> BCHistogramBase::GetSmallestIntervalSize(std::vector<double> masses, bool overcoverage)
 {
-    // TO DO : allow for over- vs undercoverage choice
-    (void) overcoverage;
-
     // vector of sizes
     std::vector<double> S;
 
@@ -461,15 +458,12 @@ std::vector<double> BCHistogramBase::GetSmallestIntervalSize(std::vector<double>
 
     S.assign(masses.size(), 0);
     double mass = 0;
-    double area = 0;
-    unsigned n = 0;
-    for (std::vector<std::pair<double, double> >::const_iterator bin = bin_dens_mass.begin(); bin != bin_dens_mass.end() and n < S.size(); ++bin) {
+    for (std::vector<std::pair<double, double> >::const_iterator bin = bin_dens_mass.begin(); bin != bin_dens_mass.end(); ++bin) {
         for (unsigned i = 0; i < masses.size(); ++i)
-            if (mass + bin->second >= masses[i] and mass <= masses[i]) {
-                S[i] = area + (masses[i] - mass) / bin->first;
-                ++n;
-            }
-        area += bin->second / bin->first;
+            // if more mass is needed, add area
+            if (mass + (overcoverage ? 0 : bin->second) < masses[i])
+                S[i] += bin->second / bin->first;
+        mass += bin->second;
     }
     return S;
 }
