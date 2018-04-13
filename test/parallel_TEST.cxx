@@ -70,6 +70,8 @@ struct BCCheckModel : BCEmptyModel {
     TTree* Tree() const {return fMCMCTree;}
 
     double prob() const {return fMCMCTree_State.log_probability;}
+    double like() const {return fMCMCTree_State.log_likelihood;}
+    double prior() const {return fMCMCTree_State.log_prior;}
     unsigned phase() const {return fMCMCPhase;}
     const std::vector<double>& parameters() const {return fMCMCTree_State.parameters;}
 };
@@ -267,6 +269,8 @@ public:
             }
 
             TEST_CHECK_EQUAL(models[0].prob(), models[1].prob());
+            TEST_CHECK_EQUAL(models[0].like(), models[1].like());
+            TEST_CHECK_EQUAL(models[0].prior(), models[1].prior());
             TEST_CHECK_EQUAL(models[0].phase(), models[1].phase());
 
             // check only in main run
@@ -321,9 +325,11 @@ public:
 
         RunComparison::Config config = RunComparison::Config::Default();
 
-        config.num_chains = 2;
+        config.num_chains = 4;
         config.num_parameters = 5;
-        config.delay = 1e2;
+        // increase delay to see a speed-up. But some race conditions only show
+        // up with a very fast likelihood
+        config.delay = 0;
 
         TEST_SECTION("product proposal", {
             config.multivariate = false;
