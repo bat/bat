@@ -53,17 +53,26 @@ AC_ARG_ENABLE(
   [AS_HELP_STRING([--enable-parallel],[compile with OpenMP thread parallelization (default no)])],
   [
     case "${enableval}" in
-      yes) parallelization=1 ;
-        CXXFLAGS+=" -fopenmp" ;
-        LDFLAGS+=" -fopenmp" ;
-        DEP_CFLAGS="$DEP_CFLAGS -fopenmp" ;
-        DEP_LIBS="$DEP_LIBS -fopenmp" ;;
+      yes) parallelization=1 ;;
       no)  parallelization=0 ;;
       *) AC_MSG_ERROR([bad value ${enableval} for --enable-parallel]) ;;
     esac
   ],
   [parallelization=0]
 )
+
+m4_include(tools/build/ax_openmp.m4)
+if test $parallelization = 1; then
+  AX_OPENMP(
+    [
+    CXXFLAGS+=" $OPENMP_CXXFLAGS";
+    LDFLAGS+=" $OPENMP_CXXFLAGS";
+    DEP_CFLAGS+=" $OPENMP_CXXFLAGS";
+    DEP_LIBS+=" $OPENMP_CXXFLAGS";
+    ],
+    [AC_MSG_ERROR([Cannot enable parallelization without OpenMP])]
+)
+fi
 
 AC_DEFINE_UNQUOTED([THREAD_PARALLELIZATION], [$parallelization], [OpenMP thread parallelization])
 AM_CONDITIONAL([THREAD_PARALLELIZATION], [test $parallelization = 1])
@@ -324,7 +333,7 @@ ROOT_PATH(
   ,
   [
     AC_MSG_ERROR([ROOT cannot be found. Please ensure that it is installed
-      and that either \$ROOTSYS is defined corectly or root-config is in the path.
+      and that either \$ROOTSYS is defined correctly or root-config is in the path.
       One can pass --with-rootsys=/path/to/rootsys to configure as well.])
     exit
   ]
