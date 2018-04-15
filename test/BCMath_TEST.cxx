@@ -94,7 +94,7 @@ public:
             BCEngineMCMC::Statistics s(1, 0);
             BCEngineMCMC::ChainState cs(0);
             cs.log_probability = 0.;
-            cs.parameters.assign(1,0);
+            cs.parameters.assign(1, 0);
             for (unsigned i = 0; i < N; ++i) {
                 cs.parameters.front() = BCMath::Random::Gamma(&rng, a, b);
                 s.Update(cs);
