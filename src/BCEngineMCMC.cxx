@@ -1273,7 +1273,7 @@ void BCEngineMCMC::Remarginalize(bool autorange)
             nchains = fMCMCTree_Chain + 1;
     }
     SetNChains(nchains);
-    
+
     MCMCInitialize();
 
     if (autorange) {
@@ -1336,7 +1336,7 @@ void BCEngineMCMC::Remarginalize(bool autorange)
         fMCMCTree->GetEntry(n);
 
         fMCMCStates[fMCMCTree_Chain] = fMCMCTree_State;
-        
+
         fMCMCCurrentIteration = fMCMCStates[fMCMCTree_Chain].iteration;
 
         // calculate observables if requested
@@ -1479,7 +1479,7 @@ bool BCEngineMCMC::GetProposalPointMetropolis(unsigned chain, std::vector<double
             x[i] += y[I] * scale;
             ++I;
         }
-    
+
     // return whether point is within limits, ignoring fixed parameters
     return GetParameters().IsWithinLimits(x);
 }
@@ -1514,14 +1514,12 @@ bool BCEngineMCMC::AcceptOrRejectPoint(unsigned chain, unsigned parameter)
     double p0 = fMCMCStates[chain].log_probability;
     if (!std::isfinite(p0)) p0 = -std::numeric_limits<double>::max();
     // calculate proposed probability
-    double p1 = LogEval(fMCMCThreadLocalStorage[chain].parameters);
+    const double p1 = LogEval(fMCMCThreadLocalStorage[chain].parameters);
 
     // if the new point is more probable, keep it; or else throw dice
     if (std::isfinite(p1) && (p1 >= p0 || log(fMCMCThreadLocalStorage[chain].rng->Rndm()) < (p1 - p0))) {
         // accept point
         fMCMCStates[chain] = fMCMCThreadLocalStorage[chain];
-        // this line shouldn't be necessary
-        fMCMCStates[chain].log_probability = p1;
         // increase efficiency
         fMCMCStatistics[chain].efficiency[parameter] += (1. - fMCMCStatistics[chain].efficiency[parameter]) / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
         // execute user code and return
@@ -1570,7 +1568,7 @@ bool BCEngineMCMC::GetNewPointMetropolis(unsigned chain)
     // get proposal point
     if (GetProposalPointMetropolis(chain, fMCMCThreadLocalStorage[chain].parameters))
         return AcceptOrRejectPoint(chain, 0);
-    
+
     // execute user code and return
     MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].parameters, chain, false);
     return false;
@@ -1581,15 +1579,6 @@ bool BCEngineMCMC::GetNewPointMetropolis()
 {
     bool return_value = true;
 
-    // define threading scheme with openMP
-    unsigned chunk = 1;
-    (void) chunk;
-    unsigned ichain;
-    (void) ichain;
-
-    // start with an empty thread->chain map
-    fChainIndex.clear();
-
     if (!fMCMCProposeMultivariate) {
         /* run over parameters one at a time */
 
@@ -1598,7 +1587,7 @@ bool BCEngineMCMC::GetNewPointMetropolis()
                 continue;
 
             //loop over chains
-            #pragma omp parallel for shared(chunk) private(ichain) schedule(static, chunk)
+            #pragma omp parallel for schedule(static)
             for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
                 UpdateChainIndex(ichain);
                 return_value &= GetNewPointMetropolis(ichain, ipar);
@@ -1609,15 +1598,12 @@ bool BCEngineMCMC::GetNewPointMetropolis()
         /* run over all pars at once */
 
         //loop over chains
-        #pragma omp parallel for shared(chunk) private(ichain) schedule(static, chunk)
+        #pragma omp parallel for schedule(static)
         for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
             UpdateChainIndex(ichain);
             return_value &= GetNewPointMetropolis(ichain);
         }
     }
-
-    // leave with an empty thread->chain map
-    fChainIndex.clear();
 
     // increase number of iterations used in each chain for calculating efficiencies
     for (unsigned c = 0; c < fMCMCNChains; ++c)
@@ -1639,7 +1625,7 @@ void BCEngineMCMC::InChainFillHistograms(const ChainState& cs)
             else if (i - GetNParameters() < GetNObservables())
                 h->Fill(cs.observables[i - GetNParameters()]);
         }
-    
+
     ////////////////////////////////////////
     // fill each 2-dimensional histogram that exists
     for (unsigned j = 0; j < GetNVariables() && j < fH2Marginalized.size(); ++j)
@@ -1658,7 +1644,7 @@ void BCEngineMCMC::InChainFillHistograms(const ChainState& cs)
                 }
             }
 }
-    
+
 // --------------------------------------------------------
 void BCEngineMCMC::InChainFillHistograms()
 {
@@ -2030,9 +2016,6 @@ bool BCEngineMCMC::MetropolisPreRun()
     // reset current iteration
     fMCMCCurrentIteration = -1;
 
-    // reset current chain
-    fChainIndex.clear();
-
     if (fMCMCFlagWritePreRunToFile) {
         // UpdateParameterTree();
         if (fMCMCTree)
@@ -2227,9 +2210,6 @@ bool BCEngineMCMC::Metropolis()
     // reset counter
     fMCMCCurrentIteration = -1;
 
-    // reset current chain
-    fChainIndex.clear();
-
     // set flags
     fMCMCFlagRun = true;
 
@@ -2261,7 +2241,6 @@ void BCEngineMCMC::ResetResults()
 {
     // reset variables
     fMCMCCurrentIteration = -1;
-    fChainIndex.clear();
     fMCMCStatistics.clear();
     fMCMCStatistics_AllChains.Clear();
     fMCMCProposalFunctionScaleFactor.clear();
@@ -2369,104 +2348,104 @@ void BCEngineMCMC::MCMCInitialize()
     // initialize markov chain positions
     switch (fInitialPositionScheme) {
 
-    // keep previous values
-    case kInitContinue : {
-        throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Continuing chains not yet supported. Sorry!");
-        
-        // check position vector size
-        if (fMCMCStates.size() != fMCMCNChains)
-            throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Number of chains has been changed; cannot continue previous chains.");
-        
-        // else do nothing --- continue chains
-        break;
-    }
-        
-    // use range centers
-    case kInitCenter : {
-        for (unsigned c = 0; c < fMCMCNChains; ++c) {
-            fMCMCThreadLocalStorage[c].parameters = GetParameters().GetRangeCenters();
-            UpdateChainIndex(c);
-            LogEval(fMCMCThreadLocalStorage[c].parameters);
-            if (!std::isfinite(fMCMCThreadLocalStorage[c].log_probability))
-                throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Range center as initial point yields invalid probability.");
-            fMCMCStates[c] = fMCMCThreadLocalStorage[c];
-        }
-        
-        break;
-    }
+        // keep previous values
+        case kInitContinue : {
+            throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Continuing chains not yet supported. Sorry!");
 
-    // uniformly distribute all coordinates in provided ranges
-    case kInitRandomUniform : {
-        for (unsigned c = 0; c < fMCMCNChains; ++c) {
-            for (unsigned n = 0; n < fInitialPositionAttemptLimit && !std::isfinite(fMCMCThreadLocalStorage[c].log_probability); ++n) {
-                fMCMCThreadLocalStorage[c].parameters = GetParameters().GetUniformRandomValues(fMCMCThreadLocalStorage[c].rng);
+            // check position vector size
+            if (fMCMCStates.size() != fMCMCNChains)
+                throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Number of chains has been changed; cannot continue previous chains.");
+
+            // else do nothing --- continue chains
+            break;
+        }
+
+        // use range centers
+        case kInitCenter : {
+            for (unsigned c = 0; c < fMCMCNChains; ++c) {
+                fMCMCThreadLocalStorage[c].parameters = GetParameters().GetRangeCenters();
                 UpdateChainIndex(c);
                 LogEval(fMCMCThreadLocalStorage[c].parameters);
-            }
-            if (!std::isfinite(fMCMCThreadLocalStorage[c].log_probability))
-                throw std::runtime_error(Form("BCEngineMCMC::MCMCInitialize : Could not generate uniformly distributed initial point with valid probability in %u tries.", fInitialPositionAttemptLimit));
-            fMCMCStates[c] = fMCMCThreadLocalStorage[c];
-        }
-        
-        break;
-    }
-
-    // use user-defined starting points
-    case kInitUserDefined : {
-        // check initial position vector size
-        if (fMCMCInitialPosition.size() < fMCMCNChains)
-            throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Too few initial positions provided.");
-        
-        // copy positions and set fixed values
-        // then check whether initial positions are within bounds
-        // (which also checks that initial position vectors are correct size)
-        for (unsigned c = 0; c < fMCMCNChains; ++c) {
-            fMCMCThreadLocalStorage[c].parameters = fMCMCInitialPosition[c];
-            GetParameters().ApplyFixedValues(fMCMCThreadLocalStorage[c].parameters);
-            if (!GetParameters().IsWithinLimits(fMCMCThreadLocalStorage[c].parameters)) {
-                BCLog::OutDebug(Form("Initial point of chain %d", c));
-                PrintParameters(fMCMCThreadLocalStorage[c].parameters, BCLog::OutDebug);
-                throw std::runtime_error("BCEngineMCMC::MCMCInitialize : User-defined initial point is out of bounds.");
-            } else {
-                UpdateChainIndex(c);
-                LogEval(fMCMCThreadLocalStorage[c].parameters);
-                if (!std::isfinite(fMCMCThreadLocalStorage[c].log_probability)) {
-                    BCLog::OutDebug(Form("Initial point of chain %d", c));
-                    PrintParameters(fMCMCThreadLocalStorage[c].parameters, BCLog::OutDebug);
-                    throw std::runtime_error("BCEngineMCMC::MCMCInitialize : User-defined initial point yields invalid probability.");
-                } 
+                if (!std::isfinite(fMCMCThreadLocalStorage[c].log_probability))
+                    throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Range center as initial point yields invalid probability.");
                 fMCMCStates[c] = fMCMCThreadLocalStorage[c];
             }
-        }
-        
-        break;
-    }
 
-    // randomly distribute according to factorized priors
-    case kInitRandomPrior : {
-        if (!GetParameters().ArePriorsSet(true))
-            throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Not all unfixed parameters have priors set.");
-        
-        for (unsigned c = 0; c < fMCMCNChains; ++c) {
-            for (unsigned n = 0; n < fInitialPositionAttemptLimit && !std::isfinite(fMCMCThreadLocalStorage[c].log_probability); ++n) {
-                fMCMCThreadLocalStorage[c].parameters = GetParameters().GetRandomValuesAccordingToPriors(fMCMCThreadLocalStorage[c].rng);
-                // check new point
-                if (!GetParameters().IsWithinLimits(fMCMCThreadLocalStorage[c].parameters))
-                    throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Could not generate random point within limits.");
-                
-                UpdateChainIndex(c);
-                LogEval(fMCMCThreadLocalStorage[c].parameters);
-            }
-            if (!std::isfinite(fMCMCThreadLocalStorage[c].log_probability))
-                throw std::runtime_error(Form("BCEngineMCMC::MCMCInitialize : Could not generate initial point from prior with valid probability in %u tries.", fInitialPositionAttemptLimit));
-            fMCMCStates[c] = fMCMCThreadLocalStorage[c];
+            break;
         }
-        
-        break;
-    }
-        
-    default:
-        throw std::runtime_error("BCEngineMCMC::MCMCInitialize : No MCMC position initialization scheme specified.");
+
+        // uniformly distribute all coordinates in provided ranges
+        case kInitRandomUniform : {
+            for (unsigned c = 0; c < fMCMCNChains; ++c) {
+                for (unsigned n = 0; n < fInitialPositionAttemptLimit && !std::isfinite(fMCMCThreadLocalStorage[c].log_probability); ++n) {
+                    fMCMCThreadLocalStorage[c].parameters = GetParameters().GetUniformRandomValues(fMCMCThreadLocalStorage[c].rng);
+                    UpdateChainIndex(c);
+                    LogEval(fMCMCThreadLocalStorage[c].parameters);
+                }
+                if (!std::isfinite(fMCMCThreadLocalStorage[c].log_probability))
+                    throw std::runtime_error(Form("BCEngineMCMC::MCMCInitialize : Could not generate uniformly distributed initial point with valid probability in %u tries.", fInitialPositionAttemptLimit));
+                fMCMCStates[c] = fMCMCThreadLocalStorage[c];
+            }
+
+            break;
+        }
+
+        // use user-defined starting points
+        case kInitUserDefined : {
+            // check initial position vector size
+            if (fMCMCInitialPosition.size() < fMCMCNChains)
+                throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Too few initial positions provided.");
+
+            // copy positions and set fixed values
+            // then check whether initial positions are within bounds
+            // (which also checks that initial position vectors are correct size)
+            for (unsigned c = 0; c < fMCMCNChains; ++c) {
+                fMCMCThreadLocalStorage[c].parameters = fMCMCInitialPosition[c];
+                GetParameters().ApplyFixedValues(fMCMCThreadLocalStorage[c].parameters);
+                if (!GetParameters().IsWithinLimits(fMCMCThreadLocalStorage[c].parameters)) {
+                    BCLog::OutDebug(Form("Initial point of chain %d", c));
+                    PrintParameters(fMCMCThreadLocalStorage[c].parameters, BCLog::OutDebug);
+                    throw std::runtime_error("BCEngineMCMC::MCMCInitialize : User-defined initial point is out of bounds.");
+                } else {
+                    UpdateChainIndex(c);
+                    LogEval(fMCMCThreadLocalStorage[c].parameters);
+                    if (!std::isfinite(fMCMCThreadLocalStorage[c].log_probability)) {
+                        BCLog::OutDebug(Form("Initial point of chain %d", c));
+                        PrintParameters(fMCMCThreadLocalStorage[c].parameters, BCLog::OutDebug);
+                        throw std::runtime_error("BCEngineMCMC::MCMCInitialize : User-defined initial point yields invalid probability.");
+                    }
+                    fMCMCStates[c] = fMCMCThreadLocalStorage[c];
+                }
+            }
+
+            break;
+        }
+
+        // randomly distribute according to factorized priors
+        case kInitRandomPrior : {
+            if (!GetParameters().ArePriorsSet(true))
+                throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Not all unfixed parameters have priors set.");
+
+            for (unsigned c = 0; c < fMCMCNChains; ++c) {
+                for (unsigned n = 0; n < fInitialPositionAttemptLimit && !std::isfinite(fMCMCThreadLocalStorage[c].log_probability); ++n) {
+                    fMCMCThreadLocalStorage[c].parameters = GetParameters().GetRandomValuesAccordingToPriors(fMCMCThreadLocalStorage[c].rng);
+                    // check new point
+                    if (!GetParameters().IsWithinLimits(fMCMCThreadLocalStorage[c].parameters))
+                        throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Could not generate random point within limits.");
+
+                    UpdateChainIndex(c);
+                    LogEval(fMCMCThreadLocalStorage[c].parameters);
+                }
+                if (!std::isfinite(fMCMCThreadLocalStorage[c].log_probability))
+                    throw std::runtime_error(Form("BCEngineMCMC::MCMCInitialize : Could not generate initial point from prior with valid probability in %u tries.", fInitialPositionAttemptLimit));
+                fMCMCStates[c] = fMCMCThreadLocalStorage[c];
+            }
+
+            break;
+        }
+
+        default:
+            throw std::runtime_error("BCEngineMCMC::MCMCInitialize : No MCMC position initialization scheme specified.");
     } // (switch)
 
     if (fMCMCStates.empty())
@@ -3624,6 +3603,14 @@ void BCEngineMCMC::SyncThreadStorage()
     while (fMCMCThreadLocalStorage.size() > fMCMCNChains)
         fMCMCThreadLocalStorage.pop_back();
 
+#if THREAD_PARALLELIZATION
+    // Start with a non-empty thread->chain map to avoid a race condition as
+    // discussed in #258. Use same for loop as elsewhere.
+    #pragma omp parallel for schedule(static)
+    for (unsigned c = 0; c < fMCMCNChains; ++c)
+        UpdateChainIndex(c);
+#endif
+
     // update for each chain
     for (unsigned i = 0; i < fMCMCThreadLocalStorage.size(); ++i) {
         // need full number of parameters, this is passed into user function
@@ -3634,7 +3621,7 @@ void BCEngineMCMC::SyncThreadStorage()
         fMCMCThreadLocalStorage[i].log_prior = -std::numeric_limits<double>::infinity();
         fMCMCThreadLocalStorage[i].log_likelihood = -std::numeric_limits<double>::infinity();
         fMCMCThreadLocalStorage[i].log_probability = -std::numeric_limits<double>::infinity();
-        
+
         // each chains gets a different seed. fRandom always returns same seed after the fixing done above
         fMCMCThreadLocalStorage[i].rng->SetSeed(fRandom.GetSeed() + i);
         fMCMCThreadLocalStorage[i].rng->Rndm();
