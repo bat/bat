@@ -95,7 +95,7 @@ public:
 private:
     // grant friendship to BCModel to access the ThreadLocalStorage
     friend class BCModel;
-    
+
     /**
      * Keeps variables that need to be both members and thread local.
      */
@@ -161,30 +161,30 @@ public:
     struct ChainState {
         unsigned iteration;     ///< iteration number
         std::vector<double> parameters; ///< parameter point
-        std::vector<double> observables; ///< observables at parameter point 
+        std::vector<double> observables; ///< observables at parameter point
         double log_probability; ///< log(probability)
         double log_likelihood;  ///< log(likelihood)
         double log_prior;       ///< log(prior)
 
         /** Constructor */
         ChainState(int n_obs = 0) : iteration(0),
-                                    observables(std::vector<double>(n_obs, 0.)),
-                                    log_probability(-std::numeric_limits<double>::infinity()),
-                                    log_likelihood(-std::numeric_limits<double>::infinity()),
-                                    log_prior(-std::numeric_limits<double>::infinity())
-            {}
+            observables(std::vector<double>(n_obs, 0.)),
+            log_probability(-std::numeric_limits<double>::infinity()),
+            log_likelihood(-std::numeric_limits<double>::infinity()),
+            log_prior(-std::numeric_limits<double>::infinity())
+        {}
 
         /** assignment */
         ChainState& operator=(const ThreadLocalStorage& tls)
-            {
-                parameters = tls.parameters;
-                log_prior = tls.log_prior;
-                log_likelihood = tls.log_likelihood;
-                log_probability = tls.log_probability;
-                return *this;
-            }
+        {
+            parameters = tls.parameters;
+            log_prior = tls.log_prior;
+            log_likelihood = tls.log_likelihood;
+            log_probability = tls.log_probability;
+            return *this;
+        }
     };
-    
+
     /** A struct for holding statistical information about samples. */
     struct Statistics {
 
@@ -1340,7 +1340,7 @@ public:
      * @param parameter index of parameter to update efficiency for
      * @return Whether proposed point was accepted (true) or previous point was kept (false). */
     bool AcceptOrRejectPoint(unsigned chain, unsigned parameter);
-    
+
     /**
      * Fill marginalized distributions from a chain state*/
     void InChainFillHistograms(const ChainState& cs);
@@ -1736,7 +1736,7 @@ protected:
     /**
      * The current states of each Markov chain. */
     std::vector<ChainState> fMCMCStates;
-    
+
     /**
      * Statistics for each Markov chain. */
     std::vector<BCEngineMCMC::Statistics> fMCMCStatistics;
