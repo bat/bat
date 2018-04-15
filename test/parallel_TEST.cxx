@@ -160,8 +160,9 @@ public:
         omp_set_dynamic(0);
         omp_set_num_threads(parallelization ? config.num_chains : 1);
 
-        // open log file
-        BCLog::OpenLog("log.txt");
+        // First close previous log, then open a new log file
+        BCLog::CloseLog();
+        BCLog::OpenLog(parallelization ? "log_parallel.txt" : "log_serial.txt");
         BCLog::SetLogLevel(BCLog::detail);
 
         // create new GaussModel object
