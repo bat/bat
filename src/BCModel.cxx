@@ -87,18 +87,18 @@ BCModel::~BCModel()
 // ---------------------------------------------------------
 double BCModel::LogProbabilityNN(const std::vector<double>& parameters)
 {
-    unsigned chain = GetCurrentChain();
+    ThreadLocalStorage& s = fMCMCThreadLocalStorage[GetCurrentChain()];
 
     // first calculate prior (which is usually cheaper than likelihood)
-    fMCMCThreadLocalStorage[chain].log_prior = LogAPrioriProbability(parameters);
-    // then calculation likelihood, or set to -inf, if prior already invalid
-    if (std::isfinite(fMCMCThreadLocalStorage[chain].log_prior))
-        fMCMCThreadLocalStorage[chain].log_likelihood = LogLikelihood(parameters);
+    s.log_prior = LogAPrioriProbability(parameters);
+    // then calculate likelihood, or set to -inf, if prior already invalid
+    if (std::isfinite(s.log_prior))
+        s.log_likelihood = LogLikelihood(parameters);
     else
-        fMCMCThreadLocalStorage[chain].log_likelihood = -std::numeric_limits<double>::infinity();
+        s.log_likelihood = -std::numeric_limits<double>::infinity();
 
-    fMCMCThreadLocalStorage[chain].log_probability = fMCMCThreadLocalStorage[chain].log_prior + fMCMCThreadLocalStorage[chain].log_likelihood;
-    return fMCMCThreadLocalStorage[chain].log_probability;
+    s.log_probability = s.log_prior + s.log_likelihood;
+    return s.log_probability;
 }
 
 // ---------------------------------------------------------
