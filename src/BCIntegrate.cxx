@@ -1123,7 +1123,7 @@ std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double>& mode, std::
     MCMCUserInitialize();
     // set chain number to 0
     UpdateChainIndex(0);
-    
+
     // check start values
     if (!start.empty() && start.size() != fParameters.Size()) {
         BCLOG_WARNING("Start point not valid (mismatch of dimensions), set to center.");
