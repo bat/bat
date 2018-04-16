@@ -324,7 +324,7 @@ void BCRooInterface::MCMCIterationInterface()
                 //_parametersForMarkovChainCurrent->Print();
 
                 const char* paramnamepointer = (tempBCparam.GetName()).c_str();
-                double xij = fMCMCx.at(i).at(j);
+                double xij = Getx(i, j);
                 AddToCurrentChainElement(xij, i, j);
                 RooRealVar* parampointer = (RooRealVar*) & (_parametersForMarkovChainCurrent[paramnamepointer]);
                 parampointer->setVal(xij);
