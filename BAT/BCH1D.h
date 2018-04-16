@@ -234,6 +234,12 @@ public:
         double relative_mass;
 
         BCH1DInterval();
+
+        /**
+         * Print information to log
+         * @param prefix String to be prepended to every line.
+         * @param prec Precision of doubles to output. */
+        void PrintSummary(const std::string& prefix = "", unsigned prec = 6) const;
     };
 
     /**
@@ -246,6 +252,12 @@ public:
         double max_val;
 
         BCH1DSmallestInterval();
+
+        /**
+         * Print information to log
+         * @param prefix String to be prepended to every line.
+         * @param prec Precision of doubles to output. */
+        void PrintSummary(const std::string& prefix = "", unsigned prec = 6) const;
     };
 
     /**
