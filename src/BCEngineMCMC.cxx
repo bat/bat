@@ -616,18 +616,15 @@ unsigned BCEngineMCMC::GetCurrentChain() const
 {
     // serial case is the default
     static const unsigned defaultChain = 0;
-    int threadIndex = 0;
 
     if (fChainIndex.empty())
         return defaultChain;
 
+    int id = 0;
 #if THREAD_PARALLELIZATION
-    threadIndex = omp_get_thread_num();
+    id = omp_get_thread_num();
 #endif
-    ChainIndex_t::const_iterator it = fChainIndex.find(threadIndex);
-    if (it == fChainIndex.end())
-        return defaultChain;
-    return it->second;
+    return fChainIndex.at(id);
 }
 
 // ---------------------------------------------------------
@@ -1588,9 +1585,9 @@ bool BCEngineMCMC::GetNewPointMetropolis()
 
             //loop over chains
             #pragma omp parallel for schedule(static)
-            for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
-                UpdateChainIndex(ichain);
-                return_value &= GetNewPointMetropolis(ichain, ipar);
+            for (unsigned c = 0; c < fMCMCNChains; ++c) {
+                UpdateChainIndex(c);
+                return_value &= GetNewPointMetropolis(c, ipar);
             }
         }
 
@@ -1599,9 +1596,9 @@ bool BCEngineMCMC::GetNewPointMetropolis()
 
         //loop over chains
         #pragma omp parallel for schedule(static)
-        for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
-            UpdateChainIndex(ichain);
-            return_value &= GetNewPointMetropolis(ichain);
+        for (unsigned c = 0; c < fMCMCNChains; ++c) {
+            UpdateChainIndex(c);
+            return_value &= GetNewPointMetropolis(c);
         }
     }
 
@@ -3603,13 +3600,13 @@ void BCEngineMCMC::SyncThreadStorage()
     while (fMCMCThreadLocalStorage.size() > fMCMCNChains)
         fMCMCThreadLocalStorage.pop_back();
 
+    // reserve memory to map each thread to a chain. Initially all zero to
+    // handle calling LogEval in a serial context.
+    int nthreads = 1;
 #if THREAD_PARALLELIZATION
-    // Start with a non-empty thread->chain map to avoid a race condition as
-    // discussed in #258. Use same for loop as elsewhere.
-    #pragma omp parallel for schedule(static)
-    for (unsigned c = 0; c < fMCMCNChains; ++c)
-        UpdateChainIndex(c);
+    nthreads = omp_get_max_threads();
 #endif
+    fChainIndex.assign(nthreads, 0);
 
     // update for each chain
     for (unsigned i = 0; i < fMCMCThreadLocalStorage.size(); ++i) {
@@ -3631,13 +3628,11 @@ void BCEngineMCMC::SyncThreadStorage()
 // ---------------------------------------------------------
 void BCEngineMCMC::UpdateChainIndex(int chain)
 {
+    int id = 0;
 #if THREAD_PARALLELIZATION
-    // encapsulate write access in critical section to avoid seg faults when a dangling reference is returned
-    #pragma omp critical(BCEngineMCMC_UpdateChainIndex)
-    { fChainIndex[omp_get_thread_num()] = chain; }
-#else
-    fChainIndex[0] = chain;
+    id = omp_get_thread_num();
 #endif
+    fChainIndex.at(id) = chain;
 }
 
 // ---------------------------------------------------------
