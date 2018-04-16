@@ -47,6 +47,9 @@ void BCLog::OpenLog(const std::string& filename, BCLog::LogLevel loglevelfile, B
     // suppress the ROOT Info printouts
     gErrorIgnoreLevel = 2000;
 
+    // first close and flush and existing log file
+    BCLog::CloseLog();
+
     // open log file
     BCLog::fOutputStream.open(filename.data());
 
