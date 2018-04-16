@@ -37,7 +37,6 @@
 
 #include <algorithm>
 #include <limits>
-#include <map>
 #include <string>
 #include <utility>
 #include <vector>
@@ -1516,7 +1515,10 @@ private:
      * Ensure that there are as many storages as chains */
     void SyncThreadStorage();
 
-    typedef std::map<int, unsigned> ChainIndex_t;
+    /**
+     * Map thread ids to chains. Use vector instead of a map to avoid race
+     * conditions (#258) and because it's more efficient. */
+    typedef std::vector<unsigned> ChainIndex_t;
     ChainIndex_t fChainIndex;
 
     /**
