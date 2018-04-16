@@ -8,7 +8,7 @@ How to run unit tests
 How to add a new unit test
 ==========================
 
-1. Open `Makefile.am`, add `foo` to `TESTS` and add the sources as `foo_TEST_SOURCES = foo_TEST.cxx`.
+1. Open `Makefile.am`, add `foo.TEST` to `TESTS` and add the sources as `foo_TEST_SOURCES = foo_TEST.cxx`.
 2. Create `foo_TEST.cxx`, enter this skeleton:
 
 ```cpp

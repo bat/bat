@@ -25,6 +25,7 @@ TESTS = \
 	BCAux.TEST \
 	BCEngineMCMC.TEST \
 	BCFitter.TEST \
+	BCHistogram.TEST \
 	BCMath.TEST \
 	BCModel.TEST \
 	BCParameter.TEST \
@@ -58,6 +59,8 @@ BCAux_TEST_SOURCES = BCAux_TEST.cxx
 BCEngineMCMC_TEST_SOURCES = BCEngineMCMC_TEST.cxx
 
 BCFitter_TEST_SOURCES = BCFitter_TEST.cxx
+
+BCHistogram_TEST_SOURCES = BCHistogram_TEST.cxx
 
 BCMath_TEST_SOURCES = BCMath_TEST.cxx
 
