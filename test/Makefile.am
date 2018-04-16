@@ -38,8 +38,10 @@ TESTS = \
 # The order is determined because parallel and BCSummaryTool also run Markov chains
 # and we want BCEngineMCMC to test that feature first.
 if THREAD_PARALLELIZATION
-BCSummaryTool.log : BCEngineMCMC.log
-parallel.log : BCSummaryTool.log
+parallel.log : BCEngineMCMC.log
+BCModel.log : parallel.log
+BCSummaryTool.log : BCModel.log
+BCFitter.log : BCSummaryTool.log
 endif
 
 LDADD = \
