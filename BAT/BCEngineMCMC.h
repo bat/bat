@@ -1592,11 +1592,6 @@ protected:
     unsigned fMCMCNLag;
 
     /**
-     * Number of total iterations of the Markov chains. The length of
-     * the vector is equal to fMCMCNChains. */
-    std::vector<unsigned> fMCMCNIterations;
-
-    /**
      * The current iteration number. If not called within the running
      * of the algorithm, return -1. */
     int fMCMCCurrentIteration;
