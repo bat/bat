@@ -296,8 +296,9 @@ public:
     unsigned GetCurrentChain() const;
 
     /**
-     * @return number of iterations needed for all chains to
-     * converge simultaneously. A value of -1 indicates that the chains did not converge. */
+     * @return number of iterations needed for all chains to converge simultaneously.
+     * A value of -1 indicates that the chains did not converge during a prerun.
+     * A value of 0 indicates that chain criteria were set by hand and convergence was not checked. */
     int GetNIterationsConvergenceGlobal() const
     { return fMCMCNIterationsConvergenceGlobal; }
 
@@ -452,14 +453,9 @@ public:
     { return fCorrectRValueForSamplingVariability; }
 
     /**
-     * @return the flag if MCMC has been performed or not */
+     * @return the if MCMC has been performed or not */
     bool GetFlagRun() const
-    { return fMCMCFlagRun; }
-
-    /**
-     * @return the flag if MCMC pre-run should be performed or not */
-    bool GetFlagPreRun() const
-    { return fMCMCFlagPreRun; }
+    { return fMCMCPhase == kMainRun; }
 
     /**
      * Retrieve the tree containing the Markov chain. */
@@ -966,9 +962,9 @@ public:
     void SetFillHistogramObsPar(const std::string& x, const std::string& y, bool flag = true)
     { SetFillHistogramObsPar(fObservables.Index(x), fParameters.Index(y), flag); }
 
-    /** Sets the flag if a prerun should be performed or not. */
+    /** Set if a (new) prerun should be performed. */
     void SetFlagPreRun(bool flag)
-    { fMCMCFlagPreRun = flag; }
+    { if (flag) fMCMCPhase = kUnsetPhase; }
 
     /**
      * Sets the parameter R-value criterion for convergence of all chains */
@@ -1684,14 +1680,6 @@ protected:
     /**
      * factor to multiply or divide scale factors by in adjusting multivariate-proposal-function scales. */
     double fMultivariateScaleMultiplier;
-
-    /**
-     * Defines if a prerun should be performed or not */
-    bool fMCMCFlagPreRun;
-
-    /**
-     * Defines if MCMC has been performed or not */
-    bool fMCMCFlagRun;
 
     /**
      * The intial position of each Markov chain. The length of the
