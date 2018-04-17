@@ -4,6 +4,7 @@ AC_INIT([BAT], 1.1.0-DEV, [], [BAT])
 : ${FFLAGS=""}
 AM_INIT_AUTOMAKE()
 AM_CONFIG_HEADER(config.h)
+AC_LANG(C++)
 AC_PROG_CXX
 LT_INIT
 AC_HEADER_STDC
@@ -32,7 +33,7 @@ AC_ARG_ENABLE(
   [  --enable-debug          Compile in debug mode],
   [
     case "${enableval}" in
-      yes) debug=true ; echo Compiling in debug mode ;;
+      yes) debug=true ; echo compiling in debug mode ;;
       no)  debug=false ;;
       *) AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
     esac
@@ -80,6 +81,9 @@ AM_CONDITIONAL([THREAD_PARALLELIZATION], [test $parallelization = 1])
 dnl
 dnl Check for Cuba
 dnl
+
+dnl temporarily use the C (not C++) compiler
+AC_LANG_PUSH([C])
 cuba_min_version=3.3
 AC_DEFINE_UNQUOTED([CUBA_MIN_VERSION], [$cuba_min_version], [Minimum cuba version])
 AC_ARG_WITH(
@@ -298,14 +302,14 @@ else
   echo compiling without cuba
   AM_CONDITIONAL([CUBA], [test 1 -eq 0])
 fi
+dnl back to C++
+AC_LANG_POP([C])
 
 dnl Restore compiler/linker flags (without cuba additions):
 CPPFLAGS="$CPPFLAGS_BACKUP"
 CXXFLAGS="$CXXFLAGS_BACKUP"
 LDFLAGS="$LDFLAGS_BACKUP"
 LIBS="$LIBS_BACKUP"
-
-
 
 dnl
 dnl Check for ROOT
