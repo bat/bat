@@ -64,11 +64,10 @@ public:
      * @return A 2D histogram of the smallest interval in Y for each bin in X containing the desired probability mass. */
     TH2* GetGraphicalErrorBandXY(double level = .68, int nsmooth = 0, bool overcoverage = true) const;
 
-    //* @return A const reference of the internal errorband histogram
+    /**
+     * @return The internal errorband histogram */
     const TH2& GetErrorBandXY()const
-    {
-        return fErrorBandXY;
-    };
+    { return fErrorBandXY; };
 
     /**
      * Returns a vector of y-values at a certain probability level.
@@ -81,24 +80,33 @@ public:
     TGraph* GetErrorBandGraph(double level1, double level2) const;
 
     /**
+     * @return A graph of the fit function evaluated at all points given the `parameters`.
      * @note The caller is responsible for deletion of the returned object. */
     TGraph* GetFitFunctionGraph(const std::vector<double>& parameters);
 
     /**
+     * @return A graph of the fit function evaluated at all points defined by
+     * the error band given the best-fit parameters.
      * @note The caller is responsible for deletion of the returned object. */
     TGraph* GetFitFunctionGraph()
-    {
-        return GetFitFunctionGraph(GetBestFitParameters());
-    }
+    { return GetFitFunctionGraph(GetBestFitParameters()); }
 
     /**
+     * @return A graph of the fit function evaluated at `n+1` regularly spaced
+     * points between `xmin` and including `xmax` given the `parameters`.
      * @note The caller is responsible for deletion of the returned object. */
     TGraph* GetFitFunctionGraph(const std::vector<double>& parameters, double xmin, double xmax, int n = 1000);
 
+    /**
+     * Toggle the data axis defined by `index` to be fixed. */
     void FixDataAxis(unsigned int index, bool fixed);
 
+    /**
+     * @return Is data axis `index` fixed? */
     bool GetFixedDataAxis(unsigned int index) const;
 
+    /**
+     * @return the (uncorrected) p value */
     double GetPValue() const
     {
         return fPValue;
