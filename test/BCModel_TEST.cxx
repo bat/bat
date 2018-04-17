@@ -45,6 +45,63 @@ public:
                 TEST_CHECK(m.GetMarginalized(i, j).Valid() xor ((i == fixed) or (j == fixed)));
     }
 
+    // check that
+    // 1) one can call MarginalizeAll() several times
+    // 2) one can force the pre-run to be rerun
+    // 3) MarginalizeAll() fails if the model is changed
+    void multiple_runs() const
+    {
+
+        GaussModel m("mult_run", 4);
+        int N = 10000;
+        m.SetPrecision(BCEngineMCMC::kMedium);
+        m.SetNIterationsRun(N);
+
+        m.MarginalizeAll(BCIntegrate::kMargMetropolis);
+        TEST_CHECK_NO_THROW(m.MarginalizeAll(BCIntegrate::kMargMetropolis));
+
+        for (unsigned c = 0; c < m.GetNChains(); ++c)
+            TEST_CHECK_EQUAL(m.GetChainState(c).iteration, 2 * N);
+
+        // Force pre-run to be rerun
+        m.SetFlagPreRun(true);
+        m.MarginalizeAll(BCIntegrate::kMargMetropolis);
+        for (unsigned c = 0; c < m.GetNChains(); ++c)
+            TEST_CHECK_EQUAL(m.GetChainState(c).iteration, N);
+
+        // fix a parameter
+        GaussModel m1("mult_run_1", 4);
+        m1.MarginalizeAll(BCIntegrate::kMargMetropolis);
+        m1.GetParameter(0).Fix(0);
+        TEST_CHECK_THROWS(std::runtime_error, m1.MarginalizeAll(BCIntegrate::kMargMetropolis));
+
+        // add a parameter
+        GaussModel m2("mult_run_2", 4);
+        m2.MarginalizeAll(BCIntegrate::kMargMetropolis);
+        m2.AddParameter("new_parameter", 0, 1);
+        TEST_CHECK_THROWS(std::runtime_error, m2.MarginalizeAll(BCIntegrate::kMargMetropolis));
+
+        // change the number of chains
+        GaussModel m3("mult_run_3", 4);
+        m3.MarginalizeAll(BCIntegrate::kMargMetropolis);
+        m3.SetNChains(2 * m.GetNChains());
+        TEST_CHECK_THROWS(std::runtime_error, m3.MarginalizeAll(BCIntegrate::kMargMetropolis));
+
+        // change from multivariate to factorized proposal
+        GaussModel m4("mult_run_4", 4);
+        m4.SetProposeMultivariate(true);
+        m4.MarginalizeAll(BCIntegrate::kMargMetropolis);
+        m4.SetProposeMultivariate(false);
+        TEST_CHECK_THROWS(std::runtime_error, m4.MarginalizeAll(BCIntegrate::kMargMetropolis));
+
+        // change from factorized to multivariate proposal
+        GaussModel m5("mult_run_5", 4);
+        m5.SetProposeMultivariate(false);
+        m5.MarginalizeAll(BCIntegrate::kMargMetropolis);
+        m5.SetProposeMultivariate(true);
+        TEST_CHECK_THROWS(std::runtime_error, m5.MarginalizeAll(BCIntegrate::kMargMetropolis));
+    }
+
     // turn on/off parameter storing
     void storing() const
     {
@@ -87,6 +144,7 @@ public:
         /* so run again without fixing */
         m.SetName("all free");
         m.GetParameter(0).Unfix();
+        m.SetFlagPreRun(true);
         TEST_CHECK_EQUAL(m.GetNFreeParameters(), 4);
         m.MarginalizeAll();
 
@@ -98,6 +156,7 @@ public:
         m.SetName("fix last");
         fixed = 3;
         m.GetParameter(fixed).Fix(0.23);
+        m.SetFlagPreRun(true);
         count_marginals(m, fixed);
 
         // gaussian around zero with width two
@@ -204,5 +263,8 @@ public:
         fixing(false);
         deltaPrior();
         copy();
+        TEST_SECTION("multiple marginalize", {
+            multiple_runs();
+        });
     }
 } bcmodel_test;
