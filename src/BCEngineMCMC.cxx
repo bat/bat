@@ -64,8 +64,6 @@ BCEngineMCMC::BCEngineMCMC(const std::string& name)
       fMultivariateCovarianceUpdateLambda(0.5),
       fMultivariateEpsilon(0.05),
       fMultivariateScaleMultiplier(1.5),
-      fMCMCFlagPreRun(true),
-      fMCMCFlagRun(false),
       fMCMCEfficiencyMin(0.15),
       fMCMCEfficiencyMax(0.35),
       fInitialPositionScheme(BCEngineMCMC::kInitRandomUniform),
@@ -101,8 +99,6 @@ BCEngineMCMC::BCEngineMCMC(const std::string& filename, const std::string& name,
       fMultivariateCovarianceUpdateLambda(0.5),
       fMultivariateEpsilon(5.e-2),
       fMultivariateScaleMultiplier(1.5),
-      fMCMCFlagPreRun(true),
-      fMCMCFlagRun(false),
       fMCMCEfficiencyMin(0.15),
       fMCMCEfficiencyMax(0.35),
       fInitialPositionScheme(BCEngineMCMC::kInitRandomUniform),
@@ -157,8 +153,6 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
       fMultivariateCovarianceUpdateLambda(other.fMultivariateCovarianceUpdateLambda),
       fMultivariateEpsilon(other.fMultivariateEpsilon),
       fMultivariateScaleMultiplier(other.fMultivariateScaleMultiplier),
-      fMCMCFlagPreRun(other.fMCMCFlagPreRun),
-      fMCMCFlagRun(other.fMCMCFlagRun),
       fMCMCInitialPosition(other.fMCMCInitialPosition),
       fMCMCEfficiencyMin(other.fMCMCEfficiencyMin),
       fMCMCEfficiencyMax(other.fMCMCEfficiencyMax),
@@ -234,8 +228,6 @@ BCEngineMCMC& BCEngineMCMC::operator=(const BCEngineMCMC& other)
         fMultivariateCovarianceUpdateLambda = other.fMultivariateCovarianceUpdateLambda;
         fMultivariateEpsilon = other.fMultivariateEpsilon;
         fMultivariateScaleMultiplier = other.fMultivariateScaleMultiplier;
-        fMCMCFlagPreRun = other.fMCMCFlagPreRun;
-        fMCMCFlagRun = other.fMCMCFlagRun;
         fMCMCInitialPosition = other.fMCMCInitialPosition;
         fMCMCEfficiencyMin = other.fMCMCEfficiencyMin;
         fMCMCEfficiencyMax = other.fMCMCEfficiencyMax;
@@ -360,9 +352,6 @@ void BCEngineMCMC::SetNLag(unsigned n)
 void BCEngineMCMC::SetPrecision(BCEngineMCMC::Precision precision)
 {
 
-    // all precision levels want a pre-run:
-    fMCMCFlagPreRun = true;
-
     // don't clear means, variances etc. during prerun
     fMCMCPreRunCheckClear = 0;
 
@@ -429,7 +418,6 @@ void BCEngineMCMC::SetPrecision(const BCEngineMCMC& other)
     fMCMCRValueParametersCriterion        = other.fMCMCRValueParametersCriterion;
     fMCMCEfficiencyMin                    = other.fMCMCEfficiencyMin;
     fMCMCEfficiencyMax                    = other.fMCMCEfficiencyMax;
-    fMCMCFlagPreRun                       = other.fMCMCFlagRun;
     fMCMCProposeMultivariate     = other.fMCMCProposeMultivariate;
     fMCMCProposalFunctionDof  = other.fMCMCProposalFunctionDof;
     fMultivariateEpsilon  = other.fMultivariateEpsilon;
@@ -2113,23 +2101,58 @@ bool BCEngineMCMC::Metropolis()
     }
 
     // check if prerun should be performed
-    if (fMCMCFlagPreRun) {
+    if (fMCMCPhase == BCEngineMCMC::kUnsetPhase) {
         if (!MetropolisPreRun())
             return false;
+
         if (!fMCMCFlagWritePreRunToFile && fMCMCFlagWriteChainToFile)
             InitializeMarkovChainTree();
-    } else {
-        BCLog::OutWarning("BCEngineMCMC::MCMCMetropolis. Not running prerun. This can cause trouble if the data have changed.");
-        if (fMCMCFlagWriteChainToFile)
-            InitializeMarkovChainTree();
+
+        // reset statistics
+        for (unsigned c = 0; c < fMCMCStatistics.size(); ++c)
+            fMCMCStatistics[c].Reset(false, true); // keep mode, reset efficiencies
+
+        // reset iterations
+        for (unsigned c = 0; c < fMCMCStates.size(); ++c)
+            fMCMCStates[c].iteration = 0;
     }
 
-    // make sure enough statistics containers exist
-    fMCMCStatistics.resize(fMCMCNChains, BCEngineMCMC::Statistics(GetNParameters(), GetNObservables()));
-
-    // reset statistics
-    for (unsigned c = 0; c < fMCMCNChains; ++c)
-        fMCMCStatistics[c].Reset(false, true); // keep mode, reset efficiencies
+    // check that correct objects of correct size have been created
+    // these checks will fail if the user has changed the number of chains or parameters
+    // or the fixing of parameters between the pre-run and the main run, or between main runs
+    if (fMCMCStatistics.size() != fMCMCNChains)
+        throw std::runtime_error("BCEngineMCMC::Metropolis: size of fMCMCStatistics does not match number of chains.");
+    if (fMCMCStates.size() != fMCMCNChains)
+        throw std::runtime_error("BCEngineMCMC::Metropolis: size of fMCMCStates does not match number of chains.");
+    if (fMCMCThreadLocalStorage.size() != fMCMCNChains)
+        throw std::runtime_error("BCEngineMCMC::Metropolis: size of fMCMCThreadLocalStorage does not match number of chains.");
+    for (unsigned c = 0; c < fMCMCThreadLocalStorage.size(); ++c) {
+        if (fMCMCThreadLocalStorage[c].parameters.size() != GetNParameters())
+            throw std::runtime_error(Form("BCEngineMCMC::Metropolis: size of fMCMCThreadLocalStorage[%u].parameters does not match number of parameters.", c));
+        if (!fMCMCThreadLocalStorage[c].rng)
+            throw std::runtime_error(Form("BCEngineMCMC::Metropolis: fMCMCThreadLocalStorage[%u] lacks random number generator.", c));
+    }
+    if (fMCMCProposeMultivariate) {
+        if (fMultivariateProposalFunctionCholeskyDecomposition.size() != fMCMCNChains)
+            throw std::runtime_error("BCEngineMCMC::Metropolis: size of fMultivariateProposalFunctionCholeskyDecomposition does not match number of chains.");
+        for (unsigned c = 0; c < fMultivariateProposalFunctionCholeskyDecomposition.size(); ++c)
+            if (fMultivariateProposalFunctionCholeskyDecomposition[c].GetNrows() != static_cast<int>(GetNFreeParameters()) or
+                    fMultivariateProposalFunctionCholeskyDecomposition[c].GetNcols() != static_cast<int>(GetNFreeParameters()))
+                throw std::runtime_error(Form("BCEngineMCMC::Metropolis: size of fMultivariateProposalFunctionCholeskyDecomposition[%u] matrix does not match number of free parameters.", c));
+        for (unsigned c = 0; c < fMCMCThreadLocalStorage.size(); ++c)
+            if (fMCMCThreadLocalStorage[c].yLocal.GetNrows() != static_cast<int>(GetNFreeParameters()))
+                throw std::runtime_error(Form("BCEngineMCMC::Metropolis: size of fThreadLocalStorage[%u].yLocal matrix does not match number of free parameters.", c));
+    } else {
+        if (fMCMCProposalFunctionScaleFactor.size() != fMCMCNChains)
+            throw std::runtime_error("BCEngineMCMC::Metropolis: size of fProposalFunctionScaleFactor does not match number of chains.");
+        for (unsigned c = 0; c < fMCMCProposalFunctionScaleFactor.size(); ++c) {
+            if (fMCMCProposalFunctionScaleFactor[c].size() != GetNParameters())
+                throw std::runtime_error(Form("BCEngineMCMC::Metropolis: size of fMCMCProposalFunctionScaleFactor[%u] does not match number of parameters.", c));
+            for (unsigned p = 0; p < fMCMCProposalFunctionScaleFactor[c].size(); ++p)
+                if (fMCMCProposalFunctionScaleFactor[c][p] <= 0)
+                    throw std::runtime_error(Form("BCEngineMCMC::Metropolis: fMCMCProposalFunctionScaleFactor[%u][%u] <= 0.", c, p));
+        }
+    }
 
     // print to screen
     BCLog::OutSummary(Form("Run Metropolis MCMC for model \"%s\" ...", GetName().data()));
@@ -2206,9 +2229,6 @@ bool BCEngineMCMC::Metropolis()
     // reset counter
     fMCMCCurrentIteration = -1;
 
-    // set flags
-    fMCMCFlagRun = true;
-
     return true;
 }
 
@@ -2256,7 +2276,7 @@ void BCEngineMCMC::ResetResults()
     fH2Marginalized.clear();
 
     // reset flags
-    fMCMCFlagRun = false;
+    fMCMCPhase = kUnsetPhase;
 
     fLocalModes.clear();
 }
@@ -2332,9 +2352,6 @@ void BCEngineMCMC::MCMCInitialize()
             fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, temp);
         }
     }
-
-    // set that a main run has not been made
-    fMCMCFlagRun = false;
 
     // before we set the initial position and evaluate the likelihood, it's time to let the user initialize the model with #chains etc. fixed
     MCMCUserInitialize();
@@ -2693,7 +2710,7 @@ void BCEngineMCMC::PrintMarginalizationSummary() const
     BCLog::OutSummary(" Results of the marginalization");
     BCLog::OutSummary(" ==============================");
 
-    if (fMCMCFlagRun && fMCMCNIterationsConvergenceGlobal <= 0) {
+    if (fMCMCNIterationsConvergenceGlobal < 0) {
         // give warning if MCMC did not converge
         BCLog::OutSummary(" WARNING: the Markov Chain did not converge!");
         BCLog::OutSummary(" Be cautious using the following results!");
@@ -2722,7 +2739,7 @@ void BCEngineMCMC::PrintMarginalizationSummary() const
         BCLog::OutSummary("");
     }
 
-    if (fMCMCFlagRun) {
+    if (fMCMCPhase == kMainRun) {
 
         BCLog::OutSummary(" Status of the MCMC");
         BCLog::OutSummary(" ==================");
