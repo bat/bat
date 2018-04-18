@@ -128,11 +128,7 @@ void BCEfficiencyFitter::Fit()
     SetOptimizationMethod(method_temp);
 
     // calculate the p-value using the fast MCMC algorithm
-    double pvalue, pvalueCorrected;
-    if ( CalculatePValueFast(GetBestFitParameters(), pvalue, pvalueCorrected) )
-        fPValue = pvalue;
-    else
-        BCLog::OutError("BCEfficiencyFitter::Fit : Could not use the fast p-value evaluation.");
+    CalculatePValueFast(GetBestFitParameters());
 
     // print summary to screen
     PrintShortFitSummary();
@@ -276,14 +272,14 @@ void BCEfficiencyFitter::DrawFit(const std::string& options, bool flaglegend)
 }
 
 // ---------------------------------------------------------
-bool BCEfficiencyFitter::CalculatePValueFast(const std::vector<double>& par, double& pvalue, double& pvalueCorrected, unsigned nIterations)
+double BCEfficiencyFitter::CalculatePValueFast(const std::vector<double>& par, unsigned nIterations)
 {
     //use NULL pointer for no callback
-    return CalculatePValueFast(par, NULL, pvalue, pvalueCorrected, nIterations);
+    return CalculatePValueFast(par, NULL, nIterations);
 }
 
 // ---------------------------------------------------------
-bool BCEfficiencyFitter::CalculatePValueFast(const std::vector<double>& pars, BCEfficiencyFitter::ToyDataInterface* callback, double& pvalue, double& pvalueCorrected, unsigned nIterations)
+double BCEfficiencyFitter::CalculatePValueFast(const std::vector<double>& pars, BCEfficiencyFitter::ToyDataInterface* callback, unsigned nIterations)
 {
     // define temporary variables
     int nbins = fTrials.GetNbinsX();
@@ -375,16 +371,11 @@ bool BCEfficiencyFitter::CalculatePValueFast(const std::vector<double>& pars, BC
         if (logp < logp_start)
             counter_pvalue++;
 
-    } // end of looping over iterations
+    }
 
-    // calculate p-value
-    pvalue = double(counter_pvalue) / double(nIterations);
-
-    // correct for fit bias
-    pvalueCorrected = BCMath::CorrectPValue(pvalue, GetNParameters(), nbins);
-
-    // no error
-    return true;
+    // pvalue estimated as simple fraction
+    fPValue = double(counter_pvalue) / double(nIterations);
+    return fPValue;
 }
 
 // ---------------------------------------------------------

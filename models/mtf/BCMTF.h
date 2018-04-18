@@ -104,6 +104,9 @@ public:
     BCMTFChannel* GetChannel(int index)
     { return fChannelContainer.at(index); };
 
+    double GetPValue() const
+    { return fPValue; }
+
     /**
      * @param name The process index.
      * @return The process object. */
@@ -325,10 +328,11 @@ public:
     /**
      * Calculates and returns the fast p-value for the total likelihood as test statistic.
      *
-     * @note Obtain the results with @see BCModel::GetPValue and the value corrected for degrees
-     * of freedom with @see BCModel::GetPValueNDoF
+     * @note The result is stored and can be accesses with GetPValue()
+     * @see BCMath::FastPValue()
      *
      * @param parameters A reference to the parameters for which the model expectations are computed.
+     * @return The p-value
      */
     double CalculatePValue(const std::vector<double>& parameters);
 
@@ -437,10 +441,6 @@ private:
     /**
      * P value. */
     double fPValue;
-
-    /**
-     * P value accounting for degrees of freedom. */
-    double fPValueNDoF;
 
     /**
      * Copying can lead to a double-delete */

@@ -107,9 +107,12 @@ void histogramFitterExample()
     // perform fit
     hf.Fit();
 
-    // calculate p values
-    hf.CalculatePValueFast(hf.GetBestFitParameters());
-    cout << "p value " << hf.GetPValue() << ", corrected for degrees of freedom " << hf.GetPValueNDoF() << endl;
+    // calculate p value...
+    double p = hf.CalculatePValueFast(hf.GetBestFitParameters());
+
+    // and correct for the degrees of freedom to yield an approximately
+    // uniformly distributed p value for the true model
+    cout << "p value " << p << ", corrected for degrees of freedom " << BCMath::CorrectPValue(p, hf.GetNFreeParameters(), nbins) << endl;
 
     // print marginalized distributions
     hf.PrintAllMarginalized("distributions.pdf");
