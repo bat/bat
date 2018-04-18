@@ -206,7 +206,6 @@ void BCMTF::SetData(const std::string& channelname, TH1D hist, double minimum, d
     }
 
     // create new histograms for uncertainty bands
-    //	 double minimum = floor(TMath::Max(0., hist.GetMinimum() - 7.*sqrt(hist.GetMinimum())));
     if (minimum == -1)
         minimum = 0;
     if (maximum == -1)
@@ -1107,7 +1106,6 @@ double BCMTF::CalculatePValue(const std::vector<double>& parameters)
     // create pseudo experiments
     static const unsigned nIterations = unsigned(1e5);
     fPValue = BCMath::FastPValue(observation, expectation, nIterations, fRandom.GetSeed());
-    fPValueNDoF = BCMath::CorrectPValue(fPValue, parameters.size(), observation.size());
 
     return fPValue;
 }

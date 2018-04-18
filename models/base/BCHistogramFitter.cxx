@@ -152,7 +152,7 @@ void BCHistogramFitter::DrawFit(const std::string& options, bool flaglegend)
 }
 
 // ---------------------------------------------------------
-bool BCHistogramFitter::CalculatePValueFast(const std::vector<double>& pars, unsigned nIterations)
+double BCHistogramFitter::CalculatePValueFast(const std::vector<double>& pars, unsigned nIterations)
 {
     // check size of parameter vector
     if (pars.size() != GetNParameters()) {
@@ -169,18 +169,12 @@ bool BCHistogramFitter::CalculatePValueFast(const std::vector<double>& pars, uns
         expected[ibin] = Integral(pars, fHistogram.GetBinLowEdge(ibin + 1), fHistogram.GetBinLowEdge(ibin + 2));
     }
 
-    // create pseudo experiments
     fPValue = BCMath::FastPValue(observed, expected, nIterations, fRandom.GetSeed());
-
-    // correct for fitting bias
-    fPValueNDoF = BCMath::CorrectPValue(fPValue, GetNParameters(), fHistogram.GetNbinsX());
-
-    // no error
-    return true;
+    return fPValue;
 }
 
 // ---------------------------------------------------------
-bool BCHistogramFitter::CalculatePValueLikelihood(const std::vector<double>& pars)
+double BCHistogramFitter::CalculatePValueLikelihood(const std::vector<double>& pars)
 {
     // initialize test statistic -2*lambda
     double logLambda = 0.0;
@@ -205,14 +199,11 @@ bool BCHistogramFitter::CalculatePValueLikelihood(const std::vector<double>& par
 
     //p value from chi^2 distribution, returns zero if logLambda < 0
     fPValue = TMath::Prob(logLambda, GetNDataPoints());
-    fPValueNDoF = TMath::Prob(logLambda, GetNDoF());
-
-    // no error
-    return true;
+    return fPValue;
 }
 
 // ---------------------------------------------------------
-bool BCHistogramFitter::CalculatePValueLeastSquares(const std::vector<double>& pars, bool weightExpect)
+double BCHistogramFitter::CalculatePValueLeastSquares(const std::vector<double>& pars, bool weightExpect)
 {
     // initialize test statistic chi^2
     double chi2 = 0.0;
@@ -238,10 +229,7 @@ bool BCHistogramFitter::CalculatePValueLeastSquares(const std::vector<double>& p
 
     // p value from chi^2 distribution
     fPValue = TMath::Prob(chi2, GetNDataPoints());
-    fPValueNDoF = TMath::Prob(chi2, GetNDataPoints() - GetNParameters());
-
-    // no error
-    return true;
+    return fPValue;
 }
 
 // ---------------------------------------------------------
