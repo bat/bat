@@ -32,7 +32,7 @@ Point to a local copy of mathjax
 
 create the reference guide first to create a tag file that is referenced from the manual
 
-To make latex recognize `\newcommand`, add it to `doc/bat.sty`, it is copied by the makefile to th latex subdirectory
+To make latex recognize `\newcommand`, add it to `doc/bat.sty`, it is copied by the makefile to the latex subdirectory
 
 To define the same commands also for mathjax, follow http://stackoverflow.com/questions/40270302 and add something to `doc/newcommands.js`
 
@@ -47,7 +47,7 @@ Create file `chapter3.md`, add in the proper location in `$doxyinput` in `Makefi
 
 Copy over the labeling of sections from `bayes.md`, it doesn't match the doxygen docs on markdown. Add `[TOC]` for a table of contents!
 
-``` markdown
+```markdown
 Markov chain Monte Carlo {#cha-MCMC}
 ============
 
@@ -83,6 +83,8 @@ Here markdown ok again
 
 Better would be to define something in javascript that takes two
 arguments, the previous and next chapter, and style it with css.
+
+Can't link to installation instructions because its pure markdown for good display on github.
 
 ### link to equation
 

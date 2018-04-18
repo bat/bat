@@ -54,8 +54,6 @@ m.SetMarginalizationMethod(method);
 
 where `method` is an `enum` in  `BCIntegrate::BCMarginalizationMethod`
 
-@todo links to ref guide don't work
-
 `method`  | Details
 ------------- | -------------
 `kMargMetropolis`  | Metropolis algorithm; see @ref cha-mcmc.
@@ -73,7 +71,8 @@ In BAT terminology, the evidence or normalization constant of a model
 double evidence = m.Normalize();
 @endcode
 
-Choose the method of integration explicitly with
+This is the evidence on the linear scale. Choose the method of integration
+explicitly with
 
 @code{.cpp}
 double evidence = m.Integrate(method);
@@ -87,10 +86,42 @@ where `method` is an `enum` in `BCIntegrate::BCIntegrationMethod`.
 `kIntMonteCarlo` | Sample mean. Usually least efficient.
 `kIntCuba` | Use a method from cuba.
 `kIntGrid` | Approximate Riemann sum over a dense grid for \f$d \leq 3 \f$.
-`kIntLaplace` | Laplace approxation. Only approximately valid for peaked unimodal integrands. Usually very fast.
+`kIntLaplace` | Laplace approxation. Only approximately valid for peaked unimodal integrands. Incorrect if distribution is heavy tailed or if the mode is near a boundary. Very fast. No uncertainty estimate. Only method implemented on the log scale.
 `kIntDefault` | Use Cuba if available. Else use `kIntGrid` for \f$d \leq 3 \f$ and `kIntMonteCarlo` for \f$d > 3 \f$.
 
-The Cuba package itself has four different integration methods. Select the Cuba method with
+General termination criteria for all integration methods except `kIntLaplace` are the desired absolute precision \f$\epsilon_a\f$ and relative precision \f$\epsilon_r\f$ and the minimum and maximum number of iterations:
+
+@code{.cpp}
+m.SetAbsolutePrecision(1e-6);
+m.SetRelativePrecision(1e-8);
+m.SetNIterationsMin(2000);
+m.SetNIterationsMax(50000);
+@endcode
+
+The integration terminates if
+\f{equation}{
+|Z-\hat{Z}| \leq \max(\epsilon_a, \epsilon_r Z)
+\f}
+where \f$\hat{Z}\f$ is the current estimate of the evidence.
+
+@subsection sec-int-rescale Rescaling
+
+In case the log likelihood is very small or very large, going to the linear
+scale may take it to exactly zero or infinity in finite precision. This often
+happens in practice if the log likelihood is a sum of `N` terms. For example,
+assume each factor is 0.5. Then \f$\exp(0.5 N)=\infty\f$ on the computer for
+\f$N \geq 1420\f$ using double precision. To avoid this problem, you can rescale
+the log likelihood by manually subtracting the value at the mode inside `LogLikelihood`.
+
+Another option, if requirements are satisfied, is to use the Laplace method. It
+is naturally implemented on the log scale. While the standard interface to all
+integration methods via `BCIntegrate::Normalize()` always transforms to the
+linear scale, calling `BCIntegrate::IntegrateLaplace()` directly returns the
+evidence on the log scale.
+
+@subsection sec-int-cuba Cuba
+
+The Cuba package itself has four different integration methods. Cuba is an external dependency; see the installation instructions on how to build BAT with Cuba support. If Cuba is available, select the Cuba method with
 @code{.cpp}
 m.SetCubaIntegrationMethod(method);
 m.Integrate();
@@ -110,7 +141,7 @@ where `method` is an `enum` in `BCIntegrate::BCCubaMethod`
 Each Cuba method comes with various parameter values to set. We have
 taken over default values from the example that comes with Cuba but
 they are by no means optimal for every problem. Please experiment and
-consult the Cuba manual that comes with source code on
+consult the Cuba manual that comes with the Cuba source code from
 http://www.feynarts.de/cuba/. All options are accessible in the
 namespace `BCCubaOptions`. An example with bogus values
 
