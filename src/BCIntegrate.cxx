@@ -1956,10 +1956,6 @@ BCCubaOptions::General::General():
     prob(0)
 {}
 
-// ---------------------------------------------------------
-BCCubaOptions::General::~General()
-{}
-
 /*
  * Copy default values from sec. 7.3.1 of the cuba manual for version 4.2.
  */

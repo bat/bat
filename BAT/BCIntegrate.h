@@ -49,8 +49,6 @@ struct General {
     int ncomp, flags, nregions, neval, fail;
     double error, prob;
     General();
-protected:
-    ~General();
 };
 
 struct Vegas : public General {
