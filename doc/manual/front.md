@@ -50,3 +50,5 @@ bat@mpp.mpg.de.
 [BATgithub]: https://github.com/bat/bat "BAT github"
 [BATref]: http://mpp.mpg.de/bat/docs/refman/latest/ "BAT reference guide"
 [ROOT]: https://root.cern.ch/ "ROOT homepage"
+
+@todo Link to corresponding examples in manual
