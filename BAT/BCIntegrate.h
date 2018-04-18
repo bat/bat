@@ -777,6 +777,16 @@ public:
      * Check that indices of parameters to marginalize w/r/t are correct */
     bool CheckMarginalizationIndices(TH1* hist, const std::vector<unsigned>& index);
 
+    /**
+     * Integrate using the Laplace approximation.
+     *
+     * Take the result of a previous successful minuit run to estimate
+     * the covariance matrix. Else it runs minuit (again).
+     *
+     * @return the integral on the log(!) scale. Note that is is different from
+     * the other integration methods that work on the linear scale. */
+    double IntegrateLaplace();
+
     /** @} */
 
 protected:
@@ -904,15 +914,6 @@ private:
      * Integrate using the slice method
      * @return the integral; */
     double IntegrateSlice();
-
-    /**
-     * Integrate using the Laplace approximation.
-     *
-     * Take the result of a previous successful minuit run to estimate
-     * the covariance matrix. Else it runs minuit (again).
-     *
-     * @return the integral; */
-    double IntegrateLaplace();
 
     /**
      * Current mode finding method */

@@ -232,6 +232,10 @@ public:
         static const double eps = 5e-2;
         m.SetAbsolutePrecision(1e-12);
 
+        // Laplace itself is naturally implemented on the log scale
+        TEST_CHECK_RELATIVE_ERROR(m.IntegrateLaplace(), std::log(evidence), eps);
+
+        // but the general interface is on the linear scale
         TEST_CHECK_RELATIVE_ERROR(m.Integrate(BCIntegrate::kIntLaplace), evidence, eps);
 
         // sample mean needs huge number of evaluations
