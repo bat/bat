@@ -42,21 +42,22 @@ incs= \
 	BCDataSet.h \
 	BCH1D.h \
 	BCH2D.h \
-	BCObservable.h \
 	BCParameter.h \
 	\
 	BCAux.h \
 	BCPrior.h \
 	\
+	BCVariableSet.h \
+	\
 	BCConstantPrior.h \
 	BCGaussianPrior.h \
 	BCSplitGaussianPrior.h \
 	BCCauchyPrior.h \
+	BCObservable.h \
 	BCTF1Prior.h \
 	BCTF1LogPrior.h \
 	BCTH1Prior.h \
 	BCPositiveDefinitePrior.h \
-	BCVariableSet.h \
 	\
 	BCParameterSet.h \
 	\
