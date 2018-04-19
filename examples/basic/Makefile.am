@@ -7,6 +7,7 @@ SUBDIRS = \
 	graphFitter \
 	histogramFitter \
 	poisson \
-	rootOutput
+	rootOutput \
+	tutorial
 
 include $(top_srcdir)/examples/Makefile-common.am

@@ -313,11 +313,11 @@ marginalize the results, saving plots to `gaus_mod_plots.pdf`. In that
 file you should see the 1D and 2D marginalizations of our three
 parameters:
 
-@image html MyTut/gaus_mod_plots_1D.png "1D Posteriors of Gaussian distribution model."\
-@image latex MyTut/gaus_mod_plots_1D.pdf "1D Posteriors of Gaussian distribution model." width=\textwidth
+@image html gaus_mod_plots-1.png "1D Posteriors of Gaussian distribution model."\
+@image latex gaus_mod_plots-1.pdf "1D Posteriors of Gaussian distribution model." width=\textwidth
 
-@image html MyTut/gaus_mod_plots_2D.png "2D Posteriors of Gaussian distribution model."\
-@image latex MyTut/gaus_mod_plots_2D.pdf "2D Posteriors of Gaussian distribution model." width=\textwidth
+@image html gaus_mod_plots-2.png "2D Posteriors of Gaussian distribution model."\
+@image latex gaus_mod_plots-2.pdf "2D Posteriors of Gaussian distribution model." width=\textwidth
 
 In each plot, we see the global mode and the marginalized mean and standard
 deviation of the posterior distribution; and three credibility
@@ -461,24 +461,24 @@ The parameter plot graphically summarizes the output for all
 parameters (and in a separate page, all observables) in a single
 image:
 
-@image html MyTut/gaus_mod_parameters_1.png "Summary of parameter marginalizations."
-@image latex MyTut/gaus_mod_parameters_1.pdf "Summary of parameter marginalizations." width=\textwidth
+@image html gaus_mod_parameters-1.png "Summary of parameter marginalizations."
+@image latex gaus_mod_parameters-1.pdf "Summary of parameter marginalizations." width=\textwidth
 
 The correlation plot and the correlation matrix summarize graphically
 the correlations among parameters and observables:
 
-@image html MyTut/gaus_mod_correlation.png "Parameter and observable correlation plots."
-@image latex MyTut/gaus_mod_correlation.pdf "Parameter and observable correlation plots." width=\textwidth
+@image html gaus_mod_correlation.png "Parameter and observable correlation plots."
+@image latex gaus_mod_correlation.pdf "Parameter and observable correlation plots." width=\textwidth
 
-@image html MyTut/gaus_mod_correlationMatrix.png "Parameter and observable correlation matrix."
-@image latex MyTut/gaus_mod_correlationMatrix.pdf "Parameter and observable correlation matrix." width=\textwidth
+@image html gaus_mod_correlationMatrix.png "Parameter and observable correlation matrix."
+@image latex gaus_mod_correlationMatrix.pdf "Parameter and observable correlation matrix." width=\textwidth
 
 The knowledge update plots show the marginalized priors and
 marginalized posteriors together in one plot for each variable (and
 also for 2D marginalizations):
 
-@image html MyTut/gaus_mod_update_1D.png "Knowledge update plots."
-@image latex MyTut/gaus_mod_update_1D.pdf "Knowledge update plots." width=\textwidth
+@image html gaus_mod_update-1.png "Knowledge update plots."
+@image latex gaus_mod_update-1.pdf "Knowledge update plots." width=\textwidth
 
 Note that this really shows the _marginalized_ prior: Here, having
 used factorized priors, we see exactly the factorized priors. But had

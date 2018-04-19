@@ -22,14 +22,14 @@ MyMod::MyMod(const std::string& name)
 
     // fill data histogram randomly from data_func 1,000 times
     fDataHistogram.FillRandom("data_func", 1e3);
-    
+
     // add parameters for Gaussian distribution
     AddParameter("mu",    5.27, 5.29, "#mu", "[GeV]");
     GetParameters().Back().SetPrior(new BCGaussianPrior(5.28, 2e-3));
-    
+
     AddParameter("sigma", 25e-3, 45e-3, "#sigma", "[GeV]");
     GetParameters().Back().SetPrior(new BCGaussianPrior(35e-3, 3e-3));
-    
+
     AddParameter("height", 0, 10, "", "[events]");
     GetParameters().Back().SetPriorConstant();
 
@@ -67,7 +67,7 @@ double MyMod::LogLikelihood(const std::vector<double>& pars)
 
         // add to log-likelihood sum
         LL += BCMath::LogPoisson(x, nu);
-                                 
+
     }
 
     // return log-likelihood
@@ -86,7 +86,7 @@ void MyMod::CalculateObservables(const std::vector<double>& pars)
 {
     // store total of number events expected
     double nu = 0;
-    
+
     // loop over bins of our data
     for (int i = 1; i <= fDataHistogram.GetNbinsX(); ++i)
         // calculate expected number of events in that bin

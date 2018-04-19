@@ -32,8 +32,8 @@ public:
     double LogLikelihood(const std::vector<double>& pars);
 
     // Overload CalculateObservables if using observables
-    void CalculateObservables(const std::vector<double> & pars);
-   
+    void CalculateObservables(const std::vector<double>& pars);
+
 private:
 
     TH1D fDataHistogram;

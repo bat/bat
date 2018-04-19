@@ -18,8 +18,10 @@ endef
 # follow http://stackoverflow.com/a/649462/987623 to get multi-line string to work
 export doxyconf
 
+# DOXYDEPENDENCIES empty by default
+
 .PHONY: doxy
-doxy: $(TAGFILE)
+doxy: $(TAGFILE) $(DOXYDEPENDENCIES)
 	(cat $(top_srcdir)/doc/Doxyfile; \
 	echo "INPUT = " $(doxyinput); \
 	echo "$$doxyconf"; \
