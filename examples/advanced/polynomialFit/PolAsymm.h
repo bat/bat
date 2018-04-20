@@ -30,7 +30,7 @@ public:
     {}
 
     // fit function returning expectation value for each data point
-    virtual double FitFunction(double* x, double* par);
+    double f(double* x, double* par);
 
     // loglikelihood function - probability of the data given the parameters
     double LogLikelihood(const std::vector<double>& par);

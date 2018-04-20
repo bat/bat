@@ -9,14 +9,14 @@
 
 // ---------------------------------------------------------
 PolAsymm::PolAsymm(const std::string& name, const BCParameterSet& parameters)
-    : BCFitter(TF1(name.c_str(), this, &PolAsymm::FitFunction, 0, 1, parameters.Size()), name)
+    : BCFitter(TF1(name.c_str(), this, &PolAsymm::f, 0, 1, parameters.Size()), name)
 {
     // copy over parameters and all definitions
     fParameters = parameters;
 }
 
 // ---------------------------------------------------------
-double PolAsymm::FitFunction(double* x, double* par)
+double PolAsymm::f(double* x, double* par)
 {
     // n-th order polynomial
     double r = 0;
@@ -43,7 +43,7 @@ double PolAsymm::LogLikelihood(const std::vector<double>& par)
         std::vector<double>& x = GetDataSet()->GetDataPoint(i).GetValues();
 
         // calculate the value of the function at this point
-        double y_func = FitFunction(&x[0], parRoot);
+        double y_func = f(&x[0], parRoot);
 
         // Likelihood *= asymmetric Gaussian evaluated at y_func given
         // mode from the data point (x[1]) and standard deviation
