@@ -32,7 +32,7 @@
 BCHistogramBase::BCHistogramBase(const TH1* const hist, int dimension)
     : fHistogram(0),
       fNLegendColumns(2),
-      fBandOvercoverage(false),
+      fBandOvercoverage(true),
       fBandFillStyle(1001),
       fLineColor(kBlack),
       fMarkerColor(kBlack),
@@ -538,11 +538,11 @@ void BCHistogramBase::DrawGlobalMode()
     gPad->Update();
     double ymin = gPad->GetUymin();
     double ymax = gPad->GetUymax();
-    double y = ymin + 0.5 * (ymax - ymin);
+    double y = ymin + 0.3 * (ymax - ymin);
     if (gPad->GetLogy()) {
         ymin = pow(10, ymin);
         ymax = pow(10, ymax);
-        y = ymin * pow(ymax / ymin, 0.5);
+        y = ymin * pow(ymax / ymin, 0.3);
     }
     if (GetHistogram()->GetDimension() > 1 and fGlobalMode.size() > 1)
         y = fGlobalMode[1];
@@ -561,7 +561,7 @@ void BCHistogramBase::DrawGlobalMode()
 
         if (fDrawGlobalModeArrows) {
             TArrow* arrow_mode = new TArrow(marker_mode->GetX(), (gPad->GetLogy() ? marker_mode->GetY()*pow(ymax / ymin, -1.5e-2) : marker_mode->GetY() + (ymax - ymin) * -1.5e-2),
-                                            marker_mode->GetX(), (gPad->GetLogy() ? ymin * pow(ymax / ymin, 3e-2) : ymin + (ymax - ymin) * 3e-2),
+                                            marker_mode->GetX(), (gPad->GetLogy() ? ymin * pow(ymax / ymin, 4e-2) : ymin + (ymax - ymin) * 4e-2),
                                             2e-2 * gPad->GetWNDC(), "|>");
             fROOTObjects.push_back(arrow_mode);
             arrow_mode->SetLineColor(marker_mode->GetMarkerColor());
@@ -576,7 +576,7 @@ void BCHistogramBase::DrawGlobalMode()
                     ymax = pow(10, xmax);
                 }
                 TArrow* arrow_mode2 = new TArrow((gPad->GetLogx() ? marker_mode->GetX()*pow(xmax / xmin, -1.5e-2) : marker_mode->GetX() + (xmax - xmin) * -1.5e-2), marker_mode->GetY(),
-                                                 (gPad->GetLogx() ? xmin * pow(xmax / xmin, 3e-2) : xmin + (xmax - xmin) * 3e-2), marker_mode->GetY(),
+                                                 (gPad->GetLogx() ? xmin * pow(xmax / xmin, 4e-2) : xmin + (xmax - xmin) * 4e-2), marker_mode->GetY(),
                                                  2e-2 * gPad->GetWNDC(), "|>");
                 fROOTObjects.push_back(arrow_mode2);
                 arrow_mode2->SetLineColor(marker_mode->GetMarkerColor());
@@ -650,11 +650,11 @@ void BCHistogramBase::DrawMean()
     gPad->Update();
     double ymin = gPad->GetUymin();
     double ymax = gPad->GetUymax();
-    double y = ymin + 0.6 * (ymax - ymin);
+    double y = ymin + 0.4 * (ymax - ymin);
     if (gPad->GetLogy()) {
         ymin = pow(10, ymin);
         ymax = pow(10, ymax);
-        y = ymin * pow(ymax / ymin, 60e-2);
+        y = ymin * pow(ymax / ymin, 0.4);
     }
     if (GetHistogram()->GetDimension() > 1)
         y = GetHistogram()->GetMean(2);
