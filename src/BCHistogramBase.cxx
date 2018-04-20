@@ -25,7 +25,6 @@
 #include <TString.h>
 
 #include <algorithm>
-#include <iostream>
 #include <math.h>
 
 // ---------------------------------------------------------
@@ -499,9 +498,11 @@ void BCHistogramBase::Draw()
         gPad->SetGridy(fGridy);
         if (GetHistogram()->GetDimension() == 1) {
             TAxis* xax = GetHistogram()->GetXaxis();
+            TAxis* yax = GetHistogram()->GetYaxis();
             double ymax = GetHistogram()->GetMaximum();
             double ymin = GetHistogram()->GetMinimum();
-            TH2D* h2_ax = new TH2D("h2_ax", GetHistogram()->GetTitle(),
+            TH2D* h2_ax = new TH2D(Form("h2_ax_%s", GetHistogram()->GetName()),
+                                   Form("%s;%s;%s", GetHistogram()->GetTitle(), xax->GetTitle(), yax->GetTitle()),
                                    xax->GetNbins(), xax->GetXmin(), xax->GetXmax(),
                                    100, ymin, (gPad->GetLogy() ? 2 * ymax : ymax + 0.1 * (ymax - ymin)));
             h2_ax->SetStats(false);

@@ -19,8 +19,6 @@
 #include <TH2.h>
 #include <TRandom.h>
 
-#include <iostream>
-
 // ---------------------------------------------------------
 BCPrior::BCPrior()
     : fPriorFunction("prior_interal_f1", this, &BCPrior::GetPriorForROOT, 0, 0, 1) //-std::numeric_limits<double>::max(),std::numeric_limits<double>::max()))

@@ -11,8 +11,6 @@
 
 #include <TMath.h>
 
-#include <iostream>
-
 // ---------------------------------------------------------
 BCGaussianPrior::BCGaussianPrior(double mean, double sigma)
     : BCPrior()
