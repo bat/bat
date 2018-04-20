@@ -442,12 +442,12 @@ void BCAux::DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posteri
 
     // Draw prior legend on top left
     double y1ndc_prior = prior.ResizeLegend();
-    prior.GetLegend().SetX2NDC(prior.GetLegend().GetX1NDC() + 45e-2 * (prior.GetLegend().GetX2NDC() - prior.GetLegend().GetX1NDC()));
+    prior.GetLegend().SetX2(prior.GetLegend().GetX1NDC() + 45e-2 * (prior.GetLegend().GetX2NDC() - prior.GetLegend().GetX1NDC()));
     prior.GetLegend().Draw();
 
     // Draw posterior legend on top right
     double y1ndc_posterior = posterior.ResizeLegend();
-    posterior.GetLegend().SetX1NDC(posterior.GetLegend().GetX1NDC() + 55e-2 * (posterior.GetLegend().GetX2NDC() - posterior.GetLegend().GetX1NDC()));
+    posterior.GetLegend().SetX1(posterior.GetLegend().GetX1NDC() + 55e-2 * (posterior.GetLegend().GetX2NDC() - posterior.GetLegend().GetX1NDC()));
     posterior.GetLegend().Draw();
 
     gPad->SetTopMargin(1 - std::min<double>(y1ndc_prior, y1ndc_posterior) + 0.01);
