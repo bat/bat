@@ -36,8 +36,8 @@ define extradoxyconf
 endef
 export extradoxyconf
 
-# do nothing by default so `make` in top-level dir doesn't required all the
-# tools used for the docs
+# do nothing by default so `make` in top-level dir doesn't require all the
+# tools used for the docs. To build both html and pdf manual, use the `pdf` target
 all: ;
 
 ####

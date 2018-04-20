@@ -22,3 +22,20 @@ before_install:
 
 script:
   - docker exec "$DOCKER_INSTANCE" /bin/sh -c "cd /root/bat && tools/test-bat.sh"
+  # save the docs for deployment
+  - mkdir -p /tmp/master/ref-guide
+  - mkdir -p /tmp/master/manual
+  - docker cp "$DOCKER_INSTANCE":/root/bat/doc/ref-guide/html/ /tmp/master/ref-guide/
+  - docker cp "$DOCKER_INSTANCE":/root/bat/doc/manual/BAT-manual.pdf /tmp/master/manual/
+  - docker cp "$DOCKER_INSTANCE":/root/bat/doc/manual/html/ /tmp/master/manual/
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN  # Set in travis-ci.org dashboard, marked secure
+  keep-history: false
+  on:
+    branch: manual
+  repo: fredRos/bat-docs
+  verbose: true
+  local-dir: /tmp/master

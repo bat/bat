@@ -4,6 +4,8 @@
 
 ./autogen.sh
 ./configure --with-cuba=download --enable-roostats --enable-parallel CXXFLAGS='-Wall -Wextra -pedantic -Werror'
-make -j`nprocs` distcheck VERBOSE=1
+# build html reference guide, manual in html and pdf
+make -j`nprocs` && make -C doc/manual/ pdf
+# make -j`nprocs` distcheck VERBOSE=1
 
 echo "OK"
