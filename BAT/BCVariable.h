@@ -261,6 +261,21 @@ public:
     virtual std::string OneLineSummary(bool print_prefix = true, int name_length = -1) const;
 
     /**
+     * @return title appropriate for TH1 */
+    virtual std::string H1Title() const;
+
+    /**
+     * @return title appropriate for TH2
+     * @param ordinate The variable to be used for the ordinate. */
+    virtual std::string H2Title(const BCVariable& ordinate) const;
+
+    /**
+     * @return title appropriate for TH3
+     * @param ordinate_y The variable to be used for the y ordinate.
+     * @param ordinate_z The variable to be used for the z ordinate. */
+    virtual std::string H3Title(const BCVariable& ordinate_y, const BCVariable& ordinate_z) const;
+
+    /**
      * Creates a 1D Histogram for this variable.
      *
      * @note The caller is responsible for deletion of the returned object.

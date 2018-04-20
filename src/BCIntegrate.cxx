@@ -760,7 +760,11 @@ int BCIntegrate::MarginalizeAll()
 
                             // 1D marginalize by projecting
                             fH1Marginalized[i] = fH2Marginalized[i][j]->ProjectionX(Form("h1_%s_parameter_%i", GetSafeName().data() , i));
+                            if (fH1Marginalized[i])
+                                fH1Marginalized[i]->SetTitle(GetParameter(i).H1Title().data());
                             fH1Marginalized[j] = fH2Marginalized[i][j]->ProjectionY(Form("h1_%s_parameter_%i", GetSafeName().data() , j));
+                            if (fH1Marginalized[j])
+                                fH1Marginalized[j]->SetTitle(GetParameter(j).H1Title().data());
                         }
                     }
             }
@@ -879,7 +883,7 @@ TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, unsigned& nIterations,
             if (dynamic_cast<TH3*>(slice_NnD) != NULL)
                 h = dynamic_cast<TH3*>(slice_NnD)->ProjectionX(Form("h1_slice_%s_%d", GetSafeName().data(), indices[0]));
             if (h)
-                h->SetYTitle(Form("p(%s | data)", GetParameter(indices[0]).GetLatexName().data()));
+                h->SetTitle(GetParameter(indices[0]).H1Title().data());
             return h;
         }
         // 3->2
@@ -887,7 +891,7 @@ TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, unsigned& nIterations,
             TH1* h = dynamic_cast<TH3*>(slice_NnD)->Project3D("xy_temp_slice_projection");
             if (h) {
                 h->SetName(Form("h1_slice_%s_%d_%d", GetSafeName().data(), indices[0], indices[1]));
-                h->SetZTitle(Form("p(%s, %s | data)", GetParameter(indices[0]).GetLatexName().data(), GetParameter(indices[1]).GetLatexName().data()));
+                h->SetTitle(GetParameter(indices[0]).H2Title(GetParameter(indices[1])).data());
             }
             return h;
         }
@@ -919,24 +923,18 @@ TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, unsigned& nIterations,
     if (indices.size() == 1) {
         h = GetParameter(indices[0]).CreateH1(Form("h1_slice_%s_%d", GetSafeName().data(), indices[0]));
         // set y-axis label
-        if (GetNParameters() == 1)
-            h->SetYTitle(Form("p(%s|data)", GetParameter(indices[0]).GetLatexName().data()));
-        else
-            h->SetYTitle(Form("p(%s|data, all other parameters fixed)", GetParameter(indices[0]).GetLatexName().data()));
+        if (GetNParameters() > 1)
+            h->GetYaxis()->SetTitle(Form("%s (all other parameters fixed)", h->GetYaxis()->GetTitle()));
     } else if (indices.size() == 2) {
         h = GetParameter(indices[0]).CreateH2(Form("h2_slice_%s_%d_%d", GetSafeName().data(), indices[0], indices[1]), GetParameter(indices[1]));
         // set z-axis label
-        if (GetNParameters() == 2)
-            h->SetZTitle(Form("p(%s, %s | data)", GetParameter(indices[0]).GetLatexName().data(), GetParameter(indices[1]).GetLatexName().data()));
-        else
-            h->SetZTitle(Form("p(%s, %s | data, all other parameters fixed)", GetParameter(indices[0]).GetLatexName().data(), GetParameter(indices[1]).GetLatexName().data()));
+        if (GetNParameters() > 2)
+            h->GetZaxis()->SetTitle(Form("%s (all other parameters fixed)", h->GetZaxis()->GetTitle()));
     } else if (indices.size() == 3) {
         h = GetParameter(indices[0]).CreateH3(Form("h3_slice_%s_%d_%d_%d", GetSafeName().data(), indices[0], indices[1], indices[2]), GetParameter(indices[1]), GetParameter(indices[2]));
         // set z-axis label
-        if (GetNParameters() == 3)
-            h->SetZTitle(Form("p(%s, %s, %s | data)", GetParameter(indices[0]).GetLatexName().data(), GetParameter(indices[1]).GetLatexName().data(), GetParameter(indices[2]).GetLatexName().data()));
-        else
-            h->SetZTitle(Form("p(%s, %s, %s | data, all other parameters fixed)", GetParameter(indices[0]).GetLatexName().data(), GetParameter(indices[1]).GetLatexName().data(), GetParameter(indices[2]).GetLatexName().data()));
+        if (GetNParameters() > 3)
+            h->GetZaxis()->SetTitle(Form("%s (all other parameters fixed)", h->GetZaxis()->GetTitle()));
     }
 
     // reset log_max_val
