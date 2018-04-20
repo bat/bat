@@ -12,7 +12,9 @@ define extradoxyconf
 endef
 export extradoxyconf
 
-all: doxy
+# do nothing by default so `make` in top-level dir doesn't required all the
+# tools used for the docs
+all: ;
 
 include $(top_srcdir)/doc/Makefile-common.am
 

@@ -36,7 +36,9 @@ define extradoxyconf
 endef
 export extradoxyconf
 
-all: pdf
+# do nothing by default so `make` in top-level dir doesn't required all the
+# tools used for the docs
+all: ;
 
 ####
 # 1. run tutorial example to create pdf plots for latex manual
