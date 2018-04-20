@@ -61,7 +61,6 @@ BCHistogramBase::BCHistogramBase(const TH1* const hist, int dimension)
     SetColorScheme(kGreenYellowRed);
 
     fLegend.SetNColumns(fNLegendColumns);
-    fLegend.SetColumnSeparation(5e-2); // % of full width
     fLegend.SetBorderSize(0);
     fLegend.SetFillColor(kWhite);
     fLegend.SetTextAlign(12);
@@ -701,11 +700,12 @@ void BCHistogramBase::DrawMean()
 // ---------------------------------------------------------
 double BCHistogramBase::ResizeLegend()
 {
-    fLegend.SetX1NDC(gPad->GetLeftMargin());// +5e-2 * (1 - gPad->GetRightMargin() - gPad->GetLeftMargin()));
-    fLegend.SetX2NDC(1 - gPad->GetRightMargin());
-    fLegend.SetY1NDC(1 - gPad->GetTopMargin() - fLegend.GetTextSize()*fLegend.GetNRows());
-    fLegend.SetY2NDC(1 - gPad->GetTopMargin());
-    return fLegend.GetY1NDC();
+    fLegend.SetX1(gPad->GetLeftMargin());// +5e-2 * (1 - gPad->GetRightMargin() - gPad->GetLeftMargin()));
+    fLegend.SetX2(1 - gPad->GetRightMargin());
+    fLegend.SetY1(1 - gPad->GetTopMargin() - fLegend.GetTextSize()*fLegend.GetNRows());
+    fLegend.SetY2(1 - gPad->GetTopMargin());
+    fLegend.SetColumnSeparation(0.0);
+    return fLegend.GetY1();
 }
 
 // ---------------------------------------------------------
@@ -740,7 +740,6 @@ void BCHistogramBase::DrawLegend()
         ymax = pow(10, ymax);
     }
 
-    // if (fDrawLegend) {
     fHistogram->GetYaxis()->SetRangeUser(ymin, ymax * (1.15 + fLegend.GetTextSize()*fLegend.GetNRows()) * 1.05);
 
     gPad->SetTopMargin(0.02);
@@ -751,6 +750,4 @@ void BCHistogramBase::DrawLegend()
     // rescale top margin
     gPad->SetTopMargin(1 - y1ndc + 0.01);
 
-    // } else
-    //     fHistogram->GetYaxis()->SetRangeUser(ymin, ymax * 1.155);
 }
