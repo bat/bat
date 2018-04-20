@@ -30,6 +30,10 @@ int main()
     // and all combinations of two parameters
     m.MarginalizeAll();
 
+    // run MCMC for another 100,000 iterations without rerunning the pre-run
+    m.SetNIterationsRun(100000);
+    m.MarginalizeAll();
+
     // if MCMC was run before (MarginalizeAll()) it is
     // possible to use the mode found by MCMC as
     // starting point of Minuit minimization
