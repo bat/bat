@@ -133,6 +133,10 @@ elif test "$with_cuba" = "download"; then
       AC_MSG_ERROR([Need either wget or curl to download Cuba.])
     fi
 
+    # Fix #248
+    ARFLAGS_OLD=ARFLAGS
+    export ARFLAGS=rvU
+
     mkdir -p "${local_cuba_dir}" \
     && (${download_cmd} "${cuba_url}" | tar --strip-components 1 -C "${local_cuba_dir}" --strip=1 -x -z) \
     && (
@@ -140,6 +144,7 @@ elif test "$with_cuba" = "download"; then
       && CFLAGS="-fPIC -O3 -fomit-frame-pointer -ffast-math -Wall" ./configure \
       && make lib
     )
+    ARFLAGS=ARFLAGS_OLD
   else
     AC_MSG_NOTICE([Reusing existing local cuba build in $local_cuba_dir])
   fi
