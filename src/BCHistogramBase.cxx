@@ -16,6 +16,7 @@
 #include <TArrow.h>
 #include <TAxis.h>
 #include <TH1.h>
+#include <TH2D.h>
 #include <TLegend.h>
 #include <TLegendEntry.h>
 #include <TMarker.h>
@@ -496,8 +497,19 @@ void BCHistogramBase::Draw()
         gPad->SetLogz(fLogz);
         gPad->SetGridx(fGridx);
         gPad->SetGridy(fGridy);
-        GetHistogram()->Draw("axis");
-        gPad->Update();
+        if (GetHistogram()->GetDimension() == 1) {
+            TAxis* xax = GetHistogram()->GetXaxis();
+            double ymax = GetHistogram()->GetMaximum();
+            double ymin = GetHistogram()->GetMinimum();
+            TH2D* h2_ax = new TH2D("h2_ax", GetHistogram()->GetTitle(),
+                                   xax->GetNbins(), xax->GetXmin(), xax->GetXmax(),
+                                   100, ymin, (gPad->GetLogy() ? 2 * ymax : ymax + 0.1 * (ymax - ymin)));
+            h2_ax->SetStats(false);
+            h2_ax->Draw();
+            fROOTObjects.push_back(h2_ax);
+        } else
+            GetHistogram()->Draw("axis");
+        // gPad->Update();
         options += "same";
     }
 
