@@ -494,8 +494,9 @@ void BCHistogramBase::Draw()
     Smooth(fNSmooth);
 
     std::string options = fROOToptions;
+    std::transform(options.begin(), options.end(), options.begin(), ::tolower);
     // if option "same" is not specified, draw axes and add "same" to options
-    if (fROOToptions.find("same") == std::string::npos) {
+    if (options.find("same") == std::string::npos) {
         gPad->SetLogx(fLogx);
         gPad->SetLogy(fLogy);
         gPad->SetLogz(fLogz);
