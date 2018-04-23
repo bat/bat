@@ -221,7 +221,6 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH1D& prior, BCH1D& posterior, BCAux
             prior.SetDrawMean(false);
             prior.SetDrawMedian(false);
             prior.SetDrawLegend(false);
-            prior.SetNBands(0);
             prior.SetBandType(BCH1D::kNoBands);
             prior.SetROOToptions(ROOToptions);
             prior.SetLineColor(13);
@@ -231,7 +230,6 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH1D& prior, BCH1D& posterior, BCAux
             posterior.SetDrawGlobalMode(true);
             posterior.SetBandType(BCH1D::kSmallestInterval);
             posterior.SetNBands(3);
-            posterior.SetNLegendColumns(1);
             posterior.SetColorScheme(BCHistogramBase::kGreenYellowRed);
             posterior.SetLineColor(kBlack);
             posterior.SetMarkerColor(kBlack);
@@ -243,7 +241,6 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH1D& prior, BCH1D& posterior, BCAux
             posterior.SetDrawMean(false);
             posterior.SetDrawMedian(false);
             posterior.SetDrawLegend(false);
-            posterior.SetNBands(0);
             posterior.SetBandType(BCH1D::kNoBands);
             posterior.SetROOToptions(ROOToptions);
             posterior.SetLineColor(13);
@@ -253,7 +250,6 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH1D& prior, BCH1D& posterior, BCAux
             prior.SetDrawGlobalMode(true);
             prior.SetBandType(BCH1D::kSmallestInterval);
             prior.SetNBands(3);
-            prior.SetNLegendColumns(1);
             prior.SetColorScheme(BCHistogramBase::kGreenYellowRed);
             prior.SetLineColor(kBlack);
             prior.SetMarkerColor(kBlack);
@@ -262,21 +258,18 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH1D& prior, BCH1D& posterior, BCAux
         case BCAux::kKnowledgeUpdateDefaultStyle:
         default:
             // 1D
-            prior.SetDrawGlobalMode(false);
-            prior.SetDrawLocalMode(false);
-            prior.SetDrawMean(false);
-            prior.SetDrawMedian(false);
-            prior.SetDrawLegend(false);
-            prior.SetNBands(0);
-            prior.SetBandType(BCH1D::kNoBands);
-            prior.SetROOToptions(ROOToptions);
-            prior.SetLineColor(kRed);
-            prior.SetMarkerColor(kRed);
-            prior.SetNLegendColumns(1);
-            posterior.CopyOptions(prior);
+            posterior.SetDrawGlobalMode(false);
+            posterior.SetDrawLocalMode(false);
+            posterior.SetDrawMean(false);
+            posterior.SetDrawMedian(false);
+            posterior.SetDrawLegend(false);
+            posterior.SetBandType(BCH1D::kNoBands);
+            posterior.SetROOToptions(ROOToptions);
+            posterior.SetColorScheme(BCHistogramBase::kBlackWhite);
             posterior.SetNLegendColumns(1);
-            posterior.SetLineColor(kBlue);
-            posterior.SetMarkerColor(kBlue);
+            prior.CopyOptions(posterior);
+            prior.SetLineWidth(2);
+            prior.SetLineStyle(3);
             break;
     }
 }
@@ -336,21 +329,21 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH2D& prior, BCH2D& posterior, BCAux
         case BCAux::kKnowledgeUpdateDefaultStyle:
         default:
             // 2D
-            prior.SetDrawGlobalMode(false);
-            prior.SetDrawLocalMode(true, false);
-            prior.SetDrawMean(false);
-            prior.SetDrawLegend(false);
-            prior.SetBandType(BCH2D::kSmallestInterval);
-            prior.SetBandFillStyle(-1);
-            prior.SetNBands(1);
-            prior.SetNSmooth(0);
-            prior.SetROOToptions(ROOToptions);
-            prior.SetLineColor(kRed);
-            prior.SetMarkerColor(kRed);
-            prior.SetNLegendColumns(1);
-            posterior.CopyOptions(prior);
-            posterior.SetLineColor(kBlue);
-            posterior.SetMarkerColor(kBlue);
+            posterior.SetDrawGlobalMode(false);
+            posterior.SetDrawLocalMode(true, false);
+            posterior.SetDrawMean(false);
+            posterior.SetDrawLegend(false);
+            posterior.SetBandType(BCH2D::kSmallestInterval);
+            posterior.SetBandFillStyle(-3);
+            posterior.SetNBands(1);
+            posterior.SetNSmooth(0);
+            posterior.SetROOToptions(ROOToptions);
+            posterior.SetColorScheme(BCHistogramBase::kBlackWhite);
+            posterior.SetNLegendColumns(1);
+            prior.CopyOptions(posterior);
+            prior.SetLineWidth(2);
+            prior.SetLineStyle(3);
+            posterior.SetLocalModeMarkerStyle(8);
             break;
     }
 }
@@ -442,12 +435,12 @@ void BCAux::DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posteri
 
     // Draw prior legend on top left
     double y1ndc_prior = prior.ResizeLegend();
-    prior.GetLegend().SetX2(prior.GetLegend().GetX1NDC() + 45e-2 * (prior.GetLegend().GetX2NDC() - prior.GetLegend().GetX1NDC()));
+    prior.GetLegend().SetX2(prior.GetLegend().GetX1() + 45e-2 * (prior.GetLegend().GetX2() - prior.GetLegend().GetX1()));
     prior.GetLegend().Draw();
 
     // Draw posterior legend on top right
     double y1ndc_posterior = posterior.ResizeLegend();
-    posterior.GetLegend().SetX1(posterior.GetLegend().GetX1NDC() + 55e-2 * (posterior.GetLegend().GetX2NDC() - posterior.GetLegend().GetX1NDC()));
+    posterior.GetLegend().SetX1(posterior.GetLegend().GetX1() + 55e-2 * (posterior.GetLegend().GetX2() - posterior.GetLegend().GetX1()));
     posterior.GetLegend().Draw();
 
     gPad->SetTopMargin(1 - std::min<double>(y1ndc_prior, y1ndc_posterior) + 0.01);

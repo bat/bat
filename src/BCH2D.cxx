@@ -143,7 +143,7 @@ void BCH2D::DrawBands(const std::string& options)
 
     if (fBandFillStyle <= 0) {
         GetHistogram()->SetLineColor(GetLineColor());
-        GetHistogram()->Draw((options + "cont2").data());
+        GetHistogram()->Draw((options + "cont" + std::to_string(std::abs(fBandFillStyle))).data());
     } else {
         gStyle->SetPalette(colors.size(), &colors[0]);
         GetHistogram()->SetFillStyle(fBandFillStyle);
@@ -161,7 +161,7 @@ void BCH2D::DrawBands(const std::string& options)
             le->SetLineWidth(0);
             le->SetLineStyle(0);
         } else {
-            TLegendEntry* le = AddBandLegendEntry((TObject*)0, legend_text[i].data(), "L");
+            TLegendEntry* le = AddBandLegendEntry(GetHistogram(), legend_text[i].data(), "L");
             le->SetLineColor(GetLineColor());
             le->SetLineStyle(levels.size() - i);
         }
