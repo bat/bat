@@ -3313,19 +3313,19 @@ bool BCEngineMCMC::PrintCorrelationPlot(const std::string& filename, bool includ
     double xlow, xup, ylow, yup;
     double margintop    = 0.01;
     double marginbottom = margintop;
-    double marginleft   = 4 * margintop;
+    double marginleft   = margintop;
     double marginright  = marginleft;
 
     TLatex ylabel;
     ylabel.SetTextFont(62);
-    ylabel.SetTextSize(1e-1 / I.size());
+    ylabel.SetTextSize(5e-2 / I.size());
     ylabel.SetTextAlign(22);     // set to 32, if latex names too long
     ylabel.SetNDC();
     ylabel.SetTextAngle(90);     // set to 80, if latex names too long
 
     TLatex xlabel;
     xlabel.SetTextFont(62);
-    xlabel.SetTextSize(1e-1 / I.size());
+    xlabel.SetTextSize(5e-2 / I.size());
     xlabel.SetTextAlign(22);     // set to 12, if latex names too long
     xlabel.SetNDC();
     xlabel.SetTextAngle(0);      // set to 350, if latex names too long
