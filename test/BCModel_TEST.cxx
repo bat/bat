@@ -51,13 +51,12 @@ public:
     // 3) MarginalizeAll() fails if the model is changed
     void multiple_runs() const
     {
-
         GaussModel m("mult_run", 4);
         int N = 10000;
         m.SetPrecision(BCEngineMCMC::kMedium);
         m.SetNIterationsRun(N);
 
-        m.MarginalizeAll(BCIntegrate::kMargMetropolis);
+        TEST_CHECK_NO_THROW(m.MarginalizeAll(BCIntegrate::kMargMetropolis));
         TEST_CHECK_NO_THROW(m.MarginalizeAll(BCIntegrate::kMargMetropolis));
 
         for (unsigned c = 0; c < m.GetNChains(); ++c)

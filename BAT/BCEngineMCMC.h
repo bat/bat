@@ -453,7 +453,7 @@ public:
     { return fCorrectRValueForSamplingVariability; }
 
     /**
-     * @return the if MCMC has been performed or not */
+     * @return if MCMC has been performed or not */
     bool GetFlagRun() const
     { return fMCMCPhase == kMainRun; }
 
