@@ -3129,11 +3129,11 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
     gPad->SetTopMargin(0.02);
 
     // place legend on top of histogram
-    legend->SetX1NDC(gPad->GetLeftMargin());
-    legend->SetX2NDC(1. - gPad->GetRightMargin());
+    legend->SetX1(gPad->GetLeftMargin());
+    legend->SetX2(1. - gPad->GetRightMargin());
     double y1 = gPad->GetTopMargin() + legend->GetTextSize() * legend->GetNRows();
-    legend->SetY1NDC(1. - y1);
-    legend->SetY2NDC(1. - gPad->GetTopMargin());
+    legend->SetY1(1. - y1);
+    legend->SetY2(1. - gPad->GetTopMargin());
     legend->Draw("SAME");
 
     gPad->SetTopMargin(y1 + 0.01);
