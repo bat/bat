@@ -134,7 +134,6 @@ std::vector<double> BCH1D::DefaultIntervals(int nbands)
 // ---------------------------------------------------------
 void BCH1D::DrawBands(const std::string& options)
 {
-    GetHistogram()->SetLineColor(GetLineColor());
     GetHistogram()->Draw(options.data());
 
     if ( fBandType == kNoBands or GetHistogram()->Integral() <= 0 )
