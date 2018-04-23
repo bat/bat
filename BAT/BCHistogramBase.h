@@ -163,6 +163,16 @@ public:
     { return fLineColor; }
 
     /**
+     * @return histogram line style. */
+    int GetLineStyle() const
+    { return fLineStyle; }
+
+    /**
+     * @return histogram line width. */
+    int GetLineWidth() const
+    { return fLineWidth; }
+
+    /**
      * Returns the marker colors (used for mean, median, and mode. */
     int GetMarkerColor() const
     { return fMarkerColor; }
@@ -350,6 +360,18 @@ public:
      * @param c Color for histogram line. */
     void SetLineColor(int c)
     { fLineColor = c; }
+
+    /**
+     * Set histogram line style.
+     * @param s style for histogram line. */
+    void SetLineStyle(int s)
+    { fLineStyle = s; }
+
+    /**
+     * Set histogram line width.
+     * @param w width for histogram line. */
+    void SetLineWidth(int w)
+    { fLineWidth = w; }
 
     /**
      * Set marker color (used for mean, median, and mode).
@@ -623,6 +645,14 @@ protected:
     /**
      * histogram line color. */
     int fLineColor;
+
+    /**
+     * histogram line style. */
+    int fLineStyle;
+
+    /**
+     * histogram line width. */
+    int fLineWidth;
 
     /**
      * Marker color. */

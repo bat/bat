@@ -34,6 +34,8 @@ BCHistogramBase::BCHistogramBase(const TH1* const hist, int dimension)
       fBandOvercoverage(true),
       fBandFillStyle(1001),
       fLineColor(kBlack),
+      fLineStyle(1),
+      fLineWidth(1),
       fMarkerColor(kBlack),
       fMarkerScale(1.6),
       fLogx(false),
@@ -97,6 +99,8 @@ void BCHistogramBase::CopyOptions(const BCHistogramBase& other)
     fNLegendColumns = other.fNLegendColumns;
     fBandFillStyle = other.fBandFillStyle;
     fLineColor = other.fLineColor;
+    fLineStyle = other.fLineStyle;
+    fLineWidth = other.fLineWidth;
     fMarkerColor = other.fMarkerColor;
     fMarkerScale = other.fMarkerScale;
     fLogx = other.fLogx;
@@ -158,6 +162,8 @@ void swap(BCHistogramBase& first, BCHistogramBase& second)
     std::swap(first.fNLegendColumns,        second.fNLegendColumns);
     std::swap(first.fBandFillStyle,         second.fBandFillStyle);
     std::swap(first.fLineColor,             second.fLineColor);
+    std::swap(first.fLineStyle,             second.fLineStyle);
+    std::swap(first.fLineWidth,             second.fLineWidth);
     std::swap(first.fMarkerColor,           second.fMarkerColor);
     std::swap(first.fMarkerScale,           second.fMarkerScale);
     std::swap(first.fLogx,                  second.fLogx);
@@ -505,8 +511,10 @@ void BCHistogramBase::Draw()
         options += "same";
     }
 
+    GetHistogram()->SetLineColor(GetLineColor());
+    GetHistogram()->SetLineStyle(GetLineStyle());
+    GetHistogram()->SetLineWidth(GetLineWidth());
     DrawBands(options);
-    // gPad->Update();
 
     DrawMarkers();
     if (fDrawLegend)
