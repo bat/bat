@@ -496,20 +496,12 @@ void BCHistogramBase::Draw()
         gPad->SetGridx(fGridx);
         gPad->SetGridy(fGridy);
         if (GetHistogram()->GetDimension() == 1) {
-            TAxis* xax = GetHistogram()->GetXaxis();
-            TAxis* yax = GetHistogram()->GetYaxis();
-            double ymax = GetHistogram()->GetMaximum();
+            // necessary because ROOT will otherwise draw space below zero for the errors---which we don't have
             double ymin = GetHistogram()->GetMinimum();
-            TH2D* h2_ax = new TH2D(Form("h2_ax_%s", GetHistogram()->GetName()),
-                                   Form("%s;%s;%s", GetHistogram()->GetTitle(), xax->GetTitle(), yax->GetTitle()),
-                                   xax->GetNbins(), xax->GetXmin(), xax->GetXmax(),
-                                   100, ymin, (gPad->GetLogy() ? 2 * ymax : ymax + 0.1 * (ymax - ymin)));
-            h2_ax->SetStats(false);
-            h2_ax->Draw();
-            fROOTObjects.push_back(h2_ax);
-        } else
-            GetHistogram()->Draw("axis");
-        // gPad->Update();
+            double ymax = GetHistogram()->GetMaximum();
+            GetHistogram()->GetYaxis()->SetRangeUser(ymin, (gPad->GetLogy() ? 2 * ymax : ymax + 0.1 * (ymax - ymin)));
+        }
+        GetHistogram()->Draw("axis");
         options += "same";
     }
 
