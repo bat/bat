@@ -143,7 +143,7 @@ void BCH2D::DrawBands(const std::string& options)
 
     if (fBandFillStyle <= 0) {
         GetHistogram()->SetLineColor(GetLineColor());
-        GetHistogram()->Draw((options + "cont" + std::to_string(std::abs(fBandFillStyle))).data());
+        GetHistogram()->Draw(Form("%scont%d", options.data(), static_cast<int>(std::abs(fBandFillStyle))));
     } else {
         gStyle->SetPalette(colors.size(), &colors[0]);
         GetHistogram()->SetFillStyle(fBandFillStyle);
