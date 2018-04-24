@@ -209,7 +209,7 @@ void BCH1D::DrawBands(const std::string& options)
         // set style of band histogram
         hist_band->SetFillStyle(GetBandFillStyle());
         hist_band->SetFillColor(GetBandColor(i));
-        hist_band->SetLineColor(0);
+        hist_band->SetLineColor(GetBandColor(i));
         hist_band->SetLineWidth(0);
         hist_band->SetLineStyle(0);
         hist_band->SetTitle(Form(legend_text.data(), hist_band->Integral("width") * 100));
