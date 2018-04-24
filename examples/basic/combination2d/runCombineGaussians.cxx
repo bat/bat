@@ -30,7 +30,7 @@ int main()
     m.PrintParameterPlot("CombinationModel_parameters.pdf");
     m.PrintCorrelationPlot("CombinationModel_correlation.pdf");
 
-    // m.SetKnowledgeUpdateDrawingStyle(BCModel::kKnowledgeUpdateDetailedPosterior);
+    // m.SetKnowledgeUpdateDrawingStyle(BCAux::kKnowledgeUpdateDetailedPosterior);
     m.PrintKnowledgeUpdatePlots("CombinationModel_update.pdf");
 
     // print results of the analysis the log
