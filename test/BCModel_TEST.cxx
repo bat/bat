@@ -17,6 +17,8 @@
 #include <BAT/BCH2D.h>
 #include <BAT/BCParameter.h>
 
+#include <stdexcept>
+
 using namespace test;
 
 class BCModelTest :
