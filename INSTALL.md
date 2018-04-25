@@ -35,8 +35,8 @@ release, some more packages are needed
 
     sudo apt-get install autoconf automake git-core libtool
 
-Building and installing works with automake >= 1.10. To run the tests, a more
-recent version is needed, v1.15 is known to be sufficient.
+Building and installing works with autoconf >= 2.63 and automake >= 1.10. To run
+the tests, a more recent version is needed, v1.15 is known to be sufficient.
 
 ### Required: ROOT
 
