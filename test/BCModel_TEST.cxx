@@ -52,7 +52,7 @@ public:
     void multiple_runs() const
     {
         GaussModel m("mult_run", 4);
-        int N = 10000;
+        unsigned N = 10000;
         m.SetPrecision(BCEngineMCMC::kMedium);
         m.SetNIterationsRun(N);
 

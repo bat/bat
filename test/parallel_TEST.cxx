@@ -204,7 +204,7 @@ public:
 
     }
 
-    void Check() throw(TestCaseFailedException)
+    void Check()
     {
         // check if files were written
         {
