@@ -36,7 +36,6 @@
 #include <TCanvas.h>
 #include <TRandom3.h>
 
-#include <BAT/BCAux.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCGraphFitter.h>
 
@@ -52,9 +51,6 @@ void graphFitterSimpleExample()
 {
     // open log file
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
-
-    // set nicer style for drawing than the ROOT default
-    BCAux::SetStyle();
 
     // -------------------------
     // define a fit function, also used to create data

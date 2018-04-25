@@ -36,7 +36,6 @@
 #include <TCanvas.h>
 #include <TRandom3.h>
 
-#include <BAT/BCAux.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCEfficiencyFitter.h>
 
@@ -47,9 +46,6 @@ void efficiencyFitterExample()
 {
     // open log file
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
-
-    // set style
-    BCAux::SetStyle();
 
     // -------------------------
     // define the fit function, which is also used in the generation of the data

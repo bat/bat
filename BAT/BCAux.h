@@ -67,10 +67,6 @@ private:
 };
 
 /**
- * Sets the default BAT style for drawing plots. */
-void SetStyle();
-
-/**
  * Force file extension to be .pdf if not already .pdf or .ps
  * @param filename Filename to be altered */
 void DefaultToPDF(std::string& filename);

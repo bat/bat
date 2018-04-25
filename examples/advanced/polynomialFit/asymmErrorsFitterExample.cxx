@@ -14,9 +14,6 @@
 
 int main()
 {
-    // set nice style for drawing than the ROOT default
-    BCAux::SetStyle();
-
     // open log file with default level of logging
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::summary);
 

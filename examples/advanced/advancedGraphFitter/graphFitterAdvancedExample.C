@@ -31,7 +31,6 @@
 // run the macro in both normal and compiled mode.
 #if defined(__MAKECINT__) || defined(__ROOTCLING__) || (!defined(__CINT__) && !defined(__CLING__))
 
-#include <BAT/BCAux.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCGraphFitter.h>
 
@@ -56,9 +55,6 @@ void graphFitterAdvancedExample()
 {
     // open log file
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
-
-    // set nicer style for drawing than the ROOT default
-    BCAux::SetStyle();
 
     // -------------------------
     // Prepare fitting functions

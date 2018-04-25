@@ -29,7 +29,6 @@
 // run the macro in both normal and compiled mode.
 #if defined(__MAKECINT__) || defined(__ROOTCLING__) || (!defined(__CINT__) && !defined(__CLING__))
 
-#include <BAT/BCAux.h>
 #include <BAT/BCGaussianPrior.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCParameter.h>
@@ -47,13 +46,8 @@
 
 void ensembleTest()
 {
-    // ---- set style and open log files ---- //
-
     // open log file
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
-
-    // set nicer style for drawing than the ROOT default
-    BCAux::SetStyle();
 
     // ---- read histograms from a file ---- //
 

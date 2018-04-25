@@ -1,13 +1,9 @@
 #include "PoissonModel.h"
 
-#include <BAT/BCAux.h>
 #include <BAT/BCLog.h>
 
 int main()
 {
-    // set nicer style for drawing than the ROOT default
-    BCAux::SetStyle();
-
     // open log file
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 

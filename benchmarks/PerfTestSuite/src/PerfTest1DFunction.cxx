@@ -16,8 +16,6 @@
 #include <TGraph.h>
 
 #include <BAT/BCH1D.h>
-#include <BAT/BCAux.h>
-#include <BAT/BCMath.h>
 
 #include <iostream>
 
@@ -30,9 +28,6 @@ PerfTest1DFunction::PerfTest1DFunction(const std::string& name, TF1* func)
 {
     // set test type
     fTestType = PerfTest::kFunction1D;
-
-    // set style
-    BCAux::SetStyle();
 
     // manipulate function
     fFunction->SetNDF(100000);
