@@ -23,11 +23,11 @@ int main()
     m.PrintAllMarginalized("CombinationModel_plots.pdf");
 
     // print summary plots
-    m.PrintParameterPlot("CombinationModel_parameters.pdf");
-    m.PrintCorrelationPlot("CombinationModel_correlation.pdf");
+    m.PrintParameterPlot(m.GetSafeName() + "_parameters.pdf");
+    m.PrintCorrelationPlot(m.GetSafeName() + "_correlation.pdf");
 
     // m.SetKnowledgeUpdateDrawingStyle(BCAux::kKnowledgeUpdateDetailedPosterior);
-    m.PrintKnowledgeUpdatePlots("CombinationModel_update.pdf");
+    m.PrintKnowledgeUpdatePlots(m.GetSafeName() + "_update.pdf");
 
     // print results of the analysis the log
     m.PrintSummary();

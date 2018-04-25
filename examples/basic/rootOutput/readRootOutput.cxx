@@ -14,7 +14,7 @@ int main()
     // empty string for second argument tells BAT to search for model in file.
     // If you run the example repeatedly, results are added.
     // To avoid errors, we give the name of the model explicitly.
-    BCEmptyModel m("GaussModel.root", "gausMod");
+    BCEmptyModel m("GaussModel.root", "GaussModel");
 
     m.Remarginalize();
 
@@ -40,7 +40,7 @@ int main()
     h01.Draw();
 
     C.Update();
-    C.Print("GaussModel_loaded_plots.pdf");
+    C.Print((m.GetSafeName() + "_loaded_plots.pdf").data());
 
     // close log file
     BCLog::CloseLog();

@@ -19,7 +19,7 @@ int main()
     BCMath::CacheFactorials(1000);
 
     // create new ReferenceCounting object for 20 measured events
-    ReferenceCounting m("refcountMod", 20);
+    ReferenceCounting m("Reference Counting", 20);
 
     // set background expectation
     double bkg_exp = 10; // expectation value
@@ -44,14 +44,14 @@ int main()
     m.FindMode(m.GetBestFitParameters());
 
     // draw all marginalized distributions into a pdf file
-    m.PrintAllMarginalized("ReferenceCounting_plots.pdf");
+    m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");
     m.GetBCH1DdrawingOptions().SetLogy();
-    m.PrintAllMarginalized("ReferenceCounting_logy.pdf");
+    m.PrintAllMarginalized(m.GetSafeName() + "_logy.pdf");
 
     // print knowledge update with detailed posteriors
     m.SetKnowledgeUpdateDrawingStyle(BCAux::kKnowledgeUpdateDetailedPosterior);
     m.GetBCH2DPosteriorDrawingOptions().SetNSmooth(0);
-    m.PrintKnowledgeUpdatePlots("ReferenceCounting_update.pdf");
+    m.PrintKnowledgeUpdatePlots(m.GetSafeName() + "_update.pdf");
 
     // print results of the analysis to the log
     m.PrintSummary();

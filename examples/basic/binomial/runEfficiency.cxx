@@ -17,7 +17,7 @@ int main()
     m.FindMode(m.GetBestFitParameters());
 
     // draw all marginalized distributions into a pdf file
-    m.PrintAllMarginalized("BinomialModel_plots.pdf");
+    m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");
 
     // print results of the analysis to the log
     m.PrintSummary();

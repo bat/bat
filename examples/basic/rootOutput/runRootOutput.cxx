@@ -10,7 +10,7 @@ int main()
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
     // create new GaussModel object
-    GaussModel m("gausMod");
+    GaussModel m("Gauss Model");
 
     // set marginalization method
     m.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
@@ -19,7 +19,7 @@ int main()
     m.SetPrecision(BCEngineMCMC::kMedium);
 
     // switch writing of Markov Chains on
-    m.WriteMarkovChain("GaussModel.root", "RECREATE");
+    m.WriteMarkovChain(m.GetSafeName() + ".root", "RECREATE");
 
     // run MCMC and marginalize posterior wrt. all parameters
     // and all combinations of two parameters
@@ -35,13 +35,13 @@ int main()
     m.FindMode(m.GetBestFitParameters());
 
     // draw all marginalized distributions into a PostScript file
-    m.PrintAllMarginalized("GaussModel_plots.pdf");
+    m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");
 
     // print results of the analysis to the log
     m.PrintSummary();
 
     // write marginalized distributions to output file
-    m.WriteMarginalizedDistributions("GaussModel.root", "UPDATE");
+    m.WriteMarginalizedDistributions(m.GetSafeName() + ".root", "UPDATE");
 
     // close log file
     BCLog::CloseLog();
