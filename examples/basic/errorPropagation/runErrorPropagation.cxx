@@ -8,7 +8,7 @@ int main()
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
     // create new RatioModel object
-    RatioModel m("ratMod");
+    RatioModel m("Ratio Model");
 
     // set Metropolis as marginalization method
     m.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
@@ -23,7 +23,7 @@ int main()
     m.FindMode(m.GetBestFitParameters());
 
     // draw all marginalized distributions into a PostScript file
-    m.PrintAllMarginalized("RatioModel_plots.pdf");
+    m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");
 
     // print results of the analysis to the log
     m.PrintSummary();

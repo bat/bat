@@ -20,11 +20,11 @@ int main()
     m.FindMode(m.GetBestFitParameters());
 
     // draw all marginalized distributions into a PostScript file
-    m.PrintAllMarginalized("CombinationModel_plots.pdf");
+    m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");
 
     // print knowledge update plot, with detailed posterior
     m.SetKnowledgeUpdateDrawingStyle(BCAux::kKnowledgeUpdateDetailedPosterior);
-    m.PrintKnowledgeUpdatePlots("CombinationModel_update.pdf");
+    m.PrintKnowledgeUpdatePlots(m.GetSafeName() + "_update.pdf");
 
     // print results of the analysis to the log
     m.PrintSummary();
