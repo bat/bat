@@ -1,6 +1,5 @@
 #include <BAT/BCRooInterface.h>
 
-#include <BAT/BCAux.h>
 #include <BAT/BCH1D.h>
 #include <BAT/BCH2D.h>
 #include <BAT/BCLog.h>
@@ -57,12 +56,8 @@ int main(int argc, char** argv)
     std::cout << "The inputs will be retrieved from " << rootFile << " (workspace " << wsName << ") and the posterior probability plot will be stored in " << outputFile << std::endl;
     std::cout << nMCMC << " MCMC iteration will be performed\n";
 
-    // set nice style for drawing than the ROOT default
-    BCAux::SetStyle();
-
-    // open log file with default level of logging
-    BCLog::OpenLog(logFile);
-    BCLog::SetLogLevel(BCLog::detail);
+    // open log file
+    BCLog::OpenLog(logFile, BCLog::detail);
 
     // create new RooFit-based model
     BCRooInterface _myRooInterface;

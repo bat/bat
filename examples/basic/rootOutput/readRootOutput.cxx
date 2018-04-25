@@ -1,4 +1,3 @@
-#include <BAT/BCAux.h>
 #include <BAT/BCH1D.h>
 #include <BAT/BCH2D.h>
 #include <BAT/BCEmptyModel.h>
@@ -8,10 +7,6 @@
 
 int main()
 {
-
-    // set nicer style for drawing than the ROOT default
-    BCAux::SetStyle();
-
     // open log file
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 

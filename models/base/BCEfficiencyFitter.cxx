@@ -178,7 +178,6 @@ void BCEfficiencyFitter::DrawData(bool flaglegend)
         legend->SetFillColor(0);
         legend->SetFillStyle(0);
         legend->SetTextAlign(12);
-        legend->SetTextFont(62);
         legend->SetTextSize(0.03);
         legend->SetNColumns(2);
         legend->SetColumnSeparation(5e-2);
@@ -256,7 +255,6 @@ void BCEfficiencyFitter::DrawFit(const std::string& options, bool flaglegend)
         legend->SetFillColor(0);
         legend->SetFillStyle(0);
         legend->SetTextAlign(12);
-        legend->SetTextFont(62);
         legend->SetTextSize(0.03);
         legend->SetNColumns(3);
         legend->SetColumnSeparation(5e-2);

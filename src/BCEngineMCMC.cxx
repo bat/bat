@@ -3086,7 +3086,6 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
     legend->SetFillColor(kWhite);
     legend->SetNColumns(2);
     legend->SetTextAlign(12);
-    legend->SetTextFont(62);
     legend->SetTextSize(0.02 * gPad->GetWNDC());
 
     if (!x_i.empty()) {
@@ -3225,25 +3224,21 @@ bool BCEngineMCMC::PrintCorrelationMatrix(const std::string& filename) const
     double text_size = std::max<double>(0.005, 0.02 * std::min<double>(1., 5. / GetNVariables()));
 
     TLatex xlabel;
-    xlabel.SetTextFont(62);
     xlabel.SetTextSize(text_size);
     xlabel.SetTextAlign(22);
 
     TLatex ylabel;
-    ylabel.SetTextFont(62);
     ylabel.SetTextSize(text_size);
     ylabel.SetTextAlign(22);
     ylabel.SetTextAngle(90);
 
     TLatex corr_number;
-    corr_number.SetTextFont(62);
     corr_number.SetTextSize(text_size);
     corr_number.SetTextAlign(22);
 
     gStyle->SetPalette(54);
     gStyle->SetPaintTextFormat("+.2g");
     hist_corr.GetZaxis()->SetRangeUser(-1, 1);
-    hist_corr.GetZaxis()->SetLabelFont(62);
     hist_corr.GetZaxis()->SetDecimals(true);
     hist_corr.GetZaxis()->SetLabelSize(text_size);
     hist_corr.Draw("colz");
@@ -3343,14 +3338,12 @@ bool BCEngineMCMC::PrintCorrelationPlot(const std::string& filename, bool includ
     double marginright  = marginleft;
 
     TLatex ylabel;
-    ylabel.SetTextFont(62);
     ylabel.SetTextSize(5e-2 / I.size());
     ylabel.SetTextAlign(22);     // set to 32, if latex names too long
     ylabel.SetNDC();
     ylabel.SetTextAngle(90);     // set to 80, if latex names too long
 
     TLatex xlabel;
-    xlabel.SetTextFont(62);
     xlabel.SetTextSize(5e-2 / I.size());
     xlabel.SetTextAlign(22);     // set to 12, if latex names too long
     xlabel.SetNDC();
@@ -3358,7 +3351,6 @@ bool BCEngineMCMC::PrintCorrelationPlot(const std::string& filename, bool includ
 
     // Box + Text for empty squares:
     TText text_na;
-    text_na.SetTextFont(42);
     text_na.SetTextAlign(22);
     text_na.SetTextSize(8e-1 / I.size());
     text_na.SetTextColor(kGray);

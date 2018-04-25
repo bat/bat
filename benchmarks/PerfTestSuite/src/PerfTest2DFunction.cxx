@@ -13,7 +13,6 @@
 #include <TStyle.h>
 
 #include <BAT/BCH2D.h>
-#include <BAT/BCAux.h>
 
 #include <stdexcept>
 #include <iostream>
@@ -27,9 +26,6 @@ PerfTest2DFunction::PerfTest2DFunction(const std::string& name, TF2* func)
 {
     // set test type
     fTestType = PerfTest::kFunction2D;
-
-    // set style
-    BCAux::SetStyle();
 
     // manipulate function
     fFunction->SetNDF(100000);

@@ -29,7 +29,6 @@
 // run the macro in both normal and compiled mode.
 #if defined(__MAKECINT__) || defined(__ROOTCLING__) || (!defined(__CINT__) && !defined(__CLING__))
 
-#include <BAT/BCAux.h>
 #include <BAT/BCEngineMCMC.h>
 #include <BAT/BCGaussianPrior.h>
 #include <BAT/BCLog.h>
@@ -49,14 +48,8 @@
 
 void mcstat()
 {
-    // ---- set style and open log files ---- //
-
     // open log file
-    BCLog::OpenLog("log.txt");
-    BCLog::SetLogLevel(BCLog::detail);
-
-    // set nicer style for drawing than the ROOT default
-    BCAux::SetStyle();
+    BCLog::OpenLog("log.txt", BCLog::detail);
 
     // ---- read histograms from a file ---- //
 

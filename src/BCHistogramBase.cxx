@@ -67,7 +67,6 @@ BCHistogramBase::BCHistogramBase(const TH1* const hist, int dimension)
     fLegend.SetBorderSize(0);
     fLegend.SetFillColor(kWhite);
     fLegend.SetTextAlign(12);
-    fLegend.SetTextFont(62);
     fLegend.SetTextSize(0.03);
 
     fIntervals = DefaultIntervals();
@@ -221,13 +220,6 @@ void BCHistogramBase::SetHistogram(const TH1* const hist)
         fLocalMode.push_back(GetHistogram()->GetYaxis()->GetBinCenter(by));
     if (bz > 0)
         fLocalMode.push_back(GetHistogram()->GetZaxis()->GetBinCenter(bz));
-
-    GetHistogram()->GetXaxis()->SetNdivisions(508);
-    // Set Y title, if 1D
-    // if (GetHistogram()->GetDimension()==1 and strlen(GetHistogram()->GetYaxis()->GetTitle())==0)
-    //  GetHistogram()->SetYTitle(TString::Format("P(%s|Data)",GetHistogram()->GetXaxis()->GetTitle()));
-    if (GetHistogram()->GetDimension() > 1)
-        GetHistogram()->GetYaxis()->SetNdivisions(508);
 }
 
 // ---------------------------------------------------------
