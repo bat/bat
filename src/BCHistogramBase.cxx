@@ -695,14 +695,14 @@ void BCHistogramBase::DrawMean()
 double BCHistogramBase::ResizeLegend()
 {
 #if ROOTVERSION >= 6000000
-    fLegend.SetX1(gPad->GetLeftMargin());
+    fLegend.SetX1(gPad->GetLeftMargin() + (1 - gPad->GetRightMargin() - gPad->GetLeftMargin()) * 10e-2);
     fLegend.SetX2(1 - gPad->GetRightMargin());
     fLegend.SetY1(1 - gPad->GetTopMargin() - fLegend.GetTextSize()*fLegend.GetNRows());
     fLegend.SetY2(1 - gPad->GetTopMargin());
     fLegend.SetColumnSeparation(0.0);
     return fLegend.GetY1();
 #else
-    fLegend.SetX1NDC(gPad->GetLeftMargin());
+    fLegend.SetX1NDC(gPad->GetLeftMargin() + (1 - gPad->GetRightMargin() - gPad->GetLeftMargin()) * 10e-2);
     fLegend.SetX2NDC(1 - gPad->GetRightMargin());
     fLegend.SetY1NDC(1 - gPad->GetTopMargin() - fLegend.GetTextSize()*fLegend.GetNRows());
     fLegend.SetY2NDC(1 - gPad->GetTopMargin());
