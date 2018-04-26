@@ -253,6 +253,7 @@ BCH1D BCModel::GetPrior(unsigned index)
             if (const_prior) {
                 prior.SetLocalMode((unsigned)0, GetParameter(index).GetRangeCenter());
                 prior.SetNBands(0);
+                prior.SetDrawLocalMode(0);
             }
         }
     }
@@ -305,8 +306,13 @@ BCH2D BCModel::GetPrior(unsigned index1, unsigned index2)
             else if (!const_prior1 && const_prior2)
                 title += " (flat in " + fPriorModel->GetVariable(index2).GetLatexName() + ")";
             else if (const_prior1 && const_prior2) {
-                title += " (both flat)";
+                title += " (flat in both "
+                         + fPriorModel->GetVariable(index1).GetLatexName()
+                         + " and "
+                         + fPriorModel->GetVariable(index2).GetLatexName()
+                         + ")";
                 prior.SetNBands(0);
+                prior.SetDrawLocalMode(false);
             }
         }
     }
@@ -366,6 +372,7 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(const std::string& filename, unsigne
         if (prior.GetNBands() == 0) {
             prior.CopyOptions(fBCH1DPriorDrawingOptions);
             prior.SetNBands(0);
+            prior.SetDrawLocalMode(false);
         } else
             prior.CopyOptions(fBCH1DPriorDrawingOptions);
         posterior.CopyOptions(fBCH1DPosteriorDrawingOptions);
@@ -387,6 +394,7 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(const std::string& filename, unsigne
         if (prior.GetNBands() == 0) {
             prior.CopyOptions(fBCH2DPriorDrawingOptions);
             prior.SetNBands(0);
+            prior.SetDrawLocalMode(false);
         } else
             prior.CopyOptions(fBCH2DPriorDrawingOptions);
         posterior.CopyOptions(fBCH2DPosteriorDrawingOptions);
