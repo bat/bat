@@ -96,6 +96,9 @@ void BCH2D::DrawBands(const std::string& options)
         return;
     }
 
+    if (fNBands == 0)
+        return;
+
     std::vector<double> intervals = fIntervals;
     CheckIntervals(intervals);
 

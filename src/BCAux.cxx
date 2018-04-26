@@ -219,8 +219,8 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH2D& prior, BCH2D& posterior, BCAux
             posterior.SetColorScheme(BCHistogramBase::kBlackWhite);
             posterior.SetNLegendColumns(1);
             posterior.SetLineWidth(2);
-            prior.CopyOptions(posterior);
             posterior.SetLocalModeMarkerStyle(21);
+            prior.CopyOptions(posterior);
             prior.SetLineColor(kGray + 1);
             prior.SetMarkerColor(kGray + 1);
             break;
@@ -299,7 +299,7 @@ void BCAux::DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posteri
 
     // create / draw legend(s)
 
-    if (prior.GetLegend().GetNRows() > 0)
+    if (prior.GetHistogram()->GetDimension() > 1 or prior.GetLegend().GetNRows() > 0)
         prior.GetLegend().SetHeader(prior.GetHistogram()->GetTitle());
     else
         prior.GetLegend().AddEntry(prior.GetHistogram(), 0, "L");
