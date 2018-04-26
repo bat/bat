@@ -1731,6 +1731,8 @@ bool BCEngineMCMC::MetropolisPreRun()
 
     unsigned nIterationsPreRunCheck = fMCMCNIterationsPreRunCheck;
 
+    std::vector<double> fMCMCRValueParametersLast = fMCMCRValueParameters;
+
     // autosave every 10 checks
     if (fMCMCTree) {
         fMCMCTree->AutoSave("SaveSelf");
@@ -1913,10 +1915,18 @@ bool BCEngineMCMC::MetropolisPreRun()
                     if (GetParameter(p).Fixed())
                         continue;
 
+                    std::string updateRValue = "";
+                    if(fMCMCRValueParameters[p] > fMCMCRValueParametersLast[p])
+                        updateRValue = "+";
+                    else if(fMCMCRValueParameters[p] < fMCMCRValueParametersLast[p])
+                        updateRValue = "-";
+                    else
+                        updateRValue = "=";
+
                     if (fMCMCRValueParameters[p] < fMCMCRValueParametersCriterion)
                         BCLog::OutDetail(Form("         %-*s :  %.03f", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), fMCMCRValueParameters[p]));
                     else if (std::isfinite(fMCMCRValueParameters[p]))
-                        BCLog::OutDetail(Form("         %-*s :  %.03f <-- Greater than threshold", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), fMCMCRValueParameters[p]));
+                        BCLog::OutDetail(Form("         %-*s :  %.03f [%s] <-- Greater than threshold", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), fMCMCRValueParameters[p], updateRValue.c_str()));
                     else
                         BCLog::OutDetail(Form("         %-*s :  error in calculation", fParameters.MaxNameLength(), GetParameter(p).GetName().data()));
                 }
@@ -1925,6 +1935,8 @@ bool BCEngineMCMC::MetropolisPreRun()
         if (fMCMCTree && nChecks % 10 == 0) {
             fMCMCTree->AutoSave("SaveSelf");
         }
+
+        fMCMCRValueParametersLast = fMCMCRValueParameters;
 
         ++nChecks;              // increase number of checks made
 
