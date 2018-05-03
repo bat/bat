@@ -27,6 +27,10 @@
 #include <limits>
 
 // ---------------------------------------------------------
+void BCAux::SetStyle()
+{
+    BCLog::OutWarning("BCAux::SetStyle() is deprecated and no longer does anything. Please do not use it.");
+}
 
 // ---------------------------------------------------------
 void BCAux::DefaultToPDF(std::string& filename)
