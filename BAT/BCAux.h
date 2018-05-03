@@ -67,6 +67,10 @@ private:
 };
 
 /**
+ * @deprecated This function is empty but for a warning message. Please do not call it. */
+void SetStyle();
+
+/**
  * Force file extension to be .pdf if not already .pdf or .ps
  * @param filename Filename to be altered */
 void DefaultToPDF(std::string& filename);
