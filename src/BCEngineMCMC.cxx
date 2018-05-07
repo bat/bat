@@ -1355,21 +1355,23 @@ void BCEngineMCMC::Remarginalize(bool autorange)
         }
     }
 
+    // set mult. var. proposal function covariance to those of main run if empty
+    if (fMultivariateProposalFunctionCovariance.empty()) {
+        fMultivariateProposalFunctionCovariance.assign(fMCMCNChains, TMatrixDSym(GetNFreeParameters()));
+        fMultivariateCovarianceUpdates = 0;
+        UpdateMultivariateProposalFunctionCovariances(1.);
+    }
+
     // combine statistics
     for (unsigned c = 0; c < fMCMCNChains; ++c)
         fMCMCStatistics_AllChains += fMCMCStatistics[c];
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::UpdateCholeskyDecompositions()
+bool BCEngineMCMC::UpdateMultivariateProposalFunctionCovariances(double a)
 {
     if (fMultivariateProposalFunctionCovariance.size() != fMCMCNChains)
         return false;
-
-    ++fMultivariateCovarianceUpdates;
-
-    // a = (1+t)^(-lambda)
-    double a = pow(1. + fMultivariateCovarianceUpdates, -fMultivariateCovarianceUpdateLambda);
 
     // Update covariance matricies
     unsigned I = 0;
@@ -1390,6 +1392,30 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
         ++I;
     }
 
+    return true;
+}
+
+// --------------------------------------------------------
+bool BCEngineMCMC::UpdateMultivariateProposalFunctionCovariances()
+{
+    // a = (1+t)^(-lambda)
+    double a = pow(1. + fMultivariateCovarianceUpdates + 1, -fMultivariateCovarianceUpdateLambda);
+
+    if (!UpdateMultivariateProposalFunctionCovariances(a))
+        return false;
+
+    ++fMultivariateCovarianceUpdates;
+    return true;
+}
+// --------------------------------------------------------
+void BCEngineMCMC::CalculateCholeskyDecompositions()
+{
+    if (fMultivariateProposalFunctionCovariance.size() != fMCMCNChains)
+        throw std::runtime_error("BCEngineMCMC::CalculateCholeskyDecompositions: size of fMultivariateProposalFunctionCovariance does not match number of chains.");
+
+    // clear decomps
+    fMultivariateProposalFunctionCholeskyDecomposition.assign(fMCMCNChains, TMatrixD(GetNFreeParameters(), GetNFreeParameters()));
+
     // create decomposer
     TDecompChol CholeskyDecomposer;
     // Update cholesky decompositions
@@ -1402,7 +1428,7 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
 
         else {
             // try with covariance + epsilon
-            BCLog::OutDetail(Form("BCEngineMCMC::UpdateCholeskyDecompositions : chain %u Cholesky decomposition failed! Adding epsilon*I and trying again.", c));
+            BCLog::OutDetail(Form("BCEngineMCMC::CalculateCholeskyDecompositions : chain %u Cholesky decomposition failed! Adding epsilon*I and trying again.", c));
             TMatrixDSym U(fMultivariateProposalFunctionCovariance[c]*fMCMCProposalFunctionScaleFactor[c][0]);
             for (int i = 0; i < U.GetNrows(); ++i)
                 U[i][i] *= (1 + fMultivariateEpsilon);
@@ -1412,7 +1438,7 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
 
             else {
                 // diagonalize
-                BCLog::OutDetail(Form("BCEngineMCMC::UpdateCholeskyDecompositions : chain %u Cholesky decomposition failed! Setting off-diagonal elements of covariance to zero", c));
+                BCLog::OutDetail(Form("BCEngineMCMC::CalculateCholeskyDecompositions : chain %u Cholesky decomposition failed! Setting off-diagonal elements of covariance to zero", c));
                 TMatrixDSym U(fMultivariateProposalFunctionCovariance[c]*fMCMCProposalFunctionScaleFactor[c][0]);
                 for (int i = 0; i < fMultivariateProposalFunctionCholeskyDecomposition[c].GetNrows(); ++i)
                     for (int j = 0; j < fMultivariateProposalFunctionCholeskyDecomposition[c].GetNcols(); ++j)
@@ -1422,13 +1448,12 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
                 if (CholeskyDecomposer.Decompose())
                     fMultivariateProposalFunctionCholeskyDecomposition[c].Transpose(CholeskyDecomposer.GetU());
                 else {
-                    BCLog::OutError(Form("BCEngineMCMC::UpdateCholeskyDecompositions : chain %u Cholesky decomposition failed! No remedies!", c));
-                    return false;
+                    BCLog::OutError(Form("BCEngineMCMC::CalculateCholeskyDecompositions : chain %u Cholesky decomposition failed! No remedies!", c));
+                    throw std::runtime_error(Form("BCEngineMCMC::CalculateCholeskyDecompositions : chain %u Cholesky decomposition failed! No remedies!", c));
                 }
             }
         }
     }
-    return true;
 }
 
 // --------------------------------------------------------
@@ -1939,7 +1964,8 @@ bool BCEngineMCMC::MetropolisPreRun()
 
         // Update multivariate proposal function covariances
         if (fMCMCProposeMultivariate)
-            UpdateCholeskyDecompositions();
+            if (UpdateMultivariateProposalFunctionCovariances())
+                CalculateCholeskyDecompositions();
 
         if (fMCMCCurrentIteration >= (int)fMCMCNIterationsPreRunMax)
             continue;
@@ -2134,6 +2160,19 @@ bool BCEngineMCMC::Metropolis()
             throw std::runtime_error(Form("BCEngineMCMC::Metropolis: fMCMCThreadLocalStorage[%u] lacks random number generator.", c));
     }
     if (fMCMCProposeMultivariate) {
+        // check if cholesky decompositions must be calculated
+        bool calc_cholesky = false;
+        if (fMultivariateProposalFunctionCholeskyDecomposition.size() != fMCMCNChains)
+            calc_cholesky = true;
+        else {
+            for (unsigned c = 0; c < fMultivariateProposalFunctionCholeskyDecomposition.size(); ++c)
+                if (fMultivariateProposalFunctionCholeskyDecomposition[c].GetNrows() != static_cast<int>(GetNFreeParameters()) or
+                        fMultivariateProposalFunctionCholeskyDecomposition[c].GetNcols() != static_cast<int>(GetNFreeParameters()))
+                    calc_cholesky = true;
+        }
+        if (calc_cholesky)
+            CalculateCholeskyDecompositions();
+
         if (fMultivariateProposalFunctionCholeskyDecomposition.size() != fMCMCNChains)
             throw std::runtime_error("BCEngineMCMC::Metropolis: size of fMultivariateProposalFunctionCholeskyDecomposition does not match number of chains.");
         for (unsigned c = 0; c < fMultivariateProposalFunctionCholeskyDecomposition.size(); ++c)

@@ -1489,8 +1489,17 @@ public:
     virtual void Remarginalize(bool autorange = true);
 
     /**
-     * Update cholesky-decompositions for multivariate proposal function. */
-    virtual bool UpdateCholeskyDecompositions();
+     * Update multivariate proposal function covariances.
+     * @param a update control factor. */
+    virtual bool UpdateMultivariateProposalFunctionCovariances(double a);
+
+    /**
+     * Update multivariate proposal function covariances. */
+    virtual bool UpdateMultivariateProposalFunctionCovariances();
+
+    /**
+     * Calculate Cholesky decompositions needed for multivariate proposal function. */
+    void CalculateCholeskyDecompositions();
 
     /**
      * Keep track of which chain is currently computed (within a thread).
