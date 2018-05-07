@@ -704,7 +704,7 @@ void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile)
 {
     if (replacetree) {
         delete fMCMCTree;
-        fMCMCTree = 0;
+        fMCMCTree = NULL;
         delete fParameterTree;
         fParameterTree = NULL;
     }
@@ -2132,9 +2132,6 @@ bool BCEngineMCMC::Metropolis()
         if (!MetropolisPreRun())
             return false;
 
-        if (!fMCMCFlagWritePreRunToFile && fMCMCFlagWriteChainToFile)
-            InitializeMarkovChainTree();
-
         // reset statistics
         for (unsigned c = 0; c < fMCMCStatistics.size(); ++c)
             fMCMCStatistics[c].Reset(false, true); // keep mode, reset efficiencies
@@ -2143,6 +2140,8 @@ bool BCEngineMCMC::Metropolis()
         for (unsigned c = 0; c < fMCMCStates.size(); ++c)
             fMCMCStates[c].iteration = 0;
     }
+    if (fMCMCFlagWriteChainToFile)
+        InitializeMarkovChainTree(false, false);
 
     // check that correct objects of correct size have been created
     // these checks will fail if the user has changed the number of chains or parameters
