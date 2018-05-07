@@ -12,8 +12,9 @@ using BAT.
 It shows how to write the MCMC into a ROOT file. The actual model is a
 simple 2D Gaussian.
 
-In addition, a second program shows how to read the stored MCMC in and
-produce the marginalized distributions "offline."
+A second program shows how to read the stored MCMC in and produce the
+marginalized distributions "offline." And a third program shows how to
+read in the stored MCMC and continue running the Markov chains.
 
 The source files contain plenty of comments and explanations. For
 further documentation see the "Short Introduction to BAT" and the
@@ -31,6 +32,7 @@ Files:
   GaussModel.cxx          - source code of the model class
   runOutputRoot.cxx       - the source code of the program to produce MCMC samples
   readOutputRoot.cxx      - the source code of the program to read in the MCMC samples
+  continueMCMC.cxx        - the source code of the program to read in MCMC samples and continue running
 
 
 Running the example:
