@@ -959,6 +959,8 @@ bool BCEngineMCMC::LoadParametersFromTree(TTree* partree, bool loadObservables)
     double p_lowerlimit;
     double p_upperlimit;
     double p_fixedvalue = 0;
+    unsigned p_nchains = 0;
+    double** p_scale = NULL;
 
     // absolutely necessary branches
     partree->SetBranchAddress("name", p_name);
@@ -980,8 +982,17 @@ bool BCEngineMCMC::LoadParametersFromTree(TTree* partree, bool loadObservables)
         partree->SetBranchAddress("fixed", &p_fixed);
     if (partree->GetBranch("fixed_value"))
         partree->SetBranchAddress("fixed_value", &p_fixedvalue);
+    if (partree->GetBranch("nchains"))
+        partree->SetBranchAddress("nchains", &p_nchains);
+    if (partree->GetBranch("scale"))
+        partree->SetBranchAddress("scale", p_scale);
 
     partree->BuildIndex("parameter", "index");
+
+    std::vector<std::vector<double> > scales;
+    partree->GetEntryWithIndex(1, 0);
+    SetNChains(p_nchains);
+    scales.assign(GetNChains(), std::vector<double>());
 
     // load parameters
     unsigned i = 0;
@@ -994,8 +1005,16 @@ bool BCEngineMCMC::LoadParametersFromTree(TTree* partree, bool loadObservables)
         Par.FillHistograms(p_fill_1d, p_fill_2d);
         Par.SetNbins(p_nbins);
         AddParameter(Par);
+        if (p_scale) {
+            if (p_nchains != scales.size())
+                throw std::runtime_error("BCEngineMCMC::LoadParametersFromTree: nchain mismatch");
+            for (unsigned c = 0; c < p_nchains; ++c)
+                scales[c].push_back(*p_scale[c]);
+        }
         ++i;
     }
+
+    fMCMCProposalFunctionScaleFactor = scales;
 
     // load user-defined observables
     if (!loadObservables)
