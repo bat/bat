@@ -80,7 +80,7 @@ public:
         }
 
         // fix a parameter
-        {
+        if (mult) {
             GaussModel m(prefix + "mult_run_fix_par", n_par);
             m.SetPrecision(BCEngineMCMC::kMedium);
             m.SetNIterationsRun(N);
@@ -319,6 +319,7 @@ public:
         copy();
         TEST_SECTION("multiple marginalization", {
             multiple_runs(true);
+            multiple_runs(false);
         });
     }
 } bcmodel_test;

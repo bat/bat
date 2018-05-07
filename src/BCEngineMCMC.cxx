@@ -2220,7 +2220,7 @@ bool BCEngineMCMC::Metropolis()
             if (fMCMCProposalFunctionScaleFactor[c].size() != GetNParameters())
                 throw std::runtime_error(Form("BCEngineMCMC::Metropolis: size of fMCMCProposalFunctionScaleFactor[%u] does not match number of parameters.", c));
             for (unsigned p = 0; p < fMCMCProposalFunctionScaleFactor[c].size(); ++p)
-                if (fMCMCProposalFunctionScaleFactor[c][p] <= 0)
+                if (!GetParameter(p).Fixed() and fMCMCProposalFunctionScaleFactor[c][p] <= 0)
                     throw std::runtime_error(Form("BCEngineMCMC::Metropolis: fMCMCProposalFunctionScaleFactor[%u][%u] <= 0.", c, p));
         }
     }
@@ -2400,7 +2400,7 @@ void BCEngineMCMC::MCMCInitialize()
             fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, std::vector<double>(1, 2.38 * 2.38 / GetNFreeParameters()));
         }
     }
-    // else not factorized proposal
+    // else factorized proposal
     else {
 
         // if provided by user
@@ -2422,6 +2422,11 @@ void BCEngineMCMC::MCMCInitialize()
                 }
             fMCMCProposalFunctionScaleFactor.assign(fMCMCNChains, temp);
         }
+        // set fixed parameters' scale factors to zero
+        for (unsigned i = 0; i < GetNParameters(); ++i)
+            if (GetParameter(i).Fixed())
+                for (unsigned c = 0; c < GetNChains(); ++c)
+                    fMCMCProposalFunctionScaleFactor[c][i] = 0;
     }
 
     // before we set the initial position and evaluate the likelihood, it's time to let the user initialize the model with #chains etc. fixed
