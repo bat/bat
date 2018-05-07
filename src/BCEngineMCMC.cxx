@@ -1384,6 +1384,19 @@ void BCEngineMCMC::Remarginalize(bool autorange)
     // combine statistics
     for (unsigned c = 0; c < fMCMCNChains; ++c)
         fMCMCStatistics_AllChains += fMCMCStatistics[c];
+
+}
+
+// --------------------------------------------------------
+void BCEngineMCMC::PrepareToContinueMarginalization(const std::string& filename, const std::string& mcmcTreeName, const std::string& parameterTreeName, bool loadObservables, bool autorange)
+{
+    LoadMCMC(filename, mcmcTreeName, parameterTreeName, loadObservables);
+    Remarginalize(autorange);
+    // delete trees
+    delete fMCMCTree;
+    fMCMCTree = NULL;
+    delete fParameterTree;
+    fParameterTree = NULL;
 }
 
 // --------------------------------------------------------
@@ -2418,18 +2431,6 @@ void BCEngineMCMC::MCMCInitialize()
 
     // initialize markov chain positions
     switch (fInitialPositionScheme) {
-
-        // keep previous values
-        case kInitContinue : {
-            throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Continuing chains not yet supported. Sorry!");
-
-            // check position vector size
-            if (fMCMCStates.size() != fMCMCNChains)
-                throw std::runtime_error("BCEngineMCMC::MCMCInitialize : Number of chains has been changed; cannot continue previous chains.");
-
-            // else do nothing --- continue chains
-            break;
-        }
 
         // use range centers
         case kInitCenter : {
