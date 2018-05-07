@@ -156,6 +156,70 @@ public:
 
     }
 
+
+    // check that
+    // 1) one can continue running a marginalization
+    // 2) continued marginalization fails if the model is changed
+    // mult := flag for multivariate running
+    void continued_running(bool mult) const
+    {
+        unsigned N = 10000;
+
+        unsigned n_par = 4;
+        unsigned n_fix = 2;
+
+        std::string prefix = mult ? "mvar_" : "fact_";
+
+        GaussModel m(prefix + "first_run", n_par);
+        m.SetPrecision(BCEngineMCMC::kMedium);
+        m.SetNIterationsRun(N);
+        m.SetProposeMultivariate(mult);
+        m.WriteMarkovChain(m.GetSafeName() + "_mcmc.root", "RECREATE");
+        // m.GetParameter(n_fix).Fix(0.);
+
+        TEST_CHECK_NO_THROW(m.MarginalizeAll(BCIntegrate::kMargMetropolis));
+
+        // test it works
+        {
+            GaussModel mm(prefix + "cont_run", n_par);
+            mm.PrepareToContinueMarginalization(m.GetSafeName() + "_mcmc.root");
+            TEST_CHECK_NO_THROW(mm.MarginalizeAll(BCIntegrate::kMargMetropolis));
+        }
+
+        // add a parameter
+        {
+            GaussModel mm(prefix + "cont_run_add_par", n_par);
+            mm.PrepareToContinueMarginalization(m.GetSafeName() + "_mcmc.root");
+            mm.AddParameter("new_parameter", 0, 1);
+            TEST_CHECK_THROWS(std::runtime_error, mm.MarginalizeAll(BCIntegrate::kMargMetropolis));
+        }
+
+        // change the number of chains
+        {
+            GaussModel mm(prefix + "cont_run_change_nchains", n_par);
+            mm.PrepareToContinueMarginalization(m.GetSafeName() + "_mcmc.root");
+            mm.SetNChains(2 * m.GetNChains());
+            TEST_CHECK_THROWS(std::runtime_error, mm.MarginalizeAll(BCIntegrate::kMargMetropolis));
+        }
+
+        // change from proposal function
+        // switching from factorized -> multivariate does not break, but is not recommended
+        if (mult) {
+            GaussModel mm(prefix + "cont_run_change_proposal", n_par);
+            mm.PrepareToContinueMarginalization(m.GetSafeName() + "_mcmc.root");
+            mm.SetProposeMultivariate(!m.GetProposeMultivariate());
+            TEST_CHECK_THROWS(std::runtime_error, mm.MarginalizeAll(BCIntegrate::kMargMetropolis));
+        }
+
+        // // unfix a parameter
+        // {
+        //     GaussModel mm(prefix + "cont_run_unfix_par", n_par);
+        //     mm.PrepareToContinueMarginalization(m.GetSafeName() + "_mcmc.root");
+        //     mm.GetParameter(n_fix).Unfix();
+        //     TEST_CHECK_THROWS(std::runtime_error, mm.MarginalizeAll(BCIntegrate::kMargMetropolis));
+        // }
+    }
+
     // turn on/off parameter storing
     void storing() const
     {
@@ -320,6 +384,10 @@ public:
         TEST_SECTION("multiple marginalization", {
             multiple_runs(true);
             multiple_runs(false);
+        });
+        TEST_SECTION("continued marginalization", {
+            continued_running(true);
+            continued_running(false);
         });
     }
 } bcmodel_test;
