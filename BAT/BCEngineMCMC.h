@@ -80,7 +80,6 @@ public:
 
     /** An enumerator for markov-chain position initialization. */
     enum InitialPositionScheme {
-        kInitContinue         = -1, ///< continue markov chain from last value (not yet available)
         kInitCenter           =  0, ///< select centers of parameter ranges
         kInitRandomUniform    =  1, ///< randomly distribute uniformly over parameter ranges
         kInitUserDefined      =  2, ///< initialize to user-provided points
@@ -1487,6 +1486,10 @@ public:
      * Marginalize from TTree.
      * @param autorange Flag for automatically choosing variable ranges to. */
     virtual void Remarginalize(bool autorange = true);
+
+    /**
+     * Continue the marginalization already stored in another file. */
+    void PrepareToContinueMarginalization(const std::string& filename, const std::string& mcmcTreeName = "", const std::string& parameterTreeName = "", bool loadObservables = true, bool autorange = true);
 
     /**
      * Update multivariate proposal function covariances.
