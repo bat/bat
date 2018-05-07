@@ -1083,7 +1083,7 @@ bool BCEngineMCMC::ParameterTreeMatchesModel(TTree* partree, bool checkObservabl
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::LoadMCMC(const std::string& filename, const std::string& mcmcTreeName, const std::string& parameterTreeName, bool loadObservables)
+bool BCEngineMCMC::LoadMCMC(const std::string& filename, std::string mcmcTreeName, std::string parameterTreeName, bool loadObservables)
 {
     // save current directory
     TDirectory* dir = gDirectory;
@@ -1094,71 +1094,71 @@ bool BCEngineMCMC::LoadMCMC(const std::string& filename, const std::string& mcmc
         throw std::runtime_error(Form("BCEngineMCMC::LoadMCMC: Could not open file %s.", filename.data()));
     }
 
-    // set model name if empty
-    if (fName.empty()) {
+    if (mcmcTreeName.empty() and parameterTreeName.empty()) {
+        // look through file for trees named according to BAT scheme
+        TList* LoK = inputfile->GetListOfKeys();
+        std::vector<std::string> mcmc_names;
+        std::vector<std::string> parameter_names;
+        for (int i = 0; i < LoK->GetEntries(); ++i) {
+            TKey* k = (TKey*)(LoK->At(i));
+            if (strcmp(k->GetClassName(), "TTree") != 0)
+                continue;
+            std::string treeName(k->GetName());
+            if (treeName.find_last_of("_") == std::string::npos)
+                continue;
+            if (treeName.substr(treeName.find_last_of("_")) == "_mcmc")
+                mcmc_names.push_back(treeName.substr(0, treeName.find_last_of("_")));
+            else if (treeName.substr(treeName.find_last_of("_")) == "_parameters")
+                parameter_names.push_back(treeName.substr(0, treeName.find_last_of("_")));
+        }
+
+        std::vector<std::string> model_names;
+        for (unsigned i = 0; i < mcmc_names.size(); ++i)
+            for (unsigned j = 0; j < parameter_names.size(); ++j)
+                if (mcmc_names[i] == parameter_names[j])
+                    model_names.push_back(mcmc_names[i]);
+
+        if (model_names.empty()) {
+            BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s contains no matching MCMC and Parameter trees.", filename.data()));
+            return false;
+        }
+
+        if (model_names.size() > 1) {
+            BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s contains more than one model, please select one by providing a model name:", filename.data()));
+            for (unsigned i = 0; i < model_names.size(); ++i)
+                BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : \"%s\"", model_names[i].data()));
+            return false;
+        }
+
+        mcmcTreeName = model_names[0] + "_mcmc";
+        parameterTreeName = model_names[0] + "_parameters";
+
+        if (fName.empty())
+            SetName(model_names[0]);
+    } else if (fName.empty()) {
         // check mcmcTreeName and parameterTreeName for default BAT name scheme [modelname]_mcmc/parameters:
         if (mcmcTreeName.find_last_of("_") != std::string::npos && mcmcTreeName.substr(mcmcTreeName.find_last_of("_")) == "_mcmc"
                 && parameterTreeName.find_last_of("_") != std::string::npos && parameterTreeName.substr(parameterTreeName.find_last_of("_")) == "_parameters") {
             fName = mcmcTreeName.substr(0, mcmcTreeName.find_last_of("_"));
         }
-        // else look through file for trees named according to BAT scheme
-        else {
-            TList* LoK = inputfile->GetListOfKeys();
-            std::vector<std::string> mcmc_names;
-            std::vector<std::string> parameter_names;
-            for (int i = 0; i < LoK->GetEntries(); ++i) {
-                TKey* k = (TKey*)(LoK->At(i));
-                if (strcmp(k->GetClassName(), "TTree") != 0)
-                    continue;
-                std::string treeName(k->GetName());
-                if (treeName.find_last_of("_") == std::string::npos)
-                    continue;
-                if (treeName.substr(treeName.find_last_of("_")) == "_mcmc")
-                    mcmc_names.push_back(treeName.substr(0, treeName.find_last_of("_")));
-                else if (treeName.substr(treeName.find_last_of("_")) == "_parameters")
-                    parameter_names.push_back(treeName.substr(0, treeName.find_last_of("_")));
-            }
-
-            std::vector<std::string> model_names;
-            for (unsigned i = 0; i < mcmc_names.size(); ++i)
-                for (unsigned j = 0; j < parameter_names.size(); ++j)
-                    if (mcmc_names[i] == parameter_names[j])
-                        model_names.push_back(mcmc_names[i]);
-
-            if (model_names.empty()) {
-                BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s contains no matching MCMC and Parameter trees.", filename.data()));
-                return false;
-            }
-
-            if (model_names.size() > 1) {
-                BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s contains more than one model, please select one by providing a model name:", filename.data()));
-                for (unsigned i = 0; i < model_names.size(); ++i)
-                    BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : \"%s\"", model_names[i].data()));
-                return false;
-            }
-
-            SetName(model_names[0]);
-        }
     }
-    std::string newMCMCTreeName(mcmcTreeName);
-    std::string newParameterTreeName(mcmcTreeName);
 
     // set tree names if empty
-    if (newMCMCTreeName.empty())    // default mcmc tree name
-        newMCMCTreeName = Form("%s_mcmc", GetSafeName().data());
+    if (mcmcTreeName.empty())
+        mcmcTreeName = Form("%s_mcmc", GetSafeName().data());
     if (parameterTreeName.empty()) // default parameter tree name
-        newParameterTreeName = Form("%s_parameters", GetSafeName().data());
+        parameterTreeName = Form("%s_parameters", GetSafeName().data());
 
     TTree* mcmcTree = NULL;
-    inputfile->GetObject(newMCMCTreeName.data(), mcmcTree);
+    inputfile->GetObject(mcmcTreeName.data(), mcmcTree);
     if (!mcmcTree)
-        BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s", filename.data(), newMCMCTreeName.data()));
+        BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s", filename.data(), mcmcTreeName.data()));
 
 
     TTree* parTree = NULL;
-    inputfile->GetObject(newParameterTreeName.data(), parTree);
+    inputfile->GetObject(parameterTreeName.data(), parTree);
     if (!parTree)
-        BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s", filename.data(), newMCMCTreeName.data()));
+        BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s", filename.data(), parameterTreeName.data()));
 
     gDirectory = dir;
     return LoadMCMC(mcmcTree, parTree, loadObservables);
