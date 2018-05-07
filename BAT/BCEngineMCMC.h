@@ -1456,7 +1456,7 @@ public:
      * @param mcmcTreeName Name of tree inside file containing MCMC, empty string (default) loads [modelname]_mcmc.
      * @param parameterTreeName Name of tree inside file containing parameter list, empty string (default) loads [modelname]_parameters.
      * @param loadObservables Flag for whether to load observables from parameter list and MCMC trees. */
-    virtual bool LoadMCMC(const std::string& filename, const std::string& mcmcTreeName = "", const std::string& parameterTreeName = "", bool loadObservables = true);
+    virtual bool LoadMCMC(const std::string& filename, std::string mcmcTreeName = "", std::string parameterTreeName = "", bool loadObservables = true);
 
     /**
      * Load previous MCMC run.
