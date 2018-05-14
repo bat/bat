@@ -79,7 +79,7 @@ public:
     /**
      * @return Whether parameter is fixed to a value. */
     virtual bool Fixed() const
-    { return fFixed; }
+    { return fFixed or fLowerLimit == fUpperLimit; }
 
     /**
      * @return Value parameter may be fixed to. */
