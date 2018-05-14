@@ -14,7 +14,7 @@ int main()
     // empty string for second argument tells BAT to search for model in file.
     // If you run the example repeatedly, results are added.
     // To avoid errors, we give the name of the model explicitly.
-    BCEmptyModel m("GaussModel.root", "GaussModel");
+    BCEmptyModel m("GaussModel.root");
 
     m.Remarginalize();
 
