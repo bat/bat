@@ -859,6 +859,8 @@ public:
      * given by SetMinimumEfficiency() and SetMaximumEfficiency().*/
     void SetProposeMultivariate(bool flag)
     {
+        if (flag != fMCMCProposeMultivariate and fMCMCPhase != kUnsetPhase)
+            BCLog::OutWarning("You have changed the proposal function flag, but not required the prerun be rerun.");
         fMCMCProposeMultivariate = flag;
     }
 
@@ -1441,6 +1443,11 @@ public:
      * @param loadObservables Flag for whether to also load observables.
      * @return Success of action. */
     virtual bool LoadParametersFromTree(TTree* partree, bool loadObservables = true);
+
+    /**
+     * Load MCMC parameters from parameter tree: nchains, proposal function type, scales
+     * @param partree Tree holding parameter information. */
+    void LoadMCMCParameters(TTree& partree);
 
     /**
      * Check parameter tree against model.

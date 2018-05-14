@@ -80,7 +80,7 @@ public:
         }
 
         // fix a parameter
-        if (mult) {
+        {
             GaussModel m(prefix + "mult_run_fix_par", n_par);
             m.SetPrecision(BCEngineMCMC::kMedium);
             m.SetNIterationsRun(N);
@@ -166,7 +166,8 @@ public:
         unsigned N = 10000;
 
         unsigned n_par = 4;
-        unsigned n_fix = 2;
+        unsigned n_fixed = 2;
+        unsigned n_fix = 3;
 
         std::string prefix = mult ? "mvar_" : "fact_";
 
@@ -175,7 +176,7 @@ public:
         m.SetNIterationsRun(N);
         m.SetProposeMultivariate(mult);
         m.WriteMarkovChain(m.GetSafeName() + "_mcmc.root", "RECREATE");
-        // m.GetParameter(n_fix).Fix(0.);
+        m.GetParameter(n_fixed).Fix(0.15);
 
         TEST_CHECK_NO_THROW(m.MarginalizeAll(BCIntegrate::kMargMetropolis));
 
@@ -183,6 +184,13 @@ public:
         {
             GaussModel mm(prefix + "cont_run", n_par);
             mm.PrepareToContinueMarginalization(m.GetSafeName() + "_mcmc.root");
+            // check that the proposal function is correctly chosen
+            TEST_CHECK_EQUAL(mm.GetProposeMultivariate(), m.GetProposeMultivariate());
+            for (unsigned p = 0; p < m.GetNParameters(); ++p) {
+                TEST_CHECK_EQUAL(mm.GetParameter(p).Fixed(), m.GetParameter(p).Fixed());
+                if (m.GetParameter(p).Fixed())
+                    TEST_CHECK_EQUAL(mm.GetParameter(p).GetFixedValue(), m.GetParameter(p).GetFixedValue());
+            }
             TEST_CHECK_NO_THROW(mm.MarginalizeAll(BCIntegrate::kMargMetropolis));
         }
 
@@ -204,20 +212,28 @@ public:
 
         // change from proposal function
         // switching from factorized -> multivariate does not break, but is not recommended
-        if (mult) {
+        {
             GaussModel mm(prefix + "cont_run_change_proposal", n_par);
             mm.PrepareToContinueMarginalization(m.GetSafeName() + "_mcmc.root");
             mm.SetProposeMultivariate(!m.GetProposeMultivariate());
             TEST_CHECK_THROWS(std::runtime_error, mm.MarginalizeAll(BCIntegrate::kMargMetropolis));
         }
 
-        // // unfix a parameter
-        // {
-        //     GaussModel mm(prefix + "cont_run_unfix_par", n_par);
-        //     mm.PrepareToContinueMarginalization(m.GetSafeName() + "_mcmc.root");
-        //     mm.GetParameter(n_fix).Unfix();
-        //     TEST_CHECK_THROWS(std::runtime_error, mm.MarginalizeAll(BCIntegrate::kMargMetropolis));
-        // }
+        // fix a parameter
+        {
+            GaussModel mm(prefix + "cont_run_fix_par", n_par);
+            mm.PrepareToContinueMarginalization(m.GetSafeName() + "_mcmc.root");
+            mm.GetParameter(n_fix).Fix(0.);
+            TEST_CHECK_THROWS(std::runtime_error, mm.MarginalizeAll(BCIntegrate::kMargMetropolis));
+        }
+
+        // unfix a parameter
+        {
+            GaussModel mm(prefix + "cont_run_unfix_par", n_par);
+            mm.PrepareToContinueMarginalization(m.GetSafeName() + "_mcmc.root");
+            mm.GetParameter(n_fixed).Unfix();
+            TEST_CHECK_THROWS(std::runtime_error, mm.MarginalizeAll(BCIntegrate::kMargMetropolis));
+        }
     }
 
     // turn on/off parameter storing

@@ -949,25 +949,37 @@ bool BCEngineMCMC::ValidParameterTree(TTree* tree) const
 // --------------------------------------------------------
 bool BCEngineMCMC::LoadParametersFromTree(TTree* partree, bool loadObservables)
 {
-    bool p_fill_1d = true;
-    bool p_fill_2d = true;
-    bool p_fixed = false;
-    unsigned p_precision = 6;
-    unsigned p_nbins = 100;
+    // absolutely necessary branches
+    if (!partree->GetBranch("parameter"))
+        throw std::runtime_error("BCEngineMCMC::LoadParametersFromTree: tree missing parameter branch");
+    if (!partree->GetBranch("index"))
+        throw std::runtime_error("BCEngineMCMC::LoadParametersFromTree: tree missing index branch");
+    if (!partree->GetBranch("name"))
+        throw std::runtime_error("BCEngineMCMC::LoadParametersFromTree: tree missing name branch");
+    if (!partree->GetBranch("lower_limit"))
+        throw std::runtime_error("BCEngineMCMC::LoadParametersFromTree: tree missing lower_limit branch");
+    if (!partree->GetBranch("upperlimit"))
+        throw std::runtime_error("BCEngineMCMC::LoadParametersFromTree: tree missing upper_limit branch");
+
+    partree->ResetBranchAddresses();
+
     char p_name[200];
-    char p_latexname[200] = "";
     double p_lowerlimit;
     double p_upperlimit;
-    double p_fixedvalue = 0;
-    unsigned p_nchains = 0;
-    double** p_scale = NULL;
 
-    // absolutely necessary branches
     partree->SetBranchAddress("name", p_name);
     partree->SetBranchAddress("lower_limit", &p_lowerlimit);
     partree->SetBranchAddress("upper_limit", &p_upperlimit);
 
     // not entirely necessary branches
+    char p_latexname[200] = "";
+    unsigned p_precision = 6;
+    unsigned p_nbins = 100;
+    bool p_fill_1d = true;
+    bool p_fill_2d = true;
+    bool p_fixed = false;
+    double p_fixedvalue = 0;
+
     if (partree->GetBranch("latex_name"))
         partree->SetBranchAddress("latex_name", p_latexname);
     if (partree->GetBranch("precision"))
@@ -982,21 +994,12 @@ bool BCEngineMCMC::LoadParametersFromTree(TTree* partree, bool loadObservables)
         partree->SetBranchAddress("fixed", &p_fixed);
     if (partree->GetBranch("fixed_value"))
         partree->SetBranchAddress("fixed_value", &p_fixedvalue);
-    if (partree->GetBranch("nchains"))
-        partree->SetBranchAddress("nchains", &p_nchains);
-    if (partree->GetBranch("scale"))
-        partree->SetBranchAddress("scale", p_scale);
 
     partree->BuildIndex("parameter", "index");
 
-    std::vector<std::vector<double> > scales;
-    partree->GetEntryWithIndex(1, 0);
-    SetNChains(p_nchains);
-    scales.assign(GetNChains(), std::vector<double>());
-
     // load parameters
-    unsigned i = 0;
-    while (partree->GetEntryNumberWithIndex(1, i) >= 0) {
+    // loop over entries with "parameter" branch = true
+    for (unsigned i = 0; partree->GetEntryNumberWithIndex(1, i) >= 0; ++i) {
         partree->GetEntryWithIndex(1, i);
         BCParameter Par(p_name, p_lowerlimit, p_upperlimit, p_latexname);
         if (p_fixed)
@@ -1005,32 +1008,91 @@ bool BCEngineMCMC::LoadParametersFromTree(TTree* partree, bool loadObservables)
         Par.FillHistograms(p_fill_1d, p_fill_2d);
         Par.SetNbins(p_nbins);
         AddParameter(Par);
-        if (p_scale) {
-            if (p_nchains != scales.size())
-                throw std::runtime_error("BCEngineMCMC::LoadParametersFromTree: nchain mismatch");
-            for (unsigned c = 0; c < p_nchains; ++c)
-                scales[c].push_back(*p_scale[c]);
-        }
-        ++i;
     }
+
+    // load user-defined observables
+    if (loadObservables) {
+        fObservables = BCObservableSet();
+        // loop over entries with "parameter" branch = false
+        for (unsigned i = 0; partree->GetEntryNumberWithIndex(0, i) >= 0; ++i) {
+            partree->GetEntryWithIndex(0, i);
+            BCObservable Obs(p_name, p_lowerlimit, p_upperlimit, p_latexname);
+            Obs.SetPrecision(p_precision);
+            Obs.FillHistograms(p_fill_1d, p_fill_2d);
+            Obs.SetNbins(p_nbins);
+            AddObservable(Obs);
+        }
+    }
+
+    partree->ResetBranchAddresses();
+
+    return true;
+}
+
+// --------------------------------------------------------
+void BCEngineMCMC::LoadMCMCParameters(TTree& partree)
+{
+    if (partree.GetEntries() < 1)
+        throw std::runtime_error("BCEngineMCMC::LoadMCMCParameters: tree is empty");
+    if (!partree.GetBranch("parameter"))
+        throw std::runtime_error("BCEngineMCMC::LoadMCMCParameters: tree missing parameter branch");
+    if (!partree.GetBranch("index"))
+        throw std::runtime_error("BCEngineMCMC::LoadMCMCParameters: tree missing index branch");
+    if (!partree.GetBranch("nchains"))
+        throw std::runtime_error("BCEngineMCMC::LoadMCMCParameters: tree missing nchains branch");
+    if (!partree.GetBranch("efficiency_0"))
+        throw std::runtime_error("BCEngineMCMC::LoadMCMCParameters: tree missing efficiency_0 branch");
+    if (!partree.GetBranch("scale"))
+        throw std::runtime_error("BCEngineMCMC::LoadMCMCParameters: tree missing scale branch");
+
+    partree.ResetBranchAddresses();
+
+    // set number of chains
+    unsigned p_nchains;
+    partree.SetBranchAddress("nchains", &p_nchains);
+    partree.GetEntry(0);
+    if (p_nchains == 0)
+        throw std::runtime_error("BCEngineMCMC::LoadMCMCParameters: no chains in branch");
+    SetNChains(p_nchains);
+
+    double p_efficiency[GetNChains()];
+    double p_scale[GetNChains()];
+
+    partree.SetBranchAddress("efficiency_0", p_efficiency);
+    partree.SetBranchAddress("scale", p_scale);
+
+    std::vector<std::vector<double> > scales(GetNChains(), std::vector<double>(GetNParameters(), -1));
+    std::vector<std::vector<double> > efficiencies(GetNChains(), std::vector<double>(GetNParameters(), -1));
+
+    partree.BuildIndex("parameter", "index");
+
+    for (unsigned p = 0; p < GetNParameters(); ++p) {
+        partree.GetEntryWithIndex(1, p);
+        for (unsigned c = 0; c < GetNChains(); ++c) {
+            scales[c][p] = p_scale[c];
+            efficiencies[c][p] = p_efficiency[c];
+        }
+    }
+
+    for (unsigned c = 0; c < GetNChains(); ++c)
+        for (unsigned p = 0; p < GetNParameters(); ++p)
+            if (scales[c][p] < 0 or efficiencies[c][p] < 0)
+                throw std::runtime_error("BCEngineMCMC::LoadMCMCParameters: unset scale or efficiency.");
 
     fMCMCProposalFunctionScaleFactor = scales;
 
-    // load user-defined observables
-    if (!loadObservables)
-        return true;
-    fObservables = BCObservableSet();
-    i = 0;
-    while (partree->GetEntryNumberWithIndex(0, i) >= 0) {
-        partree->GetEntryWithIndex(0, i);
-        BCObservable Obs(p_name, p_lowerlimit, p_upperlimit, p_latexname);
-        Obs.SetPrecision(p_precision);
-        Obs.FillHistograms(p_fill_1d, p_fill_2d);
-        Obs.SetNbins(p_nbins);
-        AddObservable(Obs);
-        ++i;
+    // if multivariate proposal, then all parameters have same efficiency in each chain
+    // (even fixed ones)
+    if (GetNParameters() > 1) {
+        SetProposeMultivariate(true);
+        for (unsigned c = 0; c < GetNChains() and GetProposeMultivariate(); ++c)
+            for (unsigned p = 1; p < GetNParameters() and GetProposeMultivariate(); ++p)
+                if (efficiencies[c][p] != efficiencies[c][p - 1])
+                    SetProposeMultivariate(false);
     }
-    return true;
+    // if only one parameter, leave to what user has set.
+
+    partree.ResetBranchAddresses();
 }
 
 // --------------------------------------------------------
@@ -1068,15 +1130,20 @@ bool BCEngineMCMC::ParameterTreeMatchesModel(TTree* partree, bool checkObservabl
             return false;
         }
         if (GetParameter(i).GetLowerLimit() != p_lowerlimit)
-            BCLog::OutWarning(Form("BCEngineMCMC::ParameterTreeMatchesModel : Lower limit of parameter \"%s\" does not match.", p_name));
+            BCLog::OutDetail(Form("BCEngineMCMC::ParameterTreeMatchesModel : Lower limit of parameter \"%s\" does not match.", p_name));
         if (GetParameter(i).GetUpperLimit() != p_upperlimit)
-            BCLog::OutWarning(Form("BCEngineMCMC::ParameterTreeMatchesModel : Upper limit of parameter \"%s\" does not match.", p_name));
+            BCLog::OutDetail(Form("BCEngineMCMC::ParameterTreeMatchesModel : Upper limit of parameter \"%s\" does not match.", p_name));
         if (has_fixed && GetParameter(i).Fixed() != p_fixed) {
-            BCLog::OutWarning(Form("BCEngineMCMC::ParameterTreeMatchesModel : Fixed status of parameter \"%s\" does not match. Fixing it.", p_name));
-            GetParameter(i).Fix(p_fixedvalue);
+            if (p_fixed) {
+                BCLog::OutDetail(Form("BCEngineMCMC::ParameterTreeMatchesModel : Fixed status of parameter \"%s\" does not match. Fixing it to %f.", p_name, p_fixedvalue));
+                GetParameter(i).Fix(p_fixedvalue);
+            } else {
+                BCLog::OutDetail(Form("BCEngineMCMC::ParameterTreeMatchesModel : Fixed status of parameter \"%s\" does not match. Unfixing it.", p_name));
+                GetParameter(i).Unfix();
+            }
         }
         if (has_fixed && GetParameter(i).Fixed() && has_fixed_value && GetParameter(i).GetFixedValue() != p_fixedvalue) {
-            BCLog::OutWarning(Form("BCEngineMCMC::ParameterTreeMatchesModel : Fixed value of parameter \"%s\" does not match. Updating it.", p_name));
+            BCLog::OutDetail(Form("BCEngineMCMC::ParameterTreeMatchesModel : Fixed value of parameter \"%s\" does not match. Updating it.", p_name));
             GetParameter(i).Fix(p_fixedvalue);
         }
     }
@@ -1189,8 +1256,10 @@ bool BCEngineMCMC::LoadMCMC(TTree* mcmcTree, TTree* parTree, bool loadObservable
     fMCMCTreeLoaded = false;
     fMCMCTreeReuseObservables = loadObservables;
 
-    if (!mcmcTree || !parTree)
+    if (!mcmcTree || !parTree) {
+        BCLog::OutError("BCEngineMCMC::LoadMCMC : empty trees provided");
         return false;
+    }
 
     // load parameter tree
     if (!ValidParameterTree(parTree)) {
@@ -1208,6 +1277,7 @@ bool BCEngineMCMC::LoadMCMC(TTree* mcmcTree, TTree* parTree, bool loadObservable
         BCLog::OutError("BCEngineMCMC::LoadMCMC : Parameter tree does not match model.");
         return false;
     }
+    LoadMCMCParameters(*fParameterTree);
 
     // check mcmc tree
     if (!ValidMCMCTree(mcmcTree, fMCMCTreeReuseObservables)) {
@@ -1375,7 +1445,7 @@ void BCEngineMCMC::Remarginalize(bool autorange)
     }
 
     // set mult. var. proposal function covariance to those of main run if empty
-    if (fMultivariateProposalFunctionCovariance.empty()) {
+    if (fMCMCProposeMultivariate and fMultivariateProposalFunctionCovariance.empty()) {
         fMultivariateProposalFunctionCovariance.assign(fMCMCNChains, TMatrixDSym(GetNFreeParameters()));
         fMultivariateCovarianceUpdates = 0;
         UpdateMultivariateProposalFunctionCovariances(1.);
@@ -1748,6 +1818,9 @@ bool BCEngineMCMC::MetropolisPreRun()
 
     const int old_error_ignore_level = gErrorIgnoreLevel;
 
+    fMultivariateProposalFunctionCovariance.clear();
+    fMultivariateProposalFunctionCholeskyDecomposition.clear();
+
     if (fMCMCProposeMultivariate) {
         // multivariate proposal function
 
@@ -1773,9 +1846,7 @@ bool BCEngineMCMC::MetropolisPreRun()
             }
 
         // if chains run a second time on a model, the assign does not update the contents. wtf?
-        fMultivariateProposalFunctionCovariance.clear();
         fMultivariateProposalFunctionCovariance.assign(fMCMCNChains, S0);
-        fMultivariateProposalFunctionCholeskyDecomposition.clear();
         fMultivariateProposalFunctionCholeskyDecomposition.assign(fMCMCNChains, CD0);
     }
 
@@ -2191,6 +2262,8 @@ bool BCEngineMCMC::Metropolis()
             throw std::runtime_error(Form("BCEngineMCMC::Metropolis: fMCMCThreadLocalStorage[%u] lacks random number generator.", c));
     }
     if (fMCMCProposeMultivariate) {
+        if (fMultivariateProposalFunctionCholeskyDecomposition.empty() and fMultivariateProposalFunctionCovariance.empty())
+            throw std::runtime_error(Form("BCEngineMCMC::Metropolis: pre-run was run with factorized proposal function."));
         // check if cholesky decompositions must be calculated
         bool calc_cholesky = false;
         if (fMultivariateProposalFunctionCholeskyDecomposition.size() != fMCMCNChains)
@@ -2214,14 +2287,20 @@ bool BCEngineMCMC::Metropolis()
             if (fMCMCThreadLocalStorage[c].yLocal.GetNrows() != static_cast<int>(GetNFreeParameters()))
                 throw std::runtime_error(Form("BCEngineMCMC::Metropolis: size of fThreadLocalStorage[%u].yLocal matrix does not match number of free parameters.", c));
     } else {
+        // check that pre-run was not run with multivariate proposal
+        if (!fMultivariateProposalFunctionCholeskyDecomposition.empty())
+            throw std::runtime_error("BCEngineMCMC::Metropolis: pre-run was run with multivariate proposal function.");
         if (fMCMCProposalFunctionScaleFactor.size() != fMCMCNChains)
             throw std::runtime_error("BCEngineMCMC::Metropolis: size of fProposalFunctionScaleFactor does not match number of chains.");
         for (unsigned c = 0; c < fMCMCProposalFunctionScaleFactor.size(); ++c) {
             if (fMCMCProposalFunctionScaleFactor[c].size() != GetNParameters())
                 throw std::runtime_error(Form("BCEngineMCMC::Metropolis: size of fMCMCProposalFunctionScaleFactor[%u] does not match number of parameters.", c));
-            for (unsigned p = 0; p < fMCMCProposalFunctionScaleFactor[c].size(); ++p)
+            for (unsigned p = 0; p < fMCMCProposalFunctionScaleFactor[c].size(); ++p) {
                 if (!GetParameter(p).Fixed() and fMCMCProposalFunctionScaleFactor[c][p] <= 0)
                     throw std::runtime_error(Form("BCEngineMCMC::Metropolis: fMCMCProposalFunctionScaleFactor[%u][%u] <= 0.", c, p));
+                if (GetParameter(p).Fixed() and fMCMCProposalFunctionScaleFactor[c][p] > 0)
+                    throw std::runtime_error(Form("BCEngineMCMC::Metropolis: parameter %u has been unfixed without rerunning the pre-run.", p));
+            }
         }
     }
 
