@@ -10,10 +10,8 @@ int main()
     // open log file
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
-    // create new BCEmptyModel that reads in file
-    // empty string for second argument tells BAT to search for model in file.
-    // If you run the example repeatedly, results are added.
-    // To avoid errors, we give the name of the model explicitly.
+    // BCEmptyModel reads in file
+    // leaving out the second argument tells BAT to search for a model in the file.
     BCEmptyModel m("GaussModel.root");
 
     m.Remarginalize();
