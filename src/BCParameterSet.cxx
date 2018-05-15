@@ -72,7 +72,7 @@ std::vector<double> BCParameterSet::GetFixedValues(bool include_unfixed) const
 {
     std::vector<double> v (fVars.size(), std::numeric_limits<double>::infinity());
     for (unsigned i = 0; i < fVars.size(); ++i)
-        if (include_unfixed or fVars[i].Fixed())
+        if (include_unfixed || fVars[i].Fixed())
             v[i] = fVars[i].GetFixedValue();
     return v;
 }
@@ -81,7 +81,7 @@ std::vector<double> BCParameterSet::GetFixedValues(bool include_unfixed) const
 bool BCParameterSet::ArePriorsSet(bool ignore_fixed) const
 {
     for (unsigned i = 0; i < fVars.size(); ++i)
-        if (ignore_fixed and fVars[i].Fixed())
+        if (ignore_fixed && fVars[i].Fixed())
             continue;
         else if (fVars[i].GetPrior() == NULL)
             return false;
@@ -108,7 +108,7 @@ bool BCParameterSet::IsAtFixedValues(const std::vector<double>& x) const
     if (x.size() < fVars.size())
         return false;
     for (unsigned i = 0; i < fVars.size(); ++i)
-        if (fVars[i].Fixed() and (fVars[i].GetFixedValue() - x[i]) > std::numeric_limits<double>::epsilon())
+        if (fVars[i].Fixed() && (fVars[i].GetFixedValue() - x[i]) > std::numeric_limits<double>::epsilon())
             return false;
     return true;
 }

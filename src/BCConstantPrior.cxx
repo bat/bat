@@ -43,7 +43,7 @@ double BCConstantPrior::GetMode(double xmin, double xmax)
     if (r == BCAux::kReverseRange)
         return GetMode(xmax, xmin);
 
-    if (r == BCAux::kFiniteRange or r == BCAux::kEmptyRange)
+    if (r == BCAux::kFiniteRange || r == BCAux::kEmptyRange)
         return 0.5 * (xmin + xmax);
 
     if (r == BCAux::kInfiniteRange)

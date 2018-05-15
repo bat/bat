@@ -82,7 +82,7 @@ double BCMath::LogApproxBinomial(unsigned n, unsigned k, double p)
         return std::numeric_limits<double>::quiet_NaN();
 
     // p in [0,1]
-    if (p < 0 or p > 1)
+    if (p < 0 || p > 1)
         return std::numeric_limits<double>::quiet_NaN();
 
     if (p == 0)										// no chance of success
@@ -113,13 +113,13 @@ double BCMath::LogBinomFactor(unsigned n, unsigned k)
     if (n < k)										// impose k < n requirement
         return std::numeric_limits<double>::quiet_NaN();
 
-    if (k == 0 or k == n)
+    if (k == 0 || k == n)
         return 0.;
-    if (k == 1 or k == n - 1)
+    if (k == 1 || k == n - 1)
         return log((double)n);
 
     // if no approximation needed
-    if ( n < CachedLogFactorials.size() and (n - k) < 10 )
+    if (n < CachedLogFactorials.size() && (n - k) < 10)
         return LogBinomFactorExact(n, k);
 
     // calculate final log(n over k) using approximations if necessary
@@ -193,9 +193,9 @@ double BCMath::LogBinomFactorExact(unsigned n, unsigned k)
     if (n < k)										// impose k<n requirement
         return std::numeric_limits<double>::quiet_NaN();
 
-    if ( k == 0 or k == n )
+    if ( k == 0 || k == n )
         return 0;
-    if ( k == 1 or k == n - 1)
+    if ( k == 1 || k == n - 1)
         return log((double)n);
 
     int lmax = std::max(k, n - k);
@@ -285,7 +285,7 @@ double BCMath::LogLogNormal(double x, double mean, double sigma)
 double BCMath::CorrectPValue(const double& pvalue, const unsigned& npar, const unsigned& nobservations)
 {
     // avoid pathologies
-    if (pvalue < 0 or pvalue > 1)
+    if (pvalue < 0 || pvalue > 1)
         throw std::domain_error(Form("BCMath::CorrectPValue: pvalue (%g) out of range", pvalue));
 
     if (pvalue < std::numeric_limits<double>::epsilon())

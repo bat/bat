@@ -510,7 +510,7 @@ double BCIntegrate::Integrate(BCIntegrationMethod type, tRandomizer randomizer, 
     // iterate while number of iterations is lower than minimum number of iterations
     // or precision is not reached and the number of iterations is lower than maximum number of iterations
     while ((GetRelativePrecision() < relprecision and GetAbsolutePrecision() < absprecision and GetNIterations() < GetNIterationsMax())
-            or GetNIterations() < GetNIterationsMin()) {
+            || GetNIterations() < GetNIterationsMin()) {
 
         // get random numbers
         (this->*randomizer)(randx);
@@ -605,7 +605,7 @@ bool BCIntegrate::CheckMarginalizationIndices(TH1* hist, const std::vector<unsig
         return false;
     }
 
-    if (index.size() >= 4 or index.size() > GetNParameters()) {
+    if (index.size() >= 4 || index.size() > GetNParameters()) {
         BCLog::OutError("BCIntegrate::Marginalize : Too many marginalization parameters.");
         return false;
     }
@@ -623,7 +623,7 @@ bool BCIntegrate::CheckMarginalizationIndices(TH1* hist, const std::vector<unsig
         }
         // check for duplicate indices
         for (unsigned j = 0; j < index.size(); j++)
-            if (i != j and index[i] == index[j]) {
+            if (i != j && index[i] == index[j]) {
                 BCLog::OutError(Form("BCIntegrate::Marginalize : Parameter index (%d) appears more than once", index[i]));
                 return false;
             }
@@ -743,7 +743,7 @@ int BCIntegrate::MarginalizeAll()
             else if (GetNFreeParameters() == 2) { // marginalize the two free parameters to a 2D histogram
                 for (unsigned i = 0; i < GetNParameters(); ++i)
                     for (unsigned j = i + 1; j < GetNParameters(); ++j) {
-                        if (GetParameter(i).Fixed() or GetParameter(j).Fixed())
+                        if (GetParameter(i).Fixed() || GetParameter(j).Fixed())
                             continue;
 
                         // calculate slice
@@ -771,7 +771,7 @@ int BCIntegrate::MarginalizeAll()
 
             // save if improved the log posterior
 
-            if (fBestFitParameters.empty() or log_max_val > GetLogMaximum()) {
+            if (fBestFitParameters.empty() || log_max_val > GetLogMaximum()) {
                 fLogMaximum = log_max_val;
                 SetBestFitParameters(bestfit_parameters);
                 fBestFitParameterErrors = bestfit_errors;
@@ -792,7 +792,7 @@ int BCIntegrate::MarginalizeAll()
 
         // default
         case BCIntegrate::kMargDefault: {
-            if ( GetNFreeParameters() <= 2 and GetNObservables() == 0)
+            if ( GetNFreeParameters() <= 2 && GetNObservables() == 0)
                 SetMarginalizationMethod(BCIntegrate::kMargGrid);
             else
                 SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
@@ -861,12 +861,12 @@ TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, unsigned& nIterations,
                 }
 
     // project (N+n)D slice for (N)D slice
-    if (parameters.empty()  and indices.size() < GetNFreeParameters() and GetNFreeParameters() <= 3) {
+    if (parameters.empty() && indices.size() < GetNFreeParameters() && GetNFreeParameters() <= 3) {
         unsigned N = indices.size();
 
         // find unfixed parameters and add them to indices
         for (unsigned i = 0; i < GetNParameters(); ++i)
-            if (std::find(indices.begin(), indices.end(), i) == indices.end() and !GetParameter(i).Fixed())
+            if (std::find(indices.begin(), indices.end(), i) == indices.end() && !GetParameter(i).Fixed())
                 indices.push_back(i);
 
         // slice in full free dimensions
@@ -887,7 +887,7 @@ TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, unsigned& nIterations,
             return h;
         }
         // 3->2
-        if (N == 2 and dynamic_cast<TH3*>(slice_NnD) != NULL) {
+        if (N == 2 && dynamic_cast<TH3*>(slice_NnD) != NULL) {
             TH1* h = dynamic_cast<TH3*>(slice_NnD)->Project3D("xy_temp_slice_projection");
             if (h) {
                 h->SetName(Form("h1_slice_%s_%d_%d", GetSafeName().data(), indices[0], indices[1]));
@@ -902,7 +902,7 @@ TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, unsigned& nIterations,
     if (parameters_temp.empty()) {
         // check that remaining parameters are fixed
         for (unsigned i = 0; i < GetNParameters(); ++i)
-            if (std::find(indices.begin(), indices.end(), i) == indices.end() and !GetParameter(i).Fixed()) {
+            if (std::find(indices.begin(), indices.end(), i) == indices.end() && !GetParameter(i).Fixed()) {
                 BCLog::OutError("BCIntegrate::GetSlice : All non-sliced parameters must be fixed or provided values in function call.");
                 return NULL;
             }
@@ -949,17 +949,17 @@ TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, unsigned& nIterations,
     // loop over all bins
     for  (int b = 1; b <= N; ++b) {
         // skip if bin is underflow or overflow
-        if (h->IsBinUnderflow(b) or h->IsBinOverflow(b))
+        if (h->IsBinUnderflow(b) || h->IsBinOverflow(b))
             continue;
         // get local bin numbers for each axis
         h->GetBinXYZ(b, bx, by, bz);
         // update x axis value
         parameters_temp[indices[0]] = h->GetXaxis()->GetBinCenter(bx);
         // update y axis value if 2D
-        if (by > 0 and indices.size() > 1)
+        if (by > 0 && indices.size() > 1)
             parameters_temp[indices[1]] = h->GetYaxis()->GetBinCenter(by);
         // update z axis value if 3D
-        if (bz > 0 and indices.size() > 2)
+        if (bz > 0 && indices.size() > 2)
             parameters_temp[indices[2]] = h->GetZaxis()->GetBinCenter(bz);
         // calculate log of function value at parameters
         double log_eval = LogEval(parameters_temp);
@@ -975,7 +975,7 @@ TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, unsigned& nIterations,
 
     // remove log pedestal and exponentiate resulting value
     for (int b = 1; b <= N; ++b) {
-        if (h->IsBinUnderflow(b) or h->IsBinOverflow(b))
+        if (h->IsBinUnderflow(b) || h->IsBinOverflow(b))
             continue;
         h->SetBinContent(b, exp(h->GetBinContent(b) - log_max_val));
     }
@@ -1026,7 +1026,7 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
         return std::vector<double>();
     }
 
-    if (start.empty() and GetBestFitParameters().size() >= GetNParameters())
+    if (start.empty() && GetBestFitParameters().size() >= GetNParameters())
         start = GetBestFitParameters();
 
     if (start.size() > GetNParameters())
@@ -1172,19 +1172,19 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double>& mode, std::vect
     int t = 1; // time iterator
 
     // check start values
-    if (!start.empty() and start.size() != fParameters.Size()) {
+    if (!start.empty() && start.size() != fParameters.Size()) {
         BCLog::OutWarning("BCIntegrate::FindModeSA : Start point not valid (mismatch of dimensions), set to center.");
         start.clear();
     }
 
     // check if point is allowed
-    if (!start.empty() and !GetParameters().IsWithinLimits(start)) {
+    if (!start.empty() && !GetParameters().IsWithinLimits(start)) {
         BCLog::OutWarning("BCIntegrate::FindModeSA : Start point not valid (parameter not inside valid range), set to center.");
         start.clear();
     }
 
     // check fixed values and issue warning before forcing to fixed
-    if (!start.empty() and !GetParameters().IsAtFixedValues(start)) {
+    if (!start.empty() && !GetParameters().IsAtFixedValues(start)) {
         BCLog::OutWarning("BCIntegrate::FindModeSA : Start point fixed values not properly set. Forcing to fixed values.");
         GetParameters().ApplyFixedValues(start);
     }
@@ -1416,7 +1416,7 @@ double BCIntegrate::SAHelperGetRadialCauchy() const
     static unsigned map_dimension = 0;
 
     // is the lookup-table already initialized? if not, do it!
-    if (!initialized or map_dimension != fParameters.Size()) {
+    if (!initialized || map_dimension != fParameters.Size()) {
         double init_theta;
         double beta = SAHelperSinusToNIntegral(fParameters.Size() - 1, 1.57079632679);
 
@@ -2037,7 +2037,7 @@ std::string BCIntegrate::GetBestFitSummary(unsigned i) const
 {
     if (i >= GetNVariables())
         return std::string("");
-    if (i < GetBestFitParameterErrors().size() and GetBestFitParameterErrors()[i] != std::numeric_limits<double>::infinity())
+    if (i < GetBestFitParameterErrors().size() && GetBestFitParameterErrors()[i] != std::numeric_limits<double>::infinity())
         return BCEngineMCMC::GetBestFitSummary(i) + Form(" +- %.*g", GetVariable(i).GetPrecision(), GetBestFitParameterErrors()[i]);
     else if (!GetBestFitParameterErrors().empty())
         return BCEngineMCMC::GetBestFitSummary(i) + " (no error estimate available)";

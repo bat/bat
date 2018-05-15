@@ -1076,7 +1076,7 @@ void BCEngineMCMC::LoadMCMCParameters(TTree& partree)
 
     for (unsigned c = 0; c < GetNChains(); ++c)
         for (unsigned p = 0; p < GetNParameters(); ++p)
-            if (scales[c][p] < 0 or efficiencies[c][p] < 0)
+            if (scales[c][p] < 0 || efficiencies[c][p] < 0)
                 throw std::runtime_error("BCEngineMCMC::LoadMCMCParameters: unset scale or efficiency.");
 
     fMCMCProposalFunctionScaleFactor = scales;
@@ -1180,7 +1180,7 @@ bool BCEngineMCMC::LoadMCMC(const std::string& filename, std::string mcmcTreeNam
         throw std::runtime_error(Form("BCEngineMCMC::LoadMCMC: Could not open file %s.", filename.data()));
     }
 
-    if (mcmcTreeName.empty() and parameterTreeName.empty()) {
+    if (mcmcTreeName.empty() && parameterTreeName.empty()) {
         // look through file for trees named according to BAT scheme
         TList* LoK = inputfile->GetListOfKeys();
         std::vector<std::string> mcmc_names;
@@ -1445,7 +1445,7 @@ void BCEngineMCMC::Remarginalize(bool autorange)
     }
 
     // set mult. var. proposal function covariance to those of main run if empty
-    if (fMCMCProposeMultivariate and fMultivariateProposalFunctionCovariance.empty()) {
+    if (fMCMCProposeMultivariate && fMultivariateProposalFunctionCovariance.empty()) {
         fMultivariateProposalFunctionCovariance.assign(fMCMCNChains, TMatrixDSym(GetNFreeParameters()));
         fMultivariateCovarianceUpdates = 0;
         UpdateMultivariateProposalFunctionCovariances(1.);
@@ -1550,7 +1550,6 @@ void BCEngineMCMC::CalculateCholeskyDecompositions()
                 if (CholeskyDecomposer.Decompose())
                     fMultivariateProposalFunctionCholeskyDecomposition[c].Transpose(CholeskyDecomposer.GetU());
                 else {
-                    BCLog::OutError(Form("BCEngineMCMC::CalculateCholeskyDecompositions : chain %u Cholesky decomposition failed! No remedies!", c));
                     throw std::runtime_error(Form("BCEngineMCMC::CalculateCholeskyDecompositions : chain %u Cholesky decomposition failed! No remedies!", c));
                 }
             }
@@ -2066,9 +2065,10 @@ bool BCEngineMCMC::MetropolisPreRun()
         }
 
         // Update multivariate proposal function covariances
-        if (fMCMCProposeMultivariate)
+        if (fMCMCProposeMultivariate) {
             if (UpdateMultivariateProposalFunctionCovariances())
                 CalculateCholeskyDecompositions();
+        }
 
         if (fMCMCCurrentIteration >= (int)fMCMCNIterationsPreRunMax)
             continue;
@@ -2262,7 +2262,7 @@ bool BCEngineMCMC::Metropolis()
             throw std::runtime_error(Form("BCEngineMCMC::Metropolis: fMCMCThreadLocalStorage[%u] lacks random number generator.", c));
     }
     if (fMCMCProposeMultivariate) {
-        if (fMultivariateProposalFunctionCholeskyDecomposition.empty() and fMultivariateProposalFunctionCovariance.empty())
+        if (fMultivariateProposalFunctionCholeskyDecomposition.empty() && fMultivariateProposalFunctionCovariance.empty())
             throw std::runtime_error(Form("BCEngineMCMC::Metropolis: pre-run was run with factorized proposal function."));
         // check if cholesky decompositions must be calculated
         bool calc_cholesky = false;
@@ -2296,9 +2296,9 @@ bool BCEngineMCMC::Metropolis()
             if (fMCMCProposalFunctionScaleFactor[c].size() != GetNParameters())
                 throw std::runtime_error(Form("BCEngineMCMC::Metropolis: size of fMCMCProposalFunctionScaleFactor[%u] does not match number of parameters.", c));
             for (unsigned p = 0; p < fMCMCProposalFunctionScaleFactor[c].size(); ++p) {
-                if (!GetParameter(p).Fixed() and fMCMCProposalFunctionScaleFactor[c][p] <= 0)
+                if (!GetParameter(p).Fixed() && fMCMCProposalFunctionScaleFactor[c][p] <= 0)
                     throw std::runtime_error(Form("BCEngineMCMC::Metropolis: fMCMCProposalFunctionScaleFactor[%u][%u] <= 0.", c, p));
-                if (GetParameter(p).Fixed() and fMCMCProposalFunctionScaleFactor[c][p] > 0)
+                if (GetParameter(p).Fixed() && fMCMCProposalFunctionScaleFactor[c][p] > 0)
                     throw std::runtime_error(Form("BCEngineMCMC::Metropolis: parameter %u has been unfixed without rerunning the pre-run.", p));
             }
         }

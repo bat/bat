@@ -7,7 +7,6 @@
 
 int main()
 {
-
     // open log file
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 

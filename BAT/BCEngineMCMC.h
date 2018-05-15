@@ -859,7 +859,7 @@ public:
      * given by SetMinimumEfficiency() and SetMaximumEfficiency().*/
     void SetProposeMultivariate(bool flag)
     {
-        if (flag != fMCMCProposeMultivariate and fMCMCPhase != kUnsetPhase)
+        if (flag != fMCMCProposeMultivariate && fMCMCPhase != kUnsetPhase)
             BCLog::OutWarning("You have changed the proposal function flag, but not required the prerun be rerun.");
         fMCMCProposeMultivariate = flag;
     }

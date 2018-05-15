@@ -176,7 +176,7 @@ void BCModelManager::Integrate()
 // ---------------------------------------------------------
 double BCModelManager::BayesFactor(unsigned imodel1, unsigned imodel2) const
 {
-    if (imodel1 >= fModels.size() or imodel2 >= fModels.size())
+    if (imodel1 >= fModels.size() || imodel2 >= fModels.size())
         return -1;
 
     // Bayes Factors are the likelihoods integrated over the parameters

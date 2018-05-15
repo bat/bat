@@ -44,7 +44,7 @@ double BCSplitGaussianPrior::GetLogPrior(double x)
 // ---------------------------------------------------------
 double BCSplitGaussianPrior::GetRawMoment(unsigned n, double xmin, double xmax)
 {
-    if (n == 0 or n > 2)
+    if (n == 0 || n > 2)
         return BCPrior::GetRawMoment(n, xmin, xmax);
 
     BCAux::BCRange r = BCAux::RangeType(xmin, xmax);

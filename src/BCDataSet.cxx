@@ -55,7 +55,7 @@ std::vector<double> BCDataSet::GetDataComponents(unsigned index) const
 bool BCDataSet::BoundsExist() const
 {
     for (unsigned i = 0; i < GetNValuesPerPoint(); ++i)
-        if (!std::isfinite(GetLowerBound(i)) or !std::isfinite(GetUpperBound(i)))
+        if (!std::isfinite(GetLowerBound(i)) || !std::isfinite(GetUpperBound(i)))
             return false;
     return true;
 }
@@ -208,7 +208,7 @@ bool BCDataSet::ReadDataFromFileTxt(const std::string& filename, int nbranches)
 // ---------------------------------------------------------
 bool BCDataSet::AddDataPoint(const BCDataPoint& datapoint)
 {
-    if (fNValuesPerPoint == 0 and fDataVector.empty())
+    if (fNValuesPerPoint == 0 && fDataVector.empty())
         SetNValuesPerPoint(datapoint.GetNValues());
 
     if (datapoint.GetNValues() != GetNValuesPerPoint())
@@ -232,7 +232,7 @@ bool BCDataSet::AddDataPoint(const BCDataPoint& datapoint)
 void BCDataSet::AdjustBoundForUncertainties(unsigned i, double nSigma, unsigned i_err1, int i_err2)
 {
     // check indices
-    if (i >= GetNValuesPerPoint() or i_err1 >= GetNValuesPerPoint() or i_err2 >= (int)GetNValuesPerPoint())
+    if (i >= GetNValuesPerPoint() || i_err1 >= GetNValuesPerPoint() || i_err2 >= (int)GetNValuesPerPoint())
         return;
 
     // if uncertainty above value is unassigned, use same data axis as for below.
@@ -294,7 +294,7 @@ void BCDataSet::PrintSummary(void (*output)(const std::string&)) const
 // ---------------------------------------------------------
 TGraph* BCDataSet::GetGraph(unsigned x, unsigned y) const
 {
-    if (x >= GetNValuesPerPoint() or y >= GetNValuesPerPoint())
+    if (x >= GetNValuesPerPoint() || y >= GetNValuesPerPoint())
         return NULL;
 
     TGraph* G = new TGraph();
@@ -309,8 +309,8 @@ TGraph* BCDataSet::GetGraph(unsigned x, unsigned y) const
 // ---------------------------------------------------------
 TGraphErrors* BCDataSet::GetGraph(unsigned x, unsigned y, int ex, int ey) const
 {
-    if (x >= GetNValuesPerPoint() or y >= GetNValuesPerPoint()
-            or ex >= (int)GetNValuesPerPoint() or ey >= (int)GetNValuesPerPoint())
+    if (x >= GetNValuesPerPoint() || y >= GetNValuesPerPoint()
+            || ex >= (int)GetNValuesPerPoint() || ey >= (int)GetNValuesPerPoint())
         return NULL;
 
     TGraphErrors* G = new TGraphErrors();
@@ -329,9 +329,9 @@ TGraphErrors* BCDataSet::GetGraph(unsigned x, unsigned y, int ex, int ey) const
 // ---------------------------------------------------------
 TGraphAsymmErrors* BCDataSet::GetGraph(unsigned x, unsigned y, int ex_below, int ex_above, int ey_below, int ey_above) const
 {
-    if (x >= GetNValuesPerPoint() or y >= GetNValuesPerPoint()
-            or ex_below >= (int)GetNValuesPerPoint() or ex_above >= (int)GetNValuesPerPoint()
-            or ey_below >= (int)GetNValuesPerPoint() or ey_above >= (int)GetNValuesPerPoint())
+    if (x >= GetNValuesPerPoint() || y >= GetNValuesPerPoint()
+            || ex_below >= (int)GetNValuesPerPoint() || ex_above >= (int)GetNValuesPerPoint()
+            || ey_below >= (int)GetNValuesPerPoint() || ey_above >= (int)GetNValuesPerPoint())
         return NULL;
 
     TGraphAsymmErrors* G = new TGraphAsymmErrors();
@@ -352,7 +352,7 @@ TGraphAsymmErrors* BCDataSet::GetGraph(unsigned x, unsigned y, int ex_below, int
 // ---------------------------------------------------------
 TH2* BCDataSet::CreateH2(const char* name, const char* title, unsigned x, unsigned y, unsigned nbins_x, unsigned nbins_y, double x_padding, double y_padding) const
 {
-    if (x >= GetNValuesPerPoint() or y >= GetNValuesPerPoint())
+    if (x >= GetNValuesPerPoint() || y >= GetNValuesPerPoint())
         return NULL;
 
     if (!BoundsExist())

@@ -167,7 +167,7 @@ void BCEfficiencyFitter::DrawData(bool flaglegend)
     M.SetMarkerStyle(fSuccesses.GetMarkerStyle());
     M.SetMarkerSize(fSuccesses.GetMarkerSize());
     for (int i = 1; i <= fTrials.GetNbinsX(); ++i)
-        if (fTrials.GetBinContent(i) > 0 and fSuccesses.GetBinContent(i) == 0)
+        if (fTrials.GetBinContent(i) > 0 && fSuccesses.GetBinContent(i) == 0)
             M.DrawMarker(fTrials.GetBinCenter(i), 0);
 
     // draw legend
@@ -331,7 +331,7 @@ double BCEfficiencyFitter::CalculatePValueFast(const std::vector<double>& pars, 
             double ptest = fRandom.Rndm() - 0.5;
 
             // continue, if efficiency is at limit
-            if (!(yexp > 0. or yexp < 1.0))
+            if (!(yexp > 0. || yexp < 1.0))
                 continue;
 
             // increase statistics by 1
