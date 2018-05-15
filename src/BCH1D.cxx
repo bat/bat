@@ -87,7 +87,7 @@ void BCH1D::CheckIntervals(std::vector<double>& intervals)
         BCHistogramBase::CheckIntervals(fIntervals, (fBandType == kLowerLimit) ? -1 : +1);
 
     // check number of intervals values if user-specified
-    if (fBandType == kUserSpecified and intervals.size() == 1) {
+    if (fBandType == kUserSpecified && intervals.size() == 1) {
         BCLog::OutWarning("BCH1D::CheckIntervals : at least two intervals values must be specified for user-specified intervals. No bands will be drawn.");
         intervals.clear();
     }
@@ -136,7 +136,7 @@ void BCH1D::DrawBands(const std::string& options)
 {
     GetHistogram()->Draw(options.data());
 
-    if ( fBandType == kNoBands or GetHistogram()->Integral() <= 0 )
+    if ( fBandType == kNoBands || GetHistogram()->Integral() <= 0 )
         return;
 
     std::vector<double> intervals = fIntervals;
@@ -310,7 +310,7 @@ void BCH1D::DrawQuantiles(const unsigned n)
 // ---------------------------------------------------------
 void BCH1D::DrawMedian()
 {
-    if ( !fDrawMedian or fNQuantiles == 2)
+    if ( !fDrawMedian || fNQuantiles == 2)
         return;
 
     double ymin = gPad->GetUymin();
@@ -331,7 +331,7 @@ void BCH1D::DrawMedian()
     TLegendEntry* le = 0;
     double q[2], p[2] = {0.1587, 0.8413};
 
-    if ( fDrawCentral68 and GetHistogram()->GetQuantiles(2, q, p) == 2 ) {
+    if (fDrawCentral68 && GetHistogram()->GetQuantiles(2, q, p) == 2) {
         TArrow* arrow_ci = new TArrow(q[0], ymid * (fLogy ? pow(ymax / ymin, -0.1) : 0.8),
                                       q[1], ymid * (fLogy ? pow(ymax / ymin, -0.1) : 0.8),
                                       0.02 * gPad->GetWNDC(), "<|>");
@@ -351,7 +351,7 @@ void BCH1D::DrawMedian()
 // ---------------------------------------------------------
 TH1* BCH1D::GetSubHistogram(double min, double max, const std::string& name, bool preserve_range)
 {
-    if (min == max or !GetHistogram())
+    if (min == max || !GetHistogram())
         return 0;
     if (min > max)
         return GetSubHistogram(max, min, name);
@@ -359,14 +359,14 @@ TH1* BCH1D::GetSubHistogram(double min, double max, const std::string& name, boo
     double xmin = GetHistogram()->GetXaxis()->GetXmin();
     double xmax = GetHistogram()->GetXaxis()->GetXmax();
 
-    if (max<xmin or min>xmax)
+    if (max < xmin || min > xmax)
         return 0;
 
     std::string newName(name);
     if (name.empty())
         newName = std::string(GetHistogram()->GetName()) + "_subhist";
 
-    if ( min <= xmin and max >= xmax ) {
+    if ( min <= xmin && max >= xmax ) {
         return BCAux::OwnClone(GetHistogram(), name);
     }
     min = std::max<double>(min, xmin);
@@ -383,12 +383,12 @@ TH1* BCH1D::GetSubHistogram(double min, double max, const std::string& name, boo
     unsigned n = 1;
     for (int i = i0; i <= i1; ++i) {
         bins[n++] = GetHistogram()->GetXaxis()->GetBinLowEdge(i);
-        if (min > GetHistogram()->GetXaxis()->GetBinLowEdge(i) and min < GetHistogram()->GetXaxis()->GetBinUpEdge(i))
+        if (min > GetHistogram()->GetXaxis()->GetBinLowEdge(i) && min < GetHistogram()->GetXaxis()->GetBinUpEdge(i))
             bins[n++] = min;
-        if (max > GetHistogram()->GetXaxis()->GetBinLowEdge(i) and max < GetHistogram()->GetXaxis()->GetBinUpEdge(i))
+        if (max > GetHistogram()->GetXaxis()->GetBinLowEdge(i) && max < GetHistogram()->GetXaxis()->GetBinUpEdge(i))
             bins[n++] = max;
     }
-    if (preserve_range or max == GetHistogram()->GetXaxis()->GetBinUpEdge(i1))
+    if (preserve_range || max == GetHistogram()->GetXaxis()->GetBinUpEdge(i1))
         bins[n++] = GetHistogram()->GetXaxis()->GetBinUpEdge(i1);
 
     // now define the new histogram

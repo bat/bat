@@ -177,7 +177,7 @@ BCH2D BCPrior::GetBCH2D(BCPrior* ordinate, TH2* bins, const std::string& name)
 {
     BCH2D bch2;
 
-    if (!ordinate or !ordinate->IsValid())
+    if (!ordinate || !ordinate->IsValid())
         return bch2;
 
     BCH1D bch_x = GetBCH1D(bins->ProjectionX(), "tempx");

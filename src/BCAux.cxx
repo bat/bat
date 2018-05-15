@@ -46,7 +46,7 @@ void BCAux::DefaultToPDF(std::string& filename)
         std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
         if (ext == ".")
             filename += "pdf";
-        else if (ext != ".pdf" and ext != ".ps")
+        else if (ext != ".pdf" && ext != ".ps")
             filename += ".pdf";
     }
 }
@@ -89,7 +89,7 @@ BCAux::BCRange BCAux::RangeType(double xmin, double xmax)
         return BCAux::kReverseRange;
     if (xmin == xmax)
         return BCAux::kEmptyRange;
-    if (std::isfinite(xmin) and std::isfinite(xmax))
+    if (std::isfinite(xmin) && std::isfinite(xmax))
         return BCAux::kFiniteRange;
     if (std::isfinite(xmax))
         return BCAux::kNegativeInfiniteRange;
@@ -240,22 +240,22 @@ void BCAux::DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posteri
         return;
     }
 
-    if (!prior.Valid() or !posterior.Valid()) {
-        if (!prior.Valid() and posterior.Valid())
+    if (!prior.Valid() || !posterior.Valid()) {
+        if (!prior.Valid() && posterior.Valid())
             BCLog::OutError("BCAux::DrawKnowledgeUpdate : prior invalid.");
-        else if (prior.Valid() and !posterior.Valid())
+        else if (prior.Valid() && !posterior.Valid())
             BCLog::OutError("BCAux::DrawKnowledgeUpdate : posterior invalid.");
         else
             BCLog::OutError("BCAux::DrawKnowledgeUpdate : prior and posterior invalid.");
         return;
     }
 
-    gPad->SetLogx(prior.GetLogx() or posterior.GetLogx());
-    gPad->SetLogy(prior.GetLogy() or posterior.GetLogy());
-    gPad->SetGridx(prior.GetGridx() or posterior.GetGridx());
-    gPad->SetGridx(prior.GetGridy() or posterior.GetGridy());
+    gPad->SetLogx(prior.GetLogx() || posterior.GetLogx());
+    gPad->SetLogy(prior.GetLogy() || posterior.GetLogy());
+    gPad->SetGridx(prior.GetGridx() || posterior.GetGridx());
+    gPad->SetGridx(prior.GetGridy() || posterior.GetGridy());
     if (prior.GetDimension() > 2)
-        gPad->SetLogy(prior.GetLogz() or posterior.GetLogz());
+        gPad->SetLogy(prior.GetLogz() || posterior.GetLogz());
 
     // get ranges
     double minx = std::min<double>(prior.GetHistogram()->GetXaxis()->GetXmin(), posterior.GetHistogram()->GetXaxis()->GetXmin());
@@ -303,7 +303,7 @@ void BCAux::DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posteri
 
     // create / draw legend(s)
 
-    if (prior.GetHistogram()->GetDimension() > 1 or prior.GetLegend().GetNRows() > 0)
+    if (prior.GetHistogram()->GetDimension() > 1 || prior.GetLegend().GetNRows() > 0)
         prior.GetLegend().SetHeader(prior.GetHistogram()->GetTitle());
     else
         prior.GetLegend().AddEntry(prior.GetHistogram(), 0, "L");

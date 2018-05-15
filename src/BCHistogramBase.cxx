@@ -195,7 +195,7 @@ void BCHistogramBase::SetHistogram(const TH1* const hist)
 {
     delete fHistogram;
 
-    if (!hist or (fDimension >= 0 and hist->GetDimension() != fDimension)) {
+    if (!hist || (fDimension >= 0 && hist->GetDimension() != fDimension)) {
         fHistogram = 0;
         fLocalMode.clear();
         return;
@@ -311,7 +311,7 @@ void BCHistogramBase::CheckIntervals(std::vector<double>& intervals, int sort)
 {
     // remove out-of-bounds entries
     for (int i = intervals.size() - 1; i >= 0; --i)
-        if (intervals[i] < 0 or intervals[i] > 1) {
+        if (intervals[i] < 0 || intervals[i] > 1) {
             BCLog::OutWarning(Form("BCHistogramBase::CheckIntervals : interval out of bounds, removing %f", intervals[i]));
             intervals.erase(intervals.begin() + i);
         }
@@ -361,7 +361,7 @@ void BCHistogramBase::GetNonzeroBinDensityMassVector(std::vector<std::pair<doubl
 
     // fill bin_dens_mass with pairs of (prob. density, prob. mass) for all non-empty bins
     for (unsigned i = 1; i <= nbins; ++i)
-        if (!GetHistogram()->IsBinUnderflow(i) and !GetHistogram()->IsBinOverflow(i) and GetHistogram()->GetBinContent(i) > 0) {
+        if (!GetHistogram()->IsBinUnderflow(i) && !GetHistogram()->IsBinOverflow(i) && GetHistogram()->GetBinContent(i) > 0) {
             // if 1D, by = bz = -1; if 2D, bz = -1
             int bx, by, bz;
             GetHistogram()->GetBinXYZ(i, bx, by, bz);
@@ -384,7 +384,7 @@ std::vector<std::pair<double, double> > BCHistogramBase::GetSmallestIntervalBoun
     std::vector<std::pair<double, double> > levels;
 
     // if no masses asked for or no histogram set, return empty vector
-    if (masses.empty() or !GetHistogram())
+    if (masses.empty() || !GetHistogram())
         return levels;
 
     // check and sort masses to decreasing order
@@ -441,7 +441,7 @@ std::vector<double> BCHistogramBase::GetSmallestIntervalSize(std::vector<double>
 
     // remove out-of-bounds entries
     for (int i = masses.size() - 1; i >= 0; --i)
-        if (masses[i] < 0 or masses[i] > 1) {
+        if (masses[i] < 0 || masses[i] > 1) {
             BCLog::OutWarning(Form("BCHistogramBase::GetSmallestIntervalSize : mass out of bounds, removing %f", masses[i]));
             masses.erase(masses.begin() + i);
         }
@@ -538,10 +538,10 @@ void BCHistogramBase::DrawGlobalMode()
         ymax = pow(10, ymax);
         y = ymin * pow(ymax / ymin, 0.3);
     }
-    if (GetHistogram()->GetDimension() > 1 and fGlobalMode.size() > 1)
+    if (GetHistogram()->GetDimension() > 1 && fGlobalMode.size() > 1)
         y = fGlobalMode[1];
 
-    if (fDrawGlobalMode and !fGlobalMode.empty()) {
+    if (fDrawGlobalMode && !fGlobalMode.empty()) {
         TMarker* marker_mode = new TMarker(fGlobalMode[0], y, fGlobalModeMarkerStyle);
         fROOTObjects.push_back(marker_mode);
         marker_mode->SetMarkerColor(GetMarkerColor());
@@ -562,7 +562,7 @@ void BCHistogramBase::DrawGlobalMode()
             arrow_mode->SetFillColor(marker_mode->GetMarkerColor());
             arrow_mode->Draw();
 
-            if (GetHistogram()->GetDimension() > 1 and fGlobalMode.size() > 1) {
+            if (GetHistogram()->GetDimension() > 1 && fGlobalMode.size() > 1) {
                 double xmin = gPad->GetUxmin();
                 double xmax = gPad->GetUxmax();
                 if (gPad->GetLogx()) {
@@ -594,10 +594,10 @@ void BCHistogramBase::DrawLocalMode()
         ymax = pow(10, ymax);
         y = ymin * pow(ymax / ymin, 0.25);
     }
-    if (GetHistogram()->GetDimension() > 1 and fLocalMode.size() > 1)
+    if (GetHistogram()->GetDimension() > 1 && fLocalMode.size() > 1)
         y = fLocalMode[1];
 
-    if (fDrawLocalMode and !fLocalMode.empty()) {
+    if (fDrawLocalMode && !fLocalMode.empty()) {
         TMarker* marker_mode = new TMarker(fLocalMode[0], y, fLocalModeMarkerStyle);
         fROOTObjects.push_back(marker_mode);
         marker_mode->SetMarkerColor(GetMarkerColor());
@@ -618,7 +618,7 @@ void BCHistogramBase::DrawLocalMode()
             arrow_mode->SetFillColor(marker_mode->GetMarkerColor());
             arrow_mode->Draw();
 
-            if (GetHistogram()->GetDimension() > 1 and fLocalMode.size() > 1) {
+            if (GetHistogram()->GetDimension() > 1 && fLocalMode.size() > 1) {
                 double xmin = gPad->GetUxmin();
                 double xmax = gPad->GetUxmax();
                 if (gPad->GetLogx()) {

@@ -81,7 +81,7 @@ void swap(BCParameter& A, BCParameter& B)
 void BCParameter::SetLimits(double lowerlimit, double upperlimit)
 {
     BCVariable::SetLimits(lowerlimit, upperlimit);
-    if (BCAux::RangeType(fLowerLimit, fUpperLimit) == BCAux::kFiniteRange and fPrior)
+    if (BCAux::RangeType(fLowerLimit, fUpperLimit) == BCAux::kFiniteRange && fPrior)
         fPrior->GetFunction().SetRange(fLowerLimit, fUpperLimit);
     if (lowerlimit == upperlimit)
         fFixedValue = lowerlimit;

@@ -71,15 +71,15 @@ void BCVariable::CalculatePrecision(bool force)
 {
     // need some extra digits to see where things become insignificant
     unsigned new_precision = 4 + ceil(-log10(fabs(fUpperLimit - fLowerLimit) / std::max(fabs(fUpperLimit), fabs(fLowerLimit))));
-    if (force or new_precision > GetPrecision())
+    if (force || new_precision > GetPrecision())
         SetPrecision(new_precision);
 }
 // ---------------------------------------------------------
 bool BCVariable::IsAtLimit(double value) const
 {
-    if ( (value - fLowerLimit) * (value - fLowerLimit) / fLowerLimit / fLowerLimit <= 1e-10
-            or
-            (value - fUpperLimit) * (value - fUpperLimit) / fUpperLimit / fUpperLimit <= 1e-10 )
+    if ((value - fLowerLimit) * (value - fLowerLimit) / fLowerLimit / fLowerLimit <= 1e-10
+            ||
+            (value - fUpperLimit) * (value - fUpperLimit) / fUpperLimit / fUpperLimit <= 1e-10)
         return true;
 
     return false;
