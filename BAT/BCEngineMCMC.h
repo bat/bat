@@ -1440,9 +1440,8 @@ public:
     /**
      * Load parameters and observables from tree.
      * @param partree Tree holding parameter information.
-     * @param loadObservables Flag for whether to also load observables.
-     * @return Success of action. */
-    virtual bool LoadParametersFromTree(TTree* partree, bool loadObservables = true);
+     * @param loadObservables Flag for whether to also load observables. */
+    void LoadParametersFromTree(TTree* partree, bool loadObservables = true);
 
     /**
      * Load MCMC parameters from parameter tree: nchains, proposal function type, scales
@@ -1454,7 +1453,7 @@ public:
      * @param partree Tree of parameters to check against model.
      * @param checkObservables Flag for whether to check observables.
      * @param Whether tree's parameters match those of model. */
-    virtual bool ParameterTreeMatchesModel(TTree* partree, bool checkObservables = true);
+    bool ParameterTreeMatchesModel(TTree* partree, bool checkObservables = true);
 
     /**
      * Load previous MCMC run.
@@ -1462,28 +1461,27 @@ public:
      * @param mcmcTreeName Name of tree inside file containing MCMC, empty string (default) loads [modelname]_mcmc.
      * @param parameterTreeName Name of tree inside file containing parameter list, empty string (default) loads [modelname]_parameters.
      * @param loadObservables Flag for whether to load observables from parameter list and MCMC trees. */
-    virtual bool LoadMCMC(const std::string& filename, std::string mcmcTreeName = "", std::string parameterTreeName = "", bool loadObservables = true);
+    void LoadMCMC(const std::string& filename, std::string mcmcTreeName = "", std::string parameterTreeName = "", bool loadObservables = true);
 
     /**
      * Load previous MCMC run.
      * @param mcmcTree Tree containing MCMC samples.
      * @param parTree Tree containing definition of parameters.
-     * @param loadObservables Flag for whether to load observables.
-     * @return Success of action. */
-    virtual bool LoadMCMC(TTree* mcmcTree, TTree* parTree, bool loadObservables = true);
+     * @param loadObservables Flag for whether to load observables. */
+    void LoadMCMC(TTree* mcmcTree, TTree* parTree, bool loadObservables = true);
 
     /**
      * Check tree structure for MCMC tree.
      * @param tree MCMC Tree to check validity of.
      * @param checkObservables Flag for whether to check observables.
      * @return Validity of tree. */
-    virtual bool ValidMCMCTree(TTree* tree, bool checkObservables = true) const;
+    bool ValidMCMCTree(TTree* tree, bool checkObservables = true) const;
 
     /**
      * Check tree structure for parameter tree.
      * @param tree Parameter tree to check validity of.
      * @return Validty of tree. */
-    virtual bool ValidParameterTree(TTree* tree) const;
+    bool ValidParameterTree(TTree* tree) const;
 
     /**
      * Close the root output file. */

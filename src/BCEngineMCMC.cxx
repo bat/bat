@@ -852,7 +852,7 @@ void BCEngineMCMC::UpdateParameterTree()
             b_nchains->Fill();
 
         for (unsigned j = 0; j < nchains; ++j) {
-            scale[j] = (n < GetNParameters()) ? fMCMCProposalFunctionScaleFactor[j][n] : -1;
+            scale[j] = (n < GetNParameters()) ? (fMCMCProposeMultivariate ? fMCMCProposalFunctionScaleFactor[j][0] : fMCMCProposalFunctionScaleFactor[j][n]) : -1;
             if (!fMCMCProposeMultivariate)
                 eff[j]   = (n < GetNParameters()) ? fMCMCStatistics[j].efficiency[n] : -1;
             else if (!fMCMCStatistics[j].efficiency.empty())
@@ -881,16 +881,6 @@ bool BCEngineMCMC::ValidMCMCTree(TTree* tree, bool checkObservables) const
 
     if (!(tree->GetBranch("Phase")))
         return false;
-
-    // The following are not necessary for loading in the MCMC tree for further use
-    // if (!(tree->GetBranch("Iteration")))
-    //  return false;
-    // if (!(tree->GetBranch("LogProbability")))
-    //  return false;
-    // if (!(tree->GetBranch("LogLikelihood")))
-    //  return false;
-    // if (!(tree->GetBranch("LogPrior")))
-    //  return false;
 
     unsigned nvar = checkObservables ? GetNObservables() : GetNParameters();
     for (unsigned i = 0; i < nvar; ++i)
@@ -921,33 +911,11 @@ bool BCEngineMCMC::ValidParameterTree(TTree* tree) const
     if (!(tree->GetBranch("upper_limit")))
         return false;
 
-    // The following are not necessary for loading in a parameter tree for further use
-    // if (!(tree->GetBranch("safe_name")))
-    //  return false;
-    // if (!(tree->GetBranch("latex_name")))
-    //  return false;
-    // if (!(tree->GetBranch("precission")))
-    //  return false;
-    // if (!(tree->GetBranch("nbins")))
-    //  return false;
-    // if (!(tree->GetBranch("fill_1d")))
-    //  return false;
-    // if (!(tree->GetBranch("fill_2d")))
-    //  return false;
-    // if (!(tree->GetBranch("fixed")))
-    //  return false;
-    // if (!(tree->GetBranch("fixed_value")))
-    //  return false;
-    // if (!(tree->GetBranch("nchain")))
-    //  return false;
-    // if (!(tree->GetBranch("scale")))
-    //  return false;
-
     return true;
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::LoadParametersFromTree(TTree* partree, bool loadObservables)
+void BCEngineMCMC::LoadParametersFromTree(TTree* partree, bool loadObservables)
 {
     // absolutely necessary branches
     if (!partree->GetBranch("parameter"))
@@ -1025,8 +993,6 @@ bool BCEngineMCMC::LoadParametersFromTree(TTree* partree, bool loadObservables)
     }
 
     partree->ResetBranchAddresses();
-
-    return true;
 }
 
 // --------------------------------------------------------
@@ -1076,7 +1042,7 @@ void BCEngineMCMC::LoadMCMCParameters(TTree& partree)
 
     for (unsigned c = 0; c < GetNChains(); ++c)
         for (unsigned p = 0; p < GetNParameters(); ++p)
-            if (scales[c][p] < 0 || efficiencies[c][p] < 0)
+            if (scales[c][p] < 0 || efficiencies[c][p] == -1)
                 throw std::runtime_error("BCEngineMCMC::LoadMCMCParameters: unset scale or efficiency.");
 
     fMCMCProposalFunctionScaleFactor = scales;
@@ -1169,7 +1135,7 @@ bool BCEngineMCMC::ParameterTreeMatchesModel(TTree* partree, bool checkObservabl
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::LoadMCMC(const std::string& filename, std::string mcmcTreeName, std::string parameterTreeName, bool loadObservables)
+void BCEngineMCMC::LoadMCMC(const std::string& filename, std::string mcmcTreeName, std::string parameterTreeName, bool loadObservables)
 {
     // save current directory
     TDirectory* dir = gDirectory;
@@ -1204,16 +1170,14 @@ bool BCEngineMCMC::LoadMCMC(const std::string& filename, std::string mcmcTreeNam
                 if (mcmc_names[i] == parameter_names[j])
                     model_names.push_back(mcmc_names[i]);
 
-        if (model_names.empty()) {
-            BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s contains no matching MCMC and Parameter trees.", filename.data()));
-            return false;
-        }
+        if (model_names.empty())
+            throw std::runtime_error(Form("BCEngineMCMC::LoadMCMC : %s contains no matching MCMC and Parameter trees.", filename.data()));
 
         if (model_names.size() > 1) {
-            BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s contains more than one model, please select one by providing a model name:", filename.data()));
+            std::string model_names_string = model_names[0];
             for (unsigned i = 0; i < model_names.size(); ++i)
-                BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : \"%s\"", model_names[i].data()));
-            return false;
+                model_names_string += ", " + model_names[i];
+            throw std::runtime_error(Form("BCEngineMCMC::LoadMCMC : %s contains more than one model, please select one by providing a model name: %s", filename.data(), model_names_string.data()));
         }
 
         mcmcTreeName = model_names[0] + "_mcmc";
@@ -1238,34 +1202,31 @@ bool BCEngineMCMC::LoadMCMC(const std::string& filename, std::string mcmcTreeNam
     TTree* mcmcTree = NULL;
     inputfile->GetObject(mcmcTreeName.data(), mcmcTree);
     if (!mcmcTree)
-        BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s", filename.data(), mcmcTreeName.data()));
+        throw std::runtime_error(Form("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s", filename.data(), mcmcTreeName.data()));
 
 
     TTree* parTree = NULL;
     inputfile->GetObject(parameterTreeName.data(), parTree);
     if (!parTree)
-        BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s", filename.data(), parameterTreeName.data()));
+        throw std::runtime_error(Form("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s", filename.data(), parameterTreeName.data()));
 
     gDirectory = dir;
-    return LoadMCMC(mcmcTree, parTree, loadObservables);
+    LoadMCMC(mcmcTree, parTree, loadObservables);
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::LoadMCMC(TTree* mcmcTree, TTree* parTree, bool loadObservables)
+void BCEngineMCMC::LoadMCMC(TTree* mcmcTree, TTree* parTree, bool loadObservables)
 {
     fMCMCTreeLoaded = false;
     fMCMCTreeReuseObservables = loadObservables;
 
-    if (!mcmcTree || !parTree) {
-        BCLog::OutError("BCEngineMCMC::LoadMCMC : empty trees provided");
-        return false;
-    }
+    if (!mcmcTree || !parTree)
+        throw std::runtime_error("BCEngineMCMC::LoadMCMC : empty trees provided");
 
     // load parameter tree
-    if (!ValidParameterTree(parTree)) {
-        BCLog::OutError("BCEngineMCMC::LoadMCMC : invalid parameter tree");
-        return false;
-    }
+    if (!ValidParameterTree(parTree))
+        throw std::runtime_error("BCEngineMCMC::LoadMCMC : invalid parameter tree");
+
     delete fParameterTree;
     fParameterTree = parTree;
 
@@ -1273,22 +1234,19 @@ bool BCEngineMCMC::LoadMCMC(TTree* mcmcTree, TTree* parTree, bool loadObservable
     if (GetNParameters() == 0)
         LoadParametersFromTree(fParameterTree, fMCMCTreeReuseObservables);
     // else check parameter tree
-    else if (!ParameterTreeMatchesModel(fParameterTree, fMCMCTreeReuseObservables)) {
-        BCLog::OutError("BCEngineMCMC::LoadMCMC : Parameter tree does not match model.");
-        return false;
-    }
+    else if (!ParameterTreeMatchesModel(fParameterTree, fMCMCTreeReuseObservables))
+        throw std::runtime_error("BCEngineMCMC::LoadMCMC : Parameter tree does not match model.");
+
     LoadMCMCParameters(*fParameterTree);
 
     // check mcmc tree
-    if (!ValidMCMCTree(mcmcTree, fMCMCTreeReuseObservables)) {
-        BCLog::OutError("BCEngineMCMC::LoadMCMC : invalid MCMC tree");
-        return false;
-    }
+    if (!ValidMCMCTree(mcmcTree, fMCMCTreeReuseObservables))
+        throw std::runtime_error("BCEngineMCMC::LoadMCMC : invalid MCMC tree");
+
     delete fMCMCTree;
     fMCMCTree = mcmcTree;
 
     fMCMCTreeLoaded = true;
-    return true;
 }
 
 // --------------------------------------------------------
