@@ -9,3 +9,4 @@ continueMCMC_SOURCES = continueMCMC.cxx GaussModel.cxx
 TESTS = runRootOutput.cxx readRootOutput.cxx continueMCMC.cxx
 
 readRootOutput.log: runRootOutput.log
+continueMCMC.log: runRootOutput.log
