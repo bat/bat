@@ -29,10 +29,8 @@ int main()
     m.SetNIterationsRun(100000);
     m.MarginalizeAll();
 
-    // if MCMC was run before (MarginalizeAll()) it is
-    // possible to use the mode found by MCMC as
-    // starting point of Minuit minimization
-    m.FindMode(m.GetBestFitParameters());
+    // find the mode, starting from best fit point found by the MCMC
+    m.FindMode();
 
     // draw all marginalized distributions into a PostScript file
     m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");
