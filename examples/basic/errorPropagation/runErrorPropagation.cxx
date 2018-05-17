@@ -10,17 +10,14 @@ int main()
     // create new RatioModel object
     RatioModel m("Ratio Model");
 
-    // set Metropolis as marginalization method
-    m.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
-
     // set precision
     m.SetPrecision(BCEngineMCMC::kMedium);
 
     // run the MCMC and marginalize w.r.t. to all parameters
-    m.MarginalizeAll();
+    m.MarginalizeAll(BCIntegrate::kMargMetropolis);
 
     // find mode using the best fit parameters as start values
-    m.FindMode(m.GetBestFitParameters());
+    m.FindMode();
 
     // draw all marginalized distributions into a PostScript file
     m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");

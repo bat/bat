@@ -58,10 +58,6 @@ int main()
     // create new fitter object
     BCMTF m;
 
-
-    // set Metropolis as marginalization method
-    m.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
-
     // set the required precision of the MCMC (kLow, kQuick, kMedium, kHigh)
     // the higher the precision the longer the MCMC run
     m.SetPrecision(BCEngineMCMC::kQuick);
@@ -107,10 +103,10 @@ int main()
     m.GetParameter("systematic2").SetPrior(new BCGaussianPrior(0., 1.));
 
     // run MCMC
-    m.MarginalizeAll();
+    m.MarginalizeAll(BCIntegrate::kMargMetropolis);
 
     // find global mode
-    m.FindMode(m.GetBestFitParameters());
+    m.FindMode();
 
     // print all marginalized distributions
     m.PrintAllMarginalized("marginalized.pdf");

@@ -14,7 +14,7 @@ int main()
     m.MarginalizeAll();
 
     // find mode starting from the best fit parameters
-    m.FindMode(m.GetBestFitParameters());
+    m.FindMode();
 
     // draw all marginalized distributions into a pdf file
     m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");
