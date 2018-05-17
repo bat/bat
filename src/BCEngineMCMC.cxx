@@ -926,7 +926,7 @@ void BCEngineMCMC::LoadParametersFromTree(TTree* partree, bool loadObservables)
         throw std::runtime_error("BCEngineMCMC::LoadParametersFromTree: tree missing name branch");
     if (!partree->GetBranch("lower_limit"))
         throw std::runtime_error("BCEngineMCMC::LoadParametersFromTree: tree missing lower_limit branch");
-    if (!partree->GetBranch("upperlimit"))
+    if (!partree->GetBranch("upper_limit"))
         throw std::runtime_error("BCEngineMCMC::LoadParametersFromTree: tree missing upper_limit branch");
 
     partree->ResetBranchAddresses();
@@ -1021,11 +1021,11 @@ void BCEngineMCMC::LoadMCMCParameters(TTree& partree)
         throw std::runtime_error("BCEngineMCMC::LoadMCMCParameters: no chains in branch");
     SetNChains(p_nchains);
 
-    double p_efficiency[GetNChains()];
-    double p_scale[GetNChains()];
+    std::vector<double> p_efficiency(GetNChains(), -1);
+    std::vector<double> p_scale(GetNChains(), -1);
 
-    partree.SetBranchAddress("efficiency_0", p_efficiency);
-    partree.SetBranchAddress("scale", p_scale);
+    partree.SetBranchAddress("efficiency_0", &p_efficiency[0]);
+    partree.SetBranchAddress("scale", &p_scale[0]);
 
     std::vector<std::vector<double> > scales(GetNChains(), std::vector<double>(GetNParameters(), -1));
     std::vector<std::vector<double> > efficiencies(GetNChains(), std::vector<double>(GetNParameters(), -1));
