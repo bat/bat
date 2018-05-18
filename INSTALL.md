@@ -1,5 +1,5 @@
-BAT - Bayesian Analysis Toolkit
-===============================
+Installation instructions {#cha-install}
+=========================
 
 This document provides a short description of how to compile and use
 BAT on your computer.
@@ -36,7 +36,8 @@ release, some more packages are needed
     sudo apt-get install autoconf automake git-core libtool
 
 Building and installing works with autoconf >= 2.63 and automake >= 1.10. To run
-the tests, a more recent version is needed, v1.15 is known to be sufficient.
+the tests, a more recent automake version is needed, v1.15 is known to be
+sufficient.
 
 ### Required: ROOT
 
@@ -48,10 +49,13 @@ run unit tests with ROOT 5 and ROOT 6 to ensure backward compatibility.
 
 On Linux, an alternative is to check your package manager for the availability
 of ROOT packages. Usually these packages are rather old but often they are good
-enough to build BAT. For example on Ubuntu systems, you can conveniently install
-the requirements with
+enough to build BAT. For example on Ubuntu systems up to 16.04, you can
+conveniently install the requirements with
 
-    sudo apt-get install libroot-graf2d-postscript-dev libroot-graf3d-g3d-dev libroot-math-foam-dev libroot-math-minuit-dev libroot-math-physics-dev libroot-math-mathmore-dev libroot-roofit-dev root-system-bin
+    sudo apt-get install libroot-graf2d-postscript-dev libroot-graf3d-g3d-dev\
+                         libroot-math-foam-dev libroot-math-minuit-dev\
+                         libroot-math-physics-dev libroot-math-mathmore-dev\
+                         libroot-roofit-dev root-system-bin
 
 #### Note
 
@@ -206,23 +210,19 @@ manually add the path to `bat-config`, `bat.pc`, the libraries, and
 the include files to the search paths. Depending on your shell, the
 set of commands on linux for bash-compatible shells is
 
-```bash
-BATPREFIX="/bat/install/prefix"
-export PATH="$BATPREFIX/bin:$PATH"
-export CPATH="$BATPREFIX/include:$CPATH"
-export LD_LIBRARY_PATH="$BATPREFIX/lib:$LD_LIBRARY_PATH"
-export PKG_CONFIG_PATH="$BATPREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
-```
+    BATPREFIX="/bat/install/prefix"
+    export PATH="$BATPREFIX/bin:$PATH"
+    export LD_LIBRARY_PATH="$BATPREFIX/lib:$LD_LIBRARY_PATH"
+    export CPATH="$BATPREFIX/include:$CPATH"
+    export PKG_CONFIG_PATH="$BATPREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 
 and for csh-compatible shells is
 
-```bash
-set BATPREFIX = /bat/install/prefix
-setenv PATH              "${BATPREFIX}/bin:${PATH}"
-setenv CPATH             "${BATPREFIX}/include:${CPATH}"
-setenv LD_LIBRARY_PATH   "${BATPREFIX}/lib:${LD_LIBRARY_PATH}"
-setenv PKG_CONFIG_PATH   "${BATPREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
-```
+    set BATPREFIX = /bat/install/prefix
+    setenv PATH              "${BATPREFIX}/bin:${PATH}"
+    setenv LD_LIBRARY_PATH   "${BATPREFIX}/lib:${LD_LIBRARY_PATH}"
+    setenv CPATH             "${BATPREFIX}/include:${CPATH}"
+    setenv PKG_CONFIG_PATH   "${BATPREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
 
 If you want to make BAT permanently available, add the above commands
 to your login script, for example to `.profile` or to `.bashrc`.
@@ -243,9 +243,7 @@ Including BAT in your project
 
 The most basic way to compile and link a file `example.cxx` with BAT is
 
-```bash
-gcc `bat-config --cflags` `bat-config --libs` example.cxx -o
-```
+    gcc `bat-config --cflags` `bat-config --libs` example.cxx -o
 
 In a makefile, simply query `bat-config` to set appropriate
 variables. However, there will be an error at runtime, for example in
@@ -266,13 +264,11 @@ libraries. Else `cling` will emit confusing
 [error messages](https://github.com/bat/bat/issues/5). For example,
 the right order would be
 
-```cpp
-int main() {
-    BCLog::OpenLog("log.txt");
-    BCAux::SetStyle();
-    ...
-}
-```
+    int main() {
+        BCLog::OpenLog("log.txt");
+        BCAux::SetStyle();
+        ...
+    }
 
 instead of the other way around around because `OpenLog` creates a
 singleton object.
