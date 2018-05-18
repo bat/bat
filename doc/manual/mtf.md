@@ -3,7 +3,7 @@ Multi-template fitter {#cha-mtf}
 
 [TOC]
 
-@todo let kevin check if info up to date, this is just copied from introduction.tex
+<!-- @todo let kevin check if info up to date, this is just copied from introduction.tex -->
 
 the multi-template fitter (mtf) is a tool which allows to fit several
 template histograms to a data histogram. the content of the bins in the

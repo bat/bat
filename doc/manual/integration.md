@@ -41,10 +41,41 @@ distributions are estimated as histograms by
 m.MarginalizeAll();
 @endcode
 
-The individual distributions can be accessed using
+The individual distributions can be accessed using `unsigned` or `std::string` as keys
 
-@todo snippet of 1D, par 2 vs 5
-@todo show how to constrain which distributions are stored, useful if many nuisance parameters.
+@code{.cpp}
+// one-dimensional
+BCH1 d0 = m.GetMarginalized(0);
+BCH1D d1 = m.GetMarginalized("name");
+
+// two-dimensional
+BCH2D d2 = m.GetMarginalized(3, 4);
+BCH2D d3 = m.GetMarginalized("name_of_first_parameter", "name_of_second_parameter");
+@endcode
+
+Directly access the underlying histogram with
+
+@code{.cpp}
+// one-dimensional
+BCH1 h0 = m.GetMarginalizedHistogram(0);
+
+// two-dimensional
+BCH2D h1 = m.GetMarginalizedHistogram(3, 4);
+@endcode
+
+In case of many (nuisance) parameters, it may be useful to constrain which
+histograms are stored because the number of 2D marginals grows like \f$n \cdot
+(n-1)/2 \f$ with the number of parameter \f$n\f$. This can be achieved either for all 1D or 2D marginal distributions or for individual combinations. For example:
+
+@code{.cpp}
+m.AddParameter("x", 0, 1);
+m.AddParameter("y", 0, 1);
+m.SetFlagFillHistograms(false); // no 1D marginals for `x`, `y` stored
+m.AddParameter("z", 0, 1);
+m.SetFillHistogramParPar(0, 2, false); // no `x` vs `z` 2D marginal
+@endcode
+
+@see `BCEngineMCMC::SetFillHistogramParPar`, `BCEngineMCMC::SetFillHistogramParObs`, `BCEngineMCMC::SetFillHistogramObsObs`, `BCEngineMCMC::SetFlagFillHistograms`
 
 The method for marginalizing can be selected as follows
 
@@ -64,8 +95,6 @@ where `method` is an `enum` in  `BCIntegrate::BCMarginalizationMethod`
 The availability of marginalization methods can be queried at runtime using `BCIntegrate::CheckMarginalizationAvailability`.
 
 In case any pre- or postprocessing needs to happen to set up data structures, we provide the hooks `virtual void BCIntegrate::MarginalizePreprocess` and `virtual void BCIntegrate::MarginalizePostprocess`. They are empty by default and can be overloaded in a user model.
-
-@todo describe `BCEngineMCMC::SetFillHistogramParPar` and friends
 
 @section sec-int-evidence Evidence
 

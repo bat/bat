@@ -1,7 +1,7 @@
 Model Comparison {#cha-model-comparison}
 ================
 
-@todo I did not mention the `BCDataSet` feature. Should we add it? I think nobody uses it... it was mentioned in the old introduction
+<!-- @todo I did not mention the `BCDataSet` feature. Should we add it? I think nobody uses it... it was mentioned in the old introduction -->
 
 [TOC]
 
@@ -40,4 +40,4 @@ mgr.PrintModelComparisonSummary();
 
 @see [`examples/advanced/polynomialFit`](https://github.com/bat/bat/tree/master/examples/advanced/advancedGraphFitter)
 
-@todo If we are fancy, we could include the text output from running the example here.
+<!-- @todo If we are fancy, we could include the text output from running the example here. -->

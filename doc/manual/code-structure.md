@@ -1,8 +1,6 @@
 Structure of the Code {#cha-code-structure}
 =====================
 
-@todo 1-2 pages, inheritance
-
 [TOC]
 
 BAT is object-oriented and uses inheritance for code reuse. The single
@@ -22,7 +20,7 @@ digraph G {
 }
 @enddot
 
-@todo add fast fitters, mtf to diagram
+<!-- @todo add fast fitters, mtf to diagram -->
 
 @htmlonly
 The boxes on the diagram are links to the reference guide for the respective classes.
@@ -37,9 +35,9 @@ the object. This can lead to complications when
 `MyModel::LogLikelihood` is called concurrently; see @ref
 cha-threading for more details.
 
-@section sec-code-variables Variables
+<!-- @section sec-code-variables Variables -->
 
-@todo Describe observables
+<!-- @todo Describe observables -->
 
 @htmlonly
 <br/><br/>

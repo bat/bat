@@ -32,8 +32,6 @@ filename, const std::string\& name, bool loadObservables)
 @endcode
 constructor.
 
-@todo The links to `BCModel` methods don't work here and elsewhere
-
 Note that instead of calling `MarginalizeAll()`, a reloaded BAT
 analysis is marginalized by calling `Remarginalize()`.
 

@@ -1,4 +1,4 @@
 Optimization {#cha-optimization}
 ============
 
-@todo Describe default minuit, simulated annealing
+<!-- @todo Describe default minuit, simulated annealing -->

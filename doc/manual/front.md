@@ -38,11 +38,12 @@ Please visit our [home page][BAThome] for an overview of papers,
 research, and other activities related to BAT. The code development
 takes place over at [github][BATgithub].
 
-This document is meant to is quickly enable to you to find your way
-around BAT. We describe the common workflow and explain how to solve
-some not-so-common tasks. To keep the size of this document
-manageable, we refer to the [html reference guide](../../ref-guide/html/index.html) in which
-all classes, methods etc. are documented.
+This document is meant to is quickly enable to you to find your way around BAT.
+We describe the common workflow and explain how to solve some not-so-common
+tasks. To keep the size of this document manageable, we refer to the [html
+reference guide](../../ref-guide/html/index.html) in which all classes, methods
+etc. are documented. The BAT source code comes with many examples that
+illustrate how to use the various features. You can browse them [online](https://github.com/bat/bat/tree/master/examples).
 
 If you run into a problem with BAT, the preferred method is to create a new
 issue on [github](https://github.com/bat/bat/issues). This allows other users to
@@ -57,5 +58,3 @@ of issues, you can contact the developers at bat@mpp.mpg.de.
 [BATgithub]: https://github.com/bat/bat "BAT github"
 [BATref]: http://mpp.mpg.de/bat/docs/refman/latest/ "BAT reference guide"
 [ROOT]: https://root.cern.ch/ "ROOT homepage"
-
-@todo Link to corresponding examples in manual

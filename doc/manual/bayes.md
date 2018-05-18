@@ -136,9 +136,6 @@ also the references therein.
 
 @section sec-representation-bat Representation in BAT
 
-@todo perhaps move this or remove this, let's not repeat ourselves
-@todo Better just have a table of links likelihood -> BCModel::LogLikelihood etc.
-
 In BAT, a model \f$M\f$ is represented as a C++ subclass of @ref
 BCModel. The crucial parts are to define the likelihood \f$P(D \cond
 \vecth, M)\f$ @ref BCModel::LogLikelihood, the prior \f$P(\vecth \cond
@@ -152,10 +149,6 @@ implement are
     virtual double LogLikelihood(const std::vector<double>& params)
     virtual double LogAPrioriProbability(const std::vector<double>& params)
 @endcode
-
-@todo BCEngine link works but BCModel method not found. Why? @ref BCEngineMCMC::SetNIterationsPreRunMax
-
-@see BCModel::LogAPrioriProbability BCModel::LogLikelihood BCModel::LogProbabilityNN
 
 The parameter values are passed in simply as numbers to likelihood and
 prior, all parameters are assumed to be real and continuous. Discrete
