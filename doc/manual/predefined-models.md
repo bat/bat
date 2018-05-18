@@ -3,7 +3,7 @@ Predefined Models {#cha-predefined-models}
 
 [TOC]
 
-@todo Only describe how to use BAT, not to extend it
+<!-- @todo Only describe how to use BAT, not to extend it -->
 
 @section sec-native-data Using BAT's Native Data Structures
 
