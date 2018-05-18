@@ -22,3 +22,34 @@ before_install:
 
 script:
   - docker exec "$DOCKER_INSTANCE" /bin/sh -c "cd /root/bat && tools/test-bat.sh"
+
+jobs:
+  include:
+    - stage: doc
+      if: branch = manual
+      env: DOCKER_IMAGE=batk/bat-testenv:ubuntu16.04-root6
+      script:
+        - set -e
+        - docker pull "$DOCKER_IMAGE"
+        - export DOCKER_INSTANCE=`docker run -it -d "$DOCKER_IMAGE" /bin/bash`
+        - docker cp . "$DOCKER_INSTANCE:/root/bat"
+        - docker exec "$DOCKER_INSTANCE" /bin/sh -c "cd /root/bat && tools/doc-bat.sh"
+        # save the docs for deployment
+        # TODO define dirs as variables to save typing
+        - mkdir -p artefacts/master/ref-guide
+        - mkdir -p artefacts/master/manual
+        - docker cp "$DOCKER_INSTANCE":/root/bat/doc/ref-guide/html/ artefacts/master/ref-guide/
+        - docker cp "$DOCKER_INSTANCE":/root/bat/doc/manual/BAT-manual.pdf artefacts/master/manual/
+        - docker cp "$DOCKER_INSTANCE":/root/bat/doc/manual/html/ artefacts/master/manual/
+
+      deploy:
+        provider: pages
+        skip-cleanup: true
+        github-token: $GITHUB_TOKEN  # Set in travis-ci.org dashboard, marked secure
+        keep-history: false
+        on:
+          branch: manual
+        repo: bat/bat-docs
+        target-branch: master
+        verbose: true
+        local-dir: artefacts
