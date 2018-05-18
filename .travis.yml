@@ -26,7 +26,6 @@ script:
 jobs:
   include:
     - stage: doc
-      if: branch = manual
       env: DOCKER_IMAGE=batk/bat-testenv:ubuntu16.04-root6
       script:
         - set -e
@@ -46,7 +45,7 @@ jobs:
         provider: pages
         skip-cleanup: true
         github-token: $GITHUB_TOKEN  # Set in travis-ci.org dashboard, marked secure
-        keep-history: false
+        keep-history: true
         on:
           branch: manual
         repo: bat/bat-docs
