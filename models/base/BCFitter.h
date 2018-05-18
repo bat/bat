@@ -1,10 +1,10 @@
 #ifndef __BCFITTER__H
 #define __BCFITTER__H
 
-/*!
- * \class BCFitter
- * \brief A base class for all fitting classes
- * \detail This a general class around fitting a 1D function to data of various kinds with uncertainty propagation.
+/**
+ * @class BCFitter
+ * @brief A base class for all fitting classes
+ * @details This a general class around fitting a 1D function to data of various kinds with uncertainty propagation.
  */
 
 /*
@@ -258,13 +258,18 @@ protected:
     bool fFlagFillErrorBand;
 
     /**
-     * The indices for function fits */
+     * The index for function fits in x direction */
     int fFitFunctionIndexX;
+    /**
+     * The index for function fits in y direction */
     int fFitFunctionIndexY;
 
     /**
      * A flag for single point evaluation of the error "band" */
     bool fErrorBandContinuous;
+
+    /**
+     * The x positions where the error is calculated */
     std::vector<double> fErrorBandX;
 
     /**

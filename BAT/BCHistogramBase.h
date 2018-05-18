@@ -565,7 +565,7 @@ public:
      * in the argument. CAUTION: This function will sort all bins of the
      * histogram; if the histogram has many bins, this can be an
      * expensive calculation.
-     * @param probabilities Vector of probability masses to bound.
+     * @param masses Vector of probability masses to bound.
      * @param overcoverage Flag for providing values that overcover (if true), or undercover (if false).
      * @return Vector of pairs (probability density, probability mass lower-bounded by it). */
     std::vector<std::pair<double, double> > GetSmallestIntervalBounds(std::vector<double> masses, bool overcoverage = true);
@@ -581,14 +581,15 @@ public:
     /**
      * Get smallest interval size in dimensions of histogram: length (1D),
      * area (2D), volume (3D).
-     * @param masses probability mass defining smallest interval.
+     * @param mass probability mass defining smallest interval.
      * @param overcoverage Flag for providing values that overcover (if true), or undercover (if false).
      * @return smallest interval size. */
     virtual double GetSmallestIntervalSize(double mass, bool overcoverage = true);
 
     /**
-     * Check intervals: remove values below 0 or above 1.
-     * @param sort if positive, sort by increasing order (default);
+     * Check `intervals`: remove values below 0 or above 1.
+     * @param intervals The intervals.
+     * @param sort If positive, sort by increasing order (default);
      * if negative, sort by decreasing order; if zero, don't sort.*/
     virtual void CheckIntervals(std::vector<double>& intervals, int sort);
 

@@ -34,6 +34,8 @@
 namespace RooStats
 {
 
+/**
+ * Adapter to call BAT from within RooStats to compute credibility intervals. */
 class BATCalculator : public IntervalCalculator, public TNamed
 {
 
@@ -42,6 +44,7 @@ public:
     /// constructor
     BATCalculator( );
 
+    //! @nowarn
     BATCalculator( RooAbsData& data,
                    RooAbsPdf&   pdf,
                    RooArgSet&   POI,
@@ -144,6 +147,7 @@ protected:
 
     void ClearAll() const;
 
+    //! @endnowarn
 private:
     RooAbsData* fData;
     RooAbsPdf* fPdf;

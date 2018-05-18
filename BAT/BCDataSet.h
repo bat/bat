@@ -1,14 +1,14 @@
 #ifndef __BCDATASET__H
 #define __BCDATASET__H
 
-/*!
- * \class BCDataSet
- * \brief A class representing a set of data points.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 08.2008
- * \detail This class represents a data set containing a set of data
+/**
+ * @class BCDataSet
+ * @brief A class representing a set of data points.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.0
+ * @date 08.2008
+ * @details This class represents a data set containing a set of data
  * points. The data points are organized in a vector. The class
  * provides functions to read in data from a file.
  */
@@ -126,7 +126,6 @@ public:
     { return fUserLowerBounds; }
 
     /**
-     * @param check_size Flag for checking size of user-set bound object against data point size.
      * @return BCDataPoint with values set to user-set upper bounds of data. */
     BCDataPoint& GetUserUpperBounds()
     { return fUserUpperBounds; }
@@ -170,7 +169,10 @@ public:
 
     /**
      * Set bounds for data values
-     * @param index Index of data axis to provide bounds for. */
+     * @param index Index of data axis to provide bounds for.
+     * @param lower_bound The lower bound of the data value.
+     * @param upper_bound The upper bound of the data value.
+     * @param fixed If the data value can vary or not. */
     void SetBounds(unsigned index, double lower_bound, double upper_bound, bool fixed = false);
 
     /**
@@ -292,6 +294,8 @@ public:
      *
      * @note The caller is responsible for deletion of the returned object.
      *
+     * @param name Name of histogram
+     * @param title Title of histogram
      * @param x Index of data axis for abscissa
      * @param y Index of data axis for ordinate
      * @param nbins_x number of bins on abscissa (default 100)
