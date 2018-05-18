@@ -430,6 +430,7 @@ AC_OUTPUT(
   examples/basic/histogramFitter/Makefile
   examples/basic/poisson/Makefile
   examples/basic/rootOutput/Makefile
+  examples/basic/tutorial/Makefile
   examples/advanced/Makefile
   examples/advanced/advancedGraphFitter/Makefile
   examples/advanced/mtf/Makefile
