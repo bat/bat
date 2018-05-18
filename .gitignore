@@ -55,13 +55,17 @@ test-env.sh
 tools/MakefileTemplate
 
 # Documentation
+doc/Makefile.in
+doc/manual/Makefile.in
 doc/introduction/introduction.*
 doc/introduction/versions.tex
 !doc/introduction/Makefile
 !doc/quickstart/Makefile
+
 *.el
 *.aux
-doc/ref-guide/
+doc/ref-guide/*
+!doc/ref-guide/Makefile.am
 
 # Editors
 .autotools
@@ -94,3 +98,13 @@ log.txt
 
 # local cuba directory
 /external/cuba-*
+/doc/introduction/new-intro.out
+/doc/introduction/new-intro.tdo
+/doc/introduction/new-intro.toc
+/doc/manual/manual.bbl
+/doc/manual/manual.blg
+/doc/manual/manual.out
+/doc/manual/manual.synctex.gz
+/doc/manual/manual.toc
+/doc/introduction/new-intro.bbl
+/doc/introduction/new-intro.blg

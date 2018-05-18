@@ -5,6 +5,7 @@
 %\usepackage{epstopdf}
 %\usepackage{graphics}
 \usepackage{booktabs}
+\usepackage[svgnames]{xcolor}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{parskip}
@@ -29,6 +30,9 @@
 \newcommand{\Version}{Version~\versionno}
 
 \newcommand{\code}[1]{\texttt{#1}}
+
+\newcommand{\dan}[1]{{\color{red}{Dan: #1}}}
+\newcommand{\fred}[1]{{\color{blue}{Fred: #1}}}
 
 %--------------------------------------------------------
 
@@ -92,16 +96,15 @@ inference. Allowing to formulate models and their parameters, the main
 purpose of the toolkit is to provide methods to solve the numerical
 optimization and integration. It features the possibility to estimate
 parameters and to compare models. A procedure to estimate the
-goodness-of-fit is included and based on ensemble tests. A detailed
-introduction to \bat\ can be found in~\cite{Caldwell:2008fw}.
+goodness-of-fit is included and based on ensemble tests.
+\fred{Please cite...}
+% The paper introducing \bat\ can be found at~\cite{Caldwell:2008fw}.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % --------------------------------------------------------
 
 \subsection{License}
-
-\bat\ can be downloaded from \url{http://mpp.mpg.de/bat}.
 
 \bat\ is a free software: you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License (LGPL) as
@@ -114,9 +117,9 @@ the License, or any later version.
 
 \subsection{Installation instructions}
 
-The set of detailed instructions to install your version of BAT are in
-the \verb|INSTALL| file that comes with the \bat\ source
-distribution. The latest version is available online at
+Detailed instructions for downloading and installing BAT are in the
+\verb|INSTALL| file that comes with the \bat\ source distribution. The
+latest version is available online at
 \url{https://github.com/bat/bat/blob/master/INSTALL.md}.
 
 % --------------------------------------------------------
@@ -132,6 +135,8 @@ distribution. The latest version is available online at
 
 \subsection{The analysis chain}
 \label{subsection:chain}
+
+\dan{update up to roostats interface}
 
 The typical analysis chain in \bat\ is the following: one or several
 models are defined together with their parameters and corresponding
@@ -601,6 +606,7 @@ int main()
 \end{verbatim}
 
 \subsubsection{Roostats interface}
+\fred{update}
 
 An alternative method to create a model is to create a Roostats
 workspace and to use the interface class \verb|BCRooInterface|
@@ -642,6 +648,8 @@ BAT in the subdirectory \texttt{examples/advanced/roointerface}.
 
 \subsection{Data}
 \label{subsection:data}
+
+\dan{deemphasize and upate}
 
 \subsubsection{Data format and handling}
 \label{subsection:dataformat}
@@ -731,6 +739,8 @@ void BCModel::SetDataBoundaries(int index, double lowerboundary,
 \subsection{Managing more than one model: the model manager}
 \label{subsection:modelmanager}
 
+\fred{no more pointers}
+
 In case more than one model is defined and all models use the same
 data set a model manager can be defined. It is implemented as a class
 named \verb|BCModelManager|. Models and their prior probabilities are
@@ -764,6 +774,8 @@ int BCModelManager::ReadDataFromFile(char * filename, int nvariables).
 
 \subsection{Normalization and numerical integration}
 \label{section:normalization}
+
+\fred{update}
 
 The posterior probability density function (pdf) is normalized to
 unity in Bayes' theorem. The normalization is an integral of the
