@@ -4,10 +4,17 @@
 \usepackage{amssymb,amsfonts,amsmath}  % bold math symbols, AMStex
 \usepackage{physics} % for integration symbols
 
+% unicode characters directly inserted in markdown sources
+\DeclareUnicodeCharacter{3B1}{$\alpha$}
+\DeclareUnicodeCharacter{3B2}{$\beta$}
+
 % math
 \newcommand{\cond}{\,|\,}
+\DeclareMathOperator{\diag}{diag}
+\newcommand{\matsig}{\boldsymbol{\Sigma}}
 \newcommand\rmdx[1]{\dd{#1}} % differential
 \newcommand{\scath}{\theta} % scalar parameter
+\newcommand{\vecmu}{\boldsymbol{\mu}} % vector parameter
 \newcommand{\vecth}{\boldsymbol{\theta}} % vector parameter
 
 % redefine page layout to some degree

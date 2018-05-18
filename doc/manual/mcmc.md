@@ -143,16 +143,21 @@ In the end, we usually normalize the histogram so it estimates a proper
 probability density that integrates to 1.
 
 ## Convergence {#sec-mcmc-convergence}
-@todo mixing, burn in, R value, multimodal problems
 
 Since samples are not independent, the initial point has some effect on Markov
 chain output. The asymptotic results guarantee that, under certain conditions
-(see @cite Casella:2004 or @cite brooks2011handbook) a chain of infinte length
+(see @cite Casella:2004 or @cite brooks2011handbook) a chain of infinite length
 is independent of the initial point. In practice, we can only generate a finite
 number of points so a decision has to be made when the chain has run long
 enough. One helpful criterion is to run multiple chains from different initial
 positions and to declare convergence if the chains mixed; i.e. explore the same
 region of parameter space. Then the chains have forgotten their initial point.
+
+Non-convergence is a problem that can have many causes including simple bugs in
+implementing the posterior. But there are properly implemented posteriors for
+which a Markov chain has difficulties to explore the parameter space
+efficiently, for example because of strong correlation, degeneracies, or
+multiple well separated modes.
 
 # Implementation in BAT {#sec-mcmc-impl}
 
@@ -202,16 +207,126 @@ parameters have changed for the price of a single evaluation of the
 posterior. If the move is rejected, the new point is identical to the
 old point and the chain does not explore the parameter space.
 
-We implement the adaptive algorithm @cite Haario:2001 by Haario et al. In
-brief, the proposal is a multivariate Gaussian or Student's t
-distribution whose covariance is learned from the covariance of
-samples in the prerun. An overall scale factor is tuned to force the
-acceptance rate into a certain range.
+We implement the adaptive algorithm by Haario et al. @cite Haario:2001,
+@cite Wraith:2009if. In brief, the proposal is a multivariate Gaussian or Student's t
+distribution whose covariance is learned from the covariance of samples in the
+prerun. An overall scale factor is tuned to force the acceptance rate into a
+certain range.
 
-@todo Pseudocode
-@todo copy from my thesis
+the multivariate normal distribution
+\f{equation}{
+  \label{eq:multivar-normal}
+  \mathcal{N}(\vecth | \vecmu, \matsig) = \frac{1}{(2\pi)^{d/2}} \left|\matsig\right|^{-1/2}
+  \exp(-\frac{1}{2} (\vecth - \vecmu)^T \matsig^{-1} (\vecth - \vecmu) )
+\f}
 
-@see `SetMultivariateCovarianceUpdateLambda`, `SetMultivariateEpsilon`, `SetMultivariateScaleMultiplier`
+or the multivariate Student's t distribution
+\f{equation}{
+  \label{eq:multivar-student}
+  \mathcal{T}
+  (\vecth | \vecmu, \matsig, \nu)  =
+  \frac{\Gamma( (\nu + d) / 2 )}{\Gamma(\nu / 2) (\pi \nu)^{d/2}} \left|\matsig\right|^{-1/2}
+  ( 1 + \frac{1}{\nu}(\vecth - \vecmu)^T \matsig^{-1} (\vecth - \vecmu) )^{-(\nu + d)/2}
+\f}
+can adapt in such a way as to efficiently generate samples from essentially any
+smooth, unimodal distribution. The parameter \f$\nu\f$, the degree of freedom,
+controls the ``fatness'' of the tails of \f$\mathcal{T}\f$; the covariance of
+\f$\mathcal{T}\f$ is related to the scale matrix \f$\matsig\f$ as \f$\frac{\nu}{\nu - 2}
+\times \matsig\f$ for \f$\nu > 2\f$, while \f$\matsig\f$ is the covariance of
+\f$\mathcal{N}\f$. Hence for finite \f$\nu\f$, \f$\mathcal{T}\f$ has fatter tails than
+\f$\mathcal{N}\f$, and for \f$\nu \to \infty\f$, \f$\mathcal{T}(\vecth | \vecmu, \matsig,
+\nu) \to \mathcal{N}(\vecth | \vecmu, \matsig)\f$.
+
+Before delving into the details, let us clarify at least qualitatively what we
+mean by an efficient proposal.  Our requirements are
+
+* that it allow to sample from the entire target support in finite time,
+* that it resolve small and large scale features of the target,
+* and that it lead to a Markov chain quickly reaching the asymptotic regime.
+
+An important characteristic of Markov chains is the acceptance rate
+\f$\alpha\f$, the ratio of accepted proposal points versus the total length of the
+chain. We argue that there exists an optimal \f$\alpha\f$ for a given target and
+proposal. If \f$\alpha = 0\f$, the chain is stuck and does not explore the
+state space at all. On the contrary, suppose \f$\alpha = 1\f$ and the target
+distribution is not globally uniform, then the chain explores only a tiny volume
+where the target distribution changes very little. So for some \f$\alpha \in (0,1)\f$,
+the chains explore the state space well.
+
+How should the proposal function be adapted? After a chunk of \f$N_{\rm
+update}\f$ iterations, we change two things. First, in order to propose points
+according to the correlation present in the target density, the proposal scale
+matrix \f$\matsig\f$ is updated based on the sample covariance of the last
+\f$n\f$ iterations. Second, \f$\matsig\f$ is multiplied with a scale factor
+\f$c\f$ that governs the range of the proposal. \f$c\f$ is tuned to force the
+acceptance rate to lie in a region of \f$0.15 \le \alpha \le 0.35\f$. The
+\f$\alpha\f$ range is based on empirical evidence and the following fact: for a
+multivariate normal proposal function, the optimal \f$\alpha\f$ for a normal
+target density is \f$0.234\f$, and the optimal scale factor is \f$c =
+2.38^2/d\f$ as the dimensionality \f$d\f$ approaches \f$\infty\f$ and the chain
+is in the stationary regime @cite Roberts:1997 . We fix the proposal after a
+certain number of adaptations, and then collect samples for the final inference
+step. However, if the Gaussian proposal function is adapted indefinitely, the
+Markov property is lost, but the chain and the empirical averages of the
+integrals @latexonly represented by Eq.~\ref{eq:mc-expect}@endlatexonly still
+converge under mild conditions @cite Haario:2001.
+
+The efficiency can be enhanced significantly with good initial guesses for \f$c\f$
+and \f$\matsig\f$. We use a subscript \f$t\f$ to denote the status after \f$t\f$ updates.
+It is often possible to extract an estimate of the target covariance by running
+a mode finder like MINUIT that yields the covariance matrix at
+the mode as a by product of optimization. In the case of a degenerate target
+density, MINUIT necessarily fails, as the gradient is not defined. In such
+cases, one can still provide an estimate as
+\f{equation}{
+  \label{eq:sigma-initial}
+  \matsig^0 = \diag ( \sigma_1^2, \sigma_2^2, \dots, \sigma_d^2)
+\f}
+where \f$\sigma_i^2\f$ is the prior variance of the \f$i\f$-th parameter.  The updated value of
+\f$\matsig\f$ in step \f$t\f$ is
+\f{equation}{
+  \label{eq:sigma-update}
+  \matsig^t = (1 - a^t) \matsig^{t-1} + a^t \boldsymbol{S}^t
+\f}
+where \f$\boldsymbol{S}^t\f$ is the sample covariance of the points in chunk \f$t\f$ and
+its element in row \f$m\f$ and column \f$n\f$ is computed as
+\f{equation}{
+  \label{eq:sample-cov}
+  (\boldsymbol{S}^t)_{mn} = \frac{1}{N_{\rm update}-1} \sum_{i=(t-1) \cdot N_{\rm update}}^{t \cdot N_{\rm update}}
+  ( (\vecth^i)_m -  \widehat{E_P[(\vecth)_m]} ) ((\vecth^i)_n - \widehat{E_P[(\vecth)_n]} )
+\f}
+The weight \f$a^t = 1/t^{\lambda}, \lambda \in [0,1]\f$ is chosen to make for a
+smooth transition from the initial guess to the eventual target covariance, the
+implied cooling is needed for the ergodicity of the chain if the proposal is not
+fixed at some point @cite Haario:2001. One uses a fixed value of \f$\lambda\f$,
+and the particular value has an effect on the efficiency, but the effect is
+generally not dramatic; in this work, we set \f$\lambda=0.5\f$
+@cite Wraith:2009if.
+
+We adjust the scale factor \f$c\f$ as described in the pseudocode shown below.
+The introduction of a minimum and maximum scale factor is a safeguard against
+bugs in the implementation. The only example we can think of that would result
+in large scale factors is that of sampling from a uniform distribution over a
+very large volume. All proposed points would be in the volume, and accepted, so
+\f$\alpha \equiv 1\f$, irrespective of \f$c\f$. All other cases that we
+encountered where \f$c > c_{max}\f$ hinted at errors in the code that performs
+the update of the proposal.
+
+@code{.cpp}
+// default values
+αmin = 0.15; αmax = 0.35;
+cmin = 1e-5; cmax = 100;
+β = 1.5;
+
+// single update of the covariance scale factor
+if (α > αmax && c < cmax) {
+  c *= β * c
+} else if (α < αmin && c > cmin) {
+  c /= β
+}
+@endcode
+
+@see `BCEngineMCMC::SetMultivariateCovarianceUpdateLambda`, `BCEngineMCMC::SetMultivariateEpsilon`, `BCEngineMCMC::SetMultivariateScaleMultiplier`
 
 ### Factorized proposal {#sec-mcmc-factorized}
 
@@ -223,8 +338,6 @@ We sequentially vary one parameter at a time and complete
 one iteration of the chain once a new point has been proposed in *every*
 direction. This means the chain attempts to perform a sequence of
 axis-aligned moves in one iteration.
-
-@todo Easiest to understand would be pseudocode
 
 Each 1D proposal is a Cauchy or Breit-Wigner function centered on the
 current point. The scale parameter is adapted in the prerun to achieve
@@ -304,7 +417,7 @@ Defining convergence automatically based on the efficiency or the \f$R\f$ value 
 
 If desired, the statistics can be cleared to remove the effect of a bad initial point with `BCEngineMCMC::SetPreRunCheckClear` after some set of iterations
 
-@todo A flow diagram might help
+<!-- @todo A flow diagram might help -->
 
 For the user's convenience, multiple settings related to precision of the Markov
 chain can be set at once using `BCEngineMCMC::SetPrecision`. The default setting
@@ -312,4 +425,7 @@ is `m.SetPrecision(BCEngineMCMC::kMedium)`.
 
 ## Main run {#sec-mcmc-main-run}
 
-@see `SetNIterationsRun`
+In the main run, the proposal is held fixed and each chain is run for `BCEngineMCMC::GetNIterationsRun()` iterations.
+@see `BCEngineMCMC::SetNIterationsRun`
+
+To reduce the correlation between samples, a lag can be introduced to take only every 10th element with `BCEngineMCMC::SetNLag`.
