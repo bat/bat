@@ -1,14 +1,14 @@
 #ifndef __BCAUX__H
 #define __BCAUX__H
 
-/*!
- * \namespace BCAux
- * \brief Some functions not fitting anywhere else
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 01.2009
- * \detail A namespace which encapsulates auxiliary functions
+/**
+ * @namespace BCAux
+ * @brief Some functions not fitting anywhere else
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.0
+ * @date 01.2009
+ * @details A namespace which encapsulates auxiliary functions
  * necessary for BAT.
  */
 
@@ -44,6 +44,7 @@ template <typename T>
 class BCTrash
 {
 public:
+    //! @nowarn
     BCTrash() {}
     BCTrash(const BCTrash<T>&) {}
     BCTrash<T>& operator=(const BCTrash<T>&)
@@ -61,6 +62,7 @@ public:
     {
         fStorage.push_back(object);
     }
+    //! @endnowarn
 
 private:
     std::vector<T*> fStorage;
@@ -138,12 +140,14 @@ void SetKnowledgeUpdateDrawingStyle(BCH2D& prior, BCH2D& posterior, BCAux::BCKno
  * Draw knowledge update plot into current TPad
  * @param prior BCHistogramBase containing prior
  * @param posterior BCHistogramBase containing posterior
- * @param draw_prior_first Flag for deciding drawing order.*/
+ * @param draw_prior_first Flag for deciding drawing order.
+ * @param trash Where to keep references of plot objects for later deletion. */
 void DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posterior, bool draw_prior_first, BCTrash<TObject>& trash);
 
 /**
  * Print plots
- * @param vector of vectors of BC histogram objects
+ * @param h1 Vector of 1D histograms to plot
+ * @param h2 Vector of 2D histograms to plot
  * @param filename Path to file to print to
  * @param hdiv Number of columns of plots per page
  * @param vdiv Number of rows of plots per page
@@ -151,6 +155,17 @@ void DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posterior, boo
 unsigned PrintPlots(std::vector<BCH1D>& h1, std::vector<BCH2D>& h2, const std::string& filename, unsigned hdiv = 1, unsigned vdiv = 1);
 
 /**
+ * A guard object to prevent ROOT from taking over ownership of `TNamed` objects.
+ *
+ * The guard should be created in the scope in which `TNamed` objects are created, for example:
+ *
+ * ```{.cxx}
+ * TH1D* hist;
+ * {
+ *     RootSideEffectGuard g;
+ *     hist = new TH1D(...);
+ * }
+ * ```
  *
  * */
 class RootSideEffectGuard

@@ -1,14 +1,14 @@
 #ifndef __BCMODELGRAPHFITTER__H
 #define __BCMODELGRAPHFITTER__H
 
-/*!
- * \class BCGraphFitter
- * \brief A class for fitting graphs with functions
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 2008
- * \detail This class allows fitting of a TGraphErrors using
+/**
+ * @class BCGraphFitter
+ * @brief A class for fitting graphs with functions
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.0
+ * @date 2008
+ * @details This class allows fitting of a TGraphErrors using
  * a TF1 function. It doeasn't take the x uncertainties into account.
  * For that look at BCGraphXFitter (not yet implemented).
  */

@@ -200,6 +200,7 @@ public:
 
 protected:
 
+    /// Prior that is cut to positive values
     BCPrior* fPrior;
 
 };

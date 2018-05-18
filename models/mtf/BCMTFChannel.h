@@ -1,14 +1,14 @@
 #ifndef __BCMTFCHANNEL__H
 #define __BCMTFCHANNEL__H
 
-/*!
- * \class BCMTFChannel
- * \brief A class describing a physics channel.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.1
- * \date 06.2012
- * \detail This class describes a physics channel.
+/**
+ * @class BCMTFChannel
+ * @brief A class describing a physics channel.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.1
+ * @date 06.2012
+ * @details This class describes a physics channel.
  */
 
 /*
@@ -135,7 +135,7 @@ public:
 
     /**
      * Set a histogram used for the calculation of the Poisson fluctuations.
-     * @param The histogram. */
+     * @param hist The histogram. */
     void SetHistUncertaintyBandPoisson(TH2D* hist)
     {
         fHistUncertaintyBandPoisson = hist;
@@ -185,7 +185,7 @@ public:
      * @param maximum The maximum value on the expectation.
      * @param color The color scheme.
      * @return A TH1D histogram. */
-    TH1D* CalculateUncertaintyBandPoisson(double minimum, double maximumm, int color);
+    TH1D* CalculateUncertaintyBandPoisson(double minimum, double maximum, int color);
 
     /** @} */
 
@@ -210,7 +210,8 @@ public:
 
     /**
      * Print histogram for uncertainty band calculation.
-     * @param filename The name of the file. */
+     * @param filename The name of the file.
+     * @param options Options used when plotting the histogram. */
     void PrintHistUncertaintyBandPoisson(const std::string& filename, const std::string& options = "COLZ");
 
     /**
@@ -220,7 +221,10 @@ public:
 
     /**
      * Print uncertainty band.
-     * @param filename The name of the file. */
+     * @param filename The name of the file.
+     * @param minimum The minimum value on the expectation.
+     * @param maximum The maximum value on the expectation.
+     * @param color The color scheme. */
     void PrintUncertaintyBandPoisson(const std::string& filename, double minimum, double maximum, int color);
 
     /** @} */

@@ -90,7 +90,8 @@ public:
     /** @} **/
 
 protected:
-    TF1 fLogPriorFunction;			//< TF1 holding log(prior)
+    /// TF1 holding log(prior)
+    TF1 fLogPriorFunction;
 };
 
 #endif
