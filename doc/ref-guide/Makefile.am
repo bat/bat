@@ -1,12 +1,14 @@
 # can't change doxygen options via command line
 # but we want to specify input and output directory
 # to be compatible with out-of-source build
-doxyinput_raw = src models BAT README.md
-doxyinput = $(doxyinput_raw:%=$(top_srcdir)/%)
+doxyinput = $(srcdir)/front.md
+doxyinput_raw = src models BAT
+doxyinput += $(doxyinput_raw:%=$(top_srcdir)/%)
 
 define extradoxyconf
 	PROJECT_NAME = "BAT"
-	USE_MDFILE_AS_MAINPAGE = README.md
+	USE_MDFILE_AS_MAINPAGE = front.md
+	IMAGE_PATH = $(srcdir)/..
 	GENERATE_LATEX = NO
 	GENERATE_TAGFILE = bat-ref.tag
 endef
