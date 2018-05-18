@@ -1,0 +1,41 @@
+# can't change doxygen options via command line
+# but we want to specify input files relative to the source directory
+# to be compatible with out-of-source build through the variable
+# $input
+
+# override with a local mathjax installation to work offline. For example
+# `make doxy MATHJAX_RELPATH=/usr/share/javascript/mathjax`
+MATHJAX_RELPATH ?= "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML"
+
+# define custom function to change size of image in html output https://stackoverflow.com/a/43841175/987623
+define doxyconf
+	PROJECT_NUMBER = @VERSION@
+	MATHJAX_RELPATH = $(MATHJAX_RELPATH)
+	MATHJAX_CODEFILE = $(top_srcdir)/doc/newcommands.js
+	HTML_HEADER = $(top_srcdir)/doc/header.html
+	HTML_FOOTER = $(top_srcdir)/doc/footer.html
+	HTML_EXTRA_STYLESHEET = $(top_srcdir)/doc/customdoxygen.css
+	HTML_EXTRA_FILES = $(top_srcdir)/doc/doxy-boot.js
+	ALIASES = imageSize{3}="\htmlonly <style>div.image img[src=\"\1\"]{\2}</style>\endhtmlonly \image html \1 \"\3\""
+	ALIASES += nowarn="\{"
+	ALIASES += endnowarn="\}"
+endef
+
+# follow http://stackoverflow.com/a/649462/987623 to get multi-line string to work
+export doxyconf
+
+# DOXYDEPENDENCIES empty by default
+
+.PHONY: doxy
+doxy: $(TAGFILE) $(DOXYDEPENDENCIES)
+	(cat $(top_srcdir)/doc/Doxyfile; \
+	echo "INPUT = " $(doxyinput); \
+	echo "$$doxyconf"; \
+	echo "$$extradoxyconf"; \
+	) | doxygen -
+
+.PHONY: print
+print:
+	@echo $(doxyinput)
+	@echo "$$doxyconf"
+	@echo "$$extradoxyconf"

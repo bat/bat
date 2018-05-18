@@ -1,14 +1,14 @@
 #ifndef __BCMTFANALYSISFACILITY__H
 #define __BCMTFANALYSISFACILITY__H
 
-/*!
- * \class BCMTFAnalysisFacility
- * \brief A class summarizing a set of predefined measurements.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.1
- * \date 06.2012
- * \detail This class defines a set of measurements.
+/**
+ * @class BCMTFAnalysisFacility
+ * @brief A class summarizing a set of predefined measurements.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.1
+ * @date 06.2012
+ * @details This class defines a set of measurements.
  */
 
 /*
@@ -117,7 +117,7 @@ public:
      * @param default_parameters The set of parameters which are fixed.
      * @param index The index of the parameter which will be varied.
      * @param parametervalues The different values of the parameter which is varied.
-     * @param nesembles The number of ensembles used in the test. */
+     * @param nensembles The number of ensembles to be generated. */
     void PerformCalibrationAnalysis(const std::string& dirname, const std::vector<double>& default_parameters, int index, const std::vector<double>& parametervalues, int nensembles = 1000);
 
     /**
@@ -131,7 +131,7 @@ public:
     /**
      * Build ensembles based on a single set of parameters.
      * @param parameters The set of parameters which are used to generate the ensembles.
-     * @param ensembels The number of ensembles to be generated.
+     * @param nensembles The number of ensembles to be generated.
      * @param options A set of options: \n
      * "data" : all pseudo data sets are equal to the actual data set
      * @return A tree containing the ensembles. */
@@ -140,7 +140,7 @@ public:
     /**
      * Build ensembles based on a varying sets of parameters, e.g., using the prior or posterior.
      * @param tree A BAT output tree containing the parameters to be used for the generation of the ensembles.
-     * @param ensembels The number of ensembles to be generated.
+     * @param nensembles The number of ensembles to be generated.
      * @param options A set of options: \n
      * "data" : all pseudo data sets are equal to the actual data set
      * @return A tree containing the ensembles. */
@@ -149,7 +149,7 @@ public:
     /**
      * Perform ensemble test based on one set of parameters.
      * @param parameters The set of parameters which are used to generate the ensembles.
-     * @param ensembels The number of ensembles to be generated.
+     * @param nensembles The number of ensembles used in the test.
      * @param options A set of options: \n
      * "MC" : for each ensemble, the template are fluctuated statistically \n
      * "data" : all pseudo data sets are equal to the actual data set
@@ -160,7 +160,7 @@ public:
      * Perform ensemble test based on varying sets of parameters.
      * @param tree A BAT output tree containing the parameters to be used for the generation of the ensembles.
      * @param nensembles The number of ensembles to be generated.
-     * @param nstart The first ensemble used in the tree.
+     * @param start The first ensemble used in the tree.
      * @param options A set of options: \n
      * "MC" : for each ensemble, the template are fluctuated statistically \n
      * "data" : all pseudo data sets are equal to the actual data set

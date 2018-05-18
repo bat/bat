@@ -1,14 +1,14 @@
 #ifndef __BCMODELMANAGER__H
 #define __BCMODELMANAGER__H
 
-/*!
- * \class BCModelManager
- * \brief A class representing a set of BCModels.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 08.2008
- * \detail This class represents a manager for BCModels. It handles
+/**
+ * @class BCModelManager
+ * @brief A class representing a set of BCModels.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.0
+ * @date 08.2008
+ * @details This class represents a manager for BCModels. It handles
  * common data sets and performs operations on BCModels
  * simultaneously. Model comparsion in terms of a posteriori
  * probabilities is only possible with this class.
@@ -152,11 +152,9 @@ public:
     /** @{ */
 
     /**
-     * Adds a model to the container
+     * Adds a model to the container.
      * @param model The model
-     * @param probability The a priori probability
-     * @see AddModel(BCModel * model)
-     * @see SetModelPrior(BCModel * model, double probability) */
+     * @param prior_probability The model's a-priori probability */
     void AddModel(BCModel* model, double prior_probability = 0.);
 
     /**
@@ -203,8 +201,8 @@ public:
      * @param prefix MCMC's written to files named "[prefix][Model safe name].root"
      * @param option file-open options (TFile), must be "NEW", "CREATE", "RECREATE", or "UPDATE" (i.e. writeable).
      * @param flag_run Flag for writing run Markov chain to ROOT file (true) or not (false).
-     * @param flag prerun Flag for writing prerun Markov chain to ROOT file (true) or not (false). */
-    void WriteMarkovChain(const std::string& filename, const std::string& option, bool flag_run = true, bool flag_prerun = true);
+     * @param flag_prerun Flag for writing prerun Markov chain to ROOT file (true) or not (false). */
+    void WriteMarkovChain(const std::string& prefix, const std::string& option, bool flag_run = true, bool flag_prerun = true);
 
     /**
      * Prints a summary of the model comparison to the log. */

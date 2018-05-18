@@ -137,8 +137,8 @@ public:
 
     /**
      * Get BCH1D object for prior.
-     * @param h pointer to TH1 object defining binning to use.
-     * @param name name to give histogram created for BCH1D object
+     * @param bins Pointer to TH1 object defining binning to use.
+     * @param name Name to give histogram created for BCH1D object
      * @return BCH1D object for prior. */
     virtual BCH1D GetBCH1D(TH1* bins, const std::string& name = "prior");
 
@@ -151,13 +151,17 @@ public:
     { fInterpolate = interpolate; }
 
     /**
-     * @return a random value distributed according to the prior.
      * @param xmin lower limit of range to generate value in
      * @param xmax upper limit of range to generate value in
      * @param R Pointer to the random generator to be used, if needed.
-     * @return random value. */
-    virtual double GetRandomValue(double /*xmin*/, double /*xmax*/, TRandom* const /*R*/ = NULL)
-    { return fPriorHistogram->GetRandom(); }
+     * @return a random value distributed according to the prior. */
+    virtual double GetRandomValue(double xmin, double xmax, TRandom* const R = NULL)
+    {
+        (void) xmin;
+        (void) xmax;
+        (void) R;
+        return fPriorHistogram->GetRandom();
+    }
 
     /** @} **/
 
@@ -188,9 +192,9 @@ protected:
     // We don't accept nullptr and used a reference up to bat 1.0-rc1
     // but unfortunately, TH1& operator=(const TH1&) is declared private
     // at least up root 5.34/30 so we cannot change it in the swap function, hence we need to use a pointer
-    TH1* fPriorHistogram;  //< TH1 holding prior
+    TH1* fPriorHistogram;  ///< TH1 holding prior
 
-    bool fInterpolate; //< whether to interpolate values of hist for prior function
+    bool fInterpolate; ///< whether to interpolate values of hist for prior function
 };
 
 #endif

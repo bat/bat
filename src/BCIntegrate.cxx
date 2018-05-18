@@ -357,7 +357,7 @@ double BCIntegrate::Integrate()
             return fIntegral;
 
         case BCIntegrate::kIntLaplace:
-            fIntegral = IntegrateLaplace();
+            fIntegral = std::exp(IntegrateLaplace());
             fIntegrationMethodUsed = BCIntegrate::kIntLaplace;
             return fIntegral;
 
@@ -493,10 +493,10 @@ double BCIntegrate::Integrate(BCIntegrationMethod type, tRandomizer randomizer, 
     LogOutputAtStartOfIntegration(type, NCubaMethods);
 
     // reset variables
-    double pmax = 0.;
-    double integral = 0.;
-    double absprecision = 2.*fAbsolutePrecision;
-    double relprecision = 2.*fRelativePrecision;
+    double pmax = 0;
+    double integral = 0;
+    double absprecision = 2 * fAbsolutePrecision;
+    double relprecision = 2 * fRelativePrecision;
 
     std::vector<double> randx (GetNParameters(), 0.);
 
@@ -509,7 +509,7 @@ double BCIntegrate::Integrate(BCIntegrationMethod type, tRandomizer randomizer, 
 
     // iterate while number of iterations is lower than minimum number of iterations
     // or precision is not reached and the number of iterations is lower than maximum number of iterations
-    while ((GetRelativePrecision() < relprecision and GetAbsolutePrecision() < absprecision and GetNIterations() < GetNIterationsMax())
+    while ((absprecision > std::max(GetAbsolutePrecision(), GetRelativePrecision() * integral) && GetNIterations() < GetNIterationsMax())
             || GetNIterations() < GetNIterationsMin()) {
 
         // get random numbers
@@ -1857,14 +1857,14 @@ double BCIntegrate::IntegrateLaplace()
 
     // Laplace approx. = function value over normalization constant of Gaussian
     double logIntegral = -min.MinValue() + 0.5 * nfree * std::log(2 * M_PI) + logDet;
-    double result = std::exp(logIntegral);
+    double linearIntegral = std::exp(logIntegral);
     fError = -1;
 
     BCLog::OutSummary(Form("Laplace approximation on the log scale = %g", logIntegral));
 
-    LogOutputAtEndOfIntegration(result, fError, fError, min.NCalls() - nprevious_calls);
+    LogOutputAtEndOfIntegration(linearIntegral, fError, fError, min.NCalls() - nprevious_calls);
 
-    return result;
+    return logIntegral;
 }
 
 // ---------------------------------------------------------
@@ -1952,10 +1952,6 @@ BCCubaOptions::General::General():
     fail(0),
     error(0),
     prob(0)
-{}
-
-// ---------------------------------------------------------
-BCCubaOptions::General::~General()
 {}
 
 /*

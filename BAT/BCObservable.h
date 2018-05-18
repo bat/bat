@@ -1,15 +1,15 @@
 #ifndef __BCOBSERVABLE__H
 #define __BCOBSERVABLE__H
 
-/*!
- * \class BCObservable
- * \brief A class representing a variable of a model.
- * \author Daniel Greenwald
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 08.2008
- * \detail This class represents a variable of a model. It contains
+/**
+ * @class BCObservable
+ * @brief A class representing a variable of a model.
+ * @author Daniel Greenwald
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.0
+ * @date 08.2008
+ * @details This class represents a variable of a model. It contains
  * information about the name and the range of the variable.
  */
 
@@ -42,11 +42,10 @@ public:
     BCObservable();
 
     /**
-     * Function-pointer constructor.
+     * Constructor with names and limits.
      * @param name The name of the variable.
      * @param lowerlimit The lower limit of the variable values.
      * @param upperlimit The upper limit of the variable values.
-     * @param obs Pointer to double which stores value to be plotted (the value must be set by model during calculation of likelihood).
      * @param latexname The latex name of the variable used in axis labeling.
      * @param unitstring Unit string to be printed for variable. */
     BCObservable(const std::string& name, double lowerlimit, double upperlimit, const std::string& latexname = "", const std::string& unitstring = "");

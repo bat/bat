@@ -1,0 +1,36 @@
+Description:
+------------
+
+This example is part of BAT. It will only run if BAT is correctly
+installed on the system.
+
+This example is the introductory tutorial of the manual
+
+The source file(s) contain(s) plenty of comments and explanations.
+For further information, see the manual at
+
+https://bat.github.io/bat-docs/master/manual/html/
+
+
+Files:
+------
+
+  README                  - this file
+  Makefile                - makefile for the example program
+  MyMod.h                 - header file for a user model
+  MyMod.cxx               - implementation of the user model
+  runMyTut.cxx            - run Markov chain on model
+
+
+Running the example:
+--------------------
+
+1. Make sure that BAT is correctly installed in the system.
+
+2. Compile the example by running 'make' in the example directory
+
+  For the compilation to work properly, the script bat-config needs
+  to be accessible, for example by adding its directory to the PATH
+  environment variable.
+
+3. Run the executable 'runMyTut'.

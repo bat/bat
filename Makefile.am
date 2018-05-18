@@ -9,27 +9,26 @@ clean-local:
 # files build by configure on the user side
 DISTCLEANFILES = \
 	bat.pc \
-	tools/bat-project \
-	doc/introduction/versions.tex
+	tools/bat-project
 
 SUBDIRS= \
 	src \
 	models/base \
 	models/mtf \
 	test \
+	doc \
 	examples
 
+manual_pdf = doc/manual/@BAT_MANUAL_PDF@
 EXTRA_DIST= \
 	INSTALL.md \
 	README.md \
 	models/base/LDef.h  \
 	models/base/LDef_roostats.h \
-	doc/COPYING doc/CREDITS doc/LICENSE doc/ChangeLog doc/releasenotes.md \
-	doc/introduction/bat.pdf  doc/introduction/introduction.tex  doc/introduction/Makefile \
-	doc/quickstart/bat.pdf  doc/quickstart/Makefile  doc/quickstart/quickstart.tex \
-	doc/customdoxygen.css  doc/Doxyfile \
 	examples \
 	tools/bat-project.in
+# \
+#		$(manual_pdf)
 
 dist_bin_SCRIPTS = \
 	bat-config \
@@ -55,25 +54,12 @@ dist_pkgdata_DATA = \
 	tools/ModelTemplate.h tools/ModelTemplate.cxx \
 	tools/MakefileTemplate
 
-dist-hook: prep-docs
+dist-hook:
 	rm -f $(distdir)/models/libBATmodels.rootmap
 	rm -rf `find $(distdir)/examples -name Makefile`
 
-prep-docs: BAT-intro.pdf BAT-quickstart.pdf
-
-BAT-intro.pdf:
-	mkdir -p $(top_builddir)/doc/intro-tmp
-	cp -r $(top_srcdir)/doc/introduction/* $(top_builddir)/doc/introduction/versions.tex $(top_builddir)/doc/intro-tmp
-	cd $(top_builddir)/doc/intro-tmp && $(MAKE) clean && $(MAKE)
-	mv $(top_builddir)/doc/intro-tmp/introduction.pdf $(distdir)/doc/BAT-intro.pdf
-	rm -rf $(top_builddir)/doc/intro-tmp
-
-BAT-quickstart.pdf:
-	mkdir -p $(top_builddir)/doc/quick-tmp
-	cp -r $(top_srcdir)/doc/quickstart/* $(top_builddir)/doc/quick-tmp
-	cd $(top_builddir)/doc/quick-tmp && $(MAKE) clean && $(MAKE)
-	mv $(top_builddir)/doc/quick-tmp/quickstart.pdf $(distdir)/doc/BAT-quickstart.pdf
-	rm -rf $(top_builddir)/doc/quick-tmp
+$(manual_pdf):
+	$(MAKE) -C doc/ manual
 
 if COND_PKGCONFIG
 pkgconfigdir = $(libdir)/pkgconfig

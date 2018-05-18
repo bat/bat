@@ -8,12 +8,10 @@ The example shows the same example a the `twoChannels' example, but
 now ensemble tests are performed. The ensembles are generated assuming
 the same statistical model using the best-fit parameters.
 
-The source file(s) contain(s) plenty of comments and explanations. For
-further documentation see the "Short Introduction to BAT" and/or the
-reference guide, both available on the BAT web page:
+The source file(s) contain(s) plenty of comments and explanations.
+For further information, see the manual at
 
-http://mpp.mpg.de/bat/
-
+https://bat.github.io/bat-docs/master/manual/html/
 
 Files:
 ------
@@ -30,6 +28,6 @@ Running the example:
 1. Make sure that BAT is correctly installed in the system.
 
 2. Create the templates and data histograms by calling the ROOT
-   macro 'root CreateHistogram.C' 
+   macro 'root CreateHistogram.C'
 
 3. Run the macro in a ROOT session, e.g., with 'root ensembleTest.C'

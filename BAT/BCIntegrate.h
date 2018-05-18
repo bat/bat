@@ -1,14 +1,14 @@
 #ifndef __BCINTEGRATE__H
 #define __BCINTEGRATE__H
 
-/*!
- * \class BCIntegrate
- * \brief A class for handling numerical operations for models.
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 08.2008
- * \detail This is a base class for a model class. It contains
+/**
+ * @class BCIntegrate
+ * @brief A class for handling numerical operations for models.
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.0
+ * @date 08.2008
+ * @details This is a base class for a model class. It contains
  * numerical methods to carry out the integration, marginalization,
  * peak finding etc.
  */
@@ -38,54 +38,77 @@ class TH2;
 class TTree;
 
 /**
- * Collect all the useful options to tune integration with the CUBA library.
- * Option names match those used in the CUBA manual, where a detailed
- * description is given. Default values are taken from the demo that ships with CUBA.
  */
 namespace BCCubaOptions
 {
 
+/**
+ * Base struct to hold options shared by all CUBA algorithms.
+ *
+ * Collect all the useful options to tune integration with the CUBA library.
+ * Option names match those used in the CUBA manual, where a detailed
+ * description is given. Default values are taken from the demo that ships with CUBA. */
 struct General {
+    //! @nowarn
     int ncomp, flags, nregions, neval, fail;
     double error, prob;
+
     General();
-protected:
-    ~General();
+    //! @endnowarn
 };
 
+/**
+ * Hold Vegas specific options. */
 struct Vegas : public General {
+    //! @nowarn
     int nstart, nincrease, nbatch, gridno;
 
     Vegas();
+    //! @endnowarn
 };
 
+/**
+ * Hold Suave specific options. */
 struct Suave : public General {
+    //! @nowarn
     int nmin, nnew;
     double flatness;
 
     Suave();
+    //! @endnowarn
 };
 
+/**
+ * Hold Divonne specific options. */
 struct Divonne : public General {
+    //! @nowarn
     int key1, key2, key3, maxpass;
     double border, maxchisq, mindeviation;
 
     Divonne();
+    //! @endnowarn
 };
 
+/**
+ * Hold Cuhre specific options. */
 struct Cuhre : public General {
+    //! @nowarn
     int key;
 
     Cuhre();
+    //! @endnowarn
 };
 }
 
 namespace BCMinimizer
 {
 
+/**
+ * Adapter to call Minuit on a user-defined function. */
 class Adapter : public ROOT::Math::IMultiGenFunction
 {
 public:
+    //! @nowarn
     Adapter(BCIntegrate& m);
     virtual unsigned int NDim() const;
     virtual ROOT::Math::IMultiGenFunction* Clone() const;
@@ -94,15 +117,16 @@ public:
     mutable std::vector<double> par;
 private:
     virtual double DoEval (const double* x) const;
+    //! @endnowarn
 };
 
 /**
- * Wrapper to approximate RAII for TMinuitMinimizer which is not
- * copyable unfortunately.
- */
+ * Wrapper to approximate RAII for `TMinuitMinimizer` that is not
+ * copyable. */
 class Wrapper
 {
 public:
+    //! @nowarn
     Wrapper(BCIntegrate& m);
     void Init();
     void Init(const std::vector<double>& start, int printlevel);
@@ -110,6 +134,7 @@ public:
 
     TMinuitMinimizer min;
     Adapter adapt;
+    //! @endnowarn
 };
 }
 
@@ -323,7 +348,7 @@ public:
 
     /**
      * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
-     * @param name The name of the model parameter along which the slice is calculated.
+     * @param indices The indices of the model parameters along which the slice is calculated.
      * @param nIterations Add the number of posterior evaluations performed.
      * @param log_max_val Stores the log of the maximum value before normalizing
      * @param parameters The point at which the other parameters are fixed.
@@ -346,7 +371,7 @@ public:
 
     /**
      * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
-     * @param name The name of the model parameter along which the slice is calculated.
+     * @param index The index of the model parameter along which the slice is calculated.
      * @param nIterations Add the number of posterior evaluations performed.
      * @param log_max_val Stores the log of the maximum value before normalizing
      * @param parameters The point at which the other parameters are fixed.
@@ -371,8 +396,8 @@ public:
 
     /**
      * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
-     * @param name1 The name of the first model parameter along which the slice is calculated.
-     * @param name2 The name of the second model parameter along which the slice is calculated.
+     * @param index1 The index of the first model parameter along which the slice is calculated.
+     * @param index2 The index of the second model parameter along which the slice is calculated.
      * @param nIterations Add the number of posterior evaluations performed.
      * @param log_max_val Stores the log of the maximum value before normalizing
      * @param parameters The point at which the other parameters are fixed.
@@ -422,7 +447,7 @@ public:
     /** \name Member functions (set) */
     /** @{ */
     /**
-     * @flag Flag whether or not to ignore result of previous mode finding */
+     * @param flag Flag whether or not to ignore result of previous mode finding */
     void SetFlagIgnorePrevOptimization(bool flag)
     { fFlagIgnorePrevOptimization = flag; }
 
@@ -441,7 +466,7 @@ public:
     { fMarginalizationMethodCurrent = method; }
 
     /**
-     * @param method The Simulated Annealing schedule */
+     * @param schedule The Simulated Annealing schedule */
     void SetSASchedule(BCIntegrate::BCSASchedule schedule)
     { fSASchedule = schedule; }
 
@@ -553,7 +578,6 @@ public:
      * @param evaluator Pointer to function to evaluate point
      * @param updater Pointer to function to update integral and precision
      * @param sums Vector of doubles holding values used in integral calculation
-     * @param x An initial point to start integration routine at
      * @return The integral value */
     double Integrate(BCIntegrationMethod type, tRandomizer randomizer, tEvaluator evaluator, tIntegralUpdater updater, std::vector<double>& sums);
 
@@ -601,7 +625,7 @@ public:
      * is used as an initial point. If that is not available,
      * then the Minuit default will be used (center of the parameter space).
      * @return The mode found.
-     * @note The result may not coincide with the result of @code GetBestFitParameters()
+     * @note The result may not coincide with the result of GetBestFitParameters()
      * if a previous optimization found a better value. */
     std::vector<double> FindMode(std::vector<double> start = std::vector<double>());
 
@@ -690,7 +714,7 @@ public:
     double SAHelperSinusToNIntegral(int dim, double theta) const;
 
     /**
-     * Reset all information on the best fit parameters. */
+     * Reset all information on the best-fit parameters. */
     virtual void ResetResults();
 
     /**
@@ -765,8 +789,8 @@ public:
     void SetBestFitParameters(const std::vector<double>& x);
 
     /**
-     * Set best fit parameters if best fit
-     * @param new_value is the value of the function at x
+     * @param x Set best-fit parameters to `x` if `new_value >= old_value`
+     * @param new_value is the value of the function at `x`
      * @param old_value is the old best fit value, updated to new_value, if it is larger */
     void SetBestFitParameters(const std::vector<double>& x, const double& new_value, double& old_value);
 
@@ -778,6 +802,16 @@ public:
     /**
      * Check that indices of parameters to marginalize w/r/t are correct */
     bool CheckMarginalizationIndices(TH1* hist, const std::vector<unsigned>& index);
+
+    /**
+     * Integrate using the Laplace approximation.
+     *
+     * Take the result of a previous successful minuit run to estimate
+     * the covariance matrix. Else it runs minuit (again).
+     *
+     * @return the integral on the log(!) scale. Note that is is different from
+     * the other integration methods that work on the linear scale. */
+    double IntegrateLaplace();
 
     /** @} */
 
@@ -856,7 +890,7 @@ private:
      * @param mode a reference to a vector holding the mode
      * @param errors a reference to a vector holding the errors
      * @return The mode found.
-     * @note The result may not coincide with the result of @code GetBestFitParameters()
+     * @note The result may not coincide with the result of GetBestFitParameters()
      * if a previous optimization found a better value. */
     std::vector<double> FindModeMinuit(std::vector<double>& mode, std::vector<double>& errors, std::vector<double> start = std::vector<double>(0), int printlevel = -1);
 
@@ -865,7 +899,7 @@ private:
      * @param mode a reference to a vector holding the mode
      * @param errors a reference to a vector holding the errors
      * @return The mode.
-     * @note The result may not coincide with the result of @code GetBestFitParameters()
+     * @note The result may not coincide with the result of GetBestFitParameters()
      * if a previous optimization found a better value. */
     std::vector<double> FindModeMCMC(std::vector<double>& mode, std::vector<double>& errors);
 
@@ -877,7 +911,7 @@ private:
      * @param errors a reference to a vector holding the errors
      * @param start point in parameter space from thich the mode finding is started.
      * @return The mode.
-     * @note The result may not coincide with the result of @code GetBestFitParameters()
+     * @note The result may not coincide with the result of GetBestFitParameters()
      * if a previous optimization found a better value.*/
     std::vector<double> FindModeSA(std::vector<double>& mode, std::vector<double>& errors, std::vector<double> start = std::vector<double>(0));
 
@@ -906,15 +940,6 @@ private:
      * Integrate using the slice method
      * @return the integral; */
     double IntegrateSlice();
-
-    /**
-     * Integrate using the Laplace approximation.
-     *
-     * Take the result of a previous successful minuit run to estimate
-     * the covariance matrix. Else it runs minuit (again).
-     *
-     * @return the integral; */
-    double IntegrateLaplace();
 
     /**
      * Current mode finding method */

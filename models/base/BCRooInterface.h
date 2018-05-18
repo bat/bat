@@ -30,9 +30,11 @@ class BCRooInterface : public BCModel
 {
 public:
 
+    //! @nowarn
     BCRooInterface(const std::string& name = "", bool fillChain = false );
 
     ~BCRooInterface();
+    //! @endnowarn
 
     /** \name Overloaded methods  */
     /** @{ */
@@ -41,7 +43,8 @@ public:
     double LogAPrioriProbability(const std::vector<double>& parameters);
     double LogLikelihood(const std::vector<double>& parameters);
     /** @} */
-    /// Other method of this class
+
+    //! @nowarn
     void Initialize( RooAbsData& data,
                      RooAbsPdf& model,
                      RooAbsPdf& prior,
@@ -56,6 +59,7 @@ public:
                      const char* priorNuisanceName = "priorNuisance",
                      const char* paramsName = "parameters",
                      const char* listPOIName = "POI" );
+    //! @endnowarn
 
     /** set the number of histogram bins for a specific parameter */
     void SetNumBins(const char* parname, int nbins);
@@ -67,8 +71,9 @@ public:
     void MCMCIterationInterface();
     /** return the RooStats Markov Chain (empty if corresponding constructor option not set) */
     RooStats::MarkovChain* GetRooStatsMarkovChain() { return _roostatsMarkovChain;}
+    //! @nowarn
     RooArgSet* GetArgSetForMarkovChain() {return &_parametersForMarkovChainCurrent;}
-
+    //! @endnowarn
 private:
 
     void AddToCurrentChainElement(double xij, int chainNum, int poiNum); ///< help function for construction of RooStats Markov Chain

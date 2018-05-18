@@ -7,12 +7,10 @@ installed on the system.
 The example shows how to perform a simple fit of a Gaussian peak on
 top of a flat background.
 
-The source file(s) contain(s) plenty of comments and explanations. For
-further documentation see the "Short Introduction to BAT" and/or the
-reference guide, both available on the BAT web page:
+The source file(s) contain(s) plenty of comments and explanations.
+For further information, see the manual at
 
-http://mpp.mpg.de/bat/
-
+https://bat.github.io/bat-docs/master/manual/html/
 
 Files:
 ------

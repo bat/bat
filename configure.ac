@@ -1,4 +1,4 @@
-AC_INIT([BAT], 1.0.0-RC2, [], [BAT])
+AC_INIT([BAT], 1.0.0, [], [BAT])
 : ${CXXFLAGS=""}
 : ${CFLAGS=""}
 : ${FFLAGS=""}
@@ -399,15 +399,12 @@ AC_SUBST(DEP_LIBS)
 AC_CHECK_PROGS(PKGCONFIG, pkg-config, false)
 AM_CONDITIONAL([COND_PKGCONFIG], [test "$PKGCONFIG" != "false"])
 
-dnl files that may not be part of the release but exist only in a checkout of the source repository
-if test -f "$srcdir/doc/introduction/versions.tex.in" ; then
-    AC_OUTPUT(doc/introduction/versions.tex)
-fi
-
 dnl directories needed to store output files (e.g. from unit tests) in the proper place
 AC_DEFINE_UNQUOTED([BAT_BUILDDIR], "$ac_pwd", [Absolute path to the build directory])
 AC_DEFINE_UNQUOTED([BAT_SRCDIR], "`readlink -f $ac_pwd/$srcdir`", [Absolute path to the top-level source directory])
 AC_DEFINE_UNQUOTED([BAT_TESTDIR], "$ac_pwd/test/", [Absolute path to the test directory])
+
+AC_SUBST(BAT_MANUAL_PDF, BAT-manual.pdf)
 
 AC_OUTPUT(
   Makefile
@@ -430,6 +427,7 @@ AC_OUTPUT(
   examples/basic/histogramFitter/Makefile
   examples/basic/poisson/Makefile
   examples/basic/rootOutput/Makefile
+  examples/basic/tutorial/Makefile
   examples/advanced/Makefile
   examples/advanced/advancedGraphFitter/Makefile
   examples/advanced/mtf/Makefile
@@ -442,4 +440,7 @@ AC_OUTPUT(
   examples/advanced/referenceCounting/Makefile
   examples/advanced/rooInterface/Makefile
   examples/advanced/trialFunction/Makefile
+  doc/Makefile
+  doc/manual/Makefile
+  doc/ref-guide/Makefile
 )

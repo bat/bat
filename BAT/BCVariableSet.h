@@ -2,7 +2,8 @@
 #define __BCVARIABLESET__H
 
 /**
- * @class BCVariableSet Wrapper to allow access by name into list of BCVariable.
+ * @class BCVariableSet
+ * @brief Wrapper to allow access by name into list of BCVariable.
  * @author Frederik Beaujean
  * @author Daniel Greenwald
  * @note Variables are owned by and will be deleted by BCVariableSet.
@@ -50,7 +51,7 @@ public:
 
     /**
      * Add a variable if no variable of same name exists yet.
-     * @param par Variable
+     * @param var Variable
      * @return Success of action. */
     virtual bool Add(const T& var)
     {
@@ -192,20 +193,20 @@ public:
 
     /**
      * Set fill-histograms flag for 1D and 2D histograms for all parameters.
-     * @parag flag Filling flag for both 1D and 2D histograms. */
+     * @param flag Filling flag for both 1D and 2D histograms. */
     virtual void FillHistograms(bool flag)
     { FillHistograms(flag, flag); }
 
     /**
      * Set fill-histograms flag for 1D and 2D histograms for all parameters.
-     * @parag flag_1d Filling flag for 1D histograms.
-     * @parag flag_2d Filling flag for 2D histograms. */
+     * @param flag_1d Filling flag for 1D histograms.
+     * @param flag_2d Filling flag for 2D histograms. */
     virtual void FillHistograms(bool flag_1d, bool flag_2d)
     { FillH1(flag_1d); FillH2(flag_2d); }
 
     /**
      * Set fill-histograms flag for all 1D histograms for all parameters.
-     * @parag flag Filling flag. */
+     * @param flag Filling flag. */
     virtual void FillH1(bool flag)
     {
         for (unsigned i = 0 ; i < fVars.size() ; ++i )

@@ -1,14 +1,14 @@
 #ifndef __BCMTFTEMPLATE__H
 #define __BCMTFTEMPLATE__H
 
-/*!
- * \class BCMTFTemplate
- * \brief A class describing a template
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.1
- * \date 06.2012
- * \detail This class describes a template.
+/**
+ * @class BCMTFTemplate
+ * @brief A class describing a template
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.1
+ * @date 06.2012
+ * @details This class describes a template.
  */
 
 /*
@@ -39,7 +39,7 @@ public:
     /**
      * The default constructor.
      * @param channelname The name of the channel.
-     * @param process name The name of the process. */
+     * @param processname The name of the process. */
     BCMTFTemplate(const std::string& channelname, const std::string& processname);
 
     /**

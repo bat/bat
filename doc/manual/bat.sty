@@ -1,0 +1,22 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{bat}[2016/10/26 v1.0.0 BAT's Doxygen style]
+\usepackage{libertine,newtxmath} % matching text and math fonts
+\usepackage{amssymb,amsfonts,amsmath}  % bold math symbols, AMStex
+\usepackage{physics} % for integration symbols
+
+% unicode characters directly inserted in markdown sources
+\DeclareUnicodeCharacter{3B1}{$\alpha$}
+\DeclareUnicodeCharacter{3B2}{$\beta$}
+
+% math
+\newcommand{\cond}{\,|\,}
+\DeclareMathOperator{\diag}{diag}
+\newcommand{\matsig}{\boldsymbol{\Sigma}}
+\newcommand\rmdx[1]{\dd{#1}} % differential
+\newcommand{\scath}{\theta} % scalar parameter
+\newcommand{\vecmu}{\boldsymbol{\mu}} % vector parameter
+\newcommand{\vecth}{\boldsymbol{\theta}} % vector parameter
+
+% redefine page layout to some degree
+% \fancyfoot[RE]{\fancyplain{}{}}
+% \fancyfoot[LO]{\fancyplain{}{}}

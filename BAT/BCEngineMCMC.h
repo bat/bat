@@ -2,13 +2,13 @@
 #define __BCENGINEMCMC__H
 
 /**
- * \class BCEngineMCMC
- * \brief An engine class for Markov Chain Monte Carlo
- * \author Daniel Kollar
- * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 08.2008
- * \detail This class represents an engine class for Markov Chain
+ * @class BCEngineMCMC
+ * @brief An engine class for Markov Chain Monte Carlo
+ * @author Daniel Kollar
+ * @author Kevin Kr&ouml;ninger
+ * @version 1.0
+ * @date 08.2008
+ * @details This class represents an engine class for Markov Chain
  * Monte Carlo (MCMC). One or more chains can be defined
  * simultaneously.
  */
@@ -208,7 +208,8 @@ public:
         std::vector<double> efficiency;               ///< efficiencies for each parameter (NB: not stored for observables)
 
         /** clear all members.
-         * @param clear_mode Flag for clearing information about mode*/
+         * @param clear_mode Flag for clearing information about mode
+         * @param clear_efficiency Flag for clearing information about efficiencies */
         void Clear(bool clear_mode = true, bool clear_efficiency = true);
 
         /** init all members
@@ -227,9 +228,8 @@ public:
         /** addition assignment operator. */
         Statistics& operator += (const Statistics& rhs);
 
-        /** update statistics given new values.
-         * @param par Current parameter values.
-         * @param obs Current user-define observables values. */
+        /**
+         * update statistics given a new chain state */
         void Update(const ChainState& cs);
     };
 
@@ -443,9 +443,9 @@ public:
 
     /**
      * @return R-value for a parameter
-     * @param i parameter index */
-    double GetRValueParameters(unsigned p) const
-    { return fMCMCRValueParameters.at(p); }
+     * @param index parameter index */
+    double GetRValueParameters(unsigned index) const
+    { return fMCMCRValueParameters.at(index); }
 
     /** Flag for correcting convergence checking for initial sampling variability. */
     bool GetCorrectRValueForSamplingVariability() const
@@ -483,8 +483,7 @@ public:
     { return fMCMCStatistics.at(c); }
 
     /**
-     * Get vector of MCMC statistics for each chain separately
-     * @param c Chain to get statistics of. */
+     * Get vector of MCMC statistics for each chain separately. */
     const std::vector<BCEngineMCMC::Statistics>& GetStatisticsVector() const
     { return fMCMCStatistics; }
 
@@ -639,7 +638,7 @@ public:
     { return fParameters.At(index); }
 
     /**
-     * @deprecatd Instead call GetParameters().Get(name)
+     * @deprecated Instead call GetParameters().Get(name)
      * @param name The name of the parameter in the parameter set.
      * @return The parameter. */
     BCParameter& GetParameter(const std::string& name)
@@ -1034,7 +1033,7 @@ public:
      * @param filename Name of file to write chain to.
      * @param option file-open options (TFile), must be "NEW", "CREATE", "RECREATE", or "UPDATE" (i.e. writeable).
      * @param flag_run Flag for writing run Markov chain to ROOT file (true) or not (false).
-     * @param flag prerun Flag for writing prerun Markov chain to ROOT file (true) or not (false). */
+     * @param flag_prerun Flag for writing prerun Markov chain to ROOT file (true) or not (false). */
     void WriteMarkovChain(const std::string& filename, const std::string& option, bool flag_run = true, bool flag_prerun = true);
 
     /** @} */
@@ -1125,8 +1124,8 @@ public:
      * @param mode The mode of the Gaussian
      * @param sigma_below Standard deviation below mode.
      * @param sigma_above Standard deviation above mode. */
-    void SetPriorGauss(const std::string& name, double mode, double sigmadown, double sigmaup)
-    { SetPriorGauss(fParameters.Index(name), mode, sigmadown, sigmaup); }
+    void SetPriorGauss(const std::string& name, double mode, double sigma_below, double sigma_above)
+    {	SetPriorGauss(fParameters.Index(name), mode, sigma_below, sigma_above); }
 
     /**
      * @deprecated Instead call: GetParameter(index)->SetPrior(new BCTH1Prior(h,interpolate))
@@ -1189,17 +1188,17 @@ public:
      * @param quantile_values Vector of quantile values to draw
      * @param rescale_ranges Flag for rescaling to range surveyed by MCMC chains
      * @return Number of pages printed. */
-    unsigned PrintParameterPlot(const std::string& filename, int npar = 10, double interval_content = 68e-2, std::vector<double> quantile_vals = std::vector<double>(0), bool rescale_ranges = true) const;
+    unsigned PrintParameterPlot(const std::string& filename, int npar = 10, double interval_content = 68e-2, std::vector<double> quantile_values = std::vector<double>(0), bool rescale_ranges = true) const;
 
     /**
      * Draw a summary plot for the parameters in the range provided to current pad
-     * @par i0 Index of first parameter to print.
-     * @par npar Number of parameters to print, set to 0 to print all.
+     * @param i0 Index of first parameter to print.
+     * @param npar Number of parameters to print, set to 0 to print all.
      * @param interval_content Probability mass to display in smallest X interval band
      * @param quantile_values Vector of quantile values to draw
      * @param rescale_ranges Flag for rescaling to range surveyed by MCMC chains
      * @return Success of action. */
-    bool DrawParameterPlot(unsigned i0, unsigned npar = 0, double interval_content = 68e-2, std::vector<double> quantile_vals = std::vector<double>(0), bool rescale_ranges = true) const;
+    bool DrawParameterPlot(unsigned i0, unsigned npar = 0, double interval_content = 68e-2, std::vector<double> quantile_values = std::vector<double>(0), bool rescale_ranges = true) const;
 
     /**
      * Print a correlation matrix for the parameters.
@@ -1270,7 +1269,7 @@ public:
     /**
      * @deprecated Instead use GetObservables().Add(obs)
      * Adds a user-calculated observable to the model.
-     * @param observable A user-calculated observable
+     * @param obs A user-calculated observable
      * @return Success of action. */
     virtual bool AddObservable(BCObservable& obs)
     { return fObservables.Add(obs); }
@@ -1290,8 +1289,8 @@ public:
      * Evaluates user-defined observables. To be overloaded by user
      * to calculate user observables.
      * @param pars Parameter set to evaluate observables for. */
-    virtual void CalculateObservables(const std::vector<double>& /*pars*/)
-    {}
+    virtual void CalculateObservables(const std::vector<double>& pars)
+    { (void)pars; }
 
     /**
      * The default proposal function is a
@@ -1303,35 +1302,40 @@ public:
     virtual double ProposalFunction(unsigned ichain, unsigned ipar);
 
     /**
-     * Returns a proposal point for the Metropolis algorithm.
+     * Return a proposal point for the Metropolis algorithm.
      * @param chain chain index
      * @param x proposal point
      * @return flag indicating whether the new point lies within the allowed range */
     bool GetProposalPointMetropolis(unsigned chain, std::vector<double>& x);
 
     /**
-     * Returns a proposal point for the Metropolis algorithm.
+     * Return a proposal point for the Metropolis algorithm.
      * @param chain chain index
+     * @param parameter Index of single parameter to update.
      * @param x proposal point
      * @return flag indicating whether the new point lies within the allowed range */
     bool GetProposalPointMetropolis(unsigned chain, unsigned parameter, std::vector<double>& x);
 
     /**
-     * Generates a new point using the Metropolis algorithm for all chains.
+     * Generate a new point using the Metropolis algorithm for all chains.
      * @return Whether proposed point was accepted (true) or previous point was kept (false). */
     bool GetNewPointMetropolis();
 
-    /** Generates a new point using the Metropolis algorithm for one chain.
+    /**
+     * Generate a new point using the Metropolis algorithm for one chain.
      * @param chain chain index
      * @return Whether proposed point was accepted (true) or previous point was kept (false). */
     bool GetNewPointMetropolis(unsigned chain);
 
-    /** Generates a new point using the Metropolis algorithm for one chain, varying only one parameter's value
-     * @param chain chain index
+    /**
+     * Generate a new point using the Metropolis algorithm for one chain, varying only one parameter's value.
+     * @param chain Chain index
+     * @param parameter Index of single parameter to update.
      * @return Whether proposed point was accepted (true) or previous point was kept (false). */
     bool GetNewPointMetropolis(unsigned chain, unsigned parameter);
 
-    /** Accepts or rejects a point for a chain and updates efficiency
+    /**
+     * Accept or rejects a point for a chain and updates efficiency.
      * @param chain chain index
      * @param parameter index of parameter to update efficiency for
      * @return Whether proposed point was accepted (true) or previous point was kept (false). */
@@ -1342,7 +1346,7 @@ public:
     void InChainFillHistograms(const ChainState& cs);
 
     /**
-     * fill marginalized distributions from all chain states*/
+     * Fill marginalized distributions from all chain states*/
     void InChainFillHistograms();
 
     /**
@@ -1434,8 +1438,12 @@ public:
      * @param point point that was generated and checked
      * @param ichain index of the chain
      * @param accepted flag whether or not the point was accepted for the chain */
-    virtual void MCMCCurrentPointInterface(const std::vector<double>& /*point*/, int /*ichain*/, bool /*accepted*/)
-    {}
+    virtual void MCMCCurrentPointInterface(const std::vector<double>& point, int ichain, bool accepted)
+    {
+        (void)point;
+        (void)ichain;
+        (void)accepted;
+    }
 
     /**
      * Load parameters and observables from tree.
@@ -1452,8 +1460,8 @@ public:
      * Check parameter tree against model.
      * @param partree Tree of parameters to check against model.
      * @param checkObservables Flag for whether to check observables.
-     * @param Whether tree's parameters match those of model. */
-    bool ParameterTreeMatchesModel(TTree* partree, bool checkObservables = true);
+     * @return Whether tree's parameters match those of model. */
+    virtual bool ParameterTreeMatchesModel(TTree* partree, bool checkObservables = true);
 
     /**
      * Load previous MCMC run.
