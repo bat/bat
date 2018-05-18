@@ -1380,6 +1380,15 @@ public:
      * @return R value for set of batches of samples. */
     static double RValue(const std::vector<double>& means, const std::vector<double>& variances, unsigned n, bool correctForSamplingVariability = true);
 
+    
+    /**
+     * @see RValue(const std::vector<double>&,const std::vector<double>&,unsigned,bool);
+     * @param stats Vector of BCEngineMCMC::Statistics objects
+     * @param correctForSamplingVariability Flag to control correcting R value for initial sampling variability.
+     * @param n max number of variables to calculate RValues for (negative values indicate to calculate for all variables)
+     * @return R value for set of batches of samples. */
+    static std::vector<double> RValues(const std::vector<BCEngineMCMC::Statistics>& stats,  bool correctForSamplingVariability = true, int n = -1);
+    
     /**
      * Resets all containers used in MCMC and initializes starting points. */
     void MCMCInitialize();
