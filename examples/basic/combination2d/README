@@ -1,4 +1,4 @@
-Description: 
+Description:
 ------------
 
 This example is part of BAT. It will only run if BAT is correctly
@@ -7,7 +7,7 @@ installed on the system.
 The example shows how to properly define a new model class based on
 the BCModel class or on any previously defined class which inherits
 from BCModel. It demonstrates how to create a simple compiled program
-using BAT. 
+using BAT.
 
 This example shows how to combine two measurements in BAT. Two
 correlated quantities ("mass" and "cross section") have been measured
@@ -15,17 +15,16 @@ and the result is combined with the results from two earlier and
 independent experiments. The latter is implemented as the prior
 knowledge while the former is the Likelihood.
 
-The source file(s) contain(s) plenty of comments and explanations. For
-further documentation see the "Short Introduction to BAT" and/or the
-reference guide, both available on the BAT web page:
+The source file(s) contain(s) plenty of comments and explanations.
+For further information, see the manual at
 
-http://mpp.mpg.de/bat/
+https://bat.github.io/bat-docs/master/manual/html/
 
 
 Files:
 ------
 
-  README                  - this file 
+  README                  - this file
   Makefile                - makefile for the example program
   CombinationModel.h      - definition of the model class for a combination
                             of Gaussians
@@ -40,10 +39,8 @@ Running the example:
 
 2. Compile the example by running 'make' in the example directory
 
-	For the compilation to work properly, the script bat-config needs
-	to be accessible, for example by adding its directory to the PATH
-	environment variable.
+  For the compilation to work properly, the script bat-config needs
+  to be accessible, for example by adding its directory to the PATH
+  environment variable.
 
 3. Run the executable 'runCombineGaussians'.
-
-

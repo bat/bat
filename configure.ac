@@ -399,11 +399,6 @@ AC_SUBST(DEP_LIBS)
 AC_CHECK_PROGS(PKGCONFIG, pkg-config, false)
 AM_CONDITIONAL([COND_PKGCONFIG], [test "$PKGCONFIG" != "false"])
 
-dnl files that may not be part of the release but exist only in a checkout of the source repository
-if test -f "$srcdir/doc/introduction/versions.tex.in" ; then
-    AC_OUTPUT(doc/introduction/versions.tex)
-fi
-
 dnl directories needed to store output files (e.g. from unit tests) in the proper place
 AC_DEFINE_UNQUOTED([BAT_BUILDDIR], "$ac_pwd", [Absolute path to the build directory])
 AC_DEFINE_UNQUOTED([BAT_SRCDIR], "`readlink -f $ac_pwd/$srcdir`", [Absolute path to the top-level source directory])

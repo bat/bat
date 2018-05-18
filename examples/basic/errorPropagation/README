@@ -1,4 +1,4 @@
-Description: 
+Description:
 ------------
 
 This example is part of BAT. It will only run if BAT is correctly
@@ -7,26 +7,24 @@ installed on the system.
 The example shows how to properly define a new model class based on
 the BCModel class or on any previously defined class which inherits
 from BCModel. It demonstrates how to create a simple compiled program
-using BAT. 
+using BAT.
 
 It shows how to implement error propagation in BAT. Two values, x and
 y, are measured with a certain (Gaussian) precision. The quantity of
 interest is the ratio of the two, r=x/y, i.e., the probability density
 for r, p(r|x,y).
 
-The source file(s) contain(s) plenty of comments and explanations. For
-further documentation see the "Short Introduction to BAT" and/or the
-reference guide, both available on the BAT web page:
+The source file(s) contain(s) plenty of comments and explanations.
+For further information, see the manual at
 
-http://mpp.mpg.de/bat/
-
+https://bat.github.io/bat-docs/master/manual/html/
 
 Files:
 ------
 
-  README                  - this file 
+  README                  - this file
   Makefile                - makefile for the example program
-  RatioModel.h            - definition of the model class for a simple 
+  RatioModel.h            - definition of the model class for a simple
                             problem
   RatioModel.cxx          - source code of the model class
   runErrorPropagation.cxx - the source code of the main program

@@ -8,12 +8,10 @@ This example is similar to the `twoChannels' example, but now
 including two sources of systematic uncertainty which alter the
 templates.
 
-The source file(s) contain(s) plenty of comments and explanations. For
-further documentation see the "Short Introduction to BAT" and/or the
-reference guide, both available on the BAT web page:
+The source file(s) contain(s) plenty of comments and explanations.
+For further information, see the manual at
 
-http://mpp.mpg.de/bat/
-
+https://bat.github.io/bat-docs/master/manual/html/
 
 Files:
 ------
@@ -40,4 +38,3 @@ Running the example:
    environment variable.
 
 4. Run the executable 'runSystematics'.
-
