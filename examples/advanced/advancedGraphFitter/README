@@ -9,12 +9,10 @@ fits four different functions assuming gaussian uncertainties. This
 example represents the example from the BAT paper showing a comparison
 between different fits.
 
-The source file(s) contain(s) plenty of comments and explanations. For
-further documentation see the "Short Introduction to BAT" and/or the
-reference guide, both available on the BAT web page:
+The source file(s) contain(s) plenty of comments and explanations.
+For further information, see the manual at
 
-http://mpp.mpg.de/bat/
-
+https://bat.github.io/bat-docs/master/manual/html/
 
 Files:
 ------

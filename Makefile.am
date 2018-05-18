@@ -9,8 +9,7 @@ clean-local:
 # files build by configure on the user side
 DISTCLEANFILES = \
 	bat.pc \
-	tools/bat-project \
-	doc/introduction/versions.tex
+	tools/bat-project
 
 SUBDIRS= \
 	src \
@@ -29,7 +28,7 @@ EXTRA_DIST= \
 	examples \
 	tools/bat-project.in
 # \
-# 	$(manual_pdf)
+#		$(manual_pdf)
 
 dist_bin_SCRIPTS = \
 	bat-config \
@@ -61,21 +60,6 @@ dist-hook:
 
 $(manual_pdf):
 	$(MAKE) -C doc/ manual
-
-# TODO remove
-BAT-intro.pdf:
-	mkdir -p $(top_builddir)/doc/intro-tmp
-	cp -r $(top_srcdir)/doc/introduction/* $(top_builddir)/doc/introduction/versions.tex $(top_builddir)/doc/intro-tmp
-	cd $(top_builddir)/doc/intro-tmp && $(MAKE) clean && $(MAKE)
-	mv $(top_builddir)/doc/intro-tmp/introduction.pdf $(distdir)/doc/BAT-intro.pdf
-	rm -rf $(top_builddir)/doc/intro-tmp
-
-BAT-quickstart.pdf:
-	mkdir -p $(top_builddir)/doc/quick-tmp
-	cp -r $(top_srcdir)/doc/quickstart/* $(top_builddir)/doc/quick-tmp
-	cd $(top_builddir)/doc/quick-tmp && $(MAKE) clean && $(MAKE)
-	mv $(top_builddir)/doc/quick-tmp/quickstart.pdf $(distdir)/doc/BAT-quickstart.pdf
-	rm -rf $(top_builddir)/doc/quick-tmp
 
 if COND_PKGCONFIG
 pkgconfigdir = $(libdir)/pkgconfig
