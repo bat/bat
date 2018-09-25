@@ -4,7 +4,7 @@ BAT - Bayesian Analysis Toolkit
 [![Build Status](https://travis-ci.org/bat/bat.svg?branch=master)](https://travis-ci.org/bat/bat)
 [![Manual](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://bat.github.io/bat-docs/master/manual/html/index.html)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1203195.svg)](https://doi.org/10.5281/zenodo.1203195)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1322675.svg)](https://doi.org/10.5281/zenodo.1322675)
 
 The Bayesian Analysis Toolkit is a software analysis package which allows
 to address the main goals of a typical data analysis:
