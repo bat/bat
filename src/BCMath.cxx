@@ -18,7 +18,7 @@
 #include <TRandom3.h>
 
 #include <limits>
-#include <math.h>
+#include <cmath>
 
 // ---------------------------------------------------------
 double BCMath::LogGaus(double x, double mean, double sigma, bool norm)
