@@ -20,6 +20,10 @@
 #include <limits>
 #include <cmath>
 
+#if THREAD_PARALLELIZATION
+#include <omp.h>
+#endif
+
 // ---------------------------------------------------------
 double BCMath::LogGaus(double x, double mean, double sigma, bool norm)
 {
@@ -319,8 +323,14 @@ double BCMath::FastPValue(const std::vector<unsigned>& observed, const std::vect
     // temporary histogram to be modified in each MCMC step
     std::vector<unsigned> histogram(nbins, 0);
 
+    unsigned nthreads = 1;
+    #if THREAD_PARALLELIZATION
+    nthreads = omp_get_num_threads();
+    #endif
+
     // fix seed to iterations for reproducible results
-    TRandom3 rng(seed);
+    std::vector<TRandom3> rng;
+    for (unsigned t = 0; t < nthreads; ++t) rng.emplace_back(seed+t);
 
     // keep track of log of probability and count data sets with larger value
     double logp = 0;
@@ -343,12 +353,20 @@ double BCMath::FastPValue(const std::vector<unsigned>& observed, const std::vect
         logp_start += LogPoisson(observed[ibin], yexp);
     }
 
+
     // loop over iterations
+    #pragma omp parallel for reduction(+:counter_pvalue) firstprivate(histogram,logp)
     for (unsigned iiter = 0; iiter < nIterations; ++iiter) {
+        // get thread number to access the thread-dedicated TRandom3 object
+        unsigned thread_id = 0;
+        #if THREAD_PARALLELIZATION
+        thread_id = omp_get_thread_num();
+        #endif
+
         // loop over bins
         for (size_t ibin = 0; ibin < nbins; ++ibin) {
             // random step up or down in statistics for this bin
-            double ptest = rng.Rndm() - 0.5;
+            double ptest = rng[thread_id].Rndm() - 0.5;
 
             // increase statistics by 1
             if (ptest > 0) {
@@ -356,7 +374,7 @@ double BCMath::FastPValue(const std::vector<unsigned>& observed, const std::vect
                 double r = expected[ibin] / double(histogram[ibin] + 1);
 
                 // walk, or don't (this is the Metropolis part)
-                if (rng.Rndm() < r) {
+                if (rng[thread_id].Rndm() < r) {
                     ++histogram[ibin];
                     logp += log(r);
                 }
@@ -368,7 +386,7 @@ double BCMath::FastPValue(const std::vector<unsigned>& observed, const std::vect
                 double r = double(histogram[ibin]) / expected[ibin];
 
                 // walk, or don't (this is the Metropolis part)
-                if (rng.Rndm() < r) {
+                if (rng[thread_id].Rndm() < r) {
                     --histogram[ibin];
                     logp += log(r);
                 }
