@@ -111,7 +111,10 @@ void BCAux::MakeFinite(double& xmin, double& xmax)
 std::string BCAux::SafeName(const std::string& name)
 {
     std::string res(name);
-    res.erase(std::remove_if(res.begin(), res.end(), [](char c){ return !BCAux::AllowedCharacter(c); }), res.end());
+    for (std::string::iterator it = res.begin(); it != res.end(); ) {
+        if (!BCAux::AllowedCharacter(*it)) res.erase(it);
+        else it++;
+    }
     return res;
 }
 
