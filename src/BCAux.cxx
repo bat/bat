@@ -112,8 +112,10 @@ std::string BCAux::SafeName(const std::string& name)
 {
     std::string res(name);
     for (std::string::iterator it = res.begin(); it != res.end(); ) {
-        if (!BCAux::AllowedCharacter(*it)) res.erase(it);
-        else it++;
+        if (!BCAux::AllowedCharacter(*it))
+            res.erase(it);
+        else
+            it++;
     }
     return res;
 }
