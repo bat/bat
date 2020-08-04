@@ -759,10 +759,10 @@ int BCIntegrate::MarginalizeAll()
                             bestfit_errors[j] = fH2Marginalized[i][j]->GetYaxis()->GetBinWidth(index2) / sqrt(12);
 
                             // 1D marginalize by projecting
-                            fH1Marginalized[i] = fH2Marginalized[i][j]->ProjectionX(Form("h1_%s_parameter_%i", GetSafeName().data() , i));
+                            fH1Marginalized[i] = fH2Marginalized[i][j]->ProjectionX(Form("h1_%s_parameter_%i", GetSafeName().data(), i));
                             if (fH1Marginalized[i])
                                 fH1Marginalized[i]->SetTitle(GetParameter(i).H1Title().data());
-                            fH1Marginalized[j] = fH2Marginalized[i][j]->ProjectionY(Form("h1_%s_parameter_%i", GetSafeName().data() , j));
+                            fH1Marginalized[j] = fH2Marginalized[i][j]->ProjectionY(Form("h1_%s_parameter_%i", GetSafeName().data(), j));
                             if (fH1Marginalized[j])
                                 fH1Marginalized[j]->SetTitle(GetParameter(j).H1Title().data());
                         }

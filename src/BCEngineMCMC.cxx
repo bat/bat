@@ -2634,11 +2634,11 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
         if (GetVariable(i).FillH1()) {
             if (i < GetNParameters()) { // parameter
                 if (!GetParameter(i).Fixed()) {
-                    fH1Marginalized[i] = GetVariable(i).CreateH1(Form("h1_%s_parameter_%s", GetSafeName().data() , GetParameter(i).GetSafeName().data()));
+                    fH1Marginalized[i] = GetVariable(i).CreateH1(Form("h1_%s_parameter_%s", GetSafeName().data(), GetParameter(i).GetSafeName().data()));
                     ++filling;
                 }
             } else {                  // user-defined observable
-                fH1Marginalized[i] = GetVariable(i).CreateH1(Form("h1_%s_observable_%s", GetSafeName().data() , GetVariable(i).GetSafeName().data()));
+                fH1Marginalized[i] = GetVariable(i).CreateH1(Form("h1_%s_observable_%s", GetSafeName().data(), GetVariable(i).GetSafeName().data()));
                 ++filling;
             }
         }

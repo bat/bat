@@ -511,7 +511,7 @@ MCMCInterval* BATCalculator::GetInterval() const
     }
 
     MarkovChain* roostats_chain = GetBCRooInterface()->GetRooStatsMarkovChain();
-    MCMCInterval* mcmcInterval = new MCMCInterval("roostatsmcmcinterval", fPOI , *roostats_chain);
+    MCMCInterval* mcmcInterval = new MCMCInterval("roostatsmcmcinterval", fPOI, *roostats_chain);
     mcmcInterval->SetUseKeys(false);
     mcmcInterval->SetConfidenceLevel(1. - fSize);
     fValidMCMCInterval = true;
