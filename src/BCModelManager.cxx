@@ -273,10 +273,12 @@ void BCModelManager::PrintSummary() const
     for (unsigned i = 0; i < fModels.size(); ++i)
         fModels[i]->PrintSummary();
 
-    BCLog::OutSummary(" - Data:");
-    BCLog::OutSummary("");
-    BCLog::OutSummary(Form("     Number of entries: %u", fDataSet->GetNDataPoints()));
-    BCLog::OutSummary("");
+    if (fDataSet) {
+        BCLog::OutSummary(" - Data:");
+        BCLog::OutSummary("");
+        BCLog::OutSummary(Form("     Number of entries: %u", fDataSet->GetNDataPoints()));
+        BCLog::OutSummary("");
+    }
 
     PrintModelComparisonSummary();
 }
