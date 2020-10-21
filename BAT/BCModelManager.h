@@ -85,6 +85,18 @@ public:
     BCDataSet* GetDataSet()
     { return fDataSet; };
 
+    /**
+     * Returns the prior probabilities
+     * @return vector of prior probabilities */
+    std::vector<double> GetPriorProbability() const
+    { return fAPrioriProbability; }
+
+    /**
+     * Returns the posterior probabilities
+     * @return vector of posterior probabilities */
+    std::vector<double> GetPosteriorProbability() const
+    { return fAPosterioriProbability; }
+
     /** @} */
 
     /** \name Member functions (set) */
