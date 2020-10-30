@@ -167,7 +167,7 @@ public:
      * Adds a model to the container.
      * @param model The model
      * @param prior_probability The model's a-priori probability */
-    void AddModel(BCModel* model, double prior_probability = 0.);
+    void AddModel(BCModel* model, double prior_probability = 1.);
 
     /**
      * Calculates the normalization of the likelihood for each model in
