@@ -73,6 +73,11 @@ public:
     { return fModels.size(); }
 
     /**
+     * @return vector of models */
+    std::vector<BCModel*> GetModels()
+    { return fModels; }
+    
+    /**
      * Returns the BCModel at a certain index of this BCModelManager.
      * @param index The index of the model in the BCModelManager.
      * @return The BCModel at the index. */
