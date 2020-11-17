@@ -743,8 +743,6 @@ void BCHistogramBase::DrawLegend()
         ymax = pow(10, ymax);
     }
 
-    fHistogram->GetYaxis()->SetRangeUser(ymin, ymax * (1.15 + fLegend.GetTextSize()*fLegend.GetNRows()) * 1.05);
-
     gPad->SetTopMargin(0.02);
 
     double y1ndc = ResizeLegend();

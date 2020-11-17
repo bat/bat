@@ -73,6 +73,11 @@ public:
     { return fModels.size(); }
 
     /**
+     * @return vector of models */
+    std::vector<BCModel*> GetModels()
+    { return fModels; }
+    
+    /**
      * Returns the BCModel at a certain index of this BCModelManager.
      * @param index The index of the model in the BCModelManager.
      * @return The BCModel at the index. */
@@ -84,6 +89,18 @@ public:
      * @return The data set. */
     BCDataSet* GetDataSet()
     { return fDataSet; };
+
+    /**
+     * Returns the prior probabilities
+     * @return vector of prior probabilities */
+    std::vector<double> GetPriorProbability() const
+    { return fAPrioriProbability; }
+
+    /**
+     * Returns the posterior probabilities
+     * @return vector of posterior probabilities */
+    std::vector<double> GetPosteriorProbability() const
+    { return fAPosterioriProbability; }
 
     /** @} */
 
@@ -155,7 +172,7 @@ public:
      * Adds a model to the container.
      * @param model The model
      * @param prior_probability The model's a-priori probability */
-    void AddModel(BCModel* model, double prior_probability = 0.);
+    void AddModel(BCModel* model, double prior_probability = 1.);
 
     /**
      * Calculates the normalization of the likelihood for each model in
