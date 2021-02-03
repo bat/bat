@@ -60,10 +60,6 @@ public:
     BCH1D(const TH1* const hist = 0);
 
     /**
-     * Copy constructor. */
-    BCH1D(const BCH1D& other);
-
-    /**
      * The default destructor. */
     virtual ~BCH1D() {};
 
