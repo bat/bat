@@ -1,6 +1,14 @@
 BAT - Bayesian Analysis Toolkit
 ===============================
 
+*BAT is still being maintained, but addition of new features is unlikely.
+Check out our new incarnation,
+[BAT.jl, the Bayesian analysis toolkit in Julia](https://github.com/bat/BAT.jl).
+In addition to Metropolis-Hastings sampling, BAT.jl supports
+Hamiltonian Monte Carlo (HMC) with automatic differentiation, automatic
+prior-based parameter space transformations, and much more. See the
+[BAT.jl documentation](https://bat.github.io/BAT.jl/stable/).*
+
 [![Build Status](https://travis-ci.org/bat/bat.svg?branch=master)](https://travis-ci.org/bat/bat)
 [![Manual](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://bat.github.io/bat-docs/master/manual/html/index.html)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
