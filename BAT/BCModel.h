@@ -266,8 +266,9 @@ public:
      * @param hdiv number of horizontal divisions on page
      * @param vdiv number of vertical divisions on page
      * @param call_likelihood whether to call model likelihood function to prepare for calculating observables
+     * @param onedim_only whether to enable/disable printing of 2D posteriors for all parameter pairs
      * @return number of plots printed. */
-    virtual unsigned PrintKnowledgeUpdatePlots(const std::string& filename, unsigned hdiv = 1, unsigned vdiv = 1, bool call_likelihood = false);
+    virtual unsigned PrintKnowledgeUpdatePlots(const std::string& filename, unsigned hdiv = 1, unsigned vdiv = 1, bool call_likelihood = false, bool onedim_only = false);
 
 
     /* /\** */

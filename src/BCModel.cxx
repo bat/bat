@@ -332,7 +332,7 @@ BCH2D BCModel::GetPrior(unsigned index1, unsigned index2)
 }
 
 // ---------------------------------------------------------
-unsigned BCModel::PrintKnowledgeUpdatePlots(const std::string& filename, unsigned hdiv, unsigned vdiv, bool call_likelihood)
+unsigned BCModel::PrintKnowledgeUpdatePlots(const std::string& filename, unsigned hdiv, unsigned vdiv, bool call_likelihood, bool onedim_only)
 {
     if (GetNVariables() == 0) {
         BCLog::OutError("BCModel::PrintKnowledgeUpdatePlots : No variables defined!");
@@ -380,28 +380,30 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(const std::string& filename, unsigne
     }
 
     // Find nonempty 2D prior--posterior pairs
-    std::vector<std::pair<unsigned, unsigned> > H2Coords = GetH2DPrintOrder();
     std::vector<std::pair<BCH2D, BCH2D> > h2;
-    h2.reserve(H2Coords.size());
-    for (unsigned i = 0; i < H2Coords.size(); ++i) {
-        BCH2D prior = GetPrior(H2Coords[i].first, H2Coords[i].second);
-        if (!prior.Valid())
-            continue;
-        BCH2D posterior = GetMarginalized(H2Coords[i].first, H2Coords[i].second);
-        if (!posterior.Valid())
-            continue;
-        posterior.GetHistogram()->SetTitle("posterior");
-        if (prior.GetNBands() == 0) {
-            prior.CopyOptions(fBCH2DPriorDrawingOptions);
-            prior.SetNBands(0);
-            prior.SetDrawLocalMode(false);
-        } else
-            prior.CopyOptions(fBCH2DPriorDrawingOptions);
-        posterior.CopyOptions(fBCH2DPosteriorDrawingOptions);
-        h2.push_back(std::make_pair(prior, posterior));
+    if (!onedim_only) {
+        std::vector<std::pair<unsigned, unsigned> > H2Coords = GetH2DPrintOrder();
+        h2.reserve(H2Coords.size());
+        for (unsigned i = 0; i < H2Coords.size(); ++i) {
+            BCH2D prior = GetPrior(H2Coords[i].first, H2Coords[i].second);
+            if (!prior.Valid())
+                continue;
+            BCH2D posterior = GetMarginalized(H2Coords[i].first, H2Coords[i].second);
+            if (!posterior.Valid())
+                continue;
+            posterior.GetHistogram()->SetTitle("posterior");
+            if (prior.GetNBands() == 0) {
+                prior.CopyOptions(fBCH2DPriorDrawingOptions);
+                prior.SetNBands(0);
+                prior.SetDrawLocalMode(false);
+            } else
+                prior.CopyOptions(fBCH2DPriorDrawingOptions);
+            posterior.CopyOptions(fBCH2DPosteriorDrawingOptions);
+            h2.push_back(std::make_pair(prior, posterior));
+        }
     }
 
-    if (h1.empty() && h2.empty()) {
+    if ((h1.empty() && !onedim_only && h2.empty()) || (h1.empty() && onedim_only)) {
         BCLog::OutWarning("BCModel::PrintKnowledgeUpdatePlots : No update plots to print.");
         return 0;
     }
