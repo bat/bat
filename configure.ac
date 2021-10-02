@@ -21,6 +21,12 @@ DEP_CFLAGS=""
 DEP_LIBS=""
 
 dnl
+dnl Check for C++11
+dnl
+m4_include(tools/build/ax_cxx_compile_stdcxx.m4)
+AX_CXX_COMPILE_STDCXX(11, noext, mandatory)
+
+dnl
 dnl Check for Darwin
 dnl
 AM_CONDITIONAL([IS_DARWIN], [test x$(uname) = xDarwin])
