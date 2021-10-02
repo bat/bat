@@ -42,16 +42,10 @@ BCH2D::BCH2D(const TH2* const h)
 }
 
 // ---------------------------------------------------------
-BCH2D::BCH2D(const BCH2D& other)
-    : BCHistogramBase(other)
-{
-    CopyOptions(other);
-}
-
-// ---------------------------------------------------------
 void BCH2D::CopyOptions(const BCH2D& other)
 {
     BCHistogramBase::CopyOptions(other);
+    fLogz = other.fLogz;
     fBandType = other.fBandType;
     fDrawProfileX = other.fDrawProfileX;
     fProfileXType = other.fProfileXType;

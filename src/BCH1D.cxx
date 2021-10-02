@@ -40,13 +40,6 @@ BCH1D::BCH1D(const TH1* const hist)
 }
 
 // ---------------------------------------------------------
-BCH1D::BCH1D(const BCH1D& other)
-    : BCHistogramBase(other)
-{
-    CopyOptions(other);
-}
-
-// ---------------------------------------------------------
 void BCH1D::CopyOptions(const BCH1D& other)
 {
     BCHistogramBase::CopyOptions(other);

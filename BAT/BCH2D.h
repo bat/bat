@@ -82,10 +82,6 @@ public:
     BCH2D(const TH2* const h = 0);
 
     /**
-     * Copy constuctor. */
-    BCH2D(const BCH2D& other);
-
-    /**
      * The default destructor. */
     virtual ~BCH2D() {};
 
