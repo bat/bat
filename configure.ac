@@ -234,12 +234,12 @@ if test "x$use_cuba" != xno; then
 
   int main()
   {
-    int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew, spin;
+    int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew;
     double epsrel, epsabs, flatness;
-    int * nregions, *fail, *neval;
-    double * integral, *error, *prob;
-    const char * statefile = "";
-    void * userdata;
+    int *spin, *nregions, *fail, *neval;
+    double *integral, *error, *prob;
+    const char *statefile = "";
+    void *userdata;
     Suave(ndim, ncomp, &integrand, userdata, nvec,
         epsrel, epsabs, flags, seed, mineval, maxeval,
         nnew, flatness, statefile,
@@ -264,12 +264,12 @@ if test "x$use_cuba" != xno; then
 
   int main()
   {
-    int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew, nmin, spin;
+    int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew, nmin;
     double epsrel, epsabs, flatness;
-    int * nregions, *fail, *neval;
-    double * integral, *error, *prob;
-    const char * statefile = "";
-    void * userdata;
+    int *spin, *nregions, *fail, *neval;
+    double *integral, *error, *prob;
+    const char *statefile = "";
+    void *userdata;
     Suave(ndim, ncomp, &integrand, userdata, nvec,
         epsrel, epsabs, flags, seed, mineval, maxeval, nnew,
         nmin, /* nmin added in 4.1 */
