@@ -115,7 +115,7 @@ elif test "$with_cuba" = "no"; then
 elif test "$with_cuba" = "download"; then
   use_cuba=yes
 
-  cuba_version_default=4.2
+  cuba_version_default=4.2.2
   local_cuba_dir="`pwd`/external/cuba-${cuba_version_default}"
   cuba_url="http://www.feynarts.de/cuba/Cuba-${cuba_version_default}.tar.gz"
 
