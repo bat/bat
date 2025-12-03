@@ -213,7 +213,7 @@ if test "x$use_cuba" != xno; then
     const char * statefile = "";
     void * userdata;
     Suave(ndim, ncomp, &integrand, userdata, nvec,
-        epsrel, ebsabs, flags, seed, mineval, maxeval,
+        epsrel, epsabs, flags, seed, mineval, maxeval,
         nnew, flatness, statefile,
         nregions, neval, fail, integral, error, prob);
 
@@ -241,7 +241,7 @@ if test "x$use_cuba" != xno; then
     const char * statefile = "";
     void * userdata;
     Suave(ndim, ncomp, &integrand, userdata, nvec,
-        epsrel, ebsabs, flags, seed, mineval, maxeval,
+        epsrel, epsabs, flags, seed, mineval, maxeval,
         nnew, flatness, statefile,
         spin, /*spin was added in 4.0 */
         nregions, neval, fail, integral, error, prob);
